@@ -1,10 +1,10 @@
-package com.d108.project.core
+package com.d108.familring.core
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class FarmilyApplication : Application() {
+class FarmilringApplication : Application() {
     override fun onCreate() {
         super.onCreate()
     }

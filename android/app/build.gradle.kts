@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.d108.project"
+    namespace = "com.d108.familring"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.d108.project"
+        applicationId = "com.d108.familring"
         minSdk = 27
         targetSdk = 34
         versionCode = 1

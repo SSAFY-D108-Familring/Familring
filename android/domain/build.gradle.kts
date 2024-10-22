@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.farmily.domain"
+    namespace = "com.familring.domain"
     compileSdk = 34
 
     defaultConfig {

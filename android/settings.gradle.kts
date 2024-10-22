@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "farmily"
+rootProject.name = "familring"
 include(":app")
 include(":data")
 include(":presentation")
