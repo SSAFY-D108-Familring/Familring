@@ -1,0 +1,37 @@
+spring:
+  main:
+    web-application-type: servlet
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+
+  server:
+    port: 0
+
+  application:
+    name: user-service
+
+  logging:
+    level:
+      root: DEBUG    # 전체 애플리케이션의 기본 로그 레벨 설정
+      com.d211.drtaa: DEBUG   # 특정 패키지에 대한 로그 레벨 설정
+      org.springframework.web: DEBUG   # 스프링 웹 관련 로그 레벨 설정
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  # MySQL
+  datasource:
+    url: jdbc:mysql://localhost:3306/d108?serverTimezone=Asia/Seoul&useUniCode=yes&characterEncoding=UTF-8
+    username: ssafy
+    password: ssafy
+    hikari:
+      maximum-pool-size: 10  # 커넥션 풀의 최대 크기 (필요에 따라 조정)
+jwt:
+  access-token:
+    expiretime: 3600000
+  refresh-token:
+    expiretime: 604800000
+  secret-key: 5E7iGhZfEHuzHFicUyhubeDWicXbv/w40V9CttHAC+0lYlada7+ucgrvkp6wqvH3pJcMWvXQsNhyxeyQKTpBHw==
