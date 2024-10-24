@@ -20,6 +20,8 @@ kotlinx-serialization-converter = "1.0.0"
 kotlinxSerializationCore = "1.5.1"
 coroutines = "1.8.1"
 androidxDataStore = "1.1.1"
+activity = "1.9.3"
+constraintlayout = "2.1.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +53,8 @@ converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref
 coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core", "converter-gson"]
 coroutines = ["coroutines-android", "coroutines-core"]
