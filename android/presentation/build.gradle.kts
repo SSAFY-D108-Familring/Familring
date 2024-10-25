@@ -75,4 +75,7 @@ dependencies {
 
     //  상단바, 하단바 색상 변경
     implementation(libs.accompanist.systemuicontroller)
+
+    // Timber
+    implementation (libs.timber)
 }

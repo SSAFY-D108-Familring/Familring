@@ -22,6 +22,7 @@ coroutines = "1.9.0"
 androidxDataStore = "1.1.1"
 activity = "1.9.3"
 constraintlayout = "2.1.4"
+timber = "5.0.1"
 accompanistSystemuicontroller = "0.34.0"
 
 [libraries]
@@ -57,6 +58,7 @@ datastore-preferences = { group = "androidx.datastore", name = "datastore-prefer
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core", "converter-gson"]
 coroutines = ["coroutines-android", "coroutines-core"]
