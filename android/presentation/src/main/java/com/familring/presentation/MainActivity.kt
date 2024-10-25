@@ -3,6 +3,7 @@ package com.familring.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.familring.presentation.screen.TimeCapsuleScreen
 import com.familring.presentation.theme.FamilringTheme
 
 class MainActivity : ComponentActivity() {
@@ -11,7 +12,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FamilringTheme {
-                MainScreen()
+                TimeCapsuleScreen()
             }
         }
     }
