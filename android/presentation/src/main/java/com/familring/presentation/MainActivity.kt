@@ -3,7 +3,8 @@ package com.familring.presentation
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.familring.presentation.screen.NoTimeCapsuleScreen
+import com.familring.domain.Profile
+import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.familring.presentation.theme.FamilringTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -14,7 +15,15 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FamilringTheme {
-                MainScreen()
+                WritingTimeCapsuleScreen(
+                    letterCount = 2,
+                    wroteProfiles =
+                        listOf(
+                            Profile("url1", "#FEE222"),
+                            Profile("url1", "#FFE1E1"),
+                            Profile("url1", "#FEE222"),
+                        ),
+                )
             }
         }
     }
