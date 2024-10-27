@@ -1,4 +1,4 @@
-package com.familring.presentation.screen
+package com.familring.presentation.screen.timecapsule
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
