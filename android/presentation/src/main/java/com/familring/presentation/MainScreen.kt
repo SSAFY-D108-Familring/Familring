@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.signup.BirthScreen
 import com.familring.presentation.screen.signup.FirstScreen
+import com.familring.presentation.screen.timecapsule.FinishedTimeCapsuleScreen
 import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
@@ -51,7 +52,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = ScreenDestinations.NoTimeCapsule.route,
+            startDestination = ScreenDestinations.First.route,
             showSnackBar = onShowSnackBar,
         )
     }

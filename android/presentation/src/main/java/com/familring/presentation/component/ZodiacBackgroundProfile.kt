@@ -38,6 +38,6 @@ fun ZodiacBackgroundProfile(
 @Composable
 private fun ZodiacBackgroundProfilePreview() {
     ZodiacBackgroundProfile(
-        profile = Profile("url1", "#FEE222"),
+        profile = Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
     )
 }

@@ -154,9 +154,9 @@ private fun WritingTimeCapsuleScreenPreview() {
         letterCount = 2,
         wroteProfiles =
             listOf(
-                Profile("url1", "#FEE222"),
-                Profile("url1", "#FFE1E1"),
-                Profile("url1", "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FFE1E1"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
             ),
     )
 }
