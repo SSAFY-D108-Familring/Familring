@@ -17,6 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.signup.BirthScreen
 import com.familring.presentation.screen.signup.FirstScreen
+import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
+import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
+import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
+import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 
@@ -78,6 +82,36 @@ fun MainNavHost(
             route = ScreenDestinations.Birth.route,
         ) {
             BirthScreen(modifier = modifier)
+        }
+
+        composable(
+            route = ScreenDestinations.TimeCapsuleList.route,
+        ) {
+            TimeCapsuleListScreen(
+                modifier = modifier,
+                onShowSnackBar = { },
+                navigationToCapsule = { },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.NoTimeCapsule.route,
+        ) {
+            NoTimeCapsuleScreen(modifier = modifier)
+        }
+
+        composable(
+            route = ScreenDestinations.TimeCapsuleCreate.route,
+        ) {
+            TimeCapsuleCreateScreen(modifier = modifier)
+        }
+
+        composable(
+            route = ScreenDestinations.WritingTimeCapsule.route,
+        ) {
+            WritingTimeCapsuleScreen(
+                modifier = modifier,
+            )
         }
     }
 }
