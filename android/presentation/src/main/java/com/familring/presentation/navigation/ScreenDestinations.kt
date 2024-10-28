@@ -40,4 +40,7 @@ sealed class ScreenDestinations(
 
     // 타임캡슐 리스트 화면
     data object TimeCapsuleList : ScreenDestinations(route = "TimeCapsuleList")
+
+    // 타임캡슐 상세보기 화면
+    data object TimeCapsuleDialog : ScreenDestinations(route = "TimeCapsuleDialog")
 }

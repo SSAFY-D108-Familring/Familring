@@ -3,12 +3,14 @@ package com.familring.presentation.screen.timecapsule
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -24,8 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.familring.domain.Profile
 import com.familring.domain.TimeCapsuleMessage
+import com.familring.presentation.component.OneButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
@@ -33,21 +38,46 @@ import com.familring.presentation.theme.Typography
 @Composable
 fun TimeCapsuleDialog(
     modifier: Modifier = Modifier,
-    timeCapsuleMessages: List<TimeCapsuleMessage>,
+    timeCapsuleMessages: List<TimeCapsuleMessage> = listOf(),
+) {
+    Dialog(
+        onDismissRequest = { /*TODO*/ },
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
+        if (timeCapsuleMessages.isEmpty()) {
+            OneButtonTextDialog(text = "작성된 캡슐이 없어요", buttonText = "확인") {
+            }
+        } else {
+            TimeCapsulePager(
+                modifier = modifier,
+                timeCapsuleMessages = timeCapsuleMessages,
+            )
+        }
+    }
+}
+
+@Composable
+fun TimeCapsulePager(
+    modifier: Modifier = Modifier,
+    timeCapsuleMessages: List<TimeCapsuleMessage> = listOf(),
 ) {
     val pagerState = rememberPagerState(pageCount = { timeCapsuleMessages.size })
 
     Column(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(12.dp))
-                .background(color = Color.White),
+            modifier
+                .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         HorizontalPager(
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxHeight(0.6f)
+                    .fillMaxWidth(),
             state = pagerState,
+            pageSpacing = 14.dp,
+            contentPadding = PaddingValues(horizontal = 28.dp),
         ) { page ->
             TimeCapsule(
                 timeCapsuleMessage = timeCapsuleMessages[page],
@@ -62,25 +92,29 @@ fun TimeCapsule(
     timeCapsuleMessage: TimeCapsuleMessage,
 ) {
     val scrollState = rememberScrollState()
-
     Column(
         modifier =
             modifier
                 .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp))
+                .background(color = Color.White)
                 .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+        Spacer(modifier = Modifier.fillMaxHeight(0.02f))
         Text(
             text = "2024년 10월 7일 타임캡슐",
             style = Typography.headlineLarge.copy(fontSize = 20.sp),
         )
-        Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+        Spacer(modifier = Modifier.fillMaxHeight(0.05f))
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ZodiacBackgroundProfile(profile = timeCapsuleMessage.profile)
+            ZodiacBackgroundProfile(
+                modifier = Modifier.size(45.dp),
+                profile = timeCapsuleMessage.profile,
+            )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = timeCapsuleMessage.profile.nickName,
@@ -109,8 +143,8 @@ fun TimeCapsule(
 
 @Preview(showBackground = false)
 @Composable
-private fun TimeCapsuleDialogPreview() {
-    TimeCapsuleDialog(
+private fun TimeCapsulePagerPreview() {
+    TimeCapsulePager(
         timeCapsuleMessages =
             listOf(
                 TimeCapsuleMessage(
