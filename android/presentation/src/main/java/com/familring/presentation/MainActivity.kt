@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
             FamilringTheme {
                 Scaffold { innerPadding ->
                     Surface(modifier = Modifier.padding(innerPadding)) {
-                        LoginScreen()
+                        MainScreen()
                     }
                 }
             }

@@ -286,6 +286,6 @@ private fun FourthPage() {
 @Composable
 fun LoginScreenPreview() {
     FamilringTheme {
-        FourthPage()
+        LoginScreen()
     }
 }
