@@ -1,6 +1,7 @@
 package com.familring.userservice.service;
 
 import com.familring.userservice.config.jwt.JwtTokenProvider;
+import com.familring.userservice.config.redis.RedisService;
 import com.familring.userservice.exception.UserException;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.UserDto;
@@ -20,9 +21,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomUserDetailsService userDetailsService;
-//    private final RedisService redisService;
-    private final UserDao userDao;
+    private final RedisService redisService;
 
     @Override
     public JwtTokenResponse generateToken(String userName, String rawPassword) {
@@ -46,16 +45,14 @@ public class JwtTokenServiceImpl implements JwtTokenService {
         JwtTokenResponse jwtToken = jwtTokenProvider.generateToken(authentication);
 
         // 4. 리프레시 토큰 저장 - Redis
-//        redisService.saveRefreshToken(userName, jwtToken.getRefreshToken());
+        redisService.saveRefreshToken(userName, jwtToken.getRefreshToken());
 
         return jwtToken;
     }
 
     @Override
     public String getRefreshToken(String userName) {
-//        // Redis 사용
-//        return redisService.getRefreshToken(userName);
-
-        return "123";
+        // Redis 사용
+        return redisService.getRefreshToken(userName);
     }
 }
