@@ -23,4 +23,18 @@ sealed class ScreenDestinations(
 
     // 두 번째 화면 (생년월일 입력)
     data object Birth : ScreenDestinations(route = "Birth")
+
+
+    // 타임캡슐
+    // 타임캡슐 생성 화면
+    data object TimeCapsuleCreate : ScreenDestinations(route = "TimeCapsuleCreate")
+
+    // 작성할 수 있는 타임캡슐 없는 화면
+    data object NoTimeCapsule : ScreenDestinations(route = "NoTimeCapsule")
+
+    // 타임캡슐 작성 화면
+    data object WritingTimeCapsule : ScreenDestinations(route = "WritingTimeCapsule")
+
+    // 타임캡슐 리스트 화면
+    data object TimeCapsuleList : ScreenDestinations(route = "TimeCapsuleList")
 }

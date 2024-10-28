@@ -42,8 +42,8 @@ import com.familring.presentation.theme.Typography
 @Composable
 fun WritingTimeCapsuleScreen(
     modifier: Modifier = Modifier,
-    letterCount: Int,
-    wroteProfiles: List<Profile>,
+    letterCount: Int = 0,
+    wroteProfiles: List<Profile> = listOf(),
 ) {
     var content by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
