@@ -99,6 +99,7 @@ fun NicknameScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             GreenRoundLongButton(
                 text = "설정 완료",
+                onClick = navigateToPicture,
             )
         }
     }

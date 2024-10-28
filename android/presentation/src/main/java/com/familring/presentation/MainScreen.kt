@@ -15,8 +15,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.ScreenDestinations
-import com.familring.presentation.screen.signup.BirthScreen
-import com.familring.presentation.screen.signup.FirstScreen
+import com.familring.presentation.screen.signup.BirthRoute
+import com.familring.presentation.screen.signup.DoneRoute
+import com.familring.presentation.screen.signup.FamilyCountRoute
+import com.familring.presentation.screen.signup.FirstRoute
+import com.familring.presentation.screen.signup.NicknameRoute
+import com.familring.presentation.screen.signup.PictureRoute
+import com.familring.presentation.screen.signup.ProfileColorRoute
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 
@@ -66,7 +71,7 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.First.route,
         ) {
-            FirstScreen(
+            FirstRoute(
                 modifier = modifier,
                 navigateToBirth = {
                     navController.navigate(ScreenDestinations.Birth.route)
@@ -77,7 +82,69 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Birth.route,
         ) {
-            BirthScreen(modifier = modifier)
+            BirthRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToColor = {
+                    navController.navigate(ScreenDestinations.ProfileColor.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.ProfileColor.route,
+        ) {
+            ProfileColorRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToNickname = {
+                    navController.navigate(ScreenDestinations.Nickname.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Nickname.route,
+        ) {
+            NicknameRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToPicture = {
+                    navController.navigate(ScreenDestinations.Picture.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Picture.route,
+        ) {
+            PictureRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToCount = {
+                    navController.navigate(ScreenDestinations.FamilyCount.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.FamilyCount.route,
+        ) {
+            FamilyCountRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToDone = {
+                    navController.navigate(ScreenDestinations.Done.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Done.route,
+        ) {
+            DoneRoute(
+                modifier = modifier,
+            )
         }
     }
 }
