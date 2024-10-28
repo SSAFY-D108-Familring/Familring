@@ -43,9 +43,12 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun QuestionScreen() {
+fun QuestionScreen(
+    navigateToQuestionList: () -> Unit,
+) {
     var family = remember { mutableListOf<String>() }
     val userQuestion =
         UserQuestion(
@@ -91,13 +94,13 @@ fun QuestionScreen() {
                     painter = painterResource(id = R.drawable.img_menu),
                     contentDescription = "question_menu_img",
                     modifier =
-                        Modifier.size(24.dp).clickable {
-                            Log.d("질문", "스크린 이동")
+                        Modifier.size(24.dp).noRippleClickable {
+                            navigateToQuestionList()
                         },
                 )
             }
 
-            Spacer(modifier = Modifier.fillMaxSize(0.02f))
+            Spacer(modifier = Modifier.fillMaxSize(0.03f))
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
@@ -194,7 +197,7 @@ fun FamilyListItem(userQuestion: UserQuestion) {
                             }
                         },
                     style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                    modifier = Modifier.clickable { Log.d("question", "똑똑 누름 $userQuestion") },
+                    modifier = Modifier.noRippleClickable { Log.d("question", "똑똑 누름 $userQuestion") },
                 )
             }
         }
@@ -205,12 +208,6 @@ fun FamilyListItem(userQuestion: UserQuestion) {
 @Composable
 fun QuestionScreenPreview() {
     FamilringTheme {
-//        val userQuestion =
-//            UserQuestion(
-//                profile = Profile("url1", "#FEE222"),
-//                question = null,
-//            )
-//        FamilyListItem(userQuestion = userQuestion)
-        QuestionScreen()
+//        QuestionScreen(onNavigateToQuestionList = {})
     }
 }

@@ -23,4 +23,10 @@ sealed class ScreenDestinations(
 
     // 두 번째 화면 (생년월일 입력)
     data object Birth : ScreenDestinations(route = "Birth")
+
+    // 질문 화면
+    data object Question : ScreenDestinations(route = "Question")
+
+    // 질문 목록 화면
+    data object QuestionList : ScreenDestinations(route = "QuestionList")
 }

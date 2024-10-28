@@ -15,6 +15,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.ScreenDestinations
+import com.familring.presentation.screen.question.QuestionListScreen
+import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthScreen
 import com.familring.presentation.screen.signup.FirstScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -46,7 +48,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = ScreenDestinations.First.route,
+            startDestination = ScreenDestinations.Question.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -78,6 +80,24 @@ fun MainNavHost(
             route = ScreenDestinations.Birth.route,
         ) {
             BirthScreen(modifier = modifier)
+        }
+
+        composable(
+            route = ScreenDestinations.Question.route,
+        ) {
+            QuestionScreen(
+                navigateToQuestionList = {
+                    navController.navigate(ScreenDestinations.QuestionList.route)
+                }
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.QuestionList.route,
+        ) {
+            QuestionListScreen(
+                onNavigateBack = navController::popBackStack
+            )
         }
     }
 }

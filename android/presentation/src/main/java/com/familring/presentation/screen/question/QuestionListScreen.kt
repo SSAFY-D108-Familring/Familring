@@ -36,9 +36,10 @@ import com.familring.presentation.R
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun QuestionListScreen() {
+fun QuestionListScreen(onNavigateBack: () -> Unit) {
     var isLatestSelected by remember { mutableStateOf(true) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -46,25 +47,28 @@ fun QuestionListScreen() {
             painter = painterResource(id = R.drawable.img_question_back),
             contentDescription = "background_img",
             modifier =
-            Modifier
-                .fillMaxSize()
-                .alpha(0.25f),
+                Modifier
+                    .fillMaxSize()
+                    .alpha(0.25f),
             contentScale = ContentScale.FillBounds,
         )
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.fillMaxSize(0.02f))
             Row(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 18.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 18.dp),
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.img_meue_left),
                     contentDescription = "menu_left_img",
-                    modifier = Modifier.size(25.dp),
+                    modifier =
+                        Modifier.size(25.dp).clickable {
+                            onNavigateBack()
+                        },
                 )
                 Spacer(modifier = Modifier.fillMaxSize(0.02f))
                 Text(text = "질문 목록", style = Typography.headlineMedium.copy(fontSize = 22.sp))
@@ -79,13 +83,12 @@ fun QuestionListScreen() {
                     text = "최신순",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                    Modifier
-                        .background(
-                            color = if (isLatestSelected) Green02 else Color.White,
-                            shape = RoundedCornerShape(30.dp),
-                        )
-                        .padding(horizontal = 19.dp, vertical = 8.dp)
-                        .clickable { isLatestSelected = true },
+                        Modifier
+                            .background(
+                                color = if (isLatestSelected) Green02 else Color.White,
+                                shape = RoundedCornerShape(30.dp),
+                            ).padding(horizontal = 19.dp, vertical = 8.dp)
+                            .clickable { isLatestSelected = true },
                     color = if (isLatestSelected) Color.White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -93,13 +96,12 @@ fun QuestionListScreen() {
                     text = "오래된순",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                    Modifier
-                        .background(
-                            color = if (!isLatestSelected) Green02 else Color.White,
-                            shape = RoundedCornerShape(30.dp),
-                        )
-                        .padding(horizontal = 19.dp, vertical = 8.dp)
-                        .clickable { isLatestSelected = false },
+                        Modifier
+                            .background(
+                                color = if (!isLatestSelected) Green02 else Color.White,
+                                shape = RoundedCornerShape(30.dp),
+                            ).padding(horizontal = 19.dp, vertical = 8.dp)
+                            .noRippleClickable { isLatestSelected = false },
                     color = if (!isLatestSelected) Color.White else Color.Black,
                 )
             }
@@ -117,10 +119,10 @@ fun QuestionListScreen() {
 fun QuestionListItem() {
     Column(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 25.dp)
-            .padding(bottom = 15.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 25.dp)
+                .padding(bottom = 15.dp),
     ) {
         Text(text = "n번째 질문", style = Typography.labelSmall)
         Spacer(modifier = Modifier.height(2.dp))
@@ -128,18 +130,21 @@ fun QuestionListItem() {
             text = "네코타츠나는 꿈을 무슨 언어로 꿀까? 나와 이세돌 이야기 주르르 루트 원트 클",
             style = Typography.displayMedium,
             softWrap = false,
-            overflow = TextOverflow.Clip,
+            overflow = TextOverflow.Ellipsis,
         )
         Spacer(modifier = Modifier.height(18.dp))
-        Spacer(modifier = Modifier
-            .height(1.dp)
-            .fillMaxWidth()
-            .background(Gray03))
+        Spacer(
+            modifier =
+                Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .background(Gray03),
+        )
     }
 }
 
 @Preview
 @Composable
 fun QuestionListPreview() {
-    QuestionListScreen()
+    QuestionListScreen(onNavigateBack = {})
 }
