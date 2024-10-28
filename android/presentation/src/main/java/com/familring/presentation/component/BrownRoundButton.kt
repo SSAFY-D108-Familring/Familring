@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray03
+import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 
 @Composable
@@ -22,7 +23,8 @@ fun BrownRoundButton(
     text: String,
     enabled: Boolean = true,
 ) {
-    val backgroundColor = if (enabled) Brown01 else Gray03
+    val backgroundColor = if (enabled) Brown01 else Gray04
+    val textColor = if (enabled) Color.White else Gray03
     Text(
         modifier =
             modifier
@@ -30,7 +32,7 @@ fun BrownRoundButton(
                 .padding(horizontal = 20.dp, vertical = 10.dp)
                 .clickable { onClick() },
         text = text,
-        color = Color.White,
+        color = textColor,
         style = Typography.displayMedium.copy(fontSize = 15.sp),
     )
 }
@@ -38,5 +40,5 @@ fun BrownRoundButton(
 @Preview
 @Composable
 fun BrownRoundButtonPreview() {
-    BrownRoundButton(onClick = {}, text = "테스트")
+    BrownRoundButton(onClick = {}, text = "테스트", enabled = false)
 }

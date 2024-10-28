@@ -113,7 +113,11 @@ fun FirstScreen(
                         focusManager = focusManager,
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-                    BrownRoundButton(onClick = { /*TODO*/ }, text = "코드 입력 완료")
+                    BrownRoundButton(
+                        onClick = navigateToBirth,
+                        text = "코드 입력 완료",
+                        enabled = code.length == 6,
+                    )
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
