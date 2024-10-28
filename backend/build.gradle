@@ -44,6 +44,9 @@ subprojects {
 
         // StringUtils
         implementation 'org.apache.commons:commons-lang3:3.16.0'
+
+        // Actuator
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
     }
 
     tasks.named('test') {
