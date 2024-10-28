@@ -114,6 +114,7 @@ fun FirstScreen(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     BrownRoundButton(onClick = { /*TODO*/ }, text = "코드 입력 완료")
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
