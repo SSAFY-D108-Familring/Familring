@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Service
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) {
+    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) throws IOException {
         // 사용자 회원가입
         customUserDetailsService.createUser(userJoinRequest, image);
         
