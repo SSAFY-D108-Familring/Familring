@@ -78,8 +78,8 @@ fun TabItem(
             modifier =
                 Modifier
                     .noRippleClickable { onClick() }
-                    .padding(horizontal = 10.dp)
-                    .padding(bottom = 3.dp),
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 5.dp),
             textAlign = TextAlign.Center,
             text = text,
             style = tabTextStyle,
@@ -88,7 +88,7 @@ fun TabItem(
         if (isSelected) {
             HorizontalDivider(
                 color = Brown01,
-                thickness = 2.dp,
+                thickness = 3.dp,
             )
         }
     }
