@@ -40,9 +40,20 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun FirstScreen(
+fun FirstRoute(
     modifier: Modifier,
     navigateToBirth: () -> Unit,
+) {
+    FirstScreen(
+        modifier = modifier,
+        navigateToBirth = navigateToBirth,
+    )
+}
+
+@Composable
+fun FirstScreen(
+    modifier: Modifier = Modifier,
+    navigateToBirth: () -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     var code by remember { mutableStateOf("") }
