@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.familring.userservice.model.mapper.UserMapper">
+<mapper namespace="com.familring.userservice.model.dao.UserDao">
+
+    <resultMap id="userInfo" type="com.familring.userservice.model.dto.response.UserInfoResponse">
+        <result column="user_id" property="userId"/>
+        <result column="user_kakao_id" property="userKakaoId"/>
+        <result column="user_nickname" property="userNickname"/>
+        <result column="user_birth_date" property="userBirthDate"/>
+        <result column="user_zodiac_sign" property="userZodiacSign"/>
+        <result column="user_role" property="userRole"/>
+        <result column="user_face" property="userFace"/>
+        <result column="user_color" property="userColor"/>
+        <result column="user_emotion" property="userEmotion"/>
+    </resultMap>
+
+    <select id="findByUserKakaoId" resultMap="userInfo">
+        select user_id, user_kakao_id, user_nickname, user_birth_date, user_zodiac_sign, user_role, user_face, user_color, user_emotion
+        from user
+        where user_kakao_id = #{userKakaoId}
+    </select>
 </mapper>
