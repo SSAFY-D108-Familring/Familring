@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
+import com.familring.presentation.component.DateInputRow
 import com.familring.presentation.component.GreenRoundLongButton
 import com.familring.presentation.component.NumberTextField
 import com.familring.presentation.theme.Black
@@ -89,52 +90,7 @@ fun TimeCapsuleCreateScreen(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-private fun DateInputRow(
-    year: String,
-    month: String,
-    date: String,
-    onYearChange: (String) -> Unit,
-    onMonthChange: (String) -> Unit,
-    onDateChange: (String) -> Unit,
-    focusManager: FocusManager,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Spacer(modifier = Modifier.fillMaxWidth(0.07f))
-        NumberTextField(
-            modifier = Modifier.weight(1.5f),
-            number = year,
-            onValueChange = onYearChange,
-            placeholder = "YYYY",
-            focusManager = focusManager,
-            maxLength = 4,
-        )
-        Spacer(modifier = Modifier.fillMaxWidth(0.02f))
-        NumberTextField(
-            modifier = Modifier.weight(1f),
-            number = month,
-            onValueChange = onMonthChange,
-            placeholder = "MM",
-            focusManager = focusManager,
-            maxLength = 2,
-        )
-        Spacer(modifier = Modifier.fillMaxWidth(0.02f))
-        NumberTextField(
-            modifier = Modifier.weight(1f),
-            number = date,
-            onValueChange = onDateChange,
-            placeholder = "DD",
-            focusManager = focusManager,
-            maxLength = 2,
-        )
-        Spacer(modifier = Modifier.fillMaxWidth(0.07f))
-    }
-}
-
-private fun isDateFormValid(
+fun isDateFormValid(
     year: String,
     month: String,
     date: String,
