@@ -145,7 +145,7 @@ fun TimeCapsuleItem(
             ) {
                 Text(
                     textAlign = TextAlign.Center,
-                    text = "D-4",
+                    text = "D - ${timeCapsule.leftDay}",
                     style =
                         Typography.titleLarge.copy(
                             fontSize = 20.sp,
