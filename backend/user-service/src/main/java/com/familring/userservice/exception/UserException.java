@@ -1,11 +1,11 @@
 package com.familring.userservice.exception;
 
-public class UserException extends RuntimeException {
-    public UserException(String message) {
-        super(message);
+import com.familring.userservice.exception.base.ApplicationException;
+import org.springframework.http.HttpStatus;
+
+public class UserException extends ApplicationException {
+    public UserException(HttpStatus httpStatus, String message) {
+        super(httpStatus, message);
     }
 
-    public UserException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

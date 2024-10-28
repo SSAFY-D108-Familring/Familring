@@ -1,23 +1,15 @@
-package com.familring.userservice.exception;
+package com.familring.userservice.exception.base;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public abstract class ApplicationException extends RuntimeException {
-    private final String errorCode;
     private final HttpStatus httpStatus;
 
-    protected ApplicationException(String errorCode, HttpStatus httpStatus, String message) {
+    protected ApplicationException(HttpStatus httpStatus, String message) {
         super(message);
-        this.errorCode = errorCode;
         this.httpStatus = httpStatus;
-    }
-
-    public String getErrorCode() {
-        return errorCode;
-    }
-
-    public HttpStatus getHttpStatus() {
-        return httpStatus;
     }
 
 }

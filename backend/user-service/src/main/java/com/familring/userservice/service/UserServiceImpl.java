@@ -37,8 +37,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) throws IOException {
+    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image){
         // 사용자 회원가입
+
         customUserDetailsService.createUser(userJoinRequest, image);
         
         // 사용자 JWT 발급

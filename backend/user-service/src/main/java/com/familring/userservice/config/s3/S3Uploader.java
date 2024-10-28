@@ -7,6 +7,7 @@ import com.familring.userservice.exception.S3FileNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,7 +78,7 @@ public class S3Uploader {
                 log.info("File deleted successfully: {}", key);
             } else { // file not found
                 log.warn("File not found: {}", key);
-                throw new S3FileNotFoundException("파일이 존재하지 않습니다.");
+                throw new S3FileNotFoundException(HttpStatus.NOT_FOUND, "파일이 존재하지 않습니다.");
             }
         } catch (Exception exception) {
             log.info(exception.getMessage());

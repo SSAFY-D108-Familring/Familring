@@ -1,14 +1,13 @@
 package com.familring.userservice.exception;
 
+import com.familring.userservice.exception.base.ApplicationException;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
-public class S3FileNotFoundException extends RuntimeException {
-    public S3FileNotFoundException(String message) {
-        super(message);
+public class S3FileNotFoundException extends ApplicationException {
+    public S3FileNotFoundException(HttpStatus httpStatus, String message) {
+        super(httpStatus, message);
     }
 
-    public S3FileNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

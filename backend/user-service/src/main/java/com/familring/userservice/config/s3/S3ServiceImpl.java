@@ -16,17 +16,17 @@ public class S3ServiceImpl implements S3Service {
     private final S3Uploader s3Uploader;
 
     @Override
-    public String uploadS3(MultipartFile file, String type) throws IOException {
+    public String uploadS3(MultipartFile file, String type) {
         return "";
     }
 
     @Override
-    public String uploadS3(File file, String type) throws IOException {
+    public String uploadS3(File file, String type) {
         return "";
     }
 
     @Override
-    public void deleteS3(String fileUrl) throws Exception {
+    public void deleteS3(String fileUrl) {
 
     }
 }

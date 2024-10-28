@@ -8,6 +8,7 @@ import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,7 +39,7 @@ public class JwtTokenServiceImpl implements JwtTokenService {
             log.info("Authentication: {}", authentication);
         } catch (Exception e) {
             log.error("Authentication failed: {}", e.getMessage());
-            throw new UserException(e.getMessage());
+            throw new UserException(HttpStatus.UNAUTHORIZED, e.getMessage());
         }
 
         // 3. 인증 정보를 기반으로 JWT 토큰 생성

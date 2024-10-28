@@ -54,7 +54,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     }
 
     @Override
-    public void createUser(UserJoinRequest userJoinRequest, MultipartFile image) throws IOException {
+    public void createUser(UserJoinRequest userJoinRequest, MultipartFile image){
         String faceImgUrl = null;
 
         // 프로필 사진 처리

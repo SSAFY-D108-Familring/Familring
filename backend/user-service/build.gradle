@@ -27,6 +27,9 @@ dependencies {
     // S3
     implementation group: 'io.awspring.cloud', name: 'spring-cloud-starter-aws', version: '2.4.4'
 
+    // Config
+    implementation 'org.springframework.cloud:spring-cloud-config-client'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

@@ -12,5 +12,5 @@ public interface UserService {
     JwtTokenResponse login(UserLoginRequest userLogInRequest);
 
     // 회원가입
-    JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) throws IOException;
+    JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image);
 }
