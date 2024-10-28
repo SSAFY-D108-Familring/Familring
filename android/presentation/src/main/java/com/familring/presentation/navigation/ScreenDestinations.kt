@@ -37,4 +37,6 @@ sealed class ScreenDestinations(
 
     // 타임캡슐 리스트 화면
     data object TimeCapsuleList : ScreenDestinations(route = "TimeCapsuleList")
+
+    data object Gallery : ScreenDestinations(route = "Gallery")
 }

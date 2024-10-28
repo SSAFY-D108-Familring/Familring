@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.ScreenDestinations
+import com.familring.presentation.screen.gallery.GalleryScreen
 import com.familring.presentation.screen.signup.BirthScreen
 import com.familring.presentation.screen.signup.FirstScreen
 import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
@@ -50,7 +51,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = ScreenDestinations.First.route,
+            startDestination = ScreenDestinations.Gallery.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -110,6 +111,14 @@ fun MainNavHost(
             route = ScreenDestinations.WritingTimeCapsule.route,
         ) {
             WritingTimeCapsuleScreen(
+                modifier = modifier,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Gallery.route,
+        ) {
+            GalleryScreen(
                 modifier = modifier,
             )
         }
