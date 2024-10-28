@@ -27,6 +27,7 @@ import com.familring.presentation.theme.Typography
 fun CodeTextField(
     modifier: Modifier = Modifier,
     code: String,
+    maxLength: Int = 6,
     onValueChange: (String) -> Unit,
     placeHolder: String = "XXXXXX",
     focusManager: FocusManager,
@@ -53,7 +54,11 @@ fun CodeTextField(
             }
         },
         value = code,
-        onValueChange = onValueChange,
+        onValueChange = { newValue ->
+            if (newValue.length <= maxLength) {
+                onValueChange(newValue)
+            }
+        },
         singleLine = true,
         keyboardActions =
             KeyboardActions(onDone = {
