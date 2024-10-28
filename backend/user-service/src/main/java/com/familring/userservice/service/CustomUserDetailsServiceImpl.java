@@ -48,7 +48,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public void createUser(UserDetails user) {
         UserDto newUser = (UserDto) user;
 
-        userDao.join(newUser);
+        userDao.insertByUser(newUser);
     }
 
     @Override
