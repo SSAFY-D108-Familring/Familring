@@ -1,5 +1,3 @@
-@file:JvmName("WritingTimeCapsuleScreenKt")
-
 package com.familring.presentation.screen.timecapsule
 
 import androidx.compose.foundation.layout.Column
