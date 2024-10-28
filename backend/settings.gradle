@@ -1,3 +1,6 @@
-rootProject.name = 'root-project'
+rootProject.name = 'familring'
+include 'api-gateway'
+include 'discovery-service'
+include 'config-service'
 include 'common-service'
 include 'user-service'
