@@ -14,7 +14,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
+import com.familring.presentation.screen.chat.ChatRoute
+import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.signup.BirthRoute
 import com.familring.presentation.screen.signup.DoneRoute
 import com.familring.presentation.screen.signup.FamilyCountRoute
@@ -22,8 +25,6 @@ import com.familring.presentation.screen.signup.FirstRoute
 import com.familring.presentation.screen.signup.NicknameRoute
 import com.familring.presentation.screen.signup.PictureRoute
 import com.familring.presentation.screen.signup.ProfileColorRoute
-import com.familring.presentation.screen.signup.BirthScreen
-import com.familring.presentation.screen.signup.FirstScreen
 import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
@@ -53,6 +54,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                currentRoute = currentRoute,
+            )
+        },
     ) { _ ->
         MainNavHost(
             modifier = modifier,
@@ -181,6 +188,18 @@ fun MainNavHost(
             WritingTimeCapsuleScreen(
                 modifier = modifier,
             )
+        }
+
+        composable(
+            route = ScreenDestinations.Home.route,
+        ) {
+            HomeRoute(modifier = modifier)
+        }
+
+        composable(
+            route = ScreenDestinations.Chat.route,
+        ) {
+            ChatRoute(modifier = modifier)
         }
     }
 }

@@ -39,7 +39,6 @@ sealed class ScreenDestinations(
     // 회원가입 완료
     data object Done : ScreenDestinations(route = "Done")
 
-
     // 타임캡슐
     // 타임캡슐 생성 화면
     data object TimeCapsuleCreate : ScreenDestinations(route = "TimeCapsuleCreate")
@@ -52,4 +51,10 @@ sealed class ScreenDestinations(
 
     // 타임캡슐 리스트 화면
     data object TimeCapsuleList : ScreenDestinations(route = "TimeCapsuleList")
+
+    // 홈
+    data object Home : ScreenDestinations(route = "Home")
+
+    // 채팅
+    data object Chat : ScreenDestinations(route = "Chat")
 }
