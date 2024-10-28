@@ -15,7 +15,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.ScreenDestinations
-import com.familring.presentation.screen.FirstScreen
+import com.familring.presentation.screen.signup.BirthScreen
+import com.familring.presentation.screen.signup.FirstScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 
@@ -65,7 +66,18 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.First.route,
         ) {
-            FirstScreen(modifier = modifier)
+            FirstScreen(
+                modifier = modifier,
+                navigateToBirth = {
+                    navController.navigate(ScreenDestinations.Birth.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Birth.route,
+        ) {
+            BirthScreen(modifier = modifier)
         }
     }
 }

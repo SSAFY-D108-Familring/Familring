@@ -20,4 +20,7 @@ sealed class ScreenDestinations(
 ) {
     // 첫 번째 화면 (초대코드 입력)
     data object First : ScreenDestinations(route = "First")
+
+    // 두 번째 화면 (생년월일 입력)
+    data object Birth : ScreenDestinations(route = "Birth")
 }
