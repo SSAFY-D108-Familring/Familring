@@ -1,5 +1,6 @@
 package com.familring.presentation.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +38,12 @@ fun NumberTextField(
     textColor: Color = if (number.isEmpty()) Gray03 else Black,
 ) {
     OutlinedTextField(
-        modifier = modifier,
+        modifier =
+            modifier.border(
+                width = 3.dp,
+                shape = RoundedCornerShape(12.dp),
+                color = borderColor,
+            ),
         placeholder = {
             if (number.isEmpty()) {
                 Box(
