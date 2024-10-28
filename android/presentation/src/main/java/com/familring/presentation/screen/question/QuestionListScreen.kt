@@ -66,7 +66,7 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
                     painter = painterResource(id = R.drawable.img_meue_left),
                     contentDescription = "menu_left_img",
                     modifier =
-                        Modifier.size(25.dp).clickable {
+                        Modifier.size(25.dp).noRippleClickable {
                             onNavigateBack()
                         },
                 )
