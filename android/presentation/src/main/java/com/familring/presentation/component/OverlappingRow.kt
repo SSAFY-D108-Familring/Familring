@@ -16,11 +16,13 @@ fun OverlappingProfileLazyRow(
         modifier = modifier,
     ) {
         item {
-            OverlappingRow {
-                for (profile in profiles) {
-                    ZodiacBackgroundProfile(
-                        profile = profile,
-                    )
+            if (profiles.isNotEmpty()) {
+                OverlappingRow {
+                    for (profile in profiles) {
+                        ZodiacBackgroundProfile(
+                            profile = profile,
+                        )
+                    }
                 }
             }
         }

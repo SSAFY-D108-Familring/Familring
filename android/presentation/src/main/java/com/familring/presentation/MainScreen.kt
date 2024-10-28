@@ -20,6 +20,7 @@ import com.familring.presentation.screen.signup.FirstScreen
 import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
+import com.familring.presentation.screen.timecapsule.TimeCapsuleScreen
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = ScreenDestinations.First.route,
+            startDestination = ScreenDestinations.NoTimeCapsule.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -84,6 +85,15 @@ fun MainNavHost(
             BirthScreen(modifier = modifier)
         }
 
+        // 타임캡슐
+        composable(
+            route = ScreenDestinations.TimeCapsule.route,
+        ) {
+            TimeCapsuleScreen(
+                modifier = modifier,
+            )
+        }
+
         composable(
             route = ScreenDestinations.TimeCapsuleList.route,
         ) {
@@ -97,7 +107,10 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.NoTimeCapsule.route,
         ) {
-            NoTimeCapsuleScreen(modifier = modifier)
+            NoTimeCapsuleScreen(
+                modifier = modifier,
+                navigateToCreate = { navController.navigate(ScreenDestinations.TimeCapsuleCreate.route) },
+            )
         }
 
         composable(

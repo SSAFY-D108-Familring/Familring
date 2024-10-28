@@ -77,5 +77,5 @@ dependencies {
     implementation(libs.accompanist.systemuicontroller)
 
     // Timber
-    implementation (libs.timber)
+    implementation(libs.timber)
 }

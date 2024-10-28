@@ -26,6 +26,9 @@ sealed class ScreenDestinations(
 
 
     // 타임캡슐
+    // 타임캡슐 화면
+    data object TimeCapsule : ScreenDestinations(route = "TimeCapsule")
+
     // 타임캡슐 생성 화면
     data object TimeCapsuleCreate : ScreenDestinations(route = "TimeCapsuleCreate")
 

@@ -1,7 +1,6 @@
 package com.familring.presentation.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun CustomTab(
@@ -77,7 +77,7 @@ fun TabItem(
         Text(
             modifier =
                 Modifier
-                    .clickable { onClick() }
+                    .noRippleClickable { onClick() }
                     .padding(horizontal = 10.dp)
                     .padding(bottom = 3.dp),
             textAlign = TextAlign.Center,
