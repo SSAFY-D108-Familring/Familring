@@ -1,6 +1,7 @@
 package com.familring.userservice.config.jwt;
 
 import com.familring.userservice.exception.InvalidTokenException;
+import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -36,7 +37,7 @@ public class JwtTokenProvider {
     }
 
     // AccessToken, RefreshToken 생성 메소드
-    public JwtToken generateToken(Authentication authentication) {
+    public JwtTokenResponse generateToken(Authentication authentication) {
         // 권한 가져오기
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -59,7 +60,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        return JwtToken.builder()
+        return JwtTokenResponse.builder()
                 .grantType("Bearer")
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

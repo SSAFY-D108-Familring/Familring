@@ -1,6 +1,8 @@
 dependencies {
     // Web
+    implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 
     // Eureka
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -22,11 +24,12 @@ dependencies {
     // AMQP
     implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 
-    compileOnly 'org.projectlombok:lombok'
+    // S3
+    implementation group: 'io.awspring.cloud', name: 'spring-cloud-starter-aws', version: '2.4.4'
+
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'com.mysql:mysql-connector-j'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    annotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
@@ -44,3 +47,4 @@ dependencyManagement {
     }
 }
 
+tasks.register("prepareKotlinBuildScriptModel"){}
