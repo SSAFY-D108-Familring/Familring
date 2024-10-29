@@ -267,7 +267,12 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Gallery.route,
         ) {
-            GalleryRoute(modifier = modifier)
+            GalleryRoute(
+                modifier = modifier,
+                navigateToAlbum = {
+                    navController.navigate(ScreenDestinations.Album.route)
+                },
+            )
         }
     }
 }
