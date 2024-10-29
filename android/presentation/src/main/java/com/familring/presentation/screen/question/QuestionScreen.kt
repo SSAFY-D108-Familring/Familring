@@ -3,7 +3,6 @@ package com.familring.presentation.screen.question
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,13 +17,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -83,7 +82,10 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
         )
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(color = Color.White),
     ) {
         Image(
             painter = painterResource(id = R.drawable.img_question_back),
@@ -98,26 +100,26 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
             modifier = Modifier.fillMaxSize(),
         ) {
             TopAppBar(
+                navigationType = TopAppBarNavigationType.None,
                 title = {
                     Text(
                         text = "오늘의 질문",
                         style = Typography.titleLarge,
                     )
                 },
-                navigationType = TopAppBarNavigationType.None,
-                trailingIcon =
-                    {
-                        Icon(
-                            painter = painterResource(id = R.drawable.img_menu),
-                            contentDescription = "menu_img",
-                            modifier =
-                                Modifier.clickable {
+                trailingIcon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_menu),
+                        contentDescription = "question_menu_img",
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
                                     navigateToQuestionList()
                                 },
-                        )
-                    },
+                    )
+                },
             )
-
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -234,6 +236,6 @@ fun FamilyListItem(userQuestion: UserQuestion) {
 @Composable
 fun QuestionScreenPreview() {
     FamilringTheme {
-//        QuestionScreen(onNavigateToQuestionList = {})
+        QuestionScreen(navigateToQuestionList = {})
     }
 }

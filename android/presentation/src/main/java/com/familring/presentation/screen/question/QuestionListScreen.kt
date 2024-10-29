@@ -2,6 +2,7 @@ package com.familring.presentation.screen.question
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,7 +44,12 @@ import com.familring.presentation.util.noRippleClickable
 fun QuestionListScreen(onNavigateBack: () -> Unit) {
     var isLatestSelected by remember { mutableStateOf(true) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(color = Color.White),
+    ) {
         Image(
             painter = painterResource(id = R.drawable.img_question_back),
             contentDescription = "background_img",
@@ -54,12 +60,12 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
             contentScale = ContentScale.FillBounds,
         )
         Column(modifier = Modifier.fillMaxSize()) {
-            TopAppBar(title = {
-                Text(
-                    text = "질문 목록",
-                    style = Typography.headlineMedium.copy(fontSize = 22.sp),
-                )
-            }, onNavigationClick = onNavigateBack)
+            TopAppBar(
+                title = {
+                    Text(text = "질문 목록", style = Typography.headlineMedium.copy(fontSize = 22.sp))
+                },
+                onNavigationClick = onNavigateBack,
+            )
             Spacer(modifier = Modifier.fillMaxSize(0.05f))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -74,6 +80,10 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
                             .background(
                                 color = if (isLatestSelected) Green02 else Color.White,
                                 shape = RoundedCornerShape(30.dp),
+                            ).border(
+                                width = 1.dp,
+                                color = if (!isLatestSelected) Gray03 else Color.Transparent,
+                                shape = RoundedCornerShape(30.dp),
                             ).padding(horizontal = 19.dp, vertical = 8.dp)
                             .clickable { isLatestSelected = true },
                     color = if (isLatestSelected) Color.White else Color.Black,
@@ -86,6 +96,10 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
                         Modifier
                             .background(
                                 color = if (!isLatestSelected) Green02 else Color.White,
+                                shape = RoundedCornerShape(30.dp),
+                            ).border(
+                                width = 1.dp,
+                                color = if (isLatestSelected) Gray03 else Color.Transparent,
                                 shape = RoundedCornerShape(30.dp),
                             ).padding(horizontal = 19.dp, vertical = 8.dp)
                             .noRippleClickable { isLatestSelected = false },
