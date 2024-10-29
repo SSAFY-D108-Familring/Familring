@@ -26,7 +26,7 @@ pipeline {
         stage('Build Core Services') {
             steps {
                 script {
-                    def coreServices = ["api-gateway", "config-service", "discovery-service"]
+                    def coreServices = ["config-service", "discovery-service", "api-gateway"]
 
                     for (service in coreServices) {
                         dir(service) {
