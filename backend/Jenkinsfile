@@ -10,7 +10,7 @@ pipeline {
 
         stage('application.yml download') {
             steps {
-                withCredentials([file(credentialsId: 'config-application', variable: 'config_application_yml')]) {
+                withCredentials([file(credentialsId: 'config-application.yml', variable: 'config_application_yml')]) {
                     script {
                         // 디렉토리가 없는 경우 생성
                         sh 'mkdir -p config-service/src/main/resources'
