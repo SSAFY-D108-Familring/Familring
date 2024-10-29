@@ -9,6 +9,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     // Spring Cloud Bus
     implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+
+    // AWS S3 의존성 추가
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws-secrets-manager-config:2.4.4'
 }
 
 dependencyManagement {
