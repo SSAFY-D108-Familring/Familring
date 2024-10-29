@@ -4,10 +4,13 @@ import com.familring.familyservice.config.jwt.JwtTokenProvider;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.FamilyDto;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
+import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -44,6 +47,17 @@ public class FamilyServiceImpl implements FamilyService {
         String familyCode = familyDao.findFamilyInfoByUserId(userId).getFamilyCode();
 
         return familyCode;
+    }
+
+    @Override
+    public List<UserInfoResponse> getFamilyMemberList(String token) {
+        // 1. 클레임에서 userId 추출
+        Long userId = getUserId(token);
+
+        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users")  api 요청
+
+
+        return List.of();
     }
 
     public Long getUserId(String token) {

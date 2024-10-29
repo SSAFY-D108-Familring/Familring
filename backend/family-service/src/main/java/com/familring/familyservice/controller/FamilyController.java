@@ -1,6 +1,7 @@
 package com.familring.familyservice.controller;
 
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
+import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.FamilyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/family")
@@ -32,5 +35,12 @@ public class FamilyController {
         String response = familyService.getFamilyCode(token);
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/member")
+    public ResponseEntity getFamilyMember(@RequestHeader("Authorization") String token) {
+        List<UserInfoResponse> responseList = familyService.getFamilyMemberList(token);
+
+        return ResponseEntity.ok(responseList);
     }
 }
