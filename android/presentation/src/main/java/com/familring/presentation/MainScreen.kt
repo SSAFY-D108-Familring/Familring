@@ -1,6 +1,5 @@
 package com.familring.presentation
 
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -38,7 +37,6 @@ import com.familring.presentation.screen.signup.ProfileColorRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
-import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
