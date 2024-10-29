@@ -31,11 +31,9 @@ import com.familring.presentation.screen.signup.FirstRoute
 import com.familring.presentation.screen.signup.NicknameRoute
 import com.familring.presentation.screen.signup.PictureRoute
 import com.familring.presentation.screen.signup.ProfileColorRoute
-import com.familring.presentation.screen.timecapsule.NoTimeCapsule
-import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
-import com.familring.presentation.screen.timecapsule.TimeCapsuleDialog
+import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
-import com.familring.presentation.screen.timecapsule.TimeCapsuleScreen
+import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -73,7 +71,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier.navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.First.route,
+            startDestination = ScreenDestinations.TimeCapsule.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -191,8 +189,12 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.TimeCapsule.route,
         ) {
-            TimeCapsuleScreen(
+            TimeCapsuleRoute(
                 modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToCreate = {
+                    navController.navigate(ScreenDestinations.TimeCapsuleCreate.route)
+                },
             )
         }
 
@@ -229,7 +231,10 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.TimeCapsuleCreate.route,
         ) {
-            TimeCapsuleCreateScreen(modifier = modifier)
+            TimeCapsuleCreateRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
         }
 
         composable(
