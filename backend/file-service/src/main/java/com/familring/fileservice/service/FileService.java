@@ -5,6 +5,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.familring.fileservice.exception.S3Exception;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class FileService {
 
     private final AmazonS3Client amazonS3Client;
@@ -73,11 +75,16 @@ public class FileService {
      * 실제 파일 삭제를 처리하는 private 메서드
      */
     private void delete(String fileUrl) {
+        String fileName = extractFileName(fileUrl);
+        log.info("삭제할 파일 이름: {}", fileName);
+        if (!amazonS3Client.doesObjectExist(bucket, fileName)) {
+            throw new S3Exception(HttpStatus.NOT_FOUND,  String.format("존재하지 않는 파일입니다. 파일명: %s", fileName));
+        }
+
         try {
-            String fileName = extractFileName(fileUrl);
             amazonS3Client.deleteObject(bucket, fileName);
         } catch (Exception e) {
-            throw new RuntimeException("파일 삭제 중 오류가 발생했습니다: " + fileUrl, e);
+            throw new S3Exception(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다.");
         }
     }
 
