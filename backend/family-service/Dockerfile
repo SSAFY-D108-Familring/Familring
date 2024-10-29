@@ -8,4 +8,4 @@ ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} familyService.jar
 
 # 애플리케이션 실행 명령어 설정
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "/familyService.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "./familyService.jar"]
