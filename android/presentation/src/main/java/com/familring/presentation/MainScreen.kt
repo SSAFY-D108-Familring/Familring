@@ -1,13 +1,15 @@
 package com.familring.presentation
 
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
@@ -20,6 +22,7 @@ import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
+import com.familring.presentation.screen.gallery.AlbumRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.question.QuestionListScreen
@@ -34,7 +37,6 @@ import com.familring.presentation.screen.signup.ProfileColorRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
-import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
@@ -58,20 +60,36 @@ fun MainScreen(modifier: Modifier = Modifier) {
     systemUiController.setStatusBarColor(color = Color.Transparent, darkIcons = true)
     systemUiController.setNavigationBarColor(color = Color.White)
 
+    var showBottomBar by remember {
+        mutableStateOf(true)
+    }
+    LaunchedEffect(navController) {
+        navController.currentBackStackEntryFlow.collect { backStackEntry ->
+            val hideBottomBarScreen =
+                listOf(
+                    ScreenDestinations.Album.route,
+                    ScreenDestinations.QuestionList.route,
+                )
+            showBottomBar = !hideBottomBarScreen.contains(backStackEntry.destination.route)
+        }
+    }
+
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         bottomBar = {
-            BottomNavigationBar(
-                navController = navController,
-                currentRoute = currentRoute,
-            )
+            if(showBottomBar){
+                BottomNavigationBar(
+                    navController = navController,
+                    currentRoute = currentRoute,
+                )
+            }
         },
     ) { _ ->
         MainNavHost(
-            modifier = modifier.navigationBarsPadding(),
+            modifier = modifier,
             navController = navController,
-            startDestination = ScreenDestinations.TimeCapsule.route,
+            startDestination = ScreenDestinations.First.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -258,7 +276,15 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Gallery.route,
         ) {
-            GalleryRoute(modifier = modifier)
+            GalleryRoute(modifier = modifier, navigateToAlbum = {
+                navController.navigate(ScreenDestinations.Album.route)
+            })
+        }
+
+        composable(
+            route = ScreenDestinations.Album.route,
+        ) {
+            AlbumRoute(modifier = modifier, onNavigateBack = navController::popBackStack)
         }
     }
 }

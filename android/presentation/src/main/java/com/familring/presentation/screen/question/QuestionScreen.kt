@@ -3,6 +3,7 @@ package com.familring.presentation.screen.question
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -37,6 +39,8 @@ import androidx.compose.ui.unit.sp
 import com.familring.domain.Profile
 import com.familring.domain.UserQuestion
 import com.familring.presentation.R
+import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Gray01
@@ -93,25 +97,26 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
-            Spacer(modifier = Modifier.fillMaxSize(0.02f))
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "오늘의 질문",
-                    style = Typography.titleLarge,
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.img_menu),
-                    contentDescription = "question_menu_img",
-                    modifier =
-                        Modifier.size(24.dp).noRippleClickable {
-                            navigateToQuestionList()
-                        },
-                )
-            }
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "오늘의 질문",
+                        style = Typography.titleLarge,
+                    )
+                },
+                navigationType = TopAppBarNavigationType.None,
+                trailingIcon =
+                    {
+                        Icon(
+                            painter = painterResource(id = R.drawable.img_menu),
+                            contentDescription = "menu_img",
+                            modifier =
+                                Modifier.clickable {
+                                    navigateToQuestionList()
+                                },
+                        )
+                    },
+            )
 
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
             Box(
