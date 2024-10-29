@@ -23,7 +23,7 @@ public class FileController {
      * @param files 업로드할 파일 리스트
      * @return 업로드된 파일들의 URL 리스트
      */
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<List<String>> uploadFiles(
             @RequestParam("files") List<MultipartFile> files) {
         List<String> uploadedUrls = fileService.uploadFiles(files);
