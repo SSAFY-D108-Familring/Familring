@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.familring.presentation.R
-import com.familring.presentation.component.GreenRoundLongButton
+import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -162,7 +162,7 @@ fun PictureScreen(
                 }
             }
             Spacer(modifier = Modifier.fillMaxHeight(0.2f))
-            GreenRoundLongButton(
+            RoundLongButton(
                 text = "촬영 완료",
                 onClick = navigateToCount,
                 enabled = bitmap != null,
