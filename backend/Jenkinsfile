@@ -7,86 +7,65 @@ pipeline {
                 checkout scm
             }
         }
-        stage('application.yml download') {
+
+        stage('Build and Deploy Config Service') {
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'config_application_yml')]) {
                     script {
-                        // 디렉토리가 없는 경우 생성
+                        // Config 서비스의 yml 파일 다운로드
                         sh 'mkdir -p config-service/src/main/resources'
-
-                        // config-application.yml 복사
                         sh 'cp $config_application_yml config-service/src/main/resources/application.yml'
+
+                        // Config 서비스 빌드 및 배포
+                        sh """
+                        docker-compose -f docker-compose.yml stop config-service || true
+                        docker-compose -f docker-compose.yml rm -f config-service || true
+                        docker-compose -f docker-compose.yml build --no-cache config-service
+                        docker-compose -f docker-compose.yml up -d --no-deps --build config-service
+                        """
                     }
                 }
             }
         }
-        stage('Build and Deploy Services') {
-            parallel {
-                stage('Build and Deploy Config Server') {
-                    when {
-                        changeset "config-service/**"
-                    }
-                    steps {
-                        script {
 
-                            // 기존 config-service 컨테이너 중지 및 삭제
-                            sh """
-                            docker-compose -f docker-compose.yml stop config-service || true
-                            docker-compose -f docker-compose.yml rm -f config-service || true
-                            """
+        stage('Build and Deploy Discovery Service') {
+            steps {
+                withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'discovery_application_yml')]) {
+                    script {
+                        // Discovery 서비스의 yml 파일 다운로드
+                        sh 'mkdir -p discovery-service/src/main/resources'
+                        sh 'cp $discovery_application_yml discovery-service/src/main/resources/application.yml'
 
-                            // 해당 컨테이너만 재시작
-                            sh """
-                            docker-compose -f docker-compose.yml build --no-cache config-service
-                            docker-compose -f docker-compose.yml up -d --no-deps --build config-service
-                            """
-                        }
+                        // Discovery 서비스 빌드 및 배포
+                        sh """
+                        docker-compose -f docker-compose.yml stop discovery-service || true
+                        docker-compose -f docker-compose.yml rm -f discovery-service || true
+                        docker-compose -f docker-compose.yml build --no-cache discovery-service
+                        docker-compose -f docker-compose.yml up -d --no-deps --build discovery-service
+                        """
                     }
                 }
-                stage('Build and Deploy Discovery Server') {
-                    when {
-                        changeset "discovery-service/**"
-                    }
-                    steps {
-                        script {
+            }
+        }
 
-                            // 기존 eureka-server 컨테이너 중지 및 삭제
-                            sh """
-                            docker-compose -f docker-compose.yml stop discovery-service || true
-                            docker-compose -f docker-compose.yml rm -f discovery-service || true
-                            """
+        stage('Build and Deploy API Gateway') {
+            steps {
+                withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'api-gateway_application_yml')]) {
+                    script {
+                        // API Gateway 서비스의 yml 파일 다운로드
+                        sh 'mkdir -p api-gateway/src/main/resources'
+                        sh 'cp gateway_application_yml api-gateway/src/main/resources/application.yml'
 
-                            // 해당 컨테이너만 재시작
-                            sh """
-                            docker-compose -f docker-compose.yml build --no-cache discovery-service
-                            docker-compose -f docker-compose.yml up -d --no-deps --build discovery-service
-                            """
-                        }
-                    }
-                }
-                stage('Build and Deploy Api Gateway Server') {
-                    when {
-                        changeset "api-gateway/**"
-                    }
-                    steps {
-                        script {
-
-                            // 기존 notification-server 컨테이너 중지 및 삭제
-                            sh """
-                            docker-compose -f docker-compose.yml stop api-gateway || true
-                            docker-compose -f docker-compose.yml rm -f api-gateway || true
-                            """
-
-                            // 해당 컨테이너만 재시작
-                            sh """
-                            docker-compose -f docker-compose.yml build --no-cache api-gateway
-                            docker-compose -f docker-compose.yml up -d --no-deps --build api-gateway
-                            """
-                        }
+                        // API Gateway 서비스 빌드 및 배포
+                        sh """
+                        docker-compose -f docker-compose.yml stop api-gateway || true
+                        docker-compose -f docker-compose.yml rm -f api-gateway || true
+                        docker-compose -f docker-compose.yml build --no-cache api-gateway
+                        docker-compose -f docker-compose.yml up -d --no-deps --build api-gateway
+                        """
                     }
                 }
             }
         }
     }
 }
-
