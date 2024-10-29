@@ -1,16 +1,14 @@
-package com.familring.userservice.config.swagger;
+package com.familring.familyservice.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 @Configuration
 @RequiredArgsConstructor
@@ -40,8 +38,8 @@ public class SwaggerConfig {
 
     private Info apiInfo() {
         return new Info()
-                .title("User API Specification")
-                .description("회원 관리 API에 대한 문서입니다.")
+                .title("Family API Specification")
+                .description("가족 관리와 채팅 서비스 API에 대한 문서입니다.")
                 .version("1.0.0");
     }
 }
