@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
+import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
@@ -53,26 +54,12 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
             contentScale = ContentScale.FillBounds,
         )
         Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.fillMaxSize(0.02f))
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 18.dp),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_meue_left),
-                    contentDescription = "menu_left_img",
-                    modifier =
-                        Modifier.size(25.dp).noRippleClickable {
-                            onNavigateBack()
-                        },
+            TopAppBar(title = {
+                Text(
+                    text = "질문 목록",
+                    style = Typography.headlineMedium.copy(fontSize = 22.sp),
                 )
-                Spacer(modifier = Modifier.fillMaxSize(0.02f))
-                Text(text = "질문 목록", style = Typography.headlineMedium.copy(fontSize = 22.sp))
-            }
+            }, onNavigationClick = onNavigateBack)
             Spacer(modifier = Modifier.fillMaxSize(0.05f))
             Row(
                 modifier = Modifier.fillMaxWidth(),
