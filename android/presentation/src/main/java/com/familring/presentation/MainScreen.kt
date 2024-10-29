@@ -16,13 +16,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
+import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryScreen
-import com.familring.presentation.screen.signup.BirthScreen
-import com.familring.presentation.screen.signup.FirstScreen
+import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
-import com.familring.presentation.screen.chat.ChatRoute
-import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.signup.BirthRoute
 import com.familring.presentation.screen.signup.DoneRoute
 import com.familring.presentation.screen.signup.FamilyCountRoute

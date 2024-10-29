@@ -148,7 +148,7 @@ fun GalleryScreen(modifier: Modifier) {
                     ) {
                         Text(text = "앨범 이름", style = Typography.titleSmall, color = Gray03, modifier = Modifier.padding(horizontal = 26.dp))
                         Spacer(modifier = Modifier.fillMaxSize(0.05f))
-                        BrownRoundButton(
+                        RoundLongButton(
                             onClick = { /*TODO*/ },
                             text = "생성하기",
                             modifier = Modifier.fillMaxWidth(),
