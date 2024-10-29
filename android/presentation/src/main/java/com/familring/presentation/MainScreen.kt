@@ -1,6 +1,7 @@
 package com.familring.presentation
 
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -67,9 +68,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 currentRoute = currentRoute,
             )
         },
-    ) { _ ->
+    ) { innerPadding ->
         MainNavHost(
-            modifier = modifier.navigationBarsPadding(),
+            modifier = modifier.padding(innerPadding).navigationBarsPadding(),
             navController = navController,
             startDestination = ScreenDestinations.TimeCapsule.route,
             showSnackBar = onShowSnackBar,
