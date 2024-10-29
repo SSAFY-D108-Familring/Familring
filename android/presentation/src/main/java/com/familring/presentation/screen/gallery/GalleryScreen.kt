@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
@@ -74,15 +76,7 @@ fun GalleryScreen(
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
-            Spacer(modifier = Modifier.fillMaxSize(0.02f))
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 18.dp),
-            ) {
-                Text(text = "앨범", style = Typography.titleLarge)
-            }
+            TopAppBar(title = { Text(text = "앨범", style = Typography.titleLarge)}, navigationType = TopAppBarNavigationType.None)
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -93,23 +87,25 @@ fun GalleryScreen(
                     text = "공유",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                        Modifier
-                            .background(
-                                color = if (privateGallerySelected) Green02 else Color.White,
-                                shape = RoundedCornerShape(30.dp),
-                            ).border(
-                                border =
-                                    if (privateGallerySelected) {
-                                        BorderStroke(
-                                            0.dp,
-                                            Gray03,
-                                        )
-                                    } else {
-                                        BorderStroke(1.dp, Gray03)
-                                    },
-                                RoundedCornerShape(30.dp),
-                            ).noRippleClickable { privateGallerySelected = true }
-                            .padding(horizontal = 19.dp, vertical = 8.dp),
+                    Modifier
+                        .background(
+                            color = if (privateGallerySelected) Green02 else Color.White,
+                            shape = RoundedCornerShape(30.dp),
+                        )
+                        .border(
+                            border =
+                            if (privateGallerySelected) {
+                                BorderStroke(
+                                    0.dp,
+                                    Gray03,
+                                )
+                            } else {
+                                BorderStroke(1.dp, Gray03)
+                            },
+                            RoundedCornerShape(30.dp),
+                        )
+                        .noRippleClickable { privateGallerySelected = true }
+                        .padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (privateGallerySelected) Color.White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
