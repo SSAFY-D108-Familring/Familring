@@ -5,10 +5,18 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                script {
-                    dir('config-service') {
-                        sh 'mkdir -p src/config-service/resources'
-                        sh 'cp /home/ubuntu/secret/config/application.yml src/config-service/resources'
+            }
+        }
+
+        stage('application.yml download') {
+            steps {
+                withCredentials([file(credentialsId: 'config-application', variable: 'config_application_yml')]) {
+                    script {
+                        // 디렉토리가 없는 경우 생성
+                        sh 'mkdir -p config-service/src/main/resources'
+
+                        // config-application.yml 복사
+                        sh 'cp $config_application_yml config-service/src/main/resources/application.yml'
                     }
                 }
             }
@@ -37,20 +45,121 @@ pipeline {
         // 나머지 서비스들에 대해 병렬 빌드 및 배포
         stage('Build Other Services') {
             parallel {
-                def otherServices = ["album-service", "calendar-service", "family-service", "interest-service",
-                                     "notification-service", "question-service", "timecapsule-service", "user-service"]
+                stage('Build and Deploy Album Service') {
+                    steps {
+                        script {
+                            dir("album-service") {
+                                if (hasChanges("album-service")) {
+                                    echo "Building and deploying album-service"
+                                    buildAndDeployService("album-service", 8081)
+                                } else {
+                                    echo "No changes detected in album-service. Skipping."
+                                }
+                            }
+                        }
+                    }
+                }
 
-                otherServices.each { service ->
-                    stage("Build and Deploy ${service.capitalize()}") {
-                        steps {
-                            script {
-                                dir(service) {
-                                    if (hasChanges(service)) {
-                                        echo "Building and deploying ${service}"
-                                        buildAndDeployService(service)
-                                    } else {
-                                        echo "No changes detected in ${service}. Skipping."
-                                    }
+                stage('Build and Deploy Calendar Service') {
+                    steps {
+                        script {
+                            dir("calendar-service") {
+                                if (hasChanges("calendar-service")) {
+                                    echo "Building and deploying calendar-service"
+                                    buildAndDeployService("calendar-service", 8082)
+                                } else {
+                                    echo "No changes detected in calendar-service. Skipping."
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Build and Deploy Family Service') {
+                    steps {
+                        script {
+                            dir("family-service") {
+                                if (hasChanges("family-service")) {
+                                    echo "Building and deploying family-service"
+                                    buildAndDeployService("family-service", 8083)
+                                } else {
+                                    echo "No changes detected in family-service. Skipping."
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 다른 서비스들도 같은 형식으로 추가
+                stage('Build and Deploy Interest Service') {
+                    steps {
+                        script {
+                            dir("interest-service") {
+                                if (hasChanges("interest-service")) {
+                                    echo "Building and deploying interest-service"
+                                    buildAndDeployService("interest-service", 8084)
+                                } else {
+                                    echo "No changes detected in interest-service. Skipping."
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Build and Deploy Notification Service') {
+                    steps {
+                        script {
+                            dir("notification-service") {
+                                if (hasChanges("notification-service")) {
+                                    echo "Building and deploying notification-service"
+                                    buildAndDeployService("notification-service", 8085)
+                                } else {
+                                    echo "No changes detected in notification-service. Skipping."
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Build and Deploy Question Service') {
+                    steps {
+                        script {
+                            dir("question-service") {
+                                if (hasChanges("question-service")) {
+                                    echo "Building and deploying question-service"
+                                    buildAndDeployService("question-service", 8086)
+                                } else {
+                                    echo "No changes detected in question-service. Skipping."
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Build and Deploy Timecapsule Service') {
+                    steps {
+                        script {
+                            dir("timecapsule-service") {
+                                if (hasChanges("timecapsule-service")) {
+                                    echo "Building and deploying timecapsule-service"
+                                    buildAndDeployService("timecapsule-service", 8087)
+                                } else {
+                                    echo "No changes detected in timecapsule-service. Skipping."
+                                }
+                            }
+                        }
+                    }
+                }
+
+                stage('Build and Deploy User Service') {
+                    steps {
+                        script {
+                            dir("user-service") {
+                                if (hasChanges("user-service")) {
+                                    echo "Building and deploying user-service"
+                                    buildAndDeployService("user-service", 8088)
+                                } else {
+                                    echo "No changes detected in user-service. Skipping."
                                 }
                             }
                         }
@@ -67,7 +176,7 @@ def hasChanges(String service) {
 }
 
 // 공통 함수: 빌드 및 배포
-def buildAndDeployService(String service) {
+def buildAndDeployService(String service, int port) {
     sh """
         docker build -t ${service}-image ./${service}
 
@@ -76,6 +185,6 @@ def buildAndDeployService(String service) {
         docker rm ${service} || true
 
         // 새로운 컨테이너 실행
-        docker run --name ${service} -d -p 8080:8080 ${service}-image
+        docker run --name ${service} -d -p ${port}:8080 ${service}-image
     """
 }
