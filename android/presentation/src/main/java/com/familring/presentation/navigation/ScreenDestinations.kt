@@ -24,6 +24,12 @@ sealed class ScreenDestinations(
     // 생년월일 입력
     data object Birth : ScreenDestinations(route = "Birth")
 
+    // 질문 화면
+    data object Question : ScreenDestinations(route = "Question")
+
+    // 질문 목록 화면
+    data object QuestionList : ScreenDestinations(route = "QuestionList")
+
     // 프로필 색상 선택
     data object ProfileColor : ScreenDestinations(route = "ProfileColor")
 

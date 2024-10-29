@@ -16,6 +16,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
+import com.familring.presentation.screen.question.QuestionListScreen
+import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.signup.BirthRoute
@@ -157,6 +159,24 @@ fun MainNavHost(
         ) {
             DoneRoute(
                 modifier = modifier,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Question.route,
+        ) {
+            QuestionScreen(
+                navigateToQuestionList = {
+                    navController.navigate(ScreenDestinations.QuestionList.route)
+                }
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.QuestionList.route,
+        ) {
+            QuestionListScreen(
+                onNavigateBack = navController::popBackStack
             )
         }
 
