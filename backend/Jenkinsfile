@@ -21,68 +21,66 @@ pipeline {
             }
         }
         stage('Build and Deploy Services') {
-            parallel {
-                stage('Build and Deploy Config Server') {
-                    when {
-                        changeset "config-service/**"
-                    }
-                    steps {
-                        script {
+            stage('Build and Deploy Config Server') {
+                when {
+                    changeset "config-service/**"
+                }
+                steps {
+                    script {
 
-                            // 기존 config-service 컨테이너 중지 및 삭제
-                            sh """
-                            docker-compose -f docker-compose.yml stop config-service || true
-                            docker-compose -f docker-compose.yml rm -f config-service || true
-                            """
+                        // 기존 config-service 컨테이너 중지 및 삭제
+                        sh """
+                        docker-compose -f docker-compose.yml stop config-service || true
+                        docker-compose -f docker-compose.yml rm -f config-service || true
+                        """
 
-                            // 해당 컨테이너만 재시작
-                            sh """
-                            docker-compose -f docker-compose.yml build --no-cache config-service
-                            docker-compose -f docker-compose.yml up -d --no-deps --build config-service
-                            """
-                        }
+                        // 해당 컨테이너만 재시작
+                        sh """
+                        docker-compose -f docker-compose.yml build --no-cache config-service
+                        docker-compose -f docker-compose.yml up -d --no-deps --build config-service
+                        """
                     }
                 }
-                stage('Build and Deploy Discovery Server') {
-                    when {
-                        changeset "discovery-service/**"
-                    }
-                    steps {
-                        script {
+            }
+            stage('Build and Deploy Discovery Server') {
+                when {
+                    changeset "discovery-service/**"
+                }
+                steps {
+                    script {
 
-                            // 기존 eureka-server 컨테이너 중지 및 삭제
-                            sh """
-                            docker-compose -f docker-compose.yml stop discovery-service || true
-                            docker-compose -f docker-compose.yml rm -f discovery-service || true
-                            """
+                        // 기존 eureka-server 컨테이너 중지 및 삭제
+                        sh """
+                        docker-compose -f docker-compose.yml stop discovery-service || true
+                        docker-compose -f docker-compose.yml rm -f discovery-service || true
+                        """
 
-                            // 해당 컨테이너만 재시작
-                            sh """
-                            docker-compose -f docker-compose.yml build --no-cache discovery-service
-                            docker-compose -f docker-compose.yml up -d --no-deps --build discovery-service
-                            """
-                        }
+                        // 해당 컨테이너만 재시작
+                        sh """
+                        docker-compose -f docker-compose.yml build --no-cache discovery-service
+                        docker-compose -f docker-compose.yml up -d --no-deps --build discovery-service
+                        """
                     }
                 }
-                stage('Build and Deploy Api Gateway Server') {
-                    when {
-                        changeset "api-gateway/**"
-                    }
-                    steps {
-                        script {
+            }
+            stage('Build and Deploy Api Gateway Server') {
+                when {
+                    changeset "api-gateway/**"
+                }
+                steps {
+                    script {
 
-                            // 기존 notification-server 컨테이너 중지 및 삭제
-                            sh """
-                            docker-compose -f docker-compose.yml stop api-gateway || true
-                            docker-compose -f docker-compose.yml rm -f api-gateway || true
-                            """
+                        // 기존 notification-server 컨테이너 중지 및 삭제
+                        sh """
+                        docker-compose -f docker-compose.yml stop api-gateway || true
+                        docker-compose -f docker-compose.yml rm -f api-gateway || true
+                        """
 
-                            // 해당 컨테이너만 재시작
-                            sh """
-                            docker-compose -f docker-compose.yml build --no-cache api-gateway
-                            docker-compose -f docker-compose.yml up -d --no-deps --build api-gateway
-                            """
-                        }
+                        // 해당 컨테이너만 재시작
+                        sh """
+                        docker-compose -f docker-compose.yml build --no-cache api-gateway
+                        docker-compose -f docker-compose.yml up -d --no-deps --build api-gateway
+                        """
                     }
                 }
             }
