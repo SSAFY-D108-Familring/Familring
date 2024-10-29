@@ -71,7 +71,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier.navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.TimeCapsule.route,
+            startDestination = ScreenDestinations.First.route,
             showSnackBar = onShowSnackBar,
         )
     }
