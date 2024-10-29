@@ -15,6 +15,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.familring.domain.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
@@ -30,9 +31,10 @@ import com.familring.presentation.screen.signup.FirstRoute
 import com.familring.presentation.screen.signup.NicknameRoute
 import com.familring.presentation.screen.signup.PictureRoute
 import com.familring.presentation.screen.signup.ProfileColorRoute
-import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
-import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
+import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
+import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
+import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
@@ -69,7 +71,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier.navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.First.route,
+            startDestination = ScreenDestinations.TimeCapsule.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -183,26 +185,37 @@ fun MainNavHost(
             )
         }
 
+        // 타임캡슐
+        composable(
+            route = ScreenDestinations.TimeCapsule.route,
+        ) {
+            TimeCapsuleRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToCreate = {
+                    navController.navigate(ScreenDestinations.TimeCapsuleCreate.route)
+                },
+            )
+        }
+
         composable(
             route = ScreenDestinations.TimeCapsuleList.route,
         ) {
             TimeCapsuleListScreen(
                 modifier = modifier,
-                onShowSnackBar = { },
-                navigationToCapsule = { },
+                onShowSnackBar = { showSnackBar("아직 캡슐을 열 수 없어요!") },
+                timeCapsules =
+                    listOf(
+                        TimeCapsule(0),
+                        TimeCapsule(1),
+                        TimeCapsule(2),
+                        TimeCapsule(3),
+                        TimeCapsule(4),
+                        TimeCapsule(5),
+                        TimeCapsule(6),
+                        TimeCapsule(7, false),
+                    ),
             )
-        }
-
-        composable(
-            route = ScreenDestinations.NoTimeCapsule.route,
-        ) {
-            NoTimeCapsuleScreen(modifier = modifier)
-        }
-
-        composable(
-            route = ScreenDestinations.TimeCapsuleCreate.route,
-        ) {
-            TimeCapsuleCreateScreen(modifier = modifier)
         }
 
         composable(
@@ -210,6 +223,17 @@ fun MainNavHost(
         ) {
             WritingTimeCapsuleScreen(
                 modifier = modifier,
+                writingState = 0,
+                navigateToCreate = { navController.navigate(ScreenDestinations.TimeCapsuleCreate.route) },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.TimeCapsuleCreate.route,
+        ) {
+            TimeCapsuleCreateRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
             )
         }
 

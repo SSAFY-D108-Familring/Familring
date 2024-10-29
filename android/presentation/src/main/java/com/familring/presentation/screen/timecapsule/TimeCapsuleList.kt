@@ -21,6 +21,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +34,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.familring.domain.Profile
 import com.familring.domain.TimeCapsule
+import com.familring.domain.TimeCapsuleMessage
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -41,7 +47,23 @@ import com.familring.presentation.theme.Typography
 fun TimeCapsuleListScreen(
     modifier: Modifier = Modifier,
     timeCapsules: List<TimeCapsule> = listOf(),
-    navigationToCapsule: (id: Int) -> Unit,
+    onShowSnackBar: (message: String) -> Unit = {},
+) {
+    if (timeCapsules.isEmpty()) {
+        NoTimeCapsuleList(modifier = modifier)
+    } else {
+        TimeCapsuleList(
+            modifier = modifier,
+            timeCapsules = timeCapsules,
+            onShowSnackBar = onShowSnackBar,
+        )
+    }
+}
+
+@Composable
+fun TimeCapsuleList(
+    modifier: Modifier = Modifier,
+    timeCapsules: List<TimeCapsule> = listOf(),
     onShowSnackBar: (message: String) -> Unit = {},
 ) {
     Surface(
@@ -69,7 +91,6 @@ fun TimeCapsuleListScreen(
                                 .aspectRatio(1f),
                         count = timeCapsules.size - index,
                         timeCapsule = item,
-                        navigationToCapsule = navigationToCapsule,
                         onShowSnackbar = onShowSnackBar,
                     )
                 }
@@ -84,9 +105,10 @@ fun TimeCapsuleItem(
     modifier: Modifier = Modifier,
     count: Int,
     timeCapsule: TimeCapsule,
-    navigationToCapsule: (capsuleId: Int) -> Unit,
     onShowSnackbar: (message: String) -> Unit,
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+
     Box(
         modifier =
             modifier
@@ -97,7 +119,7 @@ fun TimeCapsuleItem(
                     shape = RoundedCornerShape(12.dp),
                 ).clickable {
                     if (timeCapsule.isOpenable) {
-                        navigationToCapsule(timeCapsule.id)
+                        showDialog = true
                     } else {
                         onShowSnackbar("아직 캡슐을 열 수 없어요!")
                     }
@@ -155,6 +177,44 @@ fun TimeCapsuleItem(
             }
         }
     }
+
+    if (showDialog) {
+        TimeCapsuleDialog(
+            timeCapsuleId = timeCapsule.id,
+            onDismiss = { showDialog = false },
+            timeCapsuleMessages =
+                listOf(
+                    TimeCapsuleMessage(
+                        id = 1,
+                        profile =
+                            Profile(
+                                nickName = "엄마미",
+                                zodiacImgUrl = "url",
+                                backgroundColor = "#FEE222",
+                            ),
+                        message =
+                            "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
+                                "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
+                                "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
+                                "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
+                    ),
+                    TimeCapsuleMessage(
+                        id = 1,
+                        profile =
+                            Profile(
+                                nickName = "아빠미",
+                                zodiacImgUrl = "url",
+                                backgroundColor = "#FEA222",
+                            ),
+                        message =
+                            "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
+                                "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
+                                "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
+                                "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
+                    ),
+                ),
+        )
+    }
 }
 
 // @Preview(showBackground = true)
@@ -168,8 +228,8 @@ fun TimeCapsuleItem(
 
 @Preview
 @Composable
-private fun TimeCapsuleListScreenPreview() {
-    TimeCapsuleListScreen(
+private fun TimeCapsuleListPreview() {
+    TimeCapsuleList(
         timeCapsules =
             listOf(
                 TimeCapsule(0),
@@ -181,7 +241,6 @@ private fun TimeCapsuleListScreenPreview() {
                 TimeCapsule(6),
                 TimeCapsule(7, false),
             ),
-        navigationToCapsule = {},
         onShowSnackBar = {},
     )
 }
