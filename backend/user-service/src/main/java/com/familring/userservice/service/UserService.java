@@ -13,4 +13,10 @@ public interface UserService {
 
     // 회원가입
     JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image);
+
+    // JWT 재발급
+    JwtTokenResponse updateJWT(String refreshToken);
+
+    // FCM 토큰 저장
+    String updateFcmToken(String userName, String fcmToken);
 }

@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.coyote.Response;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,5 +43,23 @@ public class UserController {
         return ResponseEntity.ok(tokens);
     }
 
+    @PostMapping("/jwt")
+    @Operation(summary = "JWT 재발급", description = "유효기간 만료로 인한 JWT 토큰 재발급")
+    public ResponseEntity<JwtTokenResponse> updateJWT(@RequestHeader("Authorization") String authorizationHeader) {
+        // "Bearer " 문자열을 제거하고 refreshToken만 추출
+        String refreshToken = authorizationHeader.replace("Bearer ", "");
 
+        JwtTokenResponse tokens = userService.updateJWT(refreshToken);
+
+        return ResponseEntity.ok(tokens);
+    }
+
+    @PostMapping("/fcm")
+    @Operation(summary = "발급된 FCM 토큰 저장", description = "Android에서 발급한 FCM 토큰 저장")
+    public ResponseEntity updateFcmToken
+            (Authentication authentication, @RequestParam String fcmToken) {
+        String response = userService.updateFcmToken(authentication.getName(), fcmToken);
+
+        return ResponseEntity.ok(response);
+    }
 }
