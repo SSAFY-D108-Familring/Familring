@@ -13,14 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 
 @Composable
-fun GreenRoundLongButton(
+fun RoundLongButton(
     modifier: Modifier = Modifier,
     text: String = "",
+    backgroundColor: Color = Green02,
+    textColor: Color = Color.White,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
 ) {
@@ -32,8 +35,8 @@ fun GreenRoundLongButton(
             onClick = onClick,
             colors =
                 ButtonDefaults.buttonColors(
-                    containerColor = Green02,
-                    contentColor = Color.White,
+                    containerColor = backgroundColor,
+                    contentColor = textColor,
                     disabledContainerColor = Gray03,
                     disabledContentColor = Color.White,
                 ),
@@ -55,7 +58,8 @@ fun GreenRoundLongButton(
 @Preview
 @Composable
 private fun LargeButtonPreview() {
-    GreenRoundLongButton(
+    RoundLongButton(
         text = "긴 버튼입니다",
+        backgroundColor = Brown01,
     )
 }

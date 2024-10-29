@@ -2,6 +2,8 @@ package com.familring.presentation.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -21,17 +23,23 @@ fun ZodiacBackgroundProfile(
     profile: Profile,
     modifier: Modifier = Modifier,
 ) {
-    Image(
+    Box(
         modifier =
             modifier
-                .size(55.dp)
                 .clip(CircleShape)
-                .background(Color(android.graphics.Color.parseColor(profile.backgroundColor)))
-                .padding(10.dp),
-        painter = painterResource(id = R.drawable.img_wrapped_gift),
-        contentDescription = "zodiac_profile",
-        contentScale = ContentScale.Inside,
-    )
+                .background(Color(android.graphics.Color.parseColor(profile.backgroundColor))),
+    ) {
+        Image(
+            modifier =
+                modifier
+                    .size(55.dp)
+                    .padding(8.dp)
+                    .fillMaxSize(),
+            painter = painterResource(id = R.drawable.img_wrapped_gift),
+            contentDescription = "zodiac_profile",
+            contentScale = ContentScale.Fit,
+        )
+    }
 }
 
 @Preview

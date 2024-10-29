@@ -15,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
-import com.familring.presentation.component.GreenRoundLongButton
+import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
@@ -54,7 +54,7 @@ fun NoTimeCapsuleScreen(
                 color = Black,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.03f))
-            GreenRoundLongButton(
+            RoundLongButton(
                 text = "생성하기",
                 onClick = navigateToCreate,
             )
