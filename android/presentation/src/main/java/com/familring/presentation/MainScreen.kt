@@ -18,6 +18,15 @@ import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.gallery.GalleryScreen
 import com.familring.presentation.screen.signup.BirthScreen
 import com.familring.presentation.screen.signup.FirstScreen
+import com.familring.presentation.screen.question.QuestionListScreen
+import com.familring.presentation.screen.question.QuestionScreen
+import com.familring.presentation.screen.signup.BirthRoute
+import com.familring.presentation.screen.signup.DoneRoute
+import com.familring.presentation.screen.signup.FamilyCountRoute
+import com.familring.presentation.screen.signup.FirstRoute
+import com.familring.presentation.screen.signup.NicknameRoute
+import com.familring.presentation.screen.signup.PictureRoute
+import com.familring.presentation.screen.signup.ProfileColorRoute
 import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
@@ -71,7 +80,7 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.First.route,
         ) {
-            FirstScreen(
+            FirstRoute(
                 modifier = modifier,
                 navigateToBirth = {
                     navController.navigate(ScreenDestinations.Birth.route)
@@ -82,7 +91,87 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Birth.route,
         ) {
-            BirthScreen(modifier = modifier)
+            BirthRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToColor = {
+                    navController.navigate(ScreenDestinations.ProfileColor.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.ProfileColor.route,
+        ) {
+            ProfileColorRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToNickname = {
+                    navController.navigate(ScreenDestinations.Nickname.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Nickname.route,
+        ) {
+            NicknameRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToPicture = {
+                    navController.navigate(ScreenDestinations.Picture.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Picture.route,
+        ) {
+            PictureRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToCount = {
+                    navController.navigate(ScreenDestinations.FamilyCount.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.FamilyCount.route,
+        ) {
+            FamilyCountRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                navigateToDone = {
+                    navController.navigate(ScreenDestinations.Done.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Done.route,
+        ) {
+            DoneRoute(
+                modifier = modifier,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Question.route,
+        ) {
+            QuestionScreen(
+                navigateToQuestionList = {
+                    navController.navigate(ScreenDestinations.QuestionList.route)
+                }
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.QuestionList.route,
+        ) {
+            QuestionListScreen(
+                onNavigateBack = navController::popBackStack
+            )
         }
 
         composable(
