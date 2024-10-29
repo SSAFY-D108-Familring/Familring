@@ -178,7 +178,7 @@ def hasChanges(String service) {
 // 공통 함수: 빌드 및 배포
 def buildAndDeployService(String service, int port) {
     sh """
-        docker build -t ${service}-image ./${service}
+        docker build -t ${service}-image ./backend/${service}
 
         // 기존 컨테이너 중지 및 삭제
         docker stop ${service} || true
