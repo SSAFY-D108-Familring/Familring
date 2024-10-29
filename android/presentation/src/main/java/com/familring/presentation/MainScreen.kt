@@ -24,8 +24,6 @@ import com.familring.presentation.screen.signup.FirstRoute
 import com.familring.presentation.screen.signup.NicknameRoute
 import com.familring.presentation.screen.signup.PictureRoute
 import com.familring.presentation.screen.signup.ProfileColorRoute
-import com.familring.presentation.screen.signup.BirthScreen
-import com.familring.presentation.screen.signup.FirstScreen
 import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
@@ -59,7 +57,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = ScreenDestinations.Question.route,
+            startDestination = ScreenDestinations.First.route,
             showSnackBar = onShowSnackBar,
         )
     }
