@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,9 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,12 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
-import com.familring.presentation.component.BrownRoundButton
+import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
@@ -56,8 +59,10 @@ fun GalleryRoute(modifier: Modifier) {
 @Composable
 fun GalleryScreen(modifier: Modifier) {
     var privateGallerySelected by remember { mutableStateOf(true) }
-    var albumCount = 2
+    var albumCount by remember { mutableStateOf(2) }
     var showBottomSheet by remember { mutableStateOf(false) }
+    var albumname by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
         Column(
@@ -137,27 +142,62 @@ fun GalleryScreen(modifier: Modifier) {
                 items(albumCount) {
                     GalleryItem()
                 }
-                item {
-                    AddAlbumButton(onClick = {
-                        showBottomSheet = true
-                    })
+                if (privateGallerySelected) {
+                    item {
+                        AddAlbumButton(onClick = {
+                            showBottomSheet = true
+                        })
+                    }
                 }
             }
 
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+                ModalBottomSheet(onDismissRequest = {
+                    showBottomSheet = false
+                    albumname = ""
+                }) {
                     Column(
                         modifier =
                             Modifier
                                 .padding(top = 16.dp),
                     ) {
-                        Text(text = "앨범 이름", style = Typography.titleSmall, color = Gray03, modifier = Modifier.padding(horizontal = 26.dp))
+                        BasicTextField(
+                            modifier =
+                                Modifier
+                                    .background(Color.Transparent)
+                                    .padding(horizontal = 26.dp),
+                            value = albumname,
+                            onValueChange = { albumname = it },
+                            textStyle =
+                                Typography.titleSmall.copy(
+                                    color = if (albumname.isEmpty()) Gray03 else Color.Black,
+                                    fontSize = 24.sp,
+                                ),
+                            decorationBox = { innerTextField ->
+                                Box {
+                                    if (albumname.isEmpty()) {
+                                        Text(
+                                            text = "앨범 이름",
+                                            color = Gray03,
+                                            style = Typography.titleSmall.copy(fontSize = 24.sp),
+                                        )
+                                    }
+                                    innerTextField()
+                                }
+                            },
+                        )
+
                         Spacer(modifier = Modifier.fillMaxSize(0.05f))
                         RoundLongButton(
-                            onClick = { /*TODO*/ },
+                            backgroundColor = Brown01,
                             text = "생성하기",
-                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                Log.d("Gallery", "생성하기")
+                                albumCount++
+                                showBottomSheet = false
+                            },
                         )
+                        Spacer(modifier = Modifier.fillMaxSize(0.3f))
                     }
                 }
             }
@@ -200,7 +240,7 @@ fun GalleryItem() {
             color = Gray01,
         )
     }
-
+}
 
 @Composable
 fun AddAlbumButton(onClick: () -> Unit) {

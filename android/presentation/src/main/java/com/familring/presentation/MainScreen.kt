@@ -18,7 +18,6 @@ import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
-import com.familring.presentation.screen.gallery.GalleryScreen
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.question.QuestionListScreen
