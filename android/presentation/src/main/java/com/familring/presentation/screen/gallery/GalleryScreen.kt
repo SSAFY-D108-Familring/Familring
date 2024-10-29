@@ -51,13 +51,19 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun GalleryRoute(modifier: Modifier) {
-    GalleryScreen(modifier = modifier)
+fun GalleryRoute(
+    modifier: Modifier,
+    navigateToAlbum: () -> Unit,
+) {
+    GalleryScreen(modifier = modifier, navigateToAlbum = navigateToAlbum)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GalleryScreen(modifier: Modifier) {
+fun GalleryScreen(
+    modifier: Modifier,
+    navigateToAlbum: () -> Unit,
+) {
     var privateGallerySelected by remember { mutableStateOf(true) }
     var albumCount by remember { mutableStateOf(2) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -140,7 +146,7 @@ fun GalleryScreen(modifier: Modifier) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(albumCount) {
-                    GalleryItem()
+                    GalleryItem(navigateToAlbum)
                 }
                 if (privateGallerySelected) {
                     item {
@@ -206,7 +212,7 @@ fun GalleryScreen(modifier: Modifier) {
 }
 
 @Composable
-fun GalleryItem() {
+fun GalleryItem(navigateToAlbum: () -> Unit) {
     Column(
         modifier =
             Modifier
@@ -214,7 +220,7 @@ fun GalleryItem() {
                 .padding(bottom = 8.dp),
     ) {
         Card(
-            onClick = { Log.d("gallery", "카드뷰 클릭") },
+            onClick = { navigateToAlbum() },
             shape = RoundedCornerShape(18.dp),
             modifier =
                 Modifier
@@ -280,5 +286,5 @@ fun AddAlbumButton(onClick: () -> Unit) {
 @Preview
 @Composable
 fun GalleryScreenPreview() {
-    GalleryScreen(modifier = Modifier)
+    GalleryScreen(modifier = Modifier, navigateToAlbum = {})
 }
