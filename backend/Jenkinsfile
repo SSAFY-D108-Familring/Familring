@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build Core Services') {
+            steps {
+                script {
+                    // Core 서비스를 먼저 빌드합니다.
+                    def coreServices = ["config-service", "discovery-service", "api-gateway"]
+
+                    for (service in coreServices) {
+                        dir(service) {
+                            // 각 서비스의 Docker 이미지를 빌드
+                            sh "docker build -t ${service} ."
+
+                            // 기존 컨테이너가 있으면 중지 및 삭제
+                            def containerId = sh(script: "docker ps -a --filter 'name=${service}' --format '{{.ID}}'", returnStdout: true).trim()
+                            if (containerId) {
+                                sh "docker stop ${containerId}"
+                                sh "docker rm ${containerId}"
+                            }
+
+                            // 새 컨테이너 실행
+                            sh "docker run --name ${service} -d -p [포트번호]:[포트번호] ${service}"
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Remaining Services') {
+            steps {
+                script {
+                    // 나머지 마이크로서비스 빌드
+                    def otherServices = ["album-service", "calendar-service", "family-service", "interest-service", "notification-service", "question-service", "timecapsule-service", "user-service"]
+
+                    for (service in otherServices) {
+                        dir(service) {
+                            sh "docker build -t ${service} ."
+
+                            def containerId = sh(script: "docker ps -a --filter 'name=${service}' --format '{{.ID}}'", returnStdout: true).trim()
+                            if (containerId) {
+                                sh "docker stop ${containerId}"
+                                sh "docker rm ${containerId}"
+                            }
+
+                            sh "docker run --name ${service} -d -p [포트번호]:[포트번호] ${service}"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

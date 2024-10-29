@@ -1,4 +1,4 @@
-package com.familring.userservice.config.swagger;
+package com.familring.calendarservice.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -59,10 +59,10 @@ public class SwaggerConfig {
     }
 
     @Bean
-    public GroupedOpenApi userApi() {
+    public GroupedOpenApi calendarApi() {
         return GroupedOpenApi.builder()
-                .group("User")
-                .pathsToMatch("/users/**")
+                .group("Calendar")
+                .pathsToMatch("/calendars/**")
                 .build();
     }
 }
