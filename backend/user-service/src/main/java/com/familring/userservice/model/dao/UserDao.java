@@ -10,14 +10,15 @@ import java.util.Optional;
 @Mapper
 public interface UserDao {
     // 회원가입
-    void insertByUser(UserDto user);
+    void insertUser(UserDto user);
 
     // 회원 정보 조회
-    Optional<UserDto> findByUserKakaoId(String userKakaoId);
+    Optional<UserDto> findUserByUserKakaoId(@Param("userKakaoId") String userKakaoId);
+    Optional<UserDto> findUserByUserId(@Param("userId") Long userId);
 
     // FCM 토큰 저장
-    void updateByUserFcmToken(@Param("userName") String userName, @Param("fcmToken") String fcmToken);
+    void updateUserFcmTokenByUserKakaoId(@Param("userName") String userName, @Param("fcmToken") String fcmToken);
 
     // 회원 탈퇴
-    void delete(UserDeleteRequest deleteRequest);
+    void deleteUser(UserDeleteRequest deleteRequest);
 }

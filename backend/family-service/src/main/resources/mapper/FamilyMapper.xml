@@ -19,4 +19,12 @@
             ON f.family_id = fu.family_id
         WHERE fu.user_id = #{userId}
     </select>
+
+    <select id="findFamilyUserByUserId" resultType="java.lang.Long">
+        SELECT fu.user_id
+        FROM family_user fu
+        JOIN family_user f
+            ON f.family_id = fu.family_id
+        WHERE f.user_id = #{userId}
+    </select>
 </mapper>

@@ -27,9 +27,17 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    @Operation(summary = "회원 정보 조회", description = "Header의 토큰을 사용해 회원의 정보를 조회")
+    @Operation(summary = "회원 정보 조회 - Header", description = "Header의 토큰을 사용해 회원의 정보를 조회")
     public ResponseEntity getUser(Authentication authentication) {
         UserInfoResponse response = userService.getUser(authentication.getName());
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/info")
+    @Operation(summary = "회원 정보 조회 - requestParam", description = "requestParam을 사용해 회원의 정보를 조회")
+    public ResponseEntity getUser(@RequestParam("userId") Long userId) {
+        UserInfoResponse response = userService.getUser(userId);
 
         return ResponseEntity.ok(response);
     }

@@ -9,7 +9,9 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,6 +21,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final FamilyDao familyDao;
+    private final RestTemplate restTemplate;
 
     @Override
     public FamilyInfoResponse getFamilyInfo(String token) {
@@ -28,6 +31,7 @@ public class FamilyServiceImpl implements FamilyService {
         // 2. 가족 조회
         FamilyDto familyDto = familyDao.findFamilyInfoByUserId(userId);
 
+        // 3. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
                 .familyId(familyDto.getFamilyId())
                 .familyCode(familyDto.getFamilyCode())
@@ -35,6 +39,7 @@ public class FamilyServiceImpl implements FamilyService {
                 .familyCommunicationStatus(familyDto.getFamilyCommunicationStatus())
                 .build();
 
+        // 4. 응답
         return response;
     }
 
@@ -46,6 +51,7 @@ public class FamilyServiceImpl implements FamilyService {
         // 2. 가족 코드 조회
         String familyCode = familyDao.findFamilyInfoByUserId(userId).getFamilyCode();
 
+        // 3. 응답
         return familyCode;
     }
 
@@ -54,10 +60,23 @@ public class FamilyServiceImpl implements FamilyService {
         // 1. 클레임에서 userId 추출
         Long userId = getUserId(token);
 
-        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users")  api 요청
+        // 2. userId의 가족 구성원 모두의 userId 추출
+        List<Long> members = familyDao.findFamilyUserByUserId(userId);
 
+        // 3. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
+        List<UserInfoResponse> response = new ArrayList<>();
 
-        return List.of();
+        for (Long memberId : members) {
+            // user-service의 URL 설정
+            String url = "http://user-service/users/info?userId=" + memberId;
+
+            // 사용자 정보를 요청하여 리스트에 추가
+            UserInfoResponse userInfo = restTemplate.getForObject(url, UserInfoResponse.class);
+            response.add(userInfo);
+        }
+
+        // 4. 응답
+        return response;
     }
 
     public Long getUserId(String token) {
