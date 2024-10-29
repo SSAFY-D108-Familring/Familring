@@ -3,7 +3,6 @@ package com.familring.presentation.screen.question
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
@@ -125,6 +125,7 @@ fun QuestionScreen(
                     Spacer(modifier = Modifier.fillMaxSize(0.03f))
                     Text(
                         text = "그동안 미안했지만 사과하지 못했던 일이 있나요? 있다면 여기에 적어보세요",
+                        textAlign = TextAlign.Center,
                         softWrap = true,
                         modifier = Modifier.padding(horizontal = 50.dp),
                         overflow = TextOverflow.Visible,
