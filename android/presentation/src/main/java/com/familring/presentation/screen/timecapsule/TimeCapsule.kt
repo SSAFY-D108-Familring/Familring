@@ -38,18 +38,23 @@ import com.familring.presentation.theme.Typography
 @Composable
 fun TimeCapsuleDialog(
     modifier: Modifier = Modifier,
+    timeCapsuleId: Int,
     timeCapsuleMessages: List<TimeCapsuleMessage> = listOf(),
+    onDismiss: () -> Unit = {},
 ) {
     Dialog(
-        onDismissRequest = { /*TODO*/ },
+        onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         if (timeCapsuleMessages.isEmpty()) {
             OneButtonTextDialog(text = "작성된 캡슐이 없어요", buttonText = "확인") {
+                onDismiss()
             }
         } else {
             TimeCapsulePager(
-                modifier = modifier,
+                modifier =
+                    Modifier
+                        .fillMaxHeight(0.6f),
                 timeCapsuleMessages = timeCapsuleMessages,
             )
         }
@@ -73,7 +78,6 @@ fun TimeCapsulePager(
         HorizontalPager(
             modifier =
                 Modifier
-                    .fillMaxHeight(0.6f)
                     .fillMaxWidth(),
             state = pagerState,
             pageSpacing = 14.dp,
@@ -178,25 +182,3 @@ private fun TimeCapsulePagerPreview() {
             ),
     )
 }
-
-// @Preview(showBackground = true)
-// @Composable
-// private fun TimeCapsulePreview() {
-//    TimeCapsule(
-//        timeCapsuleMessage =
-//            TimeCapsuleMessage(
-//                id = 1,
-//                profile =
-//                    Profile(
-//                        nickName = "엄마미",
-//                        zodiacImgUrl = "url",
-//                        backgroundColor = "#FEE222",
-//                    ),
-//                message =
-//                    "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
-//                        "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
-//                        "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
-//                        "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
-//            ),
-//    )
-// }

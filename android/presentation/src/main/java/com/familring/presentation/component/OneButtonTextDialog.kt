@@ -1,6 +1,7 @@
 package com.familring.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
-import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun OneButtonTextDialog(
@@ -55,14 +55,14 @@ fun OneButtonTextDialog(
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp))
-                    .background(color = Green02),
+                    .background(color = Green02)
+                    .clickable { onButtonClick() },
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = buttonText,
                 modifier =
                     Modifier
-                        .noRippleClickable { onButtonClick() }
                         .padding(vertical = 16.dp),
                 color = Color.White,
                 style = Typography.headlineMedium.copy(fontSize = 18.sp),

@@ -14,8 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.familring.domain.Profile
-import com.familring.domain.TimeCapsuleMessage
+import com.familring.domain.TimeCapsule
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.signup.BirthScreen
 import com.familring.presentation.screen.signup.FirstScreen
@@ -54,7 +53,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier,
             navController = navController,
-            startDestination = ScreenDestinations.TimeCapsuleDialog.route,
+            startDestination = ScreenDestinations.First.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -102,8 +101,18 @@ fun MainNavHost(
         ) {
             TimeCapsuleListScreen(
                 modifier = modifier,
-                onShowSnackBar = { },
-                navigationToCapsule = { },
+                onShowSnackBar = { showSnackBar("아직 캡슐을 열 수 없어요!") },
+                timeCapsules =
+                    listOf(
+                        TimeCapsule(0),
+                        TimeCapsule(1),
+                        TimeCapsule(2),
+                        TimeCapsule(3),
+                        TimeCapsule(4),
+                        TimeCapsule(5),
+                        TimeCapsule(6),
+                        TimeCapsule(7, false),
+                    ),
             )
         }
 
@@ -135,37 +144,7 @@ fun MainNavHost(
         ) {
             TimeCapsuleDialog(
                 modifier = modifier,
-//                timeCapsuleMessages =
-//                    listOf(
-//                        TimeCapsuleMessage(
-//                            id = 1,
-//                            profile =
-//                                Profile(
-//                                    nickName = "엄마미",
-//                                    zodiacImgUrl = "url",
-//                                    backgroundColor = "#FEE222",
-//                                ),
-//                            message =
-//                                "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
-//                                    "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
-//                                    "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
-//                                    "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
-//                        ),
-//                        TimeCapsuleMessage(
-//                            id = 1,
-//                            profile =
-//                                Profile(
-//                                    nickName = "아빠미",
-//                                    zodiacImgUrl = "url",
-//                                    backgroundColor = "#FEA222",
-//                                ),
-//                            message =
-//                                "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
-//                                    "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
-//                                    "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
-//                                    "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
-//                        ),
-//                    ),
+                timeCapsuleId = 1,
             )
         }
     }

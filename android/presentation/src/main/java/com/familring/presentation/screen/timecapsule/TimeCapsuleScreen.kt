@@ -38,9 +38,7 @@ fun TimeCapsuleScreen(modifier: Modifier = Modifier) {
             when (selectedItemIndex) {
                 0 -> WritingTimeCapsuleScreen()
                 1 ->
-                    TimeCapsuleListScreen(
-                        navigationToCapsule = {},
-                    )
+                    TimeCapsuleListScreen()
             }
         }
     }
