@@ -22,12 +22,27 @@ import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.component.DateInputRow
 import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 
 @Composable
-fun TimeCapsuleCreateScreen(modifier: Modifier = Modifier) {
+fun TimeCapsuleCreateRoute(
+    modifier: Modifier = Modifier,
+    popUpBackStack: () -> Unit,
+) {
+    TimeCapsuleCreateScreen(
+        modifier = modifier,
+        popUpBackStack = popUpBackStack,
+    )
+}
+
+@Composable
+fun TimeCapsuleCreateScreen(
+    modifier: Modifier = Modifier,
+    popUpBackStack: () -> Unit = {},
+) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
@@ -44,6 +59,16 @@ fun TimeCapsuleCreateScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "타임 캡슐 작성",
+                        color = Black,
+                        style = Typography.headlineMedium.copy(fontSize = 22.sp),
+                    )
+                },
+                onNavigationClick = popUpBackStack,
+            )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             Image(
                 painter = painterResource(id = R.drawable.img_wrapped_gift),
@@ -59,10 +84,10 @@ fun TimeCapsuleCreateScreen(modifier: Modifier = Modifier) {
             Text(
                 text = "미래의 가족이 열어볼 타임캡슐을 준비해 보세요",
                 style =
-                    Typography.bodySmall.copy(
-                        color = Gray01,
-                        fontSize = 20.sp,
-                    ),
+                Typography.bodySmall.copy(
+                    color = Gray01,
+                    fontSize = 20.sp,
+                ),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             DateInputRow(

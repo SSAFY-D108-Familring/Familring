@@ -21,7 +21,10 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 
 @Composable
-fun NoTimeCapsuleScreen(modifier: Modifier = Modifier) {
+fun NoTimeCapsule(
+    modifier: Modifier = Modifier,
+    navigateToCreate: () -> Unit = {},
+) {
     Surface(
         modifier = modifier.fillMaxSize(),
         color = Color.White,
@@ -53,7 +56,7 @@ fun NoTimeCapsuleScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             RoundLongButton(
                 text = "생성하기",
-                onClick = { /*TODO*/ },
+                onClick = navigateToCreate,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
         }
@@ -62,6 +65,9 @@ fun NoTimeCapsuleScreen(modifier: Modifier = Modifier) {
 
 @Preview(showBackground = false)
 @Composable
-private fun NoTimeCapsuleScreenPreview() {
-    NoTimeCapsuleScreen(Modifier)
+private fun NoTimeCapsulePreview() {
+    NoTimeCapsule(
+        modifier = Modifier,
+        navigateToCreate = {},
+    )
 }

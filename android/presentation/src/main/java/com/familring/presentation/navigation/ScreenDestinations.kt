@@ -46,11 +46,11 @@ sealed class ScreenDestinations(
     data object Done : ScreenDestinations(route = "Done")
 
     // 타임캡슐
+    // 타임캡슐 화면
+    data object TimeCapsule : ScreenDestinations(route = "TimeCapsule")
+
     // 타임캡슐 생성 화면
     data object TimeCapsuleCreate : ScreenDestinations(route = "TimeCapsuleCreate")
-
-    // 작성할 수 있는 타임캡슐 없는 화면
-    data object NoTimeCapsule : ScreenDestinations(route = "NoTimeCapsule")
 
     // 타임캡슐 작성 화면
     data object WritingTimeCapsule : ScreenDestinations(route = "WritingTimeCapsule")

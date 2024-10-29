@@ -16,11 +16,13 @@ fun OverlappingProfileLazyRow(
         modifier = modifier,
     ) {
         item {
-            OverlappingRow {
-                for (profile in profiles) {
-                    ZodiacBackgroundProfile(
-                        profile = profile,
-                    )
+            if (profiles.isNotEmpty()) {
+                OverlappingRow {
+                    for (profile in profiles) {
+                        ZodiacBackgroundProfile(
+                            profile = profile,
+                        )
+                    }
                 }
             }
         }
@@ -60,9 +62,9 @@ private fun OverlappingProfileLazyRowPreview() {
     OverlappingProfileLazyRow(
         profiles =
             listOf(
-                Profile("url1", "#FEE222"),
-                Profile("url1", "#FFE1E1"),
-                Profile("url1", "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FFE1E1"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
             ),
     )
 }

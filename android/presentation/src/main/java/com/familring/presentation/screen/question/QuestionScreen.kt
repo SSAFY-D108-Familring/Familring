@@ -46,23 +46,36 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun QuestionScreen(
-    navigateToQuestionList: () -> Unit,
-) {
+fun QuestionScreen(navigateToQuestionList: () -> Unit) {
     var family = remember { mutableListOf<String>() }
     val userQuestion =
         UserQuestion(
-            profile = Profile("url1", "#FEE222"),
+            profile = Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
             question = null,
         )
 
     val questionList =
         listOf(
-            UserQuestion(profile = Profile("url1", "#FEE222"), question = null),
-            UserQuestion(profile = Profile("url2", "#FEE222"), question = "답변1"),
-            UserQuestion(profile = Profile("url3", "#FEE222"), question = null),
-            UserQuestion(profile = Profile("url4", "#FEE222"), question = "답변2"),
-            UserQuestion(profile = Profile("url5", "#FEE222"), question = null),
+            UserQuestion(
+                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                question = null,
+            ),
+            UserQuestion(
+                profile = Profile(zodiacImgUrl = "url2", backgroundColor = "#FEE222"),
+                question = "답변1",
+            ),
+            UserQuestion(
+                profile = Profile(zodiacImgUrl = "url3", backgroundColor = "#FEE222"),
+                question = null,
+            ),
+            UserQuestion(
+                profile = Profile(zodiacImgUrl = "url4", backgroundColor = "#FEE222"),
+                question = "답변2",
+            ),
+            UserQuestion(
+                profile = Profile(zodiacImgUrl = "url5", backgroundColor = "#FEE222"),
+                question = null,
+            ),
         )
 
     Box(
@@ -160,7 +173,7 @@ fun FamilyListItem(userQuestion: UserQuestion) {
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             ZodiacBackgroundProfile(
-                profile = Profile("url1", "#FEE222"),
+                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
                 modifier =
                     Modifier
                         .size(35.dp)
@@ -199,7 +212,13 @@ fun FamilyListItem(userQuestion: UserQuestion) {
                             }
                         },
                     style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                    modifier = Modifier.noRippleClickable { Log.d("question", "똑똑 누름 $userQuestion") },
+                    modifier =
+                        Modifier.noRippleClickable {
+                            Log.d(
+                                "question",
+                                "똑똑 누름 $userQuestion",
+                            )
+                        },
                 )
             }
         }

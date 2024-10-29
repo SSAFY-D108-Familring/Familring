@@ -42,6 +42,31 @@ import com.familring.presentation.theme.Typography
 @Composable
 fun WritingTimeCapsuleScreen(
     modifier: Modifier = Modifier,
+    writingState: Int,
+    navigateToCreate: () -> Unit = {},
+) {
+    when (writingState) {
+        0 ->
+            NoTimeCapsule(
+                modifier = modifier,
+                navigateToCreate = navigateToCreate,
+            )
+
+        1 ->
+            WritingTimeCapsule(
+                modifier = modifier,
+            )
+
+        2 ->
+            FinishedTimeCapsule(
+                modifier = modifier,
+            )
+    }
+}
+
+@Composable
+fun WritingTimeCapsule(
+    modifier: Modifier = Modifier,
     letterCount: Int = 0,
     wroteProfiles: List<Profile> = listOf(),
 ) {
@@ -149,14 +174,14 @@ fun WritingTimeCapsuleScreen(
 
 @Preview
 @Composable
-private fun WritingTimeCapsuleScreenPreview() {
-    WritingTimeCapsuleScreen(
+private fun WritingTimeCapsulePreview() {
+    WritingTimeCapsule(
         letterCount = 2,
         wroteProfiles =
             listOf(
-                Profile("url1", "#FEE222"),
-                Profile("url1", "#FFE1E1"),
-                Profile("url1", "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FFE1E1"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
             ),
     )
 }
