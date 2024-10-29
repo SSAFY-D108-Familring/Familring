@@ -1,5 +1,6 @@
 package com.familring.presentation
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -16,10 +17,12 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
+import com.familring.presentation.screen.calendar.CalendarRoute
+import com.familring.presentation.screen.chat.ChatRoute
+import com.familring.presentation.screen.gallery.GalleryRoute
+import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
-import com.familring.presentation.screen.chat.ChatRoute
-import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.signup.BirthRoute
 import com.familring.presentation.screen.signup.DoneRoute
 import com.familring.presentation.screen.signup.FamilyCountRoute
@@ -64,7 +67,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         },
     ) { _ ->
         MainNavHost(
-            modifier = modifier,
+            modifier = modifier.navigationBarsPadding(),
             navController = navController,
             startDestination = ScreenDestinations.First.route,
             showSnackBar = onShowSnackBar,
@@ -220,6 +223,18 @@ fun MainNavHost(
             route = ScreenDestinations.Chat.route,
         ) {
             ChatRoute(modifier = modifier)
+        }
+
+        composable(
+            route = ScreenDestinations.Calendar.route,
+        ) {
+            CalendarRoute(modifier = modifier)
+        }
+
+        composable(
+            route = ScreenDestinations.Gallery.route,
+        ) {
+            GalleryRoute(modifier = modifier)
         }
     }
 }
