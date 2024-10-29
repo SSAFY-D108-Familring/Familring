@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
+import com.familring.presentation.component.BrownRoundButton
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
@@ -98,7 +98,7 @@ fun GalleryScreen(modifier: Modifier) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "개인",
+                    text = "인물",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
                         Modifier
@@ -141,13 +141,19 @@ fun GalleryScreen(modifier: Modifier) {
 
             if (showBottomSheet) {
                 ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
-                    Column {
-                        Text(text = "앨범 이름")
-                        Button(onClick = { showBottomSheet = false }) {
-                            Text(text = "생성하기")
-                        }
+                    Column(
+                        modifier =
+                            Modifier
+                                .padding(top = 16.dp),
+                    ) {
+                        Text(text = "앨범 이름", style = Typography.titleSmall, color = Gray03, modifier = Modifier.padding(horizontal = 26.dp))
+                        Spacer(modifier = Modifier.fillMaxSize(0.05f))
+                        BrownRoundButton(
+                            onClick = { /*TODO*/ },
+                            text = "생성하기",
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
-                    Text(text = "앨범 이름")
                 }
             }
         }
@@ -178,7 +184,7 @@ fun GalleryItem() {
         }
         Spacer(modifier = Modifier.padding(4.dp))
         Text(
-            text = "에밀리아마지텐시",
+            text = "네코타 츠나",
             style = Typography.displaySmall.copy(fontSize = 15.sp),
             modifier = Modifier.padding(horizontal = 6.dp),
         )
