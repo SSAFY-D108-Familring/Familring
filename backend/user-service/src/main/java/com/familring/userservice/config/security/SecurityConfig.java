@@ -4,6 +4,7 @@ import com.familring.userservice.config.jwt.JwtAuthenticationFilter;
 import com.familring.userservice.config.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,30 +27,35 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${familring.server.url}")
-    private String serverUrl;
+    @Value("${familring.server.ip-address}")
+    private String serverIpAddress;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.httpBasic(AbstractHttpConfigurer::disable) // 기본 인증을 비활성화 (HTTP Basic Authentication)
-                .csrf(AbstractHttpConfigurer::disable) // CSRF 보호를 비활성화 (Cross-Site Request Forgery)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 관리를 Stateless로 설정 (서버에 세션을 저장하지 않음)
+        http.httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/actuator/**").permitAll()
                                 .requestMatchers("/**").access(this::hasIpAddresses)
                                 .anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-        return http.build(); // 설정된 HttpSecurity 객체를 빌드하여 반환
+        return http.build();
     }
 
     private AuthorizationDecision hasIpAddresses(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
         HttpServletRequest request = context.getRequest();
-        boolean isValidIp = Stream.of(serverUrl, "127.0.0.1")
-                .map(IpAddressMatcher::new)
-                .anyMatch(matcher -> matcher.matches(request));
+        String remoteHost = request.getRemoteHost();
+        String remoteAddr = request.getRemoteAddr();
 
-        return new AuthorizationDecision(isValidIp);
+        // 호스트네임 체크
+        boolean isValidHost = StringUtils.equals(serverIpAddress, remoteHost);
+
+        // IP 주소 체크 (localhost)
+        boolean isLocalhost = StringUtils.equals("127.0.0.1", remoteAddr);
+
+        return new AuthorizationDecision(isValidHost || isLocalhost);
     }
 }
