@@ -15,11 +15,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FamilringTheme {
-                Scaffold { innerPadding ->
-                    Surface(modifier = Modifier.padding(innerPadding)) {
-                        MainScreen()
-                    }
-                }
+                MainScreen()
             }
         }
     }
