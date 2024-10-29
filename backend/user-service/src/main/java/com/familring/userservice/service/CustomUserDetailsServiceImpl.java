@@ -1,6 +1,5 @@
 package com.familring.userservice.service;
 
-import com.familring.userservice.config.s3.S3Service;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
@@ -13,11 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +22,6 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserDao userDao;
-    private final S3Service s3Service;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -57,9 +52,10 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public void createUser(UserJoinRequest userJoinRequest, MultipartFile image){
         String faceImgUrl = null;
 
+        // 나중에 file-service로 업로드 하도록 수정
         // 프로필 사진 처리
-        if(!image.isEmpty())
-            faceImgUrl = s3Service.uploadS3(image, "user-face");
+//        if(!image.isEmpty())
+//            faceImgUrl = s3Service.uploadS3(image, "user-face");
 
         // 띠 계산
         Calendar calendar = Calendar.getInstance();
