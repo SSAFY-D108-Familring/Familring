@@ -5,10 +5,18 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                script {
-                    dir('config-service') {
-                        sh 'mkdir -p src/config-service/resources'
-                        sh 'cp /home/ubuntu/secret/config/application.yml src/config-service/resources'
+            }
+        }
+
+        stage('application.yml download') {
+            steps {
+                withCredentials([file(credentialsId: 'config-application', variable: 'config_application_yml')]) {
+                    script {
+                        // 디렉토리가 없는 경우 생성
+                        sh 'mkdir -p config-service/src/main/resources'
+
+                        // config-application.yml 복사
+                        sh 'cp $config_application_yml config-service/src/main/resources/application.yml'
                     }
                 }
             }
