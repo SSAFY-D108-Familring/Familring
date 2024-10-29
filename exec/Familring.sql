@@ -6,11 +6,11 @@ use d108;
 DROP TABLE IF EXISTS `family_user`;
 DROP TABLE IF EXISTS `photo`;
 DROP TABLE IF EXISTS `schedule_user`;
-DROP TABLE IF EXISTS `question_family`;
 DROP TABLE IF EXISTS `question_answer`;
+DROP TABLE IF EXISTS `question_family`;
 DROP TABLE IF EXISTS `timecapsule_anwser`;
-DROP TABLE IF EXISTS `interest_mission`;
 DROP TABLE IF EXISTS `interest_answer`;
+DROP TABLE IF EXISTS `interest_mission`;
 
 DROP TABLE IF EXISTS `user`;
 DROP TABLE IF EXISTS `family`;
@@ -36,6 +36,7 @@ CREATE TABLE `user` (
 	`user_face`	VARCHAR(255)	NOT NULL	COMMENT '얼사분을 위한 회원 사진',
 	`user_color`	VARCHAR(100)	NOT NULL	COMMENT 'HEX CODE',
 	`user_emotion`	VARCHAR(100)	NOT NULL	DEFAULT "",
+    `user_fcm_token` VARCHAR(255) NULL,
 	`user_created_at`	TIMESTAMP	NOT NULL	DEFAULT NOW(),
 	`user_modified_at`	TIMESTAMP	NOT NULL	DEFAULT NOW(),
 	`user_is_deleted`	TINYINT	NOT NULL	DEFAULT 0,

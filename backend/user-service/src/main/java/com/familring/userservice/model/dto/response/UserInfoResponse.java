@@ -1,11 +1,13 @@
 package com.familring.userservice.model.dto.response;
 
 import com.familring.userservice.model.dto.FamilyRole;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
+@Builder
 public class UserInfoResponse {
     private Long userId;
     private String userKakaoId;

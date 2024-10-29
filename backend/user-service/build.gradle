@@ -29,6 +29,9 @@ dependencies {
     // S3
     implementation group: 'io.awspring.cloud', name: 'spring-cloud-starter-aws', version: '2.4.4'
 
+    // FCM
+    implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.3.0'
+
     // Config
     implementation 'org.springframework.cloud:spring-cloud-config-client'
 

@@ -23,6 +23,7 @@ public class UserDto implements UserDetails {
     private String userFace;
     private String userColor;
     private String userEmotion;
+    private String userFcmToken;
     private LocalDateTime userCreatedAt;
     private LocalDateTime userModifiedAt;
     private boolean userIsDeleted;
@@ -35,11 +36,11 @@ public class UserDto implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return userPassword;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return userKakaoId;
     }
 }

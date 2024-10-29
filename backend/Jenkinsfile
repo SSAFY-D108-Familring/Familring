@@ -7,184 +7,43 @@ pipeline {
                 checkout scm
             }
         }
-
         stage('application.yml download') {
             steps {
-                withCredentials([file(credentialsId: 'config-application.yml', variable: 'config_application_yml')]) {
+                withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
                         // 디렉토리가 없는 경우 생성
-                        sh 'mkdir -p config-service/src/main/resources'
+                        sh 'mkdir -p backend/config-service/main/resources'
 
-                        // config-application.yml 복사
-                        sh 'cp $config_application_yml config-service/src/main/resources/application.yml'
+                        // application.yml 복사
+                        sh 'cp $application_yml backend/config-service/main/resources/application.yml'
                     }
                 }
             }
         }
-
-        // Core services 순차적으로 빌드
-        stage('Build Core Services') {
+        stage('Build Config Server') {
             steps {
                 script {
-                    def coreServices = [
-                        ["service": "config-service", "port": 8888],
-                        ["service": "discovery-service", "port": 8761],
-                        ["service": "api-gateway", "port": 8080]
-                    ]
+                    dir('backend/config-service') {
+                        sh 'chmod +x ./gradlew'
 
-                    for (serviceData in coreServices) {
-                        dir(serviceData.service) {
-                            echo "Building and deploying ${serviceData.service}"
-                            buildAndDeployService(serviceData.service, serviceData.port)
+                        sh './gradlew clean build -x test'
+
+                        // Check if any container is named "config-service"
+                        def containerNamedConfigService = sh(script: "docker ps -a --filter 'name=config-service' --format '{{.ID}}'", returnStdout: true).trim()
+
+                        if (containerNamedConfigService) {
+                            // Stop and remove the container named "config-service"
+                            sh "docker stop ${containerNamedConfigService}"
+                            sh "docker rm ${containerNamedConfigService}"
                         }
+
+                        // Build and run the new backend container
+                        sh "docker build -t config-service ."
+                        sh "docker run --name config-service -d -p 8888:8888 config-service"
                     }
                 }
             }
         }
 
-        // 나머지 서비스들에 대해 병렬 빌드 및 배포
-        stage('Build Other Services') {
-            parallel {
-                stage('Build and Deploy Album Service') {
-                    steps {
-                        script {
-                            dir("album-service") {
-                                if (hasChanges("album-service")) {
-                                    echo "Building and deploying album-service"
-                                    buildAndDeployService("album-service", 8081)
-                                } else {
-                                    echo "No changes detected in album-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage('Build and Deploy Calendar Service') {
-                    steps {
-                        script {
-                            dir("calendar-service") {
-                                if (hasChanges("calendar-service")) {
-                                    echo "Building and deploying calendar-service"
-                                    buildAndDeployService("calendar-service", 8082)
-                                } else {
-                                    echo "No changes detected in calendar-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage('Build and Deploy Family Service') {
-                    steps {
-                        script {
-                            dir("family-service") {
-                                if (hasChanges("family-service")) {
-                                    echo "Building and deploying family-service"
-                                    buildAndDeployService("family-service", 8083)
-                                } else {
-                                    echo "No changes detected in family-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // 다른 서비스들도 같은 형식으로 추가
-                stage('Build and Deploy Interest Service') {
-                    steps {
-                        script {
-                            dir("interest-service") {
-                                if (hasChanges("interest-service")) {
-                                    echo "Building and deploying interest-service"
-                                    buildAndDeployService("interest-service", 8084)
-                                } else {
-                                    echo "No changes detected in interest-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage('Build and Deploy Notification Service') {
-                    steps {
-                        script {
-                            dir("notification-service") {
-                                if (hasChanges("notification-service")) {
-                                    echo "Building and deploying notification-service"
-                                    buildAndDeployService("notification-service", 8085)
-                                } else {
-                                    echo "No changes detected in notification-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage('Build and Deploy Question Service') {
-                    steps {
-                        script {
-                            dir("question-service") {
-                                if (hasChanges("question-service")) {
-                                    echo "Building and deploying question-service"
-                                    buildAndDeployService("question-service", 8086)
-                                } else {
-                                    echo "No changes detected in question-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage('Build and Deploy Timecapsule Service') {
-                    steps {
-                        script {
-                            dir("timecapsule-service") {
-                                if (hasChanges("timecapsule-service")) {
-                                    echo "Building and deploying timecapsule-service"
-                                    buildAndDeployService("timecapsule-service", 8087)
-                                } else {
-                                    echo "No changes detected in timecapsule-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-
-                stage('Build and Deploy User Service') {
-                    steps {
-                        script {
-                            dir("user-service") {
-                                if (hasChanges("user-service")) {
-                                    echo "Building and deploying user-service"
-                                    buildAndDeployService("user-service", 8088)
-                                } else {
-                                    echo "No changes detected in user-service. Skipping."
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
-}
-
-// 공통 함수: 변경 사항 확인
-def hasChanges(String service) {
-    return sh(script: "git diff --name-only HEAD~1 HEAD | grep ${service}/", returnStatus: true) == 0
-}
-
-// 공통 함수: 빌드 및 배포
-def buildAndDeployService(String service, int port) {
-    sh """
-        docker build -t ${service}-image ./backend/${service}
-
-        // 기존 컨테이너 중지 및 삭제
-        docker stop ${service} || true
-        docker rm ${service} || true
-
-        // 새로운 컨테이너 실행
-        docker run --name ${service} -d -p ${port}:8080 ${service}-image
-    """
 }

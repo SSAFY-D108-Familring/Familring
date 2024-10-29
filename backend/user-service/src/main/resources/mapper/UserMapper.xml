@@ -15,6 +15,7 @@
         <result column="user_face" property="userFace"/>
         <result column="user_color" property="userColor"/>
         <result column="user_emotion" property="userEmotion"/>
+        <result column="user_fcm_token" property="userFcmToken"/>
         <result column="user_created_at" property="userCreatedAt"/>
         <result column="user_modified_at" property="userModifiedAt"/>
         <result column="user_is_deleted" property="userIsDeleted"/>
@@ -22,9 +23,9 @@
     </resultMap>
 
     <select id="findByUserKakaoId" resultMap="userInfo">
-        select *
-        from user
-        where user_kakao_id = #{userKakaoId}
+        SELECT *
+        FROM user
+        WHERE user_kakao_id = #{userKakaoId}
     </select>
 
     <insert id="insertByUser" parameterType="com.familring.userservice.model.dto.UserDto">
@@ -40,4 +41,17 @@
                      #{userIsDeleted}, #{userIsAdmin}
                  )
     </insert>
+
+    <update id="updateByUserFcmToken">
+        UPDATE user
+        SET user_fcm_token = #{fcmToken}
+        WHERE user_kakao_id = #{userName}
+    </update>
+
+    <update id="delete" parameterType="com.familring.userservice.model.dto.request.UserDeleteRequest">
+        UPDATE user
+        SET user_kakao_id = #{afterUserKakaoId}, user_password = #{userPassword}, user_name = #{userName}, user_role = #{userRole}, user_face = #{userFace},
+            user_emotion = #{userEmotion}, user_fcm_token = #{userFcmToken}, user_modified_at = NOW(), user_is_deleted = #{userIsDeleted}
+        WHERE user_kakao_id = #{beforeUserKakaoId}
+    </update>
 </mapper>
