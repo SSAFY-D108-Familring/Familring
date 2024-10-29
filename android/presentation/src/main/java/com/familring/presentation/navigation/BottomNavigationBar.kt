@@ -21,7 +21,6 @@ import androidx.navigation.NavController
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Typography
-import com.google.android.material.bottomappbar.BottomAppBar
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -37,13 +36,13 @@ fun BottomNavigationBar(
             BottomNavItem.Chat,
             BottomNavItem.Question,
             BottomNavItem.Calendar,
-            BottomNavItem.Album,
+            BottomNavItem.Gallery,
         )
 
     BottomAppBar(
         modifier =
             modifier
-                .fillMaxHeight(0.07f)
+                .fillMaxHeight(0.075f)
                 .navigationBarsPadding()
                 .shadow(elevation = 20.dp),
         containerColor = Color.White,

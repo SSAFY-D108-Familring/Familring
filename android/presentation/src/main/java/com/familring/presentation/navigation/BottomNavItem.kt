@@ -28,20 +28,20 @@ sealed class BottomNavItem(
         title = R.string.question_title,
         icon = R.drawable.ic_question,
         selectedIcon = R.drawable.ic_fill_question,
-        route = ScreenDestinations.Home.route, // 임시
+        route = ScreenDestinations.Question.route,
     )
 
     data object Calendar : BottomNavItem(
         title = R.string.calendar_title,
         icon = R.drawable.ic_calendar,
         selectedIcon = R.drawable.ic_fill_calendar,
-        route = ScreenDestinations.Home.route, // 임시
+        route = ScreenDestinations.Calendar.route, // 임시
     )
 
-    data object Album : BottomNavItem(
+    data object Gallery : BottomNavItem(
         title = R.string.album_title,
         icon = R.drawable.ic_gallery,
         selectedIcon = R.drawable.ic_fill_gallery,
-        route = ScreenDestinations.Home.route, // 임시
+        route = ScreenDestinations.Gallery.route, // 임시
     )
 }
