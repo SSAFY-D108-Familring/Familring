@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.component.DateInputRow
-import com.familring.presentation.component.GreenRoundLongButton
+import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.screen.timecapsule.isDateFormValid
 import com.familring.presentation.theme.Black
@@ -94,7 +94,7 @@ fun BirthScreen(
                 focusManager = focusManager,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
-            GreenRoundLongButton(
+            RoundLongButton(
                 text = "다음으로",
                 onClick = navigateToColor,
                 enabled = isButtonEnabled,

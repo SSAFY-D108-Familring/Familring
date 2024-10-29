@@ -168,7 +168,7 @@ fun MainNavHost(
             QuestionScreen(
                 navigateToQuestionList = {
                     navController.navigate(ScreenDestinations.QuestionList.route)
-                }
+                },
             )
         }
 
@@ -176,7 +176,7 @@ fun MainNavHost(
             route = ScreenDestinations.QuestionList.route,
         ) {
             QuestionListScreen(
-                onNavigateBack = navController::popBackStack
+                onNavigateBack = navController::popBackStack,
             )
         }
 
