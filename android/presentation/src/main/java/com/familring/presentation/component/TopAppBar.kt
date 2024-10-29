@@ -1,15 +1,17 @@
 package com.familring.presentation.component
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,13 +29,14 @@ fun TopAppBar(
     title: @Composable () -> Unit,
     navigationType: TopAppBarNavigationType = TopAppBarNavigationType.Back,
     onNavigationClick: () -> Unit = {},
-    iconColor: Color = Black,
+    trailingIcon: @Composable () -> Unit = {},
 ) {
     Row(
         modifier =
             modifier
                 .fillMaxWidth()
                 .padding(top = 15.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Spacer(modifier = Modifier.width(10.dp))
         if (navigationType == TopAppBarNavigationType.Back) {
@@ -46,6 +49,9 @@ fun TopAppBar(
             Spacer(modifier = Modifier.width(10.dp))
         }
         title()
+        Spacer(modifier = Modifier.weight(1f))
+        trailingIcon()
+        Spacer(modifier = Modifier.width(10.dp))
     }
 }
 
@@ -58,6 +64,14 @@ fun TopAppBarPreview() {
                 text = "프로필 배경색 설정",
                 color = Black,
                 style = Typography.headlineMedium.copy(fontSize = 22.sp),
+            )
+        },
+        trailingIcon = {
+            Icon(
+                modifier = Modifier.size(20.dp),
+                painter = painterResource(id = R.drawable.ic_camera),
+                contentDescription = "ic_back",
+                tint = Black,
             )
         },
     )
