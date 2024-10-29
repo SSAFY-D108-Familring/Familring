@@ -27,10 +27,10 @@ fun BrownRoundButton(
     val textColor = if (enabled) Color.White else Gray03
     Text(
         modifier =
-            modifier
-                .background(color = backgroundColor, shape = RoundedCornerShape(30.dp))
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-                .clickable { onClick() },
+        modifier
+            .background(color = backgroundColor, shape = RoundedCornerShape(30.dp))
+            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .clickable { onClick() },
         text = text,
         color = textColor,
         style = Typography.displayMedium.copy(fontSize = 15.sp),
