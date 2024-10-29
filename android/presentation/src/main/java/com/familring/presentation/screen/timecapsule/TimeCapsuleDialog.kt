@@ -157,7 +157,7 @@ private fun TimeCapsulePagerPreview() {
                         Profile(
                             nickName = "엄마미",
                             zodiacImgUrl = "url",
-                            backgroundColor = "#FEE222",
+                            backgroundColor = "0xFFFEE222",
                         ),
                     message =
                         "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
@@ -171,7 +171,7 @@ private fun TimeCapsulePagerPreview() {
                         Profile(
                             nickName = "아빠미",
                             zodiacImgUrl = "url",
-                            backgroundColor = "#FEA222",
+                            backgroundColor = "0xFFFFEAB0",
                         ),
                     message =
                         "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +

@@ -50,30 +50,30 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
     var family = remember { mutableListOf<String>() }
     val userQuestion =
         UserQuestion(
-            profile = Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+            profile = Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
             question = null,
         )
 
     val questionList =
         listOf(
             UserQuestion(
-                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
                 question = null,
             ),
             UserQuestion(
-                profile = Profile(zodiacImgUrl = "url2", backgroundColor = "#FEE222"),
+                profile = Profile(zodiacImgUrl = "url2", backgroundColor = "0xFFFEE222"),
                 question = "답변1",
             ),
             UserQuestion(
-                profile = Profile(zodiacImgUrl = "url3", backgroundColor = "#FEE222"),
+                profile = Profile(zodiacImgUrl = "url3", backgroundColor = "0xFFFEE222"),
                 question = null,
             ),
             UserQuestion(
-                profile = Profile(zodiacImgUrl = "url4", backgroundColor = "#FEE222"),
+                profile = Profile(zodiacImgUrl = "url4", backgroundColor = "0xFFFEE222"),
                 question = "답변2",
             ),
             UserQuestion(
-                profile = Profile(zodiacImgUrl = "url5", backgroundColor = "#FEE222"),
+                profile = Profile(zodiacImgUrl = "url5", backgroundColor = "0xFFFEE222"),
                 question = null,
             ),
         )
@@ -173,7 +173,7 @@ fun FamilyListItem(userQuestion: UserQuestion) {
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             ZodiacBackgroundProfile(
-                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
                 modifier =
                     Modifier
                         .size(35.dp)

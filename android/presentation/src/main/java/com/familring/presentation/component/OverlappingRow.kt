@@ -62,9 +62,9 @@ private fun OverlappingProfileLazyRowPreview() {
     OverlappingProfileLazyRow(
         profiles =
             listOf(
-                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
                 Profile(zodiacImgUrl = "url1", backgroundColor = "#FFE1E1"),
-                Profile(zodiacImgUrl = "url1", backgroundColor = "#FEE222"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
             ),
     )
 }
