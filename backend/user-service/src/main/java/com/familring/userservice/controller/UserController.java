@@ -27,7 +27,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    @Operation(summary = "사용자 정보 조회", description = "Header의 JWT를 사용해 사용자의 정보를 조회")
+    @Operation(summary = "회원 정보 조회", description = "Header의 토큰을 사용해 회원의 정보를 조회")
     public ResponseEntity getUser(Authentication authentication) {
         UserInfoResponse response = userService.getUser(authentication.getName());
 
@@ -68,6 +68,14 @@ public class UserController {
     public ResponseEntity updateFcmToken
             (Authentication authentication, @RequestParam String fcmToken) {
         String response = userService.updateFcmToken(authentication.getName(), fcmToken);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping
+    @Operation(summary = "회원 탈퇴", description = "Header의 토큰을 사용해 회원을 탈퇴 처리")
+    public ResponseEntity deleteUser(Authentication authentication) {
+        String response = userService.deleteUser(authentication.getName());
 
         return ResponseEntity.ok(response);
     }

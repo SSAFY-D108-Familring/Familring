@@ -4,7 +4,9 @@ import com.familring.userservice.config.jwt.JwtTokenProvider;
 import com.familring.userservice.config.redis.RedisService;
 import com.familring.userservice.exception.InvalidTokenException;
 import com.familring.userservice.model.dao.UserDao;
+import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
+import com.familring.userservice.model.dto.request.UserDeleteRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
@@ -16,6 +18,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -115,5 +119,38 @@ public class UserServiceImpl implements UserService {
         userDao.updateByUserFcmToken(userName, fcmToken);
 
         return "토큰이 성공적으로 저장되었습니다.";
+    }
+
+    @Override
+    @Transactional
+    public String deleteUser(String userName) {
+        // 1. 회원 정보 찾기
+        UserDto user = userDao.findByUserKakaoId(userName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+
+        // 2. redis의 refreshToken 제거
+        redisService.deleteRefreshToken(userName);
+
+        // 3. S3에서 이미지 제거
+
+        // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
+        UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
+                .beforeUserKakaoId(userName)
+                .afterUserKakaoId("DELETE_{" + user.getUserKakaoId() + "}")
+                .userPassword("")
+                .userName("탈퇴 회원")
+                .userRole(FamilyRole.N)
+                .userFace("")
+                .userEmotion("")
+                .userFcmToken("")
+                .userIsDeleted(true)
+                .build();
+
+        // 5. user 테이블 수정
+        userDao.delete(deleteRequest);
+
+        // 6. 가족 구성원 수 - 1
+        
+        return "회원 삭제 성공";
     }
 }

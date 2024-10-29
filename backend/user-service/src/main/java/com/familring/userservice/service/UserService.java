@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 public interface UserService {
-    // 사용자 정보 조회
+    // 회원 정보 조회
     UserInfoResponse getUser(String userName);
 
     // 로그인
@@ -23,4 +23,7 @@ public interface UserService {
 
     // FCM 토큰 저장
     String updateFcmToken(String userName, String fcmToken);
+
+    // 회원 탈퇴
+    String deleteUser(String name);
 }
