@@ -16,8 +16,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
+import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryScreen
+import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
@@ -224,11 +226,15 @@ fun MainNavHost(
         }
 
         composable(
+            route = ScreenDestinations.Calendar.route,
+        ) {
+            CalendarRoute(modifier = modifier)
+        }
+
+        composable(
             route = ScreenDestinations.Gallery.route,
         ) {
-            GalleryScreen(
-                modifier = modifier,
-            )
+            GalleryRoute(modifier = modifier)
         }
     }
 }

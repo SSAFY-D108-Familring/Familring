@@ -47,6 +47,11 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
 
+@Composable
+fun GalleryRoute(modifier: Modifier) {
+    GalleryScreen(modifier = modifier)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GalleryScreen(modifier: Modifier) {
@@ -195,7 +200,7 @@ fun GalleryItem() {
             color = Gray01,
         )
     }
-}
+
 
 @Composable
 fun AddAlbumButton(onClick: () -> Unit) {
