@@ -23,7 +23,7 @@ pipeline {
         stage('Build Config Server') {
             steps {
                 script {
-                    dir('config-service') {
+                    dir('backend/config-service') {
                         sh 'chmod +x ./gradlew'
 
                         sh './gradlew clean build -x test'
