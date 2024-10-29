@@ -116,6 +116,7 @@ fun QuestionScreen(
                 ) {
                     Text(
                         text = "99번째 질문",
+                        textAlign = TextAlign.Center,
                         style = Typography.bodySmall,
                         modifier =
                             Modifier
