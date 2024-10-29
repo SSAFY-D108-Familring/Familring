@@ -38,8 +38,8 @@ fun TopAppBar(
                 .padding(top = 15.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Spacer(modifier = Modifier.width(10.dp))
         if (navigationType == TopAppBarNavigationType.Back) {
+            Spacer(modifier = Modifier.width(10.dp))
             Icon(
                 modifier = Modifier.noRippleClickable { onNavigationClick() },
                 painter = painterResource(id = R.drawable.ic_back),
@@ -47,6 +47,8 @@ fun TopAppBar(
                 tint = Black,
             )
             Spacer(modifier = Modifier.width(10.dp))
+        } else {
+            Spacer(modifier = Modifier.width(18.dp))
         }
         title()
         Spacer(modifier = Modifier.weight(1f))
@@ -66,6 +68,7 @@ fun TopAppBarPreview() {
                 style = Typography.headlineMedium.copy(fontSize = 22.sp),
             )
         },
+        navigationType = TopAppBarNavigationType.None,
         trailingIcon = {
             Icon(
                 modifier = Modifier.size(20.dp),
