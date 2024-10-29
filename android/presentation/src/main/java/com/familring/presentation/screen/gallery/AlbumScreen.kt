@@ -46,7 +46,7 @@ fun AlbumScreen(
     onNavigateBack: () -> Unit = {},
 ) {
     var photoCount by remember {
-        mutableStateOf(10)
+        mutableStateOf(11)
     }
 
     Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
