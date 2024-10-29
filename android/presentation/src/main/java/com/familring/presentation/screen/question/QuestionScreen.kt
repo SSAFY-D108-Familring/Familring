@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -37,6 +38,8 @@ import androidx.compose.ui.unit.sp
 import com.familring.domain.Profile
 import com.familring.domain.UserQuestion
 import com.familring.presentation.R
+import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Gray01
@@ -79,7 +82,10 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
         )
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(color = Color.White),
     ) {
         Image(
             painter = painterResource(id = R.drawable.img_question_back),
@@ -93,26 +99,27 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
-            Spacer(modifier = Modifier.fillMaxSize(0.02f))
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "오늘의 질문",
-                    style = Typography.titleLarge,
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.img_menu),
-                    contentDescription = "question_menu_img",
-                    modifier =
-                        Modifier.size(24.dp).noRippleClickable {
-                            navigateToQuestionList()
-                        },
-                )
-            }
-
+            TopAppBar(
+                navigationType = TopAppBarNavigationType.None,
+                title = {
+                    Text(
+                        text = "오늘의 질문",
+                        style = Typography.titleLarge,
+                    )
+                },
+                trailingIcon = {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_menu),
+                        contentDescription = "question_menu_img",
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
+                                    navigateToQuestionList()
+                                },
+                    )
+                },
+            )
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -229,6 +236,6 @@ fun FamilyListItem(userQuestion: UserQuestion) {
 @Composable
 fun QuestionScreenPreview() {
     FamilringTheme {
-//        QuestionScreen(onNavigateToQuestionList = {})
+        QuestionScreen(navigateToQuestionList = {})
     }
 }

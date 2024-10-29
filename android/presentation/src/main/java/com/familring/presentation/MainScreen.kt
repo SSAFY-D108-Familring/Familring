@@ -7,6 +7,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -54,6 +55,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     }
 
+    val (visible, setVisible) = remember { mutableStateOf(false) }
+    when (currentRoute) {
+        "Home", "Chat", "Question", "Calendar", "Gallery" -> setVisible(true)
+        else -> setVisible(false)
+    }
+
     // statusBar, navigationBar 색상 설정
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = Color.Transparent, darkIcons = true)
@@ -63,16 +70,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
         modifier = modifier,
         snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         bottomBar = {
-            BottomNavigationBar(
-                navController = navController,
-                currentRoute = currentRoute,
-            )
+            if (visible) {
+                BottomNavigationBar(
+                    navController = navController,
+                    currentRoute = currentRoute,
+                )
+            }
         },
     ) { innerPadding ->
         MainNavHost(
             modifier = modifier.padding(innerPadding).navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.TimeCapsule.route,
+            startDestination = ScreenDestinations.Home.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -259,7 +268,12 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Gallery.route,
         ) {
-            GalleryRoute(modifier = modifier)
+            GalleryRoute(
+                modifier = modifier,
+                navigateToAlbum = {
+                    navController.navigate(ScreenDestinations.Album.route)
+                },
+            )
         }
     }
 }
