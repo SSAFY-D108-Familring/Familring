@@ -2,15 +2,26 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    dir('config-service') {
+                        sh 'mkdir -p src/config-service/resources'
+                        sh 'cp /home/ubuntu/secret/config/application.yml src/config-service/resources'
+                    }
+                }
+            }
+        }
+
+        // Core services 순차적으로 빌드
         stage('Build Core Services') {
             steps {
                 script {
-                    // 순서대로 Core 서비스들을 빌드 및 배포합니다.
                     def coreServices = ["api-gateway", "config-service", "discovery-service"]
 
                     for (service in coreServices) {
                         dir(service) {
-                            // 변경사항이 있을 때만 빌드 및 배포
                             if (hasChanges(service)) {
                                 echo "Building and deploying ${service}"
                                 buildAndDeployService(service)
@@ -23,30 +34,29 @@ pipeline {
             }
         }
 
+        // 나머지 서비스들에 대해 병렬 빌드 및 배포
         stage('Build Other Services') {
-            steps {
-                script {
-                    // 나머지 서비스들에 대해 빌드 및 배포를 진행합니다.
-                    def otherServices = ["album-service", "calendar-service", "family-service", "interest-service", "notification-service", "question-service", "timecapsule-service", "user-service"]
+            parallel {
+                def otherServices = ["album-service", "calendar-service", "family-service", "interest-service",
+                                     "notification-service", "question-service", "timecapsule-service", "user-service"]
 
-                    for (service in otherServices) {
-                        dir(service) {
-                            if (hasChanges(service)) {
-                                echo "Building and deploying ${service}"
-                                buildAndDeployService(service)
-                            } else {
-                                echo "No changes detected in ${service}. Skipping."
+                otherServices.each { service ->
+                    stage("Build and Deploy ${service.capitalize()}") {
+                        steps {
+                            script {
+                                dir(service) {
+                                    if (hasChanges(service)) {
+                                        echo "Building and deploying ${service}"
+                                        buildAndDeployService(service)
+                                    } else {
+                                        echo "No changes detected in ${service}. Skipping."
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            echo "Pipeline completed."
         }
     }
 }
@@ -59,7 +69,7 @@ def hasChanges(String service) {
 // 공통 함수: 빌드 및 배포
 def buildAndDeployService(String service) {
     sh """
-        docker build -t ${service}-image .
+        docker build -t ${service}-image ./${service}
 
         // 기존 컨테이너 중지 및 삭제
         docker stop ${service} || true
