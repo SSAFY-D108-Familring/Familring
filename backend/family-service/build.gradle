@@ -9,6 +9,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     // Spring Cloud Bus
     implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
+    // myBatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 }
 
 dependencyManagement {
