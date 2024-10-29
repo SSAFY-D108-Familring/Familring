@@ -7,14 +7,16 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
 public class SwaggerConfig {
+
+    private final Environment env;
 
     @Value("${local.server.port}")
     private String port;
@@ -34,7 +36,7 @@ public class SwaggerConfig {
                 .addList("bearerAuth");
 
         return new OpenAPI()
-//                .addServersItem(new Server().url("https://k11d108.p.ssafy.io") // 배포한 서버
+//                .addServersItem(new Server().url("https://j11d108.p.ssafy.io") // 배포한 서버
 //                        .description("Default Server URL"))
                 .addServersItem(new Server().url("http://localhost:" + port)
                         .description("Local Development Server"))
@@ -48,21 +50,5 @@ public class SwaggerConfig {
                 .title("Familring API 문서")
                 .description("Familring API에 대한 문서입니다.")
                 .version("1.0.0");
-    }
-
-    @Bean
-    public GroupedOpenApi publicApi() {
-        return GroupedOpenApi.builder()
-                .group("All")
-                .pathsToMatch("/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi userApi() {
-        return GroupedOpenApi.builder()
-                .group("User")
-                .pathsToMatch("/users/**")
-                .build();
     }
 }

@@ -9,8 +9,6 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     // Spring Cloud Bus
     implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
-    // Swagger
-    implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.6.0'
 }
 
 dependencyManagement {
