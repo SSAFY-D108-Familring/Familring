@@ -21,8 +21,23 @@ sealed class ScreenDestinations(
     // 첫 번째 화면 (초대코드 입력)
     data object First : ScreenDestinations(route = "First")
 
-    // 두 번째 화면 (생년월일 입력)
+    // 생년월일 입력
     data object Birth : ScreenDestinations(route = "Birth")
+
+    // 프로필 색상 선택
+    data object ProfileColor : ScreenDestinations(route = "ProfileColor")
+
+    // 닉네임
+    data object Nickname : ScreenDestinations(route = "Nickname")
+
+    // 사진 촬영
+    data object Picture : ScreenDestinations(route = "Picture")
+
+    // 구성원 수 입력
+    data object FamilyCount : ScreenDestinations(route = "FamilyCount")
+
+    // 회원가입 완료
+    data object Done : ScreenDestinations(route = "Done")
 
 
     // 타임캡슐

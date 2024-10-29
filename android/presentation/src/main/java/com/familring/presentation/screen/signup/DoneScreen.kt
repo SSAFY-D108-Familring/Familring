@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,72 +18,70 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
-import com.familring.presentation.component.CodeTextField
-import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
-import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun FirstRoute(
-    modifier: Modifier,
-    navigateToBirth: () -> Unit,
-) {
-    FirstScreen(
-        modifier = modifier,
-        navigateToBirth = navigateToBirth,
-    )
+fun DoneRoute(modifier: Modifier) {
+    DoneScreen(modifier = modifier)
 }
 
 @Composable
-fun FirstScreen(
-    modifier: Modifier = Modifier,
-    navigateToBirth: () -> Unit = {},
-) {
+fun DoneScreen(modifier: Modifier = Modifier) {
     val focusManager = LocalFocusManager.current
-    var code by remember { mutableStateOf("") }
+    val code = "A3B9S2"
 
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         color = Color.White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
-            Image(
-                painter = painterResource(id = R.drawable.img_signup_emoji),
-                contentDescription = "signup_emoji",
-            )
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             Text(
-                text = "패밀링에 오신 것을 환영해요!",
-                style = Typography.titleLarge.copy(fontSize = 28.sp),
+                text = "완료!",
+                style = Typography.titleLarge.copy(fontSize = 45.sp),
                 color = Green03,
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = "받으신 초대코드가 있으신가요?",
-                style = Typography.bodyLarge.copy(fontSize = 20.sp),
+            Spacer(modifier = Modifier.fillMaxHeight(0.04f))
+            Image(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.45f)
+                        .aspectRatio(1f),
+                painter = painterResource(id = R.drawable.img_mailbox),
+                contentDescription = "img_family",
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.08f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.04f))
+            Text(
+                text = "코드를 공유하고",
+                style = Typography.displayLarge.copy(fontSize = 24.sp),
+                color = Black,
+            )
+            Text(
+                text = "가족을 초대해 보세요!",
+                style = Typography.displayLarge.copy(fontSize = 24.sp),
+                color = Black,
+            )
+            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
             Box(
                 modifier =
                     Modifier
@@ -100,44 +99,33 @@ fun FirstScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = "초대코드 입력",
+                        text = "나의 초대코드",
                         color = Gray02,
                         style = Typography.displayMedium.copy(fontSize = 18.sp),
                     )
                     Spacer(modifier = Modifier.height(15.dp))
-                    CodeTextField(
-                        code = code,
-                        onValueChange = {
-                            code = it
-                        },
-                        focusManager = focusManager,
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = code,
+                        style =
+                            Typography.headlineMedium.copy(
+                                fontSize = 28.sp,
+                                letterSpacing = 0.em,
+                            ),
+                        color = Black,
+                        textAlign = TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-                    BrownRoundButton(
-                        onClick = navigateToBirth,
-                        text = "코드 입력 완료",
-                        enabled = code.length == 6,
-                    )
+                    BrownRoundButton(onClick = { /*TODO*/ }, text = "카카오톡으로 공유하기")
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
-            Text(
-                modifier =
-                    Modifier.noRippleClickable {
-                        navigateToBirth()
-                    },
-                text = "없어요, 새로 개설할래요!",
-                style = Typography.headlineSmall,
-                color = Gray01,
-                textDecoration = TextDecoration.Underline,
-            )
         }
     }
 }
 
+@Preview
 @Composable
-@Preview(showSystemUi = true)
-fun SignUpContentPreview() {
-    FirstScreen(modifier = Modifier, navigateToBirth = {})
+fun DoneScreenPreview() {
+    DoneScreen()
 }
