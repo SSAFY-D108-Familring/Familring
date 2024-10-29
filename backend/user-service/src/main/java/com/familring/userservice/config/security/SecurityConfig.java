@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**").permitAll() // Swagger UI 접근 허용
                         .requestMatchers("/v3/api-docs/**").permitAll() // API 문서 접근 허용
-                        .requestMatchers("/users/signup/**", "/users/login/**").permitAll() // 회원가입, 로그인, 토큰 재발급 접근 허용
+                        .requestMatchers("/users/join/**", "/users/login/**").permitAll() // 회원가입, 로그인, 토큰 재발급 접근 허용
                         .requestMatchers("/test/**").permitAll() // 테스트 접근 허용
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )

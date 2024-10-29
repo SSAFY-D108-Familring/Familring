@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,8 +20,10 @@ public class FamilyController {
 
     private final FamilyService familyService;
 
-//    @GetMapping
-//    public ResponseEntity getFamilyInfo(Authentication authentication) {
-//        FamilyInfoResponse response = familyService.getFamilyInfo(authentication.getName());
-//    }
+    @GetMapping
+    public ResponseEntity getFamilyInfo(@RequestHeader("Authorization") String token) {
+        FamilyInfoResponse response = familyService.getFamilyInfo(token);
+
+        return ResponseEntity.ok(response);
+    }
 }

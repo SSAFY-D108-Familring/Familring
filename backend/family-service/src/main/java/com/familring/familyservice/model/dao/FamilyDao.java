@@ -1,7 +1,11 @@
 package com.familring.familyservice.model.dao;
 
+import com.familring.familyservice.model.dto.FamilyDto;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
-public class FamilyDao {
+public interface FamilyDao {
+    // userId로 family 찾기
+    FamilyDto findFamilyInfoByUserId(@Param("userId")Long userId);
 }
