@@ -2,53 +2,80 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    dir('config-service') {
+                        sh 'mkdir -p src/config-service/resources'
+                        sh 'cp /home/ubuntu/secret/config/application.yml src/config-service/resources'
+                    }
+                }
+            }
+        }
+
+        // Core services 순차적으로 빌드
         stage('Build Core Services') {
             steps {
                 script {
-                    // Core 서비스를 먼저 빌드합니다.
-                    def coreServices = ["config-service", "discovery-service", "api-gateway"]
+                    def coreServices = ["api-gateway", "config-service", "discovery-service"]
 
                     for (service in coreServices) {
                         dir(service) {
-                            // 각 서비스의 Docker 이미지를 빌드
-                            sh "docker build -t ${service} ."
-
-                            // 기존 컨테이너가 있으면 중지 및 삭제
-                            def containerId = sh(script: "docker ps -a --filter 'name=${service}' --format '{{.ID}}'", returnStdout: true).trim()
-                            if (containerId) {
-                                sh "docker stop ${containerId}"
-                                sh "docker rm ${containerId}"
+                            if (hasChanges(service)) {
+                                echo "Building and deploying ${service}"
+                                buildAndDeployService(service)
+                            } else {
+                                echo "No changes detected in ${service}. Skipping."
                             }
-
-                            // 새 컨테이너 실행
-                            sh "docker run --name ${service} -d -p [포트번호]:[포트번호] ${service}"
                         }
                     }
                 }
             }
         }
 
-        stage('Build Remaining Services') {
-            steps {
-                script {
-                    // 나머지 마이크로서비스 빌드
-                    def otherServices = ["album-service", "calendar-service", "family-service", "interest-service", "notification-service", "question-service", "timecapsule-service", "user-service"]
+        // 나머지 서비스들에 대해 병렬 빌드 및 배포
+        stage('Build Other Services') {
+            parallel {
+                def otherServices = ["album-service", "calendar-service", "family-service", "interest-service",
+                                     "notification-service", "question-service", "timecapsule-service", "user-service"]
 
-                    for (service in otherServices) {
-                        dir(service) {
-                            sh "docker build -t ${service} ."
-
-                            def containerId = sh(script: "docker ps -a --filter 'name=${service}' --format '{{.ID}}'", returnStdout: true).trim()
-                            if (containerId) {
-                                sh "docker stop ${containerId}"
-                                sh "docker rm ${containerId}"
+                otherServices.each { service ->
+                    stage("Build and Deploy ${service.capitalize()}") {
+                        steps {
+                            script {
+                                dir(service) {
+                                    if (hasChanges(service)) {
+                                        echo "Building and deploying ${service}"
+                                        buildAndDeployService(service)
+                                    } else {
+                                        echo "No changes detected in ${service}. Skipping."
+                                    }
+                                }
                             }
-
-                            sh "docker run --name ${service} -d -p [포트번호]:[포트번호] ${service}"
                         }
                     }
                 }
             }
         }
     }
+}
+
+// 공통 함수: 변경 사항 확인
+def hasChanges(String service) {
+    return sh(script: "git diff --name-only HEAD~1 HEAD | grep ${service}/", returnStatus: true) == 0
+}
+
+// 공통 함수: 빌드 및 배포
+def buildAndDeployService(String service) {
+    sh """
+        docker build -t ${service}-image ./${service}
+
+        // 기존 컨테이너 중지 및 삭제
+        docker stop ${service} || true
+        docker rm ${service} || true
+
+        // 새로운 컨테이너 실행
+        docker run --name ${service} -d -p 8080:8080 ${service}-image
+    """
 }
