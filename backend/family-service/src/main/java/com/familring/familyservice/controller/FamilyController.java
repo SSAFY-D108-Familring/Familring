@@ -26,4 +26,11 @@ public class FamilyController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/code")
+    public ResponseEntity getFamilyCode(@RequestHeader("Authorization") String token) {
+        String response = familyService.getFamilyCode(token);
+
+        return ResponseEntity.ok(response);
+    }
 }

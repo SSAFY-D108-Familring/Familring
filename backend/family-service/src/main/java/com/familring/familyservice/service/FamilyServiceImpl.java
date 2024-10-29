@@ -19,12 +19,8 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public FamilyInfoResponse getFamilyInfo(String token) {
-        // 0. "Bearer " 제거
-        String accessToken = token.replace("Bearer ", "");
-
         // 1. 클레임에서 userId 추출
-        Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-        log.info("userId: {}", userId);
+        Long userId = getUserId(token);
 
         // 2. 가족 조회
         FamilyDto familyDto = familyDao.findFamilyInfoByUserId(userId);
@@ -37,5 +33,25 @@ public class FamilyServiceImpl implements FamilyService {
                 .build();
 
         return response;
+    }
+
+    @Override
+    public String getFamilyCode(String token) {
+        // 1. 클레임에서 userId 추출
+        Long userId = getUserId(token);
+
+        // 2. 가족 코드 조회
+        String familyCode = familyDao.findFamilyInfoByUserId(userId).getFamilyCode();
+
+        return familyCode;
+    }
+
+    public Long getUserId(String token) {
+        String accessToken = token.replace("Bearer ", "");
+
+        Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        log.info("userId: {}", userId);
+
+        return userId;
     }
 }
