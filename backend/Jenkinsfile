@@ -30,12 +30,8 @@ pipeline {
 
                     for (service in coreServices) {
                         dir(service) {
-                            if (hasChanges(service)) {
-                                echo "Building and deploying ${service}"
-                                buildAndDeployService(service)
-                            } else {
-                                echo "No changes detected in ${service}. Skipping."
-                            }
+                            echo "Building and deploying ${service}"
+                            buildAndDeployService(service)
                         }
                     }
                 }
