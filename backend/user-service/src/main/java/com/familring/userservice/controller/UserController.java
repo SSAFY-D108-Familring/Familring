@@ -3,6 +3,7 @@ package com.familring.userservice.controller;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
+import com.familring.userservice.model.dto.response.UserInfoResponse;
 import com.familring.userservice.service.CustomUserDetailsService;
 import com.familring.userservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +25,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController {
 
     private final UserService userService;
+
+    @GetMapping
+    @Operation(summary = "사용자 정보 조회", description = "Header의 JWT를 사용해 사용자의 정보를 조회")
+    public ResponseEntity getUser(Authentication authentication) {
+        UserInfoResponse response = userService.getUser(authentication.getName());
+
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/login")
     @Operation(summary = "카카오톡 소셜 로그인", description = "로그인 시 회원가입 여부 확인 후 회원가입")

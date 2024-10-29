@@ -8,10 +8,10 @@ import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
+import com.familring.userservice.model.dto.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +27,29 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenService tokenService;
     private final CustomUserDetailsService customUserDetailsService;
     private final RedisService redisService;
+
+    @Override
+    public UserInfoResponse getUser(String userName) {
+        // 1. 회원 정보 찾기
+        UserDto user = userDao.findByUserKakaoId(userName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+
+        // 2. 응답 빌더 생성
+        UserInfoResponse response = UserInfoResponse.builder()
+                .userId(user.getUserId())
+                .userKakaoId(user.getUserKakaoId())
+                .userNickname(user.getUserNickname())
+                .userBirthDate(user.getUserBirthDate())
+                .userZodiacSign(user.getUserZodiacSign())
+                .userRole(user.getUserRole())
+                .userFace(user.getUserFace())
+                .userColor(user.getUserColor())
+                .userEmotion(user.getUserEmotion())
+                .build();
+
+        // 3. 응답
+        return response;
+    }
 
     @Override
     @Transactional

@@ -3,11 +3,15 @@ package com.familring.userservice.service;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
+import com.familring.userservice.model.dto.response.UserInfoResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 public interface UserService {
+    // 사용자 정보 조회
+    UserInfoResponse getUser(String userName);
+
     // 로그인
     JwtTokenResponse login(UserLoginRequest userLogInRequest);
 
