@@ -26,12 +26,16 @@ pipeline {
         stage('Build Core Services') {
             steps {
                 script {
-                    def coreServices = ["config-service", "discovery-service", "api-gateway"]
+                    def coreServices = [
+                        ["service": "config-service", "port": 8888],
+                        ["service": "discovery-service", "port": 8761],
+                        ["service": "api-gateway", "port": 8080]
+                    ]
 
-                    for (service in coreServices) {
-                        dir(service) {
-                            echo "Building and deploying ${service}"
-                            buildAndDeployService(service)
+                    for (serviceData in coreServices) {
+                        dir(serviceData.service) {
+                            echo "Building and deploying ${serviceData.service}"
+                            buildAndDeployService(serviceData.service, serviceData.port)
                         }
                     }
                 }
