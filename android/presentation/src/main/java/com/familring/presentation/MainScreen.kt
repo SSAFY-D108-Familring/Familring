@@ -17,10 +17,10 @@ import androidx.navigation.compose.rememberNavController
 import com.familring.domain.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
-import com.familring.presentation.screen.question.QuestionListScreen
-import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.home.HomeRoute
+import com.familring.presentation.screen.question.QuestionListScreen
+import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
 import com.familring.presentation.screen.signup.DoneRoute
 import com.familring.presentation.screen.signup.FamilyCountRoute
@@ -28,11 +28,12 @@ import com.familring.presentation.screen.signup.FirstRoute
 import com.familring.presentation.screen.signup.NicknameRoute
 import com.familring.presentation.screen.signup.PictureRoute
 import com.familring.presentation.screen.signup.ProfileColorRoute
-import com.familring.presentation.screen.timecapsule.NoTimeCapsuleScreen
+import com.familring.presentation.screen.timecapsule.NoTimeCapsule
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleDialog
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleScreen
+import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
@@ -213,10 +214,11 @@ fun MainNavHost(
         }
 
         composable(
-            route = ScreenDestinations.NoTimeCapsule.route,
+            route = ScreenDestinations.WritingTimeCapsule.route,
         ) {
-            NoTimeCapsuleScreen(
+            WritingTimeCapsuleScreen(
                 modifier = modifier,
+                writingState = 0,
                 navigateToCreate = { navController.navigate(ScreenDestinations.TimeCapsuleCreate.route) },
             )
         }
@@ -225,23 +227,6 @@ fun MainNavHost(
             route = ScreenDestinations.TimeCapsuleCreate.route,
         ) {
             TimeCapsuleCreateScreen(modifier = modifier)
-        }
-
-        composable(
-            route = ScreenDestinations.WritingTimeCapsule.route,
-        ) {
-            WritingTimeCapsuleScreen(
-                modifier = modifier,
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.TimeCapsuleDialog.route,
-        ) {
-            TimeCapsuleDialog(
-                modifier = modifier,
-                timeCapsuleId = 1,
-            )
         }
 
         composable(

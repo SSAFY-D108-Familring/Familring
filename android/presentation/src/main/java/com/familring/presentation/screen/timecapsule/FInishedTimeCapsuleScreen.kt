@@ -22,9 +22,9 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 
 @Composable
-fun FinishedTimeCapsuleScreen(
+fun FinishedTimeCapsule(
     modifier: Modifier = Modifier,
-    leftDay: Int,
+    leftDay: Int = 0,
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -64,7 +64,7 @@ fun FinishedTimeCapsuleScreen(
 @Preview(showBackground = false)
 @Composable
 private fun FinishedTimeCapsuleScreenPreview() {
-    FinishedTimeCapsuleScreen(
+    FinishedTimeCapsule(
         modifier = Modifier,
         leftDay = 3,
     )

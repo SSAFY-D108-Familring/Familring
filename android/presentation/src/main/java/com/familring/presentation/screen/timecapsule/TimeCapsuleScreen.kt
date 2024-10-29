@@ -36,9 +36,8 @@ fun TimeCapsuleScreen(modifier: Modifier = Modifier) {
                 onClick = { selectedItemIndex = it },
             )
             when (selectedItemIndex) {
-                0 -> WritingTimeCapsuleScreen()
-                1 ->
-                    TimeCapsuleListScreen()
+                0 -> WritingTimeCapsuleScreen(writingState = 1)
+                1 -> TimeCapsuleListScreen()
             }
         }
     }

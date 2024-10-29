@@ -49,6 +49,23 @@ fun TimeCapsuleListScreen(
     timeCapsules: List<TimeCapsule> = listOf(),
     onShowSnackBar: (message: String) -> Unit = {},
 ) {
+    if (timeCapsules.isEmpty()) {
+        NoTimeCapsuleList(modifier = modifier)
+    } else {
+        TimeCapsuleList(
+            modifier = modifier,
+            timeCapsules = timeCapsules,
+            onShowSnackBar = onShowSnackBar,
+        )
+    }
+}
+
+@Composable
+fun TimeCapsuleList(
+    modifier: Modifier = Modifier,
+    timeCapsules: List<TimeCapsule> = listOf(),
+    onShowSnackBar: (message: String) -> Unit = {},
+) {
     Surface(
         modifier =
             modifier
@@ -211,8 +228,8 @@ fun TimeCapsuleItem(
 
 @Preview
 @Composable
-private fun TimeCapsuleListScreenPreview() {
-    TimeCapsuleListScreen(
+private fun TimeCapsuleListPreview() {
+    TimeCapsuleList(
         timeCapsules =
             listOf(
                 TimeCapsule(0),
