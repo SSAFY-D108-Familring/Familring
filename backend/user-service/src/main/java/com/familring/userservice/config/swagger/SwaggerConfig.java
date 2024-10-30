@@ -5,6 +5,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,7 @@ public class SwaggerConfig {
                 .addList("bearerAuth");
 
         return new OpenAPI()
+                .addServersItem(new Server().url(env.getProperty("familring.server.url")).description("Default Server URL"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(securityRequirement)
                 .info(apiInfo());
