@@ -67,7 +67,7 @@ pipeline {
 
                             // Build and run the new container
                             sh "docker build -t discovery-service ."
-                            sh "docker run --name discovery-service -d -p 8761:8761 -e SPRING_PROFILES_ACTIVE=docker discovery-service"
+                            sh "docker run --name discovery-service -d -p 8761:8761 -e discovery-service"
                         }
                     }
                 }
