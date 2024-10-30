@@ -1,7 +1,6 @@
 package com.familring.familyservice.model.dto.response;
 
 import com.familring.familyservice.model.dto.FamilyRole;
-import com.familring.userservice.model.dto.FamilyRole;
 import lombok.Builder;
 import lombok.Data;
 

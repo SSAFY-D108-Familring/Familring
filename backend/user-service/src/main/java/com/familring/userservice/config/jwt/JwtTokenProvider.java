@@ -1,14 +1,10 @@
 package com.familring.userservice.config.jwt;
 
-<<<<<<< HEAD
 import com.familring.userservice.exception.token.EmptyTokenException;
 import com.familring.userservice.exception.token.ExpiredTokenException;
 import com.familring.userservice.exception.token.InvalidTokenException;
 import com.familring.userservice.exception.token.UnsupportedTokenException;
-=======
-import com.familring.userservice.exception.InvalidTokenException;
 import com.familring.userservice.model.dto.UserDto;
->>>>>>> feature/backend/family
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
