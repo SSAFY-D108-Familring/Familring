@@ -9,6 +9,9 @@ pipeline {
         }
 
         stage('Build and Deploy Config Server') {
+            when {
+                changeset "backend/config-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
@@ -22,6 +25,9 @@ pipeline {
         }
 
         stage('Build and Deploy Discovery Server') {
+            when {
+                changeset "backend/discovery-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
                     script {
@@ -35,6 +41,9 @@ pipeline {
         }
 
         stage('Build and Deploy API Gateway') {
+            when {
+                changeset "backend/api-gateway/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
                     script {
@@ -47,13 +56,35 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy Album Service') {
-            steps {
-                withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/album-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('album-service', 8084, false) // 내부 네트워크에서만 통신
+        stage('Build and Deploy Services') {
+            parallel {
+                stage('Build and Deploy Album Service') {
+                    when {
+                        changeset "backend/album-service/**"
+                    }
+                    steps {
+                        withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/album-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('album-service', 8084, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Calendar Service') {
+//                     when {
+//                         changeset "backend/calendar-service/**"
+//                     }
+                    steps {
+                        withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/calendar-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('calendar-service', 8084, false) // 내부 네트워크에서만 통신
+                                }
+                            }
                         }
                     }
                 }
