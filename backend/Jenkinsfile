@@ -23,16 +23,16 @@ pipeline {
 
                             sh './gradlew clean build -x test'
 
-                            // Check if any container is named "config-service"
+                            // Check if any container
                             def containerNamedConfigService = sh(script: "docker ps -a --filter 'name=config-service' --format '{{.ID}}'", returnStdout: true).trim()
 
                             if (containerNamedConfigService) {
-                                // Stop and remove the container named "config-service"
+                                // Stop and remove the container
                                 sh "docker stop ${containerNamedConfigService}"
                                 sh "docker rm ${containerNamedConfigService}"
                             }
 
-                            // Build and run the new backend container
+                            // Build and run the new container
                             sh "docker build -t config-service ."
                             sh "docker run --name config-service -d -p 8888:8888 config-service"
                         }
@@ -56,16 +56,16 @@ pipeline {
 
                             sh './gradlew clean build -x test'
 
-                            // Check if any container is named "config-service"
+                            // Check if any container is named
                             def container = sh(script: "docker ps -a --filter 'name=discovery-service' --format '{{.ID}}'", returnStdout: true).trim()
 
                             if (container) {
-                                // Stop and remove the container named "config-service"
+                                // Stop and remove the container named
                                 sh "docker stop ${container}"
                                 sh "docker rm ${container}"
                             }
 
-                            // Build and run the new backend container
+                            // Build and run the new container
                             sh "docker build -t discovery-service ."
                             sh "docker run --name discovery-service -d -p 8761:8761 discovery-service"
                         }
