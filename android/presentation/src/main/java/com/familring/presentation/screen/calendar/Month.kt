@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.DaySchedule
+import com.familring.domain.Schedule
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
@@ -105,9 +106,10 @@ private fun MonthGridPreview() {
 }
 
 val sampleSchedules =
+//    listOf<Schedule>()
     listOf(
-        com.familring.domain.Schedule("Meeting with Team", "0xFFFEE6C9"),
-        com.familring.domain.Schedule("Doctor's Appointment", "0xFFD2F0FF"),
+        Schedule("Meeting with Team", "0xFFFEE6C9"),
+        Schedule("Doctor's Appointment", "0xFFD2F0FF"),
     )
 val daySchedules =
     (1..31).map { day ->

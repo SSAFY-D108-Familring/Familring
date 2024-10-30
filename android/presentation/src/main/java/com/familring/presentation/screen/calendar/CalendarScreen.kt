@@ -1,5 +1,7 @@
 package com.familring.presentation.screen.calendar
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,17 +45,19 @@ fun CalendarRoute(modifier: Modifier) {
 
 @Composable
 fun CalendarScreen(modifier: Modifier = Modifier) {
-    val today = LocalDate.now()
-    var selectedMonth by remember { mutableStateOf<LocalDate>(today) }
-    var selectedDay by remember { mutableStateOf<LocalDate?>(null) }
-
-    val pageCount = 240
-    var pagerState =
+    val pageCount = 120
+    val pagerState =
         rememberPagerState(
             initialPage = pageCount / 2,
             pageCount = { pageCount },
         )
     val coroutineScope = rememberCoroutineScope()
+
+    val today = LocalDate.now()
+    val selectedMonth by remember {
+        derivedStateOf { today.plusMonths((pagerState.currentPage - pageCount / 2).toLong()) }
+    }
+    var selectedDay by remember { mutableStateOf<LocalDate?>(null) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -90,18 +95,29 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
                 navigationType = TopAppBarNavigationType.None,
             )
             Spacer(modifier = Modifier.height(10.dp))
-//            MonthController(
-//                date = selectedMonth,
-//                onPrevClick = { selectedMonth = selectedMonth.minusMonths(1) },
-//                onNextClick = { selectedMonth = selectedMonth.plusMonths(1) },
-//            )
             MonthController(
                 date = selectedMonth,
                 onPrevClick = {
-                    coroutineScope.launch { pagerState.scrollToPage(pagerState.currentPage - 1) }
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(
+                            pagerState.currentPage - 1,
+                            animationSpec =
+                                spring(
+                                    stiffness = Spring.StiffnessLow,
+                                ),
+                        )
+                    }
                 },
                 onNextClick = {
-                    coroutineScope.launch { pagerState.scrollToPage(pagerState.currentPage + 1) }
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(
+                            pagerState.currentPage + 1,
+                            animationSpec =
+                                spring(
+                                    stiffness = Spring.StiffnessLow,
+                                ),
+                        )
+                    }
                 },
             )
             HorizontalPager(
@@ -111,15 +127,17 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
                         .fillMaxSize()
                         .padding(horizontal = 5.dp),
             ) { page ->
-                val month = today.plusMonths(page.toLong() - (pageCount / 2))
-                MonthGrid(
-                    modifier =
-                        Modifier
-                            .fillMaxSize(),
-                    date = month, //selectedMonth,
-                    daySchedules = daySchedules, // 나중에 바꿔야 함
-                    onDayClick = { selectedDay = it },
-                )
+                val month = remember(page) { today.plusMonths(page.toLong() - (pageCount / 2)) }
+                if (page in pagerState.currentPage - 1..pagerState.currentPage + 1) { // 성능 개선 용
+                    MonthGrid(
+                        modifier =
+                            Modifier
+                                .fillMaxSize(),
+                        date = month,
+                        daySchedules = daySchedules, // 나중에 바꿔야 함
+                        onDayClick = { selectedDay = it },
+                    )
+                }
             }
         }
     }
