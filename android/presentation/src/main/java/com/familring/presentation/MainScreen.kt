@@ -24,10 +24,10 @@ import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
+import com.familring.presentation.screen.home.NotificationRoute
 import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
-import com.familring.presentation.screen.home.NotificationRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -254,7 +254,12 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Home.route,
         ) {
-            HomeRoute(modifier = modifier)
+            HomeRoute(
+                modifier = modifier,
+                navigateToNotification = {
+                    navController.navigate(ScreenDestinations.Notification.route)
+                },
+            )
         }
 
         composable(
