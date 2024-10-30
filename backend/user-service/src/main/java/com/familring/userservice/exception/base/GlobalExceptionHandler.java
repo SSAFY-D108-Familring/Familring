@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
-        String message = ex.getMessage();
+        String message = ex.getReason();
         ErrorResponse errorResponse = new ErrorResponse(message);
         return ResponseEntity.status(ex.getStatusCode()).body(errorResponse);
     }
