@@ -33,4 +33,24 @@
             ON f.family_id = fu.family_id
         WHERE f.user_id = #{userId}
     </select>
+
+    <select id="existsFamilyByFamilyCode" resultType="boolean" parameterType="string">
+        SELECT COUNT(1) > 0
+        FROM family
+        WHERE family_code = #{code}
+    </select>
+
+    <select id="findLastInsertedFamilyId" resultType="int">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <insert id="insertFamily" parameterType="com.familring.familyservice.model.dto.request.FamilyCreateRequest">
+        INSERT INTO family(family_code, family_count, family_communication_status, family_created_at)
+        VALUES (#{familyCode}, #{familyCount}, #{familyCommunicationStatus}, NOW())
+    </insert>
+
+    <insert id="insetFamily_User">
+        INSERT INTO family_user(family_id, user_id)
+        VALUES (#{familyId}, #{userId})
+    </insert>
 </mapper>

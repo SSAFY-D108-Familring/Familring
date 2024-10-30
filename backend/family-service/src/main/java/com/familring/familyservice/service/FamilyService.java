@@ -1,5 +1,6 @@
 package com.familring.familyservice.service;
 
+import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
@@ -17,5 +18,5 @@ public interface FamilyService {
     List<UserInfoResponse> getFamilyMemberList(String token);
 
     // 가족 생성
-    FamilyInfoResponse createFamily(String token);
+    FamilyInfoResponse createFamily(String token, FamilyCreateRequest familyCreateRequest);
 }

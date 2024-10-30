@@ -45,7 +45,7 @@ public class FamilyController {
     @PostMapping
     public ResponseEntity createFamily
             (@RequestHeader("Authorization") String token, FamilyCreateRequest familyCreateRequest) {
-        FamilyInfoResponse response = familyService.createFamily(token);
+        FamilyInfoResponse response = familyService.createFamily(token, familyCreateRequest);
 
         return ResponseEntity.ok(response);
     }
