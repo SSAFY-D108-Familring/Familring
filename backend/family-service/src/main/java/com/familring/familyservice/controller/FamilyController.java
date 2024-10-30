@@ -23,30 +23,30 @@ public class FamilyController {
     private final FamilyService familyService;
 
     @GetMapping
-    public ResponseEntity getFamilyInfo(@RequestHeader("Authorization") String token) {
-        FamilyInfoResponse response = familyService.getFamilyInfo(token);
+    public ResponseEntity getFamilyInfo(@RequestHeader("X-User-Id") Long userId) {
+        FamilyInfoResponse response = familyService.getFamilyInfo(userId);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/code")
-    public ResponseEntity getFamilyCode(@RequestHeader("Authorization") String token) {
-        String response = familyService.getFamilyCode(token);
+    public ResponseEntity getFamilyCode(@RequestHeader("X-User-Id") Long userId) {
+        String response = familyService.getFamilyCode(userId);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/member")
-    public ResponseEntity getFamilyMember(@RequestHeader("Authorization") String token) {
-        List<UserInfoResponse> responseList = familyService.getFamilyMemberList(token);
+    public ResponseEntity getFamilyMember(@RequestHeader("X-User-Id") Long userId) {
+        List<UserInfoResponse> responseList = familyService.getFamilyMemberList(userId);
 
         return ResponseEntity.ok(responseList);
     }
 
     @PostMapping
     public ResponseEntity createFamily
-            (@RequestHeader("Authorization") String token, FamilyCreateRequest familyCreateRequest) {
-        FamilyInfoResponse response = familyService.createFamily(token, familyCreateRequest);
+            (@RequestHeader("X-User-Id") Long userId, FamilyCreateRequest familyCreateRequest) {
+        FamilyInfoResponse response = familyService.createFamily(userId, familyCreateRequest);
 
         return ResponseEntity.ok(response);
     }

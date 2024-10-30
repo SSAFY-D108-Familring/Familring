@@ -9,14 +9,14 @@ import java.util.List;
 
 public interface FamilyService {
     // 가족 전체 정보 조회
-    FamilyInfoResponse getFamilyInfo(String token);
+    FamilyInfoResponse getFamilyInfo(Long userId);
 
     // 가족 코드 조회
-    String getFamilyCode(String token);
+    String getFamilyCode(Long userId);
 
     // 가족 구성원 전체 조회
-    List<UserInfoResponse> getFamilyMemberList(String token);
+    List<UserInfoResponse> getFamilyMemberList(Long userId);
 
     // 가족 생성
-    FamilyInfoResponse createFamily(String token, FamilyCreateRequest familyCreateRequest);
+    FamilyInfoResponse createFamily(Long userId, FamilyCreateRequest familyCreateRequest);
 }
