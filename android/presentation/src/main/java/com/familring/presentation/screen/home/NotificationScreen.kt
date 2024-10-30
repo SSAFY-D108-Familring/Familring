@@ -103,12 +103,12 @@ fun NotificationItem() {
                 Spacer(modifier = Modifier.width(14.dp))
                 Column {
                     Text(
-                        text = "엄마미가 똑똑 두드렸어요 ✊🏻",
+                        text = "엄마미가 똑똑 두드렸어요 ✊🏻", // 알림 제목
                         style = Typography.headlineSmall.copy(fontSize = 15.sp),
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
-                        text = "랜덤 질문에 답변을 달고 다른 가족의 답을 확인해 보세요",
+                        text = "랜덤 질문에 답변을 달고 다른 가족의 답을 확인해 보세요", // 알림 내용
                         style = Typography.labelSmall.copy(fontSize = 12.sp),
                     )
                 }
