@@ -96,7 +96,7 @@ pipeline {
                         ]) {
                             script {
                                 dir('backend/user-service') {
-                                    copyFiles(application_yml)
+                                    copyApplicationYaml(application_yml)
 
                                     // firebase key 추가
                                     sh "cp ${firebase_key} src/main/resources/familring-firebase-key.json"
