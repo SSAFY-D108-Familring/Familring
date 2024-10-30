@@ -25,7 +25,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userDao.findByUserKakaoId(username)
+        return userDao.findUserByUserKakaoId(username)
                 .map(this::createUserDetails)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
@@ -45,7 +45,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public void createUser(UserDetails user) {
         UserDto newUser = (UserDto) user;
 
-        userDao.insertByUser(newUser);
+        userDao.insertUser(newUser);
     }
 
     @Override

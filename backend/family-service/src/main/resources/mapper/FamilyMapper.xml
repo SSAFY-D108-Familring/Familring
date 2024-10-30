@@ -12,7 +12,13 @@
         <result column="family_created_at" property="familyCreatedAt"/>
     </resultMap>
 
-    <select id="findFamilyInfoByUserId" resultMap="familyInfo">
+    <select id="findFamilyByFamilyId" resultMap="familyInfo">
+        SELECT *
+        FROM family
+        WHERE family_id = #{familyId}
+    </select>
+
+    <select id="findFamilyByUserId" resultMap="familyInfo">
         SELECT *
         FROM family f
         JOIN family_user fu
@@ -20,9 +26,11 @@
         WHERE fu.user_id = #{userId}
     </select>
 
-    <select id="findFamilyByFamilyId" resultMap="familyInfo">
-        SELECT *
-        FROM family
-        WHERE family_id = #{familyId}
+    <select id="findFamilyUserByUserId" resultType="java.lang.Long">
+        SELECT fu.user_id
+        FROM family_user fu
+        JOIN family_user f
+            ON f.family_id = fu.family_id
+        WHERE f.user_id = #{userId}
     </select>
 </mapper>
