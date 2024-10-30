@@ -37,6 +37,7 @@ pipeline {
                             sh "docker run --name config-service -d -p 8888:8888 config-service"
                         }
                     }
+                }
             }
         }
 
