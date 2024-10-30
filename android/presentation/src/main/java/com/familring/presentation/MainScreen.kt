@@ -17,7 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.familring.domain.TimeCapsule
+import com.familring.domain.model.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
@@ -84,7 +84,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier.padding(innerPadding).navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.Interest.route,
+            startDestination = ScreenDestinations.Home.route,
             showSnackBar = onShowSnackBar,
         )
     }
