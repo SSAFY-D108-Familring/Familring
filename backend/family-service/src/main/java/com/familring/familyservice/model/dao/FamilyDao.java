@@ -4,6 +4,7 @@ import com.familring.familyservice.model.dto.FamilyDto;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.mybatis.spring.annotation.MapperScan;
 
 import java.util.List;
 

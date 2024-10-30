@@ -5,7 +5,6 @@ import com.familring.familyservice.model.dto.FamilyDto;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -21,19 +20,15 @@ import java.util.UUID;
 @Log4j2
 public class FamilyServiceImpl implements FamilyService {
 
-    private final JwtTokenProvider jwtTokenProvider;
     private final FamilyDao familyDao;
     private final RestTemplate restTemplate;
 
     @Override
-    public FamilyInfoResponse getFamilyInfo(String token) {
-        // 1. 클레임에서 userId 추출
-        Long userId = getUserId(token);
-
-        // 2. 가족 조회
+    public FamilyInfoResponse getFamilyInfo(Long userId) {
+        // 1. 가족 조회
         FamilyDto familyDto = familyDao.findFamilyByUserId(userId);
 
-        // 3. 응답 변환
+        // 2. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
                 .familyId(familyDto.getFamilyId())
                 .familyCode(familyDto.getFamilyCode())
@@ -41,31 +36,25 @@ public class FamilyServiceImpl implements FamilyService {
                 .familyCommunicationStatus(familyDto.getFamilyCommunicationStatus())
                 .build();
 
-        // 4. 응답
+        // 3. 응답
         return response;
     }
 
     @Override
-    public String getFamilyCode(String token) {
-        // 1. 클레임에서 userId 추출
-        Long userId = getUserId(token);
-
-        // 2. 가족 코드 조회
+    public String getFamilyCode(Long userId) {
+        // 1.  가족 코드 조회
         String familyCode = familyDao.findFamilyByUserId(userId).getFamilyCode();
 
-        // 3. 응답
+        // 2. 응답
         return familyCode;
     }
 
     @Override
-    public List<UserInfoResponse> getFamilyMemberList(String token) {
-        // 1. 클레임에서 userId 추출
-        Long userId = getUserId(token);
-
-        // 2. userId의 가족 구성원 모두의 userId 추출
+    public List<UserInfoResponse> getFamilyMemberList(Long userId) {
+        // 1.  userId의 가족 구성원 모두의 userId 추출
         List<Long> members = familyDao.findFamilyUserByUserId(userId);
 
-        // 3. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
+        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
         List<UserInfoResponse> response = new ArrayList<>();
 
         for (Long memberId : members) {
@@ -77,18 +66,15 @@ public class FamilyServiceImpl implements FamilyService {
             response.add(userInfo);
         }
 
-        // 4. 응답
+        // 3. 응답
         return response;
     }
 
     @Override
     @Transactional
-    public FamilyInfoResponse createFamily(String token, FamilyCreateRequest familyCreateRequest) {
-        // 1. 클레임에서 userId 추출
-        Long userId = getUserId(token);
-
-        // 2. 가족 생성
-        // 2-1. 가족 코드 생성
+    public FamilyInfoResponse createFamily(Long userId, FamilyCreateRequest familyCreateRequest) {
+        // 1.  가족 생성
+        // 1-1. 가족 코드 생성
         String code;
         do {
             String uuid = UUID.randomUUID().toString();
@@ -96,27 +82,27 @@ public class FamilyServiceImpl implements FamilyService {
             code = uuid.replaceAll("[^A-Z0-9]", "").substring(0, 6);
             log.info("code: {}", code);
         }
-        // 2-2. 중복 확인
+        // 1-2. 중복 확인
         while (familyDao.existsFamilyByFamilyCode(code));
         
-        // 2-3. dto 수정
+        // 1-3. dto 수정
         familyCreateRequest.setFamilyCode(code);
         familyCreateRequest.setFamilyCommunicationStatus(75);
 
-        // 2-4. DB에 가족 생성
+        // 1-4. DB에 가족 생성
         familyDao.insertFamily(familyCreateRequest);
 
-        // 2-5. 생성된 가족 familyId 찾기
+        // 1-5. 생성된 가족 familyId 찾기
         Long familyId = familyDao.findLastInsertedFamilyId();
         log.info("familyId: {}", familyId);
 
-        // 3. 가족 구성원 추가
+        // 2. 가족 구성원 추가
         familyDao.insetFamily_User(familyId, userId);
 
-        // 4. 가족 조회
+        // 3. 가족 조회
         FamilyDto familyDto = familyDao.findFamilyByFamilyId(familyId);
 
-        // 5. 응답 변환
+        // 4. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
                 .familyId(familyDto.getFamilyId())
                 .familyCode(familyDto.getFamilyCode())
@@ -124,16 +110,7 @@ public class FamilyServiceImpl implements FamilyService {
                 .familyCommunicationStatus(familyDto.getFamilyCommunicationStatus())
                 .build();
 
-        // 6. 응답
+        // 5. 응답
         return response;
-    }
-
-    public Long getUserId(String token) {
-        String accessToken = token.replace("Bearer ", "");
-
-        Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-        log.info("userId: {}", userId);
-
-        return userId;
     }
 }
