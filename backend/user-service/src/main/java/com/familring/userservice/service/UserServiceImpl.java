@@ -13,10 +13,12 @@ import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +85,10 @@ public class UserServiceImpl implements UserService {
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserKakaoId(userLogInRequest.getUserKakaoId())
                 // 2-1. 회원이 없는 경우 -> 회원가입 처리
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userLogInRequest.getUserKakaoId()));
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("User not found: " + userLogInRequest.getUserKakaoId());
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
 
         // 2-2. 회원이 있는 경우 -> JWT 발급
         JwtTokenResponse tokens = tokenService.generateToken(user.getUserKakaoId(), "");
