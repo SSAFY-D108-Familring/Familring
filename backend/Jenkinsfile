@@ -12,10 +12,10 @@ pipeline {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
                         // 디렉토리가 없는 경우 생성
-                        sh 'mkdir -p backend/config-service/main/resources'
+                        sh 'mkdir -p backend/config-service/src/main/resources'
 
                         // application.yml 복사
-                        sh 'cp $application_yml backend/config-service/main/resources/application.yml'
+                        sh 'cp $application_yml backend/config-service/src/main/resources/application.yml'
                     }
                 }
             }
