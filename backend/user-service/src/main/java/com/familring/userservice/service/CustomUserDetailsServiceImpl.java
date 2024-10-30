@@ -34,10 +34,10 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public UserDetails createUserDetails(UserDto userDto) {
         // UserDetails객체 생성
         return org.springframework.security.core.userdetails.User.builder()
-                        .username(userDto.getUserKakaoId())
-                        .password(userDto.getUserPassword())
-                        .roles(userDto.isUserIsAdmin() ? "ADMIN" : "USER")
-                        .build();
+                .username(userDto.getUserKakaoId())
+                .password(userDto.getUserPassword())
+                .roles(userDto.isUserIsAdmin() ? "ADMIN" : "USER")
+                .build();
     }
 
     @Override
@@ -49,7 +49,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     }
 
     @Override
-    public void createUser(UserJoinRequest userJoinRequest, MultipartFile image){
+    public void createUser(UserJoinRequest userJoinRequest, MultipartFile image) {
         String faceImgUrl = null;
 
         // 나중에 file-service로 업로드 하도록 수정
