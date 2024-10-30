@@ -53,9 +53,9 @@ public class UserController {
     @PostMapping(value = "/join", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "회원가입", description = "회원가입이 되어 있지 않은 사용자 회원가입 처리 후 JWT 발급")
     public ResponseEntity join
-            (@RequestPart("userJoinRequest") UserJoinRequest userLogInRequest,
+            (@RequestPart("userJoinRequest") UserJoinRequest userJoinRequest,
              @RequestPart(value = "image", required = false) MultipartFile image) {
-        JwtTokenResponse tokens = userService.join(userLogInRequest, image);
+        JwtTokenResponse tokens = userService.join(userJoinRequest, image);
 
         return ResponseEntity.ok(tokens);
     }

@@ -54,8 +54,11 @@ public class SecurityConfig {
         // 호스트네임 체크
         boolean isValidHost = StringUtils.equals(serverIpAddress, remoteHost);
 
-        // IP 주소 체크 (localhost)
+        // IP 주소 체크 (localhost) - IPv4
         boolean isLocalhost = StringUtils.equals("127.0.0.1", remoteAddr);
+
+        // IP 주소 체크 (localhost) - IPv6
+        boolean isLocalhostV6 = StringUtils.equals("0:0:0:0:0:0:0:1", remoteAddr);
 
         // Gateway IP 주소 체크
         List<ServiceInstance> gatewayInstances = discoveryClient.getInstances("API-GATEWAY");
@@ -69,6 +72,6 @@ public class SecurityConfig {
                 .forEach(h -> log.info("gateway: {}", h));
         log.info("ip address: {}", remoteAddr);
 
-        return new AuthorizationDecision(isValidHost || isGatewayIp || isLocalhost);
+        return new AuthorizationDecision(isValidHost || isGatewayIp || isLocalhost || isLocalhostV6);
     }
 }
