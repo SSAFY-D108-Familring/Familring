@@ -7,104 +7,87 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build Config Server') {
+
+        stage('Build and Deploy Config Server') {
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
                         dir('backend/config-service') {
-                            // 디렉토리가 없는 경우 생성
-                            sh 'mkdir -p src/main/resources'
-
-                            // application.yml 복사
-                            sh 'cp $application_yml src/main/resources/application.yml'
-
-
-                            sh 'chmod +x ./gradlew'
-
-                            sh './gradlew clean build -x test'
-
-                            // Check if any container
-                            def containerNamedConfigService = sh(script: "docker ps -a --filter 'name=config-service' --format '{{.ID}}'", returnStdout: true).trim()
-
-                            if (containerNamedConfigService) {
-                                // Stop and remove the container
-                                sh "docker stop ${containerNamedConfigService}"
-                                sh "docker rm ${containerNamedConfigService}"
-                            }
-
-                            // Build and run the new container
-                            sh "docker build -t config-service ."
-                            sh "docker run --name config-service -d -p 8888:8888 config-service"
+                            copyApplicationYaml(application_yml)
+                            buildAndRunContainer('config-service', 8888, false)
                         }
                     }
                 }
             }
         }
-        stage('Build Discovery Server') {
+
+        stage('Build and Deploy Discovery Server') {
             steps {
                 withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
                     script {
                         dir('backend/discovery-service') {
-                            // 디렉토리가 없는 경우 생성
-                            sh 'mkdir -p src/main/resources'
-
-                            // application.yml 복사
-                            sh 'cp $application_yml src/main/resources/application.yml'
-
-
-                            sh 'chmod +x ./gradlew'
-
-                            sh './gradlew clean build -x test'
-
-                            // Check if any container is named
-                            def container = sh(script: "docker ps -a --filter 'name=discovery-service' --format '{{.ID}}'", returnStdout: true).trim()
-
-                            if (container) {
-                                // Stop and remove the container named
-                                sh "docker stop ${container}"
-                                sh "docker rm ${container}"
-                            }
-
-                            // Build and run the new container
-                            sh "docker build -t discovery-service ."
-                            sh "docker run --name discovery-service -d -p 8761:8761 discovery-service"
+                            copyApplicationYaml(application_yml)
+                            buildAndRunContainer('discovery-service', 8761, false)
                         }
                     }
                 }
             }
         }
-        stage('Build ApiGateway Server') {
+
+        stage('Build and Deploy API Gateway') {
             steps {
                 withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
                     script {
                         dir('backend/api-gateway') {
-                            // 디렉토리가 없는 경우 생성
-                            sh 'mkdir -p src/main/resources'
-
-                            // application.yml 복사
-                            sh 'cp $application_yml src/main/resources/application.yml'
-
-
-                            sh 'chmod +x ./gradlew'
-
-                            sh './gradlew clean build -x test'
-
-                            // Check if any container is named
-                            def container = sh(script: "docker ps -a --filter 'name=api-gateway-service' --format '{{.ID}}'", returnStdout: true).trim()
-
-                            if (container) {
-                                // Stop and remove the container named
-                                sh "docker stop ${container}"
-                                sh "docker rm ${container}"
-                            }
-
-                            // Build and run the new container
-                            sh "docker build -t api-gateway-service ."
-                            sh "docker run --name api-gateway-service -d -p 8000:8000 api-gateway-service"
+                            copyApplicationYaml(application_yml)
+                            buildAndRunContainer('api-gateway-service', 8000, true)  // 외부 포트 8000에 노출
                         }
                     }
                 }
             }
         }
+
+        stage('Build and Deploy Album Service') {
+            steps {
+                withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
+                    script {
+                        dir('backend/album-service') {
+                            copyApplicationYaml(application_yml)
+                            buildAndRunContainer('album-service', 8084, false) // 내부 네트워크에서만 통신
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 공통 함수: application.yml 복사
+def copyApplicationYaml(application_yml) {
+    sh 'mkdir -p src/main/resources'
+    sh "cp ${application_yml} src/main/resources/application.yml"
+}
+
+// 공통 함수: 컨테이너 중지 및 삭제
+def stopAndRemoveContainer(containerName) {
+    def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    if (container) {
+        sh "docker stop ${container}"
+        sh "docker rm ${container}"
+    }
+}
+
+// 공통 함수: 컨테이너 빌드 및 실행
+def buildAndRunContainer(serviceName, port, exposeToHost) {
+    stopAndRemoveContainer(serviceName)
+    sh 'chmod +x ./gradlew'
+    sh './gradlew clean build -x test'
+    sh "docker build -t ${serviceName} ."
+
+    // 호스트에 노출할지 여부에 따라 -p 옵션을 추가
+    if (exposeToHost) {
+        sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
+    } else {
+        sh "docker run --name ${serviceName} -d ${serviceName}"
     }
 }
