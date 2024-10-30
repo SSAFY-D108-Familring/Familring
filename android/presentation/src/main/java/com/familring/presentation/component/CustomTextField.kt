@@ -23,6 +23,7 @@ import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun CustomTextField(
@@ -60,9 +61,9 @@ fun CustomTextField(
             TextFieldDefaults.colors(
                 unfocusedIndicatorColor = Gray04,
                 focusedIndicatorColor = Gray04,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                errorContainerColor = Color.White,
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
+                errorContainerColor = White,
                 focusedTextColor = Black,
                 unfocusedTextColor = Black,
                 unfocusedPlaceholderColor = Gray02,

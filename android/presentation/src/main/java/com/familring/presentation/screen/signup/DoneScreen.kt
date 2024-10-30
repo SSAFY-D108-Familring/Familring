@@ -36,6 +36,7 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun DoneRoute(modifier: Modifier) {
@@ -49,7 +50,7 @@ fun DoneScreen(modifier: Modifier = Modifier) {
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -84,11 +85,12 @@ fun DoneScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
             Box(
                 modifier =
-                    Modifier
-                        .fillMaxWidth(0.82f)
-                        .wrapContentSize()
-                        .background(color = Color.White)
-                        .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp)),
+                Modifier.run {
+                    fillMaxWidth(0.82f)
+                                    .wrapContentSize()
+                                    .background(color = White)
+                                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp))
+                },
             ) {
                 Column(
                     modifier =

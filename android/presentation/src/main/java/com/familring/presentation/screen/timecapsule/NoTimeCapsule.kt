@@ -19,6 +19,7 @@ import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun NoTimeCapsule(
@@ -27,7 +28,7 @@ fun NoTimeCapsule(
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

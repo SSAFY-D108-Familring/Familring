@@ -34,6 +34,7 @@ import com.familring.presentation.component.OneButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun TimeCapsuleDialog(
@@ -101,7 +102,7 @@ fun TimeCapsule(
             modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(12.dp))
-                .background(color = Color.White)
+                .background(color = White)
                 .padding(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

@@ -24,6 +24,7 @@ import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
+import com.familring.presentation.screen.home.NotificationRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -38,6 +39,7 @@ import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
+import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 
@@ -64,7 +66,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     // statusBar, navigationBar 색상 설정
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = Color.Transparent, darkIcons = true)
-    systemUiController.setNavigationBarColor(color = Color.White)
+    systemUiController.setNavigationBarColor(color = White)
 
     Scaffold(
         modifier = modifier,
@@ -250,7 +252,9 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Home.route,
         ) {
-            HomeRoute(modifier = modifier)
+            HomeRoute(modifier = modifier, navigateToNotification = {
+                navController.navigate(ScreenDestinations.Notification.route)
+            })
         }
 
         composable(
@@ -273,6 +277,16 @@ fun MainNavHost(
                 navigateToAlbum = {
                     navController.navigate(ScreenDestinations.Album.route)
                 },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Notification.route,
+        ) {
+            NotificationRoute(
+                modifier = modifier,
+                navigateToHome =
+                    navController::popBackStack,
             )
         }
     }

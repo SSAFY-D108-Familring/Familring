@@ -38,6 +38,7 @@ import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
@@ -48,7 +49,7 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(color = Color.White),
+                .background(color = White),
     ) {
         Image(
             painter = painterResource(id = R.drawable.img_question_back),
@@ -78,7 +79,7 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
                     modifier =
                         Modifier
                             .background(
-                                color = if (isLatestSelected) Green02 else Color.White,
+                                color = if (isLatestSelected) Green02 else White,
                                 shape = RoundedCornerShape(30.dp),
                             ).border(
                                 width = 1.dp,
@@ -86,7 +87,7 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
                                 shape = RoundedCornerShape(30.dp),
                             ).padding(horizontal = 19.dp, vertical = 8.dp)
                             .clickable { isLatestSelected = true },
-                    color = if (isLatestSelected) Color.White else Color.Black,
+                    color = if (isLatestSelected) White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -95,7 +96,7 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
                     modifier =
                         Modifier
                             .background(
-                                color = if (!isLatestSelected) Green02 else Color.White,
+                                color = if (!isLatestSelected) Green02 else White,
                                 shape = RoundedCornerShape(30.dp),
                             ).border(
                                 width = 1.dp,
@@ -103,7 +104,7 @@ fun QuestionListScreen(onNavigateBack: () -> Unit) {
                                 shape = RoundedCornerShape(30.dp),
                             ).padding(horizontal = 19.dp, vertical = 8.dp)
                             .noRippleClickable { isLatestSelected = false },
-                    color = if (!isLatestSelected) Color.White else Color.Black,
+                    color = if (!isLatestSelected) White else Color.Black,
                 )
             }
             Spacer(modifier = Modifier.fillMaxSize(0.03f))

@@ -37,6 +37,7 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
@@ -60,7 +61,7 @@ fun FirstScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -88,7 +89,7 @@ fun FirstScreen(
                     Modifier
                         .fillMaxWidth(0.82f)
                         .wrapContentSize()
-                        .background(color = Color.White)
+                        .background(color = White)
                         .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp)),
             ) {
                 Column(

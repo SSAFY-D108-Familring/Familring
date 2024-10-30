@@ -20,6 +20,7 @@ import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun TimeCapsuleRoute(
@@ -45,7 +46,7 @@ fun TimeCapsuleScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

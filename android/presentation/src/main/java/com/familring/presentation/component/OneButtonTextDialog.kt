@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun OneButtonTextDialog(
@@ -32,7 +33,7 @@ fun OneButtonTextDialog(
             modifier
                 .fillMaxWidth()
                 .padding(horizontal = 60.dp)
-                .background(color = Color.White, shape = RoundedCornerShape(12.dp)),
+                .background(color = White, shape = RoundedCornerShape(12.dp)),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
@@ -64,7 +65,7 @@ fun OneButtonTextDialog(
                 modifier =
                     Modifier
                         .padding(vertical = 16.dp),
-                color = Color.White,
+                color = White,
                 style = Typography.headlineMedium.copy(fontSize = 18.sp),
                 textAlign = TextAlign.Center,
             )
