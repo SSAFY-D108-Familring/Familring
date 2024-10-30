@@ -26,7 +26,6 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userDao.findUserByUserKakaoId(username)
-                .map(this::createUserDetails)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
@@ -34,10 +33,10 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public UserDetails createUserDetails(UserDto userDto) {
         // UserDetails객체 생성
         return org.springframework.security.core.userdetails.User.builder()
-                        .username(userDto.getUserKakaoId())
-                        .password(userDto.getUserPassword())
-                        .roles(userDto.isUserIsAdmin() ? "ADMIN" : "USER")
-                        .build();
+                .username(userDto.getUserKakaoId())
+                .password(userDto.getUserPassword())
+                .roles(userDto.isUserIsAdmin() ? "ADMIN" : "USER")
+                .build();
     }
 
     @Override
@@ -49,8 +48,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     }
 
     @Override
-    public void createUser(UserJoinRequest userJoinRequest, MultipartFile image){
-        String faceImgUrl = null;
+    @Transactional
+    public void createUser(UserJoinRequest userJoinRequest, MultipartFile image) {
+        String faceImgUrl = "";
 
         // 나중에 file-service로 업로드 하도록 수정
         // 프로필 사진 처리
@@ -61,12 +61,21 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(userJoinRequest.getUserBirthDate());
         int year = calendar.get(Calendar.YEAR);
-        String[] zodiacSign = {"원숭이", "닭", "개", "돼지", "쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양"};
-        int index = (year - 4) % 12;
-        log.info("사용자의 띠: {}", zodiacSign[index]);
+        // 띠 배열의 시작을 "쥐"로 변경하여 정확한 계산이 가능하도록 설정
+        String[] zodiacSign = {"쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"};
 
-        // 띠 사진 처리
-        String zodiacSignImgUrl = "/zodiac-sign/" + zodiacSign[index] + ".png";
+        // 띠 계산
+        int birthYear = calendar.get(Calendar.YEAR);
+        int zodiacIndex = (birthYear - 4) % 12;
+
+        // 음수 인덱스 방지
+        if (zodiacIndex < 0)
+            zodiacIndex += 12;
+
+        log.info("사용자의 띠: {}", zodiacSign[zodiacIndex]);
+
+        // 띠 이미지 URL 생성
+        String zodiacSignImgUrl = "/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
 
         UserDto user = UserDto.builder()
                 .userKakaoId(userJoinRequest.getUserKakaoId())

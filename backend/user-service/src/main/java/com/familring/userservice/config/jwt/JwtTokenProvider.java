@@ -94,7 +94,12 @@ public class JwtTokenProvider {
         // UserDetails: interface, User: UserDetails를 구현한 class
         UserDetails principal = new User(claims.getSubject(), "", authorities);
 
-        return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+        // UserDto를 생성하여 Authentication에 추가
+        UserDto userDto = UserDto.builder()
+                .userKakaoId(principal.getUsername())
+                .build();
+
+        return new UsernamePasswordAuthenticationToken(userDto, "", authorities);
     }
 
     // 토큰 정보 검증 메소드

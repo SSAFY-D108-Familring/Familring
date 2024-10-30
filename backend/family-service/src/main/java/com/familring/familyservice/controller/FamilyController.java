@@ -24,21 +24,25 @@ public class FamilyController {
     private final FamilyService familyService;
 
     @GetMapping
-    public ResponseEntity getFamilyInfo(@RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity getFamilyInfo(@RequestHeader("X-User-ID") Long userId) {
         FamilyInfoResponse response = familyService.getFamilyInfo(userId);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/code")
-    public ResponseEntity getFamilyCode(@RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity getFamilyCode(@RequestHeader("X-User-ID") Long userId) {
         String response = familyService.getFamilyCode(userId);
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/member")
+<<<<<<< HEAD
     public ResponseEntity getFamilyMemberList(@RequestHeader("X-User-Id") Long userId) {
+=======
+    public ResponseEntity getFamilyMember(@RequestHeader("X-User-ID") Long userId) {
+>>>>>>> f797428544e125de4f677365416ffbad90da18e0
         List<UserInfoResponse> responseList = familyService.getFamilyMemberList(userId);
 
         return ResponseEntity.ok(responseList);
@@ -46,8 +50,12 @@ public class FamilyController {
 
     @PostMapping
     public ResponseEntity createFamily
+<<<<<<< HEAD
             (@RequestHeader("X-User-Id") Long userId,
              @RequestBody FamilyCreateRequest familyCreateRequest) {
+=======
+            (@RequestHeader("X-User-ID") Long userId, FamilyCreateRequest familyCreateRequest) {
+>>>>>>> f797428544e125de4f677365416ffbad90da18e0
         FamilyInfoResponse response = familyService.createFamily(userId, familyCreateRequest);
 
         return ResponseEntity.ok(response);
