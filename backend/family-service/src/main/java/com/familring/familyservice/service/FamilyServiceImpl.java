@@ -60,6 +60,30 @@ public class FamilyServiceImpl implements FamilyService {
         return List.of();
     }
 
+    @Override
+    public FamilyInfoResponse createFamily(String token) {
+        // 1. 클레임에서 userId 추출
+        Long userId = getUserId(token);
+
+        // 2. 가족 생성
+
+        // 3. 가족 구성원 추가
+
+        // 4. 가족 조회
+        FamilyDto familyDto = familyDao.findFamilyInfoByUserId(userId);
+
+        // 5. 응답 변환
+        FamilyInfoResponse response = FamilyInfoResponse.builder()
+                .familyId(familyDto.getFamilyId())
+                .familyCode(familyDto.getFamilyCode())
+                .familyCount(familyDto.getFamilyCount())
+                .familyCommunicationStatus(familyDto.getFamilyCommunicationStatus())
+                .build();
+
+        // 6. 응답
+        return response;
+    }
+
     public Long getUserId(String token) {
         String accessToken = token.replace("Bearer ", "");
 

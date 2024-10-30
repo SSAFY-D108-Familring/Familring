@@ -1,5 +1,6 @@
 package com.familring.familyservice.controller;
 
+import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.FamilyService;
@@ -7,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -42,5 +40,13 @@ public class FamilyController {
         List<UserInfoResponse> responseList = familyService.getFamilyMemberList(token);
 
         return ResponseEntity.ok(responseList);
+    }
+
+    @PostMapping
+    public ResponseEntity createFamily
+            (@RequestHeader("Authorization") String token, FamilyCreateRequest familyCreateRequest) {
+        FamilyInfoResponse response = familyService.createFamily(token);
+
+        return ResponseEntity.ok(response);
     }
 }

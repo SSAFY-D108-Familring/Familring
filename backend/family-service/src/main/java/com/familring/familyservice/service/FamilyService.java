@@ -15,4 +15,7 @@ public interface FamilyService {
 
     // 가족 구성원 전체 조회
     List<UserInfoResponse> getFamilyMemberList(String token);
+
+    // 가족 생성
+    FamilyInfoResponse createFamily(String token);
 }
