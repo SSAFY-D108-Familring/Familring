@@ -2,7 +2,9 @@ package com.familring.presentation.screen.calendar
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,6 +39,7 @@ import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Green01
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import kotlinx.coroutines.launch
@@ -130,6 +134,27 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
                     }
                 },
             )
+            Row(
+                modifier =
+                    Modifier
+                        .padding(vertical = 10.dp)
+                        .padding(horizontal = 5.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                listOf("일", "월", "화", "수", "목", "금", "토").forEach { day ->
+                    val textColor = if (day == "일") Red01 else Black
+                    Text(
+                        text = day,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center,
+                        style =
+                            Typography.displayMedium.copy(
+                                fontSize = 12.sp,
+                                color = textColor.copy(alpha = 0.5f),
+                            ),
+                    )
+                }
+            }
             HorizontalPager(
                 state = pagerState,
                 modifier =
