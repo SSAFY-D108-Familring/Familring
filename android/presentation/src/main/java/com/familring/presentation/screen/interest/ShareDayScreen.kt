@@ -44,6 +44,7 @@ import com.familring.presentation.util.noRippleClickable
 fun ShareDayScreen(
     isUpload: Boolean = false,
     shareImage: (Uri) -> Unit = {},
+    navigateToOtherInterest: () -> Unit = {},
 ) {
     if (!isUpload) {
         val singlePhotoPickerLauncher =
@@ -206,6 +207,7 @@ fun ShareDayScreen(
                 Text(
                     modifier =
                         Modifier.noRippleClickable {
+                            navigateToOtherInterest()
                         },
                     text = "선정되지 못한 관심사 알아보기",
                     style = Typography.bodyMedium,

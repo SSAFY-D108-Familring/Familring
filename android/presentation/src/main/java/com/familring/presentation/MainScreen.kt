@@ -24,7 +24,9 @@ import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
+import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
+import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -82,7 +84,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier = modifier.padding(innerPadding).navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.Home.route,
+            startDestination = ScreenDestinations.Interest.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -282,7 +284,30 @@ fun MainNavHost(
         ) {
             InterestRoute(
                 modifier = modifier,
-                navigateToInterestList = { },
+                navigateToInterestList = {
+                    navController.navigate(ScreenDestinations.InterestList.route)
+                },
+                navigateToOtherInterest = {
+                    navController.navigate(ScreenDestinations.OtherInterest.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.InterestList.route,
+        ) {
+            InterestListRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.OtherInterest.route,
+        ) {
+            OtherInterestRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
             )
         }
     }
