@@ -25,6 +25,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun NumberTextField(
@@ -89,8 +90,8 @@ fun NumberTextField(
             TextFieldDefaults.colors(
                 focusedTextColor = textColor,
                 unfocusedTextColor = textColor,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
+                focusedContainerColor = White,
+                unfocusedContainerColor = White,
                 focusedIndicatorColor = borderColor,
                 unfocusedIndicatorColor = borderColor,
             ),

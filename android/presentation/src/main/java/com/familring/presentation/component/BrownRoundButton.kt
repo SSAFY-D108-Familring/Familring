@@ -15,6 +15,7 @@ import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun BrownRoundButton(
@@ -24,7 +25,7 @@ fun BrownRoundButton(
     enabled: Boolean = true,
 ) {
     val backgroundColor = if (enabled) Brown01 else Gray04
-    val textColor = if (enabled) Color.White else Gray03
+    val textColor = if (enabled) White else Gray03
     Text(
         modifier =
         modifier

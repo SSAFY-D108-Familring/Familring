@@ -38,6 +38,7 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun WritingTimeCapsuleScreen(
@@ -79,7 +80,7 @@ fun WritingTimeCapsule(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

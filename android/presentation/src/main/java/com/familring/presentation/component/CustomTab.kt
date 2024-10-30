@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
@@ -33,7 +34,7 @@ fun CustomTab(
     Box(
         modifier =
             modifier
-                .background(Color.White)
+                .background(White)
                 .height(intrinsicSize = IntrinsicSize.Min),
     ) {
         Row(

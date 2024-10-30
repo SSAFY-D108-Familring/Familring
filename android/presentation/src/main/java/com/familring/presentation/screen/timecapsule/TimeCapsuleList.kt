@@ -42,6 +42,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun TimeCapsuleListScreen(
@@ -70,7 +71,7 @@ fun TimeCapsuleList(
         modifier =
             modifier
                 .fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -171,7 +172,7 @@ fun TimeCapsuleItem(
                     style =
                         Typography.titleLarge.copy(
                             fontSize = 20.sp,
-                            color = Color.White,
+                            color = White,
                         ),
                 )
             }

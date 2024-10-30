@@ -45,6 +45,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun PictureRoute(
@@ -90,7 +91,7 @@ fun PictureScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

@@ -38,6 +38,7 @@ import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
+import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
 
@@ -64,7 +65,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     // statusBar, navigationBar 색상 설정
     val systemUiController = rememberSystemUiController()
     systemUiController.setStatusBarColor(color = Color.Transparent, darkIcons = true)
-    systemUiController.setNavigationBarColor(color = Color.White)
+    systemUiController.setNavigationBarColor(color = White)
 
     Scaffold(
         modifier = modifier,

@@ -26,6 +26,7 @@ import com.familring.presentation.screen.timecapsule.isDateFormValid
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun BirthRoute(
@@ -55,7 +56,7 @@ fun BirthScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

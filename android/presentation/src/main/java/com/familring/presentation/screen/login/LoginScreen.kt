@@ -32,12 +32,13 @@ import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun LoginScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color.White,
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

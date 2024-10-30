@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun AlbumRoute(
@@ -45,7 +46,7 @@ fun AlbumScreen(
         mutableStateOf(11)
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+    Surface(modifier = Modifier.fillMaxSize(), color = White) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 title = {

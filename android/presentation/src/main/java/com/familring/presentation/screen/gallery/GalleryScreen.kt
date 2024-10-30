@@ -50,6 +50,7 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
@@ -72,7 +73,7 @@ fun GalleryScreen(
     var albumname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
-    Surface(modifier = Modifier.fillMaxSize(), color = Color.White) {
+    Surface(modifier = Modifier.fillMaxSize(), color = White) {
         Column(
             modifier = Modifier.fillMaxSize(),
         ) {
@@ -92,7 +93,7 @@ fun GalleryScreen(
                     modifier =
                         Modifier
                             .background(
-                                color = if (privateGallerySelected) Green02 else Color.White,
+                                color = if (privateGallerySelected) Green02 else White,
                                 shape = RoundedCornerShape(30.dp),
                             ).border(
                                 border =
@@ -107,7 +108,7 @@ fun GalleryScreen(
                                 RoundedCornerShape(30.dp),
                             ).noRippleClickable { privateGallerySelected = true }
                             .padding(horizontal = 19.dp, vertical = 8.dp),
-                    color = if (privateGallerySelected) Color.White else Color.Black,
+                    color = if (privateGallerySelected) White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -116,7 +117,7 @@ fun GalleryScreen(
                     modifier =
                         Modifier
                             .background(
-                                color = if (!privateGallerySelected) Green02 else Color.White,
+                                color = if (!privateGallerySelected) Green02 else White,
                                 shape = RoundedCornerShape(30.dp),
                             ).border(
                                 border =
@@ -131,7 +132,7 @@ fun GalleryScreen(
                                 RoundedCornerShape(30.dp),
                             ).noRippleClickable { privateGallerySelected = false }
                             .padding(horizontal = 19.dp, vertical = 8.dp),
-                    color = if (!privateGallerySelected) Color.White else Color.Black,
+                    color = if (!privateGallerySelected) White else Color.Black,
                 )
             }
             Spacer(modifier = Modifier.fillMaxSize(0.04f))
@@ -257,7 +258,7 @@ fun AddAlbumButton(onClick: () -> Unit) {
                 .aspectRatio(1f),
         colors =
             CardDefaults.cardColors(
-                containerColor = Color.White,
+                containerColor = White,
             ),
     ) {
         Column(

@@ -46,6 +46,7 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
@@ -85,7 +86,7 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(color = Color.White),
+                .background(color = White),
     ) {
         Image(
             painter = painterResource(id = R.drawable.img_question_back),

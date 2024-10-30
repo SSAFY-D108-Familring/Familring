@@ -17,13 +17,14 @@ import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun RoundLongButton(
     modifier: Modifier = Modifier,
     text: String = "",
     backgroundColor: Color = Green02,
-    textColor: Color = Color.White,
+    textColor: Color = White,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
 ) {
@@ -38,7 +39,7 @@ fun RoundLongButton(
                     containerColor = backgroundColor,
                     contentColor = textColor,
                     disabledContainerColor = Gray03,
-                    disabledContentColor = Color.White,
+                    disabledContentColor = White,
                 ),
             modifier =
                 Modifier
