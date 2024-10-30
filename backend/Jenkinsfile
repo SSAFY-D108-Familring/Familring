@@ -67,7 +67,7 @@ pipeline {
                             script {
                                 dir('backend/album-service') {
                                     copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('album-service', 8084, false) // 내부 네트워크에서만 통신
+                                    buildAndRunContainer('album-service', false) // 내부 네트워크에서만 통신
                                 }
                             }
                         }
@@ -82,7 +82,7 @@ pipeline {
                             script {
                                 dir('backend/calendar-service') {
                                     copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('calendar-service', 8085, false) // 내부 네트워크에서만 통신
+                                    buildAndRunContainer('calendar-service', false) // 내부 네트워크에서만 통신
                                 }
                             }
                         }
@@ -101,7 +101,7 @@ pipeline {
                                     // firebase key 추가
                                     sh "cp ${firebase_key} src/main/resources/familring-firebase-key.json"
 
-                                    buildAndRunContainer('user-service', 8086, false) // 내부 네트워크에서만 통신
+                                    buildAndRunContainer('user-service', false) // 내부 네트워크에서만 통신
                                 }
                             }
                         }
@@ -138,6 +138,6 @@ def buildAndRunContainer(serviceName, port, exposeToHost) {
     if (exposeToHost) {
         sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
     } else {
-        sh "docker run --name ${serviceName} -d -p 8000:${port} ${serviceName}"
+        sh "docker run --name ${serviceName} -d ${serviceName}"
     }
 }
