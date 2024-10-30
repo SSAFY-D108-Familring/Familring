@@ -1,7 +1,6 @@
 package com.familring.apigateway.filter;
 
 import lombok.extern.log4j.Log4j2;
-import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
@@ -22,6 +21,10 @@ public class LoggingFilter extends AbstractGatewayFilterFactory<LoggingFilter.Co
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
+
+            if (request.getURI().getPath().startsWith("/api")) {
+                throw new RuntimeException("에러발생");
+            }
 
             // 기본 요청 정보 로깅
             log.info("Original Path: {}", request.getPath());
