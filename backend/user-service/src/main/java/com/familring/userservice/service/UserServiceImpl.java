@@ -2,7 +2,7 @@ package com.familring.userservice.service;
 
 import com.familring.userservice.config.jwt.JwtTokenProvider;
 import com.familring.userservice.config.redis.RedisService;
-import com.familring.userservice.exception.InvalidTokenException;
+import com.familring.userservice.exception.token.InvalidRefreshTokenException;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
@@ -13,7 +13,6 @@ import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,10 +68,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image){
+    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) {
         // 1. 사용자 회원가입
         customUserDetailsService.createUser(userJoinRequest, image);
-        
+
         // 2. 사용자 JWT 발급
         JwtTokenResponse tokens = tokenService.generateToken(userJoinRequest.getUserKakaoId(), "");
 
@@ -90,17 +89,17 @@ public class UserServiceImpl implements UserService {
 
         // 3. redis에서 refreshToken 유효성 확인
         String storedRefreshToken = redisService.getRefreshToken(userName);
-        if(storedRefreshToken.equals(refreshToken)){
-            throw new InvalidTokenException(HttpStatus.BAD_REQUEST, "Refresh token is invalid or expired");
+        if (storedRefreshToken.equals(refreshToken)) {
+            throw new InvalidRefreshTokenException();
         }
-        
+
         // 4. 새로운 accessToken과 refreshToken
         JwtTokenResponse tokens = tokenService.generateToken(userName, "");
-        
+
         // 5. redis에 이전 refreshToken 삭제 후 저장
         redisService.deleteRefreshToken(userName); // 삭제
         redisService.saveRefreshToken(userName, tokens.getRefreshToken()); // 저장
-        
+
         // 6. 재발급한 토큰들 응답
         return tokens;
     }
@@ -148,7 +147,7 @@ public class UserServiceImpl implements UserService {
         userDao.delete(deleteRequest);
 
         // 6. 가족 구성원 수 - 1
-        
+
         return "회원 삭제 성공";
     }
 }
