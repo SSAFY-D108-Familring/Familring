@@ -1,23 +1,33 @@
 package com.familring.presentation.screen.calendar
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -39,13 +49,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.familring.domain.DailyLife
 import com.familring.domain.Profile
 import com.familring.domain.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.OverlappingProfileLazyRow
+import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Gray02
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
+import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toColor
@@ -82,25 +96,129 @@ fun CalendarTab(
                         schedules = schedules,
                     )
 
-                1 -> {}
+                1 ->
+                    DailyTab(
+                        dailyLifes = dailyLifes,
+                    )
             }
         }
     }
 }
 
 @Composable
+fun DailyTab(
+    modifier: Modifier = Modifier,
+    dailyLifes: List<DailyLife>,
+) {
+    if (dailyLifes.isEmpty()) {
+        Column {
+            Spacer(modifier = Modifier.height(100.dp))
+            Text(
+                text = "아직 등록된 일상이 없어요!",
+                style =
+                    Typography.labelMedium.copy(
+                        fontSize = 18.sp,
+                        color = Gray02,
+                    ),
+            )
+        }
+    } else {
+        val pagerState = rememberPagerState(pageCount = { dailyLifes.size })
+
+        Column(
+            modifier =
+                modifier
+                    .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            HorizontalPager(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(),
+                state = pagerState,
+                pageSpacing = 14.dp,
+                contentPadding = PaddingValues(horizontal = 28.dp),
+            ) { page ->
+                DailyItem(
+                    dailyLife = dailyLifes[page],
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun DailyItem(
+    modifier: Modifier = Modifier,
+    dailyLife: DailyLife,
+) {
+    val scrollState = rememberScrollState()
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp))
+                .border(width = 2.dp, color = Gray03)
+                .background(color = White)
+                .padding(20.dp)
+                .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(modifier = Modifier.fillMaxHeight(0.02f))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ZodiacBackgroundProfile(
+                modifier = Modifier.size(45.dp),
+                profile = dailyLife.profile,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = dailyLife.profile.nickName,
+                style =
+                    Typography.titleMedium.copy(
+                        fontSize = 22.sp,
+                        color = Green03,
+                    ),
+            )
+        }
+        Spacer(modifier = Modifier.fillMaxHeight(0.02f))
+        Image(
+            painter = painterResource(id = R.drawable.tuna),
+            contentDescription = "img_daily",
+        )
+    }
+}
+
+@Composable
 fun ScheduleTab(
     modifier: Modifier = Modifier,
-    schedules: List<Schedule>,
+    schedules: List<Schedule> = listOf(),
     navigateToAlbum: () -> Unit = {},
 ) {
-    LazyColumn(
-        modifier = modifier,
-    ) {
-        items(schedules) { schedule ->
-            ScheduleItem(
-                schedule = schedule,
+    if (schedules.isEmpty()) {
+        Column {
+            Spacer(modifier = Modifier.height(100.dp))
+            Text(
+                text = "아직 등록된 일정이 없어요!",
+                style =
+                    Typography.labelMedium.copy(
+                        fontSize = 18.sp,
+                        color = Gray02,
+                    ),
             )
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier,
+        ) {
+            items(schedules) { schedule ->
+                ScheduleItem(
+                    schedule = schedule,
+                )
+            }
         }
     }
 }
@@ -246,5 +364,19 @@ val schedules =
         Schedule(
             title = "현진이 생일",
             backgroundColor = "0xFFC9D0FF",
+        ),
+    )
+
+val dailyLifes =
+    listOf(
+        DailyLife(
+            dailyImgUrl = "",
+            content = "현진이 생일이었어요",
+            profile =
+                Profile(
+                    nickName = "엄마미",
+                    zodiacImgUrl = "url",
+                    backgroundColor = "0xFFFEE222",
+                ),
         ),
     )
