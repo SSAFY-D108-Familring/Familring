@@ -40,38 +40,38 @@ pipeline {
                 }
             }
         }
-//         stage('Build Discovery Server') {
-//             steps {
-//                 withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
-//                     script {
-//                         dir('backend/discovery-service') {
-//                             // 디렉토리가 없는 경우 생성
-//                             sh 'mkdir -p backend/discovery-service/src/main/resources'
-//
-//                             // application.yml 복사
-//                             sh 'cp $application_yml backend/discovery-service/src/main/resources/application.yml'
-//
-//
-//                             sh 'chmod +x ./gradlew'
-//
-//                             sh './gradlew clean build -x test'
-//
-//                             // Check if any container is named
-//                             def container = sh(script: "docker ps -a --filter 'name=discovery-service' --format '{{.ID}}'", returnStdout: true).trim()
-//
-//                             if (container) {
-//                                 // Stop and remove the container named
-//                                 sh "docker stop ${container}"
-//                                 sh "docker rm ${container}"
-//                             }
-//
-//                             // Build and run the new container
-//                             sh "docker build -t discovery-service ."
-//                             sh "docker run --name discovery-service -d -p 8761:8761 discovery-service"
-//                         }
-//                     }
-//                 }
-//             }
-//         }
+        stage('Build Discovery Server') {
+            steps {
+                withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
+                    script {
+                        dir('backend/discovery-service') {
+                            // 디렉토리가 없는 경우 생성
+                            sh 'mkdir -p backend/discovery-service/src/main/resources'
+
+                            // application.yml 복사
+                            sh 'cp $application_yml backend/discovery-service/src/main/resources/application.yml'
+
+
+                            sh 'chmod +x ./gradlew'
+
+                            sh './gradlew clean build -x test'
+
+                            // Check if any container is named
+                            def container = sh(script: "docker ps -a --filter 'name=discovery-service' --format '{{.ID}}'", returnStdout: true).trim()
+
+                            if (container) {
+                                // Stop and remove the container named
+                                sh "docker stop ${container}"
+                                sh "docker rm ${container}"
+                            }
+
+                            // Build and run the new container
+                            sh "docker build -t discovery-service ."
+                            sh "docker run --name discovery-service -d -p 8761:8761 discovery-service"
+                        }
+                    }
+                }
+            }
+        }
     }
 }
