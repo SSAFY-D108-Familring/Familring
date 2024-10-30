@@ -73,5 +73,38 @@ pipeline {
                 }
             }
         }
+        stage('Build ApiGateway Server') {
+            steps {
+                withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
+                    script {
+                        dir('backend/api-gateway') {
+                            // 디렉토리가 없는 경우 생성
+                            sh 'mkdir -p src/main/resources'
+
+                            // application.yml 복사
+                            sh 'cp $application_yml src/main/resources/application.yml'
+
+
+                            sh 'chmod +x ./gradlew'
+
+                            sh './gradlew clean build -x test'
+
+                            // Check if any container is named
+                            def container = sh(script: "docker ps -a --filter 'name=api-gateway-service' --format '{{.ID}}'", returnStdout: true).trim()
+
+                            if (container) {
+                                // Stop and remove the container named
+                                sh "docker stop ${container}"
+                                sh "docker rm ${container}"
+                            }
+
+                            // Build and run the new container
+                            sh "docker build -t api-gateway-service ."
+                            sh "docker run --name api-gateway-service -d -p 8000:8000 api-gateway-service"
+                        }
+                    }
+                }
+            }
+        }
     }
 }
