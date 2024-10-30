@@ -17,8 +17,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,12 +48,18 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun HomeRoute(modifier: Modifier) {
-    HomeScreen(modifier = modifier)
+fun HomeRoute(
+    modifier: Modifier,
+    navigateToNotification: () -> Unit,
+) {
+    HomeScreen(modifier = modifier, navigateToNotification = navigateToNotification)
 }
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    navigateToNotification: () -> Unit = {},
+) {
     var progress by remember {
         mutableStateOf(0f)
     }
@@ -59,59 +68,61 @@ fun HomeScreen(modifier: Modifier = Modifier) {
         tween(delayMillis = 200, durationMillis = 1000, easing = LinearOutSlowInEasing),
     )
 
+    var childCount = 4
+
     Box(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .background(color = Color.White),
+            Modifier
+                .fillMaxSize()
+                .background(color = Color.White),
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.fillMaxHeight(0.13f))
+            Spacer(modifier = Modifier.height(97.dp))
             Image(
                 painter = painterResource(id = R.drawable.img_tree_center),
                 contentDescription = "tree_center_background",
-                modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.FillBounds,
             )
         }
         Column(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
         ) {
             Spacer(modifier = Modifier.fillMaxSize(0.02f))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                 Image(
                     modifier =
-                    Modifier
-                        .size(24.dp)
-                        .noRippleClickable {
-                            // 알림 클릭 이벤트
-                        },
+                        Modifier
+                            .size(24.dp)
+                            .noRippleClickable {
+                                navigateToNotification()
+                            },
                     painter = painterResource(id = R.drawable.img_home_notification),
                     contentDescription = "home notification img",
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 Image(
                     modifier =
-                    Modifier
-                        .size(24.dp)
-                        .noRippleClickable {
-                            // 프로필 이벤트
-                        },
+                        Modifier
+                            .size(24.dp)
+                            .noRippleClickable {
+                                // 프로필 이벤트
+                            },
                     painter = painterResource(id = R.drawable.img_profile_circle),
                     contentDescription = "profile circle img",
                 )
             }
 
             Text(
+                modifier = Modifier.padding(horizontal = 4.dp),
                 text = "우리 가족의 나무는 지금...",
                 style = Typography.labelLarge.copy(fontSize = 20.sp),
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -131,7 +142,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 18.dp)
+                            .padding(horizontal = 14.dp)
                             .padding(top = 12.dp),
                 ) {
                     Box(
@@ -201,7 +212,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 }
             }
             Column(
-                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
                 horizontalAlignment = Alignment.End,
             ) {
                 Image(
@@ -217,9 +231,30 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 )
             }
 
-            Spacer(modifier = Modifier.fillMaxSize(0.4f))
-            Text(text = "하이요")
-            FamilyCard()
+            Spacer(modifier = Modifier.fillMaxSize(0.35f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                FamilyCard() // 엄마 카드 자리
+                Spacer(modifier = Modifier.width(16.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.img_heart),
+                    contentDescription = "heart_img",
+                )
+                Spacer(modifier = Modifier.width(15.dp))
+                FamilyCard() // 아빠 카드 자리
+            }
+            Spacer(modifier = Modifier.fillMaxSize(0.1f))
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(childCount) {
+                    FamilyCard() // 자식 카드 자리
+                }
+            }
         }
     }
 
@@ -230,18 +265,31 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 
 @Composable
 fun FamilyCard() {
-    Card(
+    ElevatedCard(
         shape = RoundedCornerShape(15.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
-        Column(modifier = Modifier.background(color = Green06).padding(horizontal = 22.dp).padding(vertical = 9.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier =
+                Modifier
+                    .background(color = Green06)
+                    .padding(horizontal = 22.dp)
+                    .padding(vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             Text(text = "엄마밍", style = Typography.titleLarge.copy(fontSize = 15.sp))
             Spacer(modifier = Modifier.fillMaxSize(0.01f))
             Image(
                 painter = painterResource(id = R.drawable.img_chicken),
                 contentDescription = "chicken_img",
             )
-            Spacer(modifier = Modifier.fillMaxSize(0.02f))
-            Text(text = "화났어요 \uD83E\uDD2C", style = Typography.displaySmall.copy(fontSize = 11.sp))
+            Spacer(
+                modifier = Modifier.height(15.dp),
+            )
+            Text(
+                text = "화났어요 \uD83E\uDD2C",
+                style = Typography.displaySmall.copy(fontSize = 11.sp),
+            )
         }
     }
 }
@@ -249,5 +297,5 @@ fun FamilyCard() {
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    FamilyCard()
+    HomeScreen()
 }

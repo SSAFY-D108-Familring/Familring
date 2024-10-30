@@ -22,6 +22,7 @@ val Green03 = Color(0xFF608B43)
 val Green04 = Color(0xFFC5DF71)
 val Green05 = Color(0xFFE9F1B5)
 val Green06 = Color(0xFFEEFFEF)
+val Green07 = Color(0xFFF2FAF3)
 
 val Brown01 = Color(0xFF453A26)
 val Pink01 = Color(0xFFFFE1E1)
