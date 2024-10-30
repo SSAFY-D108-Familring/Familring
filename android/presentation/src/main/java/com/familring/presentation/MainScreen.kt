@@ -24,6 +24,7 @@ import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
+import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -36,7 +37,6 @@ import com.familring.presentation.screen.signup.ProfileColorRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
-import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -274,6 +274,15 @@ fun MainNavHost(
                 navigateToAlbum = {
                     navController.navigate(ScreenDestinations.Album.route)
                 },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Interest.route,
+        ) {
+            InterestRoute(
+                modifier = modifier,
+                navigateToInterestList = { },
             )
         }
     }

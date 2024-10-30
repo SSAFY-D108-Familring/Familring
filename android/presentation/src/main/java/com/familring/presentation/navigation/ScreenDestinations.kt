@@ -72,4 +72,7 @@ sealed class ScreenDestinations(
 
     // 앨범
     data object Album : ScreenDestinations(route = "Album")
+
+    // 관심사 공유
+    data object Interest : ScreenDestinations(route = "Interest")
 }
