@@ -14,7 +14,7 @@ pipeline {
                     script {
                         dir('backend/config-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('config-service', 8888, false)
+                            buildAndRunContainer('config-service', 8888, true)
                         }
                     }
                 }
@@ -27,7 +27,7 @@ pipeline {
                     script {
                         dir('backend/discovery-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('discovery-service', 8761, false)
+                            buildAndRunContainer('discovery-service', 8761, true)
                         }
                     }
                 }
