@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class UserDeleteRequest {
+    private Long userId;
     private String beforeUserKakaoId;
     private String afterUserKakaoId;
     private String userPassword;

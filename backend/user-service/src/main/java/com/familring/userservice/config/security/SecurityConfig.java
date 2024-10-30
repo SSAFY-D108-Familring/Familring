@@ -21,7 +21,6 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 
 import java.util.List;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 @Configuration
 @EnableWebSecurity
@@ -31,7 +30,6 @@ public class SecurityConfig {
 
     @Value("${familring.server.ip-address}")
     private String serverIpAddress;
-    private final JwtTokenProvider jwtTokenProvider;
     private final DiscoveryClient discoveryClient;  // Eureka Client 주입
 
     @Bean
@@ -39,10 +37,11 @@ public class SecurityConfig {
         http.httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/actuator/**").permitAll()
-                                .requestMatchers("/**").access(this::hasIpAddresses)
-                                .anyRequest().authenticated());
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger 관련 요청 허용
+                        .requestMatchers("/**").access(this::hasIpAddresses)
+                        .anyRequest().authenticated());
         return http.build();
     }
 
@@ -54,8 +53,11 @@ public class SecurityConfig {
         // 호스트네임 체크
         boolean isValidHost = StringUtils.equals(serverIpAddress, remoteHost);
 
-        // IP 주소 체크 (localhost)
+        // IP 주소 체크 (localhost) - IPv4
         boolean isLocalhost = StringUtils.equals("127.0.0.1", remoteAddr);
+
+        // IP 주소 체크 (localhost) - IPv6
+        boolean isLocalhostV6 = StringUtils.equals("0:0:0:0:0:0:0:1", remoteAddr);
 
         // Gateway IP 주소 체크
         List<ServiceInstance> gatewayInstances = discoveryClient.getInstances("API-GATEWAY");
@@ -69,6 +71,6 @@ public class SecurityConfig {
                 .forEach(h -> log.info("gateway: {}", h));
         log.info("ip address: {}", remoteAddr);
 
-        return new AuthorizationDecision(isValidHost || isGatewayIp || isLocalhost);
+        return new AuthorizationDecision(isValidHost || isGatewayIp || isLocalhost || isLocalhostV6);
     }
 }

@@ -54,12 +54,12 @@ public class FamilyServiceImpl implements FamilyService {
         // 1.  userId의 가족 구성원 모두의 userId 추출
         List<Long> members = familyDao.findFamilyUserByUserId(userId);
 
-        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
+        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users")  api 요청
         List<UserInfoResponse> response = new ArrayList<>();
 
         for (Long memberId : members) {
             // user-service의 URL 설정
-            String url = "http://user-service/users/info?userId=" + memberId;
+            String url = "http://user-service/users?userId=" + memberId;
 
             // 사용자 정보를 요청하여 리스트에 추가
             UserInfoResponse userInfo = restTemplate.getForObject(url, UserInfoResponse.class);

@@ -31,9 +31,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserInfoResponse getUser(String userName) {
+        log.info("userName: {}", userName);
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserKakaoId(userName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+        log.info("userNickname: {}", user.getUserNickname());
 
         // 2. 응답 빌더 생성
         UserInfoResponse response = UserInfoResponse.builder()
@@ -129,33 +131,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String updateFcmToken(String userName, String fcmToken) {
+    public String updateFcmToken(Long userId, String fcmToken) {
         // 1. 사용자 정보 찾기
-        UserDto user = userDao.findUserByUserKakaoId(userName)
+        UserDto user = userDao.findUserByUserId(userId)
                 // 회원이 없는 경우 -> 회원가입 처리
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
 
         // 2. 찾은 사용자에게 FCM 토큰 저장
-        userDao.updateUserFcmTokenByUserKakaoId(userName, fcmToken);
+        userDao.updateUserFcmTokenByUserId(userId, fcmToken);
 
         return "토큰이 성공적으로 저장되었습니다.";
     }
 
     @Override
     @Transactional
-    public String deleteUser(String userName) {
+    public String deleteUser(Long userId) {
         // 1. 회원 정보 찾기
-        UserDto user = userDao.findUserByUserKakaoId(userName)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+        UserDto user = userDao.findUserByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
 
         // 2. redis의 refreshToken 제거
-        redisService.deleteRefreshToken(userName);
+        redisService.deleteRefreshToken(user.getUserKakaoId());
 
         // 3. S3에서 이미지 제거
 
         // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
         UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
-                .beforeUserKakaoId(userName)
+                .userId(userId)
+                .beforeUserKakaoId(user.getUserKakaoId())
                 .afterUserKakaoId("DELETE_{" + user.getUserKakaoId() + "}")
                 .userPassword("")
                 .userName("탈퇴 회원")

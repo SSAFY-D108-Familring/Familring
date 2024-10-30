@@ -48,16 +48,16 @@
                  )
     </insert>
 
-    <update id="updateUserFcmTokenByUserKakaoId">
+    <update id="updateUserFcmTokenByUserId">
         UPDATE user
         SET user_fcm_token = #{fcmToken}
-        WHERE user_kakao_id = #{userName}
+        WHERE user_id = #{userId}
     </update>
 
     <update id="deleteUser" parameterType="com.familring.userservice.model.dto.request.UserDeleteRequest">
         UPDATE user
         SET user_kakao_id = #{afterUserKakaoId}, user_password = #{userPassword}, user_name = #{userName}, user_role = #{userRole}, user_face = #{userFace},
             user_emotion = #{userEmotion}, user_fcm_token = #{userFcmToken}, user_modified_at = NOW(), user_is_deleted = #{userIsDeleted}
-        WHERE user_kakao_id = #{beforeUserKakaoId}
+        WHERE user_id = #{userId}
     </update>
 </mapper>
