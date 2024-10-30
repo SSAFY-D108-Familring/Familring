@@ -27,6 +27,7 @@ import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
+import com.familring.presentation.screen.home.NotificationRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -308,6 +309,16 @@ fun MainNavHost(
             OtherInterestRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Notification.route,
+        ) {
+            NotificationRoute(
+                modifier = modifier,
+                navigateToHome =
+                    navController::popBackStack,
             )
         }
     }

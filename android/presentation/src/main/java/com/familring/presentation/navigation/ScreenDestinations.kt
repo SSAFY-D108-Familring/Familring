@@ -81,4 +81,7 @@ sealed class ScreenDestinations(
 
     // 선정 안 된 관심사
     data object OtherInterest : ScreenDestinations(route = "OtherInterest")
+
+    // 알림
+    data object Notification : ScreenDestinations(route = "Notification")
 }
