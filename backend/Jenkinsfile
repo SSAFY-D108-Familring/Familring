@@ -88,6 +88,6 @@ def buildAndRunContainer(serviceName, port, exposeToHost) {
     if (exposeToHost) {
         sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
     } else {
-        sh "docker run --name ${serviceName} -d ${serviceName}"
+        sh "docker run --name ${serviceName} -d -p ${port}:8000 ${serviceName}"
     }
 }
