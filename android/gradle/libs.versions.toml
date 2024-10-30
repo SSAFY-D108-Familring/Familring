@@ -24,6 +24,7 @@ activity = "1.9.3"
 constraintlayout = "2.1.4"
 timber = "5.0.1"
 accompanistSystemuicontroller = "0.34.0"
+v2All = "2.20.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -59,6 +60,7 @@ androidx-activity = { group = "androidx.activity", name = "activity", version.re
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+v2-all = { module = "com.kakao.sdk:v2-all", version.ref = "v2All" }
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core", "converter-gson"]
 coroutines = ["coroutines-android", "coroutines-core"]

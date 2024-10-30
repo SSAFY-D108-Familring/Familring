@@ -78,4 +78,7 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    // 카카오 로그인
+    implementation(libs.v2.all)
 }

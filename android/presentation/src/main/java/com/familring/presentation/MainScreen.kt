@@ -22,6 +22,7 @@ import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.chat.ChatRoute
+import com.familring.presentation.screen.gallery.AlbumRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.question.QuestionListScreen
@@ -80,7 +81,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
         },
     ) { innerPadding ->
         MainNavHost(
-            modifier = modifier.padding(innerPadding).navigationBarsPadding(),
+            modifier =
+                modifier
+                    .padding(innerPadding)
+                    .navigationBarsPadding(),
             navController = navController,
             startDestination = ScreenDestinations.Home.route,
             showSnackBar = onShowSnackBar,
@@ -274,6 +278,15 @@ fun MainNavHost(
                 navigateToAlbum = {
                     navController.navigate(ScreenDestinations.Album.route)
                 },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Album.route,
+        ) {
+            AlbumRoute(
+                modifier = modifier,
+                onNavigateBack = navController::popBackStack,
             )
         }
     }
