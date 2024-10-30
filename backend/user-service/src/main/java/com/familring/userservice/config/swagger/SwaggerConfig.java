@@ -7,15 +7,18 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.env.Environment;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
+@Log4j2
 public class SwaggerConfig {
 
-    private final Environment env;
+    @Value("${familring.server.url}")
+    private String serverUrl;
 
     @Bean
     public OpenAPI openAPI() {
@@ -32,7 +35,10 @@ public class SwaggerConfig {
                 .addList("bearerAuth");
 
         return new OpenAPI()
-                .addServersItem(new Server().url(env.getProperty("familring.server.url")).description("Default Server URL"))
+                .addServersItem(new Server().url(serverUrl)
+                        .description("Default Server URL"))
+                .addServersItem(new Server().url("http://localhost:8000")
+                        .description("Local Development Server"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(securityRequirement)
                 .info(apiInfo());
