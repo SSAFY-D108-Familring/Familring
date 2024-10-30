@@ -70,7 +70,7 @@ fun InterestScreen(
     isWrote: Boolean = false,
     isUpload: Boolean = false,
     interest: String = "",
-    isShareDay: Boolean = true, // true: 인증샷 남기는 날, false: 작성하는 날
+    isShareDay: Boolean = false, // true: 인증샷 남기는 날, false: 작성하는 날
     writeInterest: (String) -> Unit = {},
     editInterest: (String) -> Unit = {},
     shareImage: () -> Unit = {},
@@ -129,7 +129,6 @@ fun WriteDayScreen(
 ) {
     var interestKeyword by remember { mutableStateOf("") }
     var canEdit by remember { mutableStateOf(true) }
-    var wrote by remember { mutableStateOf(isWrote) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
@@ -202,17 +201,16 @@ fun WriteDayScreen(
                 enabled = canEdit,
                 onDone = {
                     if (interestKeyword.isNotEmpty()) {
-                        if (wrote) {
+                        if (isWrote) {
                             editInterest(interestKeyword) // 관심사 수정
                         } else {
                             writeInterest(interestKeyword)
-                            wrote = true
                         }
                         canEdit = false
                     }
                 },
             )
-            if (!wrote) {
+            if (!isWrote) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.interest_ten_word),
