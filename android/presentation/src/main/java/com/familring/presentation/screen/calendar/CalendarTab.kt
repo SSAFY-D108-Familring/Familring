@@ -6,8 +6,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -56,10 +57,11 @@ import com.familring.presentation.R
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
-import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toColor
@@ -68,11 +70,11 @@ import com.familring.presentation.util.toColor
 fun CalendarTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule>,
-    dailySize: Int,
+    dailyLifes: List<DailyLife>,
     navigateToAlbum: () -> Unit = {},
 ) {
-    val tabs = listOf("일정 ${schedules.size}", "일상 $dailySize")
-    var selectedItemIndex by remember { mutableIntStateOf(0) }
+    val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
+    var selectedItemIndex by remember { mutableIntStateOf(1) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -89,7 +91,6 @@ fun CalendarTab(
                 onClick = { selectedItemIndex = it },
                 selectedTextColor = Green02,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             when (selectedItemIndex) {
                 0 ->
                     ScheduleTab(
@@ -128,17 +129,18 @@ fun DailyTab(
         Column(
             modifier =
                 modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .padding(top = 20.dp, bottom = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
         ) {
             HorizontalPager(
                 modifier =
                     Modifier
-                        .fillMaxWidth(),
+                        .fillMaxSize(),
                 state = pagerState,
                 pageSpacing = 14.dp,
                 contentPadding = PaddingValues(horizontal = 28.dp),
+//                verticalAlignment = Alignment.Top,
             ) { page ->
                 DailyItem(
                     dailyLife = dailyLifes[page],
@@ -154,41 +156,67 @@ fun DailyItem(
     dailyLife: DailyLife,
 ) {
     val scrollState = rememberScrollState()
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(12.dp))
-                .border(width = 2.dp, color = Gray03)
-                .background(color = White)
-                .padding(20.dp)
-                .verticalScroll(scrollState),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    BoxWithConstraints(
+        modifier = modifier.fillMaxSize(),
     ) {
-        Spacer(modifier = Modifier.fillMaxHeight(0.02f))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+        val containerHeight = (maxHeight * 0.9f).coerceAtLeast(minHeight)
+
+        Column(
+//            modifier =
+//                Modifier
+// //                .height(IntrinsicSize.Max)
+//                    .heightIn(min = maxHeight * 0.9f, max = maxHeight)
+//                    .fillMaxWidth()
+//                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(12.dp))
+//                    .background(color = White)
+//                    .padding(20.dp),
+            modifier =
+                Modifier
+//                .height(IntrinsicSize.Max)
+                    .fillMaxWidth()
+                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(12.dp))
+                    .background(color = White)
+                    .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            ZodiacBackgroundProfile(
-                modifier = Modifier.size(45.dp),
-                profile = dailyLife.profile,
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = dailyLife.profile.nickName,
-                style =
-                    Typography.titleMedium.copy(
-                        fontSize = 22.sp,
-                        color = Green03,
-                    ),
-            )
+            Spacer(modifier = Modifier.fillMaxHeight(0.01f))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ZodiacBackgroundProfile(
+                    modifier = Modifier.size(35.dp),
+                    profile = dailyLife.profile,
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = dailyLife.profile.nickName,
+                    style =
+                        Typography.titleMedium.copy(
+                            fontSize = 16.sp,
+                            color = Gray01,
+                        ),
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Column(modifier = Modifier.verticalScroll(scrollState)) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Start,
+                    text = dailyLife.content,
+                    style =
+                        Typography.headlineMedium.copy(
+                            fontSize = 17.sp,
+                            color = Black,
+                        ),
+                )
+                Spacer(modifier = Modifier.height(15.dp))
+                Image(
+                    painter = painterResource(id = R.drawable.tuna),
+                    contentDescription = "img_daily",
+                )
+            }
         }
-        Spacer(modifier = Modifier.fillMaxHeight(0.02f))
-        Image(
-            painter = painterResource(id = R.drawable.tuna),
-            contentDescription = "img_daily",
-        )
     }
 }
 
@@ -212,7 +240,10 @@ fun ScheduleTab(
         }
     } else {
         LazyColumn(
-            modifier = modifier,
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(top = 20.dp, bottom = 20.dp),
         ) {
             items(schedules) { schedule ->
                 ScheduleItem(
@@ -346,7 +377,7 @@ fun ScheduleItem(
 @Composable
 private fun CalendarTabPreview() {
     CalendarTab(
-        dailySize = 5,
+        dailyLifes = dailyLifes,
         schedules = schedules,
     )
 }
@@ -371,7 +402,47 @@ val dailyLifes =
     listOf(
         DailyLife(
             dailyImgUrl = "",
-            content = "현진이 생일이었어요",
+            content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
+            profile =
+                Profile(
+                    nickName = "엄마미",
+                    zodiacImgUrl = "url",
+                    backgroundColor = "0xFFFEE222",
+                ),
+        ),
+        DailyLife(
+            dailyImgUrl = "",
+            content =
+                "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요" +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요" +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요" +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
+                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 ",
+            profile =
+                Profile(
+                    nickName = "엄마미",
+                    zodiacImgUrl = "url",
+                    backgroundColor = "0xFFFEE222",
+                ),
+        ),
+        DailyLife(
+            dailyImgUrl = "",
+            content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
             profile =
                 Profile(
                     nickName = "엄마미",
