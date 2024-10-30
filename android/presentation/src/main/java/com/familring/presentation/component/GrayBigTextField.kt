@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
@@ -24,18 +23,20 @@ import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 
 @Composable
-fun CodeTextField(
+fun GrayBigTextField(
     modifier: Modifier = Modifier,
-    code: String,
+    keyword: String,
     maxLength: Int = 6,
     onValueChange: (String) -> Unit,
     placeHolder: String = "XXXXXX",
     focusManager: FocusManager,
+    enabled: Boolean = true,
+    onDone: () -> Unit = {},
 ) {
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         placeholder = {
-            if (code.isEmpty()) {
+            if (keyword.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center,
@@ -43,9 +44,8 @@ fun CodeTextField(
                     Text(
                         text = placeHolder,
                         style =
-                            Typography.headlineMedium.copy(
+                            Typography.titleMedium.copy(
                                 fontSize = 28.sp,
-                                letterSpacing = 0.em,
                             ),
                         color = Gray03,
                         textAlign = TextAlign.Center,
@@ -53,7 +53,7 @@ fun CodeTextField(
                 }
             }
         },
-        value = code,
+        value = keyword,
         onValueChange = { newValue ->
             if (newValue.length <= maxLength) {
                 onValueChange(newValue)
@@ -63,12 +63,12 @@ fun CodeTextField(
         keyboardActions =
             KeyboardActions(onDone = {
                 focusManager.clearFocus()
+                onDone()
             }),
         shape = RoundedCornerShape(12.dp),
         textStyle =
-            Typography.headlineMedium.copy(
+            Typography.titleMedium.copy(
                 fontSize = 28.sp,
-                letterSpacing = 0.em,
                 textAlign = TextAlign.Center,
             ),
         colors =
@@ -82,15 +82,19 @@ fun CodeTextField(
                 unfocusedTextColor = Black,
                 unfocusedPlaceholderColor = Gray02,
                 focusedPlaceholderColor = Gray02,
+                disabledTextColor = Black,
+                disabledContainerColor = Gray04,
+                disabledIndicatorColor = Gray04,
             ),
+        enabled = enabled,
     )
 }
 
 @Preview
 @Composable
 fun CodeTextFieldPreview() {
-    CodeTextField(
-        code = "",
+    GrayBigTextField(
+        keyword = "",
         onValueChange = {},
         focusManager = LocalFocusManager.current,
     )
