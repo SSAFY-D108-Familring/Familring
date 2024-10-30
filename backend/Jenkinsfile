@@ -8,77 +8,36 @@ pipeline {
             }
         }
         stage('Build Config Server') {
-            // application 파일 설정
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
-                        // 디렉토리가 없는 경우 생성
-                        sh 'mkdir -p backend/config-service/src/main/resources'
+                        dir('backend/config-service') {
+                            // 디렉토리가 없는 경우 생성
+                            sh 'mkdir -p backend/config-service/src/main/resources'
 
-                        // application.yml 복사
-                        sh 'cp $application_yml backend/config-service/src/main/resources/application.yml'
-                    }
-                }
-            }
-            steps {
-                script {
-                    dir('backend/config-service') {
-                        sh 'chmod +x ./gradlew'
+                            // application.yml 복사
+                            sh 'cp $application_yml backend/config-service/src/main/resources/application.yml'
 
-                        sh './gradlew clean build -x test'
 
-                        // Check if any container is named
-                        def containerNamedConfigService = sh(script: "docker ps -a --filter 'name=config-service' --format '{{.ID}}'", returnStdout: true).trim()
+                            sh 'chmod +x ./gradlew'
 
-                        if (containerNamedConfigService) {
-                            // Stop and remove the container named
-                            sh "docker stop ${containerNamedConfigService}"
-                            sh "docker rm ${containerNamedConfigService}"
+                            sh './gradlew clean build -x test'
+
+                            // Check if any container is named "config-service"
+                            def containerNamedConfigService = sh(script: "docker ps -a --filter 'name=config-service' --format '{{.ID}}'", returnStdout: true).trim()
+
+                            if (containerNamedConfigService) {
+                                // Stop and remove the container named "config-service"
+                                sh "docker stop ${containerNamedConfigService}"
+                                sh "docker rm ${containerNamedConfigService}"
+                            }
+
+                            // Build and run the new backend container
+                            sh "docker build -t config-service ."
+                            sh "docker run --name config-service -d -p 8888:8888 config-service"
                         }
-
-                        // Build and run the new container
-                        sh "docker build -t config-service ."
-                        sh "docker run --name config-service -d -p 8888:8888 config-service"
                     }
-                }
             }
-        }
-        stage('Build Discovery Server') {
-            // application 파일 설정
-            steps {
-                withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
-                    script {
-                        // 디렉토리가 없는 경우 생성
-                        sh 'mkdir -p backend/discovery-service/src/main/resources'
-
-                        // application.yml 복사
-                        sh 'cp $application_yml backend/discovery-service/src/main/resources/application.yml'
-                    }
-                }
-            }
-            steps {
-                script {
-                    dir('backend/discovery-service') {
-                        sh 'chmod +x ./gradlew'
-
-                        sh './gradlew clean build -x test'
-
-                        // Check if any container is named
-                        def container = sh(script: "docker ps -a --filter 'name=discovery-service' --format '{{.ID}}'", returnStdout: true).trim()
-
-                        if (container) {
-                            // Stop and remove the container named
-                            sh "docker stop ${container}"
-                            sh "docker rm ${container}"
-                        }
-
-                        // Build and run the new container
-                        sh "docker build -t discovery-service ."
-                        sh "docker run --name config-service -d -p 8761:8761 discovery-service"
-                    }
-                }
-            }
-
         }
 
     }
