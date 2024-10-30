@@ -82,7 +82,7 @@ pipeline {
                             script {
                                 dir('backend/calendar-service') {
                                     copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('calendar-service', 8084, false) // 내부 네트워크에서만 통신
+                                    buildAndRunContainer('calendar-service', 8085, false) // 내부 네트워크에서만 통신
                                 }
                             }
                         }
