@@ -99,7 +99,7 @@ pipeline {
                                     copyFiles(application_yml)
 
                                     // firebase key 추가
-                                    sh "cp ${firebase_key} src/main/resources/firebaseKey.json"
+                                    sh "cp ${firebase_key} src/main/resources/familring-firebase-key.json"
 
                                     buildAndRunContainer('user-service', 8086, false) // 내부 네트워크에서만 통신
                                 }
