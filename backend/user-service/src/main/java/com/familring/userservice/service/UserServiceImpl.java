@@ -32,8 +32,31 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfoResponse getUser(String userName) {
         // 1. 회원 정보 찾기
-        UserDto user = userDao.findByUserKakaoId(userName)
+        UserDto user = userDao.findUserByUserKakaoId(userName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+
+        // 2. 응답 빌더 생성
+        UserInfoResponse response = UserInfoResponse.builder()
+                .userId(user.getUserId())
+                .userKakaoId(user.getUserKakaoId())
+                .userNickname(user.getUserNickname())
+                .userBirthDate(user.getUserBirthDate())
+                .userZodiacSign(user.getUserZodiacSign())
+                .userRole(user.getUserRole())
+                .userFace(user.getUserFace())
+                .userColor(user.getUserColor())
+                .userEmotion(user.getUserEmotion())
+                .build();
+
+        // 3. 응답
+        return response;
+    }
+
+    @Override
+    public UserInfoResponse getUser(Long userId) {
+        // 1. 회원 정보 찾기
+        UserDto user = userDao.findUserByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
 
         // 2. 응답 빌더 생성
         UserInfoResponse response = UserInfoResponse.builder()
@@ -56,7 +79,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public JwtTokenResponse login(UserLoginRequest userLogInRequest) {
         // 1. 회원 정보 찾기
-        UserDto user = userDao.findByUserKakaoId(userLogInRequest.getUserKakaoId())
+        UserDto user = userDao.findUserByUserKakaoId(userLogInRequest.getUserKakaoId())
                 // 2-1. 회원이 없는 경우 -> 회원가입 처리
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userLogInRequest.getUserKakaoId()));
 
@@ -108,12 +131,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public String updateFcmToken(String userName, String fcmToken) {
         // 1. 사용자 정보 찾기
-        UserDto user = userDao.findByUserKakaoId(userName)
+        UserDto user = userDao.findUserByUserKakaoId(userName)
                 // 회원이 없는 경우 -> 회원가입 처리
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
 
         // 2. 찾은 사용자에게 FCM 토큰 저장
-        userDao.updateByUserFcmToken(userName, fcmToken);
+        userDao.updateUserFcmTokenByUserKakaoId(userName, fcmToken);
 
         return "토큰이 성공적으로 저장되었습니다.";
     }
@@ -122,7 +145,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public String deleteUser(String userName) {
         // 1. 회원 정보 찾기
-        UserDto user = userDao.findByUserKakaoId(userName)
+        UserDto user = userDao.findUserByUserKakaoId(userName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
 
         // 2. redis의 refreshToken 제거
@@ -144,7 +167,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         // 5. user 테이블 수정
-        userDao.delete(deleteRequest);
+        userDao.deleteUser(deleteRequest);
 
         // 6. 가족 구성원 수 - 1
 

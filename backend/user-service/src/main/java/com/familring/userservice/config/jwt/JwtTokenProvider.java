@@ -1,9 +1,14 @@
 package com.familring.userservice.config.jwt;
 
+<<<<<<< HEAD
 import com.familring.userservice.exception.token.EmptyTokenException;
 import com.familring.userservice.exception.token.ExpiredTokenException;
 import com.familring.userservice.exception.token.InvalidTokenException;
 import com.familring.userservice.exception.token.UnsupportedTokenException;
+=======
+import com.familring.userservice.exception.InvalidTokenException;
+import com.familring.userservice.model.dto.UserDto;
+>>>>>>> feature/backend/family
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -48,11 +53,16 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
 
+        // 사용자 userId 추출
+        UserDto userDetails = (UserDto) authentication.getPrincipal(); // Authentication에서 UserDto 객체 가져오기
+        Long userId = userDetails.getUserId();
+
         // Access RefreshToken 생성
         Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("auth", authorities)
+                .claim("auth", authorities) // 권한 정보 추가
+                .claim("userId", userId) // userId를 클레임에 추가
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();

@@ -22,13 +22,19 @@
         <result column="user_is_admin" property="userIsAdmin"/>
     </resultMap>
 
-    <select id="findByUserKakaoId" resultMap="userInfo">
+    <select id="findUserByUserKakaoId" resultMap="userInfo">
         SELECT *
         FROM user
         WHERE user_kakao_id = #{userKakaoId}
     </select>
 
-    <insert id="insertByUser" parameterType="com.familring.userservice.model.dto.UserDto">
+    <select id="findUserByUserId" resultMap="userInfo">
+        SELECT *
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertUser" parameterType="com.familring.userservice.model.dto.UserDto">
         INSERT INTO user (
             user_kakao_id, user_password, user_nickname, user_birth_date,
             user_zodiac_sign, user_role, user_face, user_color,
@@ -42,13 +48,13 @@
                  )
     </insert>
 
-    <update id="updateByUserFcmToken">
+    <update id="updateUserFcmTokenByUserKakaoId">
         UPDATE user
         SET user_fcm_token = #{fcmToken}
         WHERE user_kakao_id = #{userName}
     </update>
 
-    <update id="delete" parameterType="com.familring.userservice.model.dto.request.UserDeleteRequest">
+    <update id="deleteUser" parameterType="com.familring.userservice.model.dto.request.UserDeleteRequest">
         UPDATE user
         SET user_kakao_id = #{afterUserKakaoId}, user_password = #{userPassword}, user_name = #{userName}, user_role = #{userRole}, user_face = #{userFace},
             user_emotion = #{userEmotion}, user_fcm_token = #{userFcmToken}, user_modified_at = NOW(), user_is_deleted = #{userIsDeleted}
