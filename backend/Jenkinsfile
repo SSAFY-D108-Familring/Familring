@@ -42,6 +42,8 @@ pipeline {
                     }
                 }
             }
+        }
+        stage('Build Discovery Server') {
             // application 파일 설정
             steps {
                 withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
@@ -76,6 +78,7 @@ pipeline {
                     }
                 }
             }
+
         }
 
     }
