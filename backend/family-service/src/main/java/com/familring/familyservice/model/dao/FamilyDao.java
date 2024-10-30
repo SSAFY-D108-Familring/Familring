@@ -16,6 +16,9 @@ public interface FamilyDao {
     // userId로 family 찾기
     FamilyDto findFamilyByUserId(@Param("userId")Long userId);
 
+    // familyCode로 family 찾기
+    FamilyDto findFamilyByFamilyCode(String familyCode);
+
     // userId로 family_user 모두 찾기
     List<Long> findFamilyUserByUserId(@Param("userId") Long userId);
 

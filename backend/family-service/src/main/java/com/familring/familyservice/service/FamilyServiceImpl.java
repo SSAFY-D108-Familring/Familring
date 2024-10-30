@@ -3,6 +3,7 @@ package com.familring.familyservice.service;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.FamilyDto;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
+import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
@@ -57,11 +58,12 @@ public class FamilyServiceImpl implements FamilyService {
         // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
         List<UserInfoResponse> response = new ArrayList<>();
 
+        // 2-1. 가족 구성원들에 대해 모두 처리
         for (Long memberId : members) {
-            // user-service의 URL 설정
+            // 2-2. user-service의 URL 설정
             String url = "http://user-service/users/info?userId=" + memberId;
 
-            // 사용자 정보를 요청하여 리스트에 추가
+            // 2-3. 사용자 정보를 요청하여 리스트에 추가
             UserInfoResponse userInfo = restTemplate.getForObject(url, UserInfoResponse.class);
             response.add(userInfo);
         }
@@ -112,5 +114,18 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 5. 응답
         return response;
+    }
+
+    @Override
+    @Transactional
+    public String joinFamilyMember(Long userId, FamilyJoinRequest familyJoinRequest) {
+        // 1. 가족 찾기
+        FamilyDto familyDto = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode());
+
+        // 2. 가족 구성원 추가
+        familyDao.insetFamily_User(familyDto.getFamilyId(), userId);
+        
+        // 3. 응답
+        return "가죽 구성원 추가 완료";
     }
 }

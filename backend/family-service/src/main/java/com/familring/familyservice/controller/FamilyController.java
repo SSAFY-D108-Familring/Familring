@@ -1,6 +1,7 @@
 package com.familring.familyservice.controller;
 
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
+import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.FamilyService;
@@ -37,7 +38,7 @@ public class FamilyController {
     }
 
     @GetMapping("/member")
-    public ResponseEntity getFamilyMember(@RequestHeader("X-User-Id") Long userId) {
+    public ResponseEntity getFamilyMemberList(@RequestHeader("X-User-Id") Long userId) {
         List<UserInfoResponse> responseList = familyService.getFamilyMemberList(userId);
 
         return ResponseEntity.ok(responseList);
@@ -45,8 +46,18 @@ public class FamilyController {
 
     @PostMapping
     public ResponseEntity createFamily
-            (@RequestHeader("X-User-Id") Long userId, FamilyCreateRequest familyCreateRequest) {
+            (@RequestHeader("X-User-Id") Long userId,
+             @RequestBody FamilyCreateRequest familyCreateRequest) {
         FamilyInfoResponse response = familyService.createFamily(userId, familyCreateRequest);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity joinFamilyMember
+            (@RequestHeader("X-User-Id") Long userId,
+             @RequestBody FamilyJoinRequest familyJoinRequest) {
+        String response = familyService.joinFamilyMember(userId, familyJoinRequest);
 
         return ResponseEntity.ok(response);
     }
