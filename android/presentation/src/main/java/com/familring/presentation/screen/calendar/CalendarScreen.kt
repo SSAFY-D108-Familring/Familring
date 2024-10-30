@@ -11,10 +11,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -43,21 +46,28 @@ fun CalendarRoute(modifier: Modifier) {
     CalendarScreen(modifier = modifier)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarScreen(modifier: Modifier = Modifier) {
+    // pager
+    val coroutineScope = rememberCoroutineScope()
     val pageCount = 120
     val pagerState =
         rememberPagerState(
             initialPage = pageCount / 2,
             pageCount = { pageCount },
         )
-    val coroutineScope = rememberCoroutineScope()
 
+    // date
     val today = LocalDate.now()
     val selectedMonth by remember {
         derivedStateOf { today.plusMonths((pagerState.currentPage - pageCount / 2).toLong()) }
     }
     var selectedDay by remember { mutableStateOf<LocalDate?>(null) }
+
+    // bottom sheet
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -135,9 +145,28 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
                                 .fillMaxSize(),
                         date = month,
                         daySchedules = daySchedules, // 나중에 바꿔야 함
-                        onDayClick = { selectedDay = it },
+                        onDayClick = {
+                            selectedDay = it
+                            showBottomSheet = true
+                        },
                     )
                 }
+            }
+        }
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState,
+                containerColor = White,
+            ) {
+                CalendarTab(
+                    schedules = schedules,
+                    dailySize = 5,
+                    navigateToAlbum = {},
+                )
             }
         }
     }

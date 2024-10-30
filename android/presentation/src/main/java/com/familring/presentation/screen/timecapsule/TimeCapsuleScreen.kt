@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import com.familring.presentation.component.CustomTab
+import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Typography
@@ -62,10 +62,11 @@ fun TimeCapsuleScreen(
                 onNavigationClick = popUpBackStack,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
-            CustomTab(
+            CustomTextTab(
                 selectedItemIndex = selectedItemIndex,
                 tabs = tabs,
                 onClick = { selectedItemIndex = it },
+                spaceSize = 40,
             )
             when (selectedItemIndex) {
                 0 ->
