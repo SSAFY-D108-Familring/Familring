@@ -28,15 +28,8 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "회원 정보 조회 - Header", description = "Header의 토큰을 사용해 회원의 정보를 조회")
-    public ResponseEntity getUser(Authentication authentication) {
-        UserInfoResponse response = userService.getUser(authentication.getName());
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/info")
-    @Operation(summary = "회원 정보 조회 - requestParam", description = "requestParam을 사용해 회원의 정보를 조회")
-    public ResponseEntity getUser(@RequestParam("userId") Long userId) {
+    public ResponseEntity getUser(@RequestHeader("X-User-ID") Long userId) {
+        log.info("userId: {}", userId);
         UserInfoResponse response = userService.getUser(userId);
 
         return ResponseEntity.ok(response);
@@ -74,16 +67,16 @@ public class UserController {
     @PostMapping("/fcm")
     @Operation(summary = "발급된 FCM 토큰 저장", description = "Android에서 발급한 FCM 토큰 저장")
     public ResponseEntity updateFcmToken
-            (Authentication authentication, @RequestParam String fcmToken) {
-        String response = userService.updateFcmToken(authentication.getName(), fcmToken);
+            (@RequestHeader("X-User-ID") Long userId, @RequestParam String fcmToken) {
+        String response = userService.updateFcmToken(userId, fcmToken);
 
         return ResponseEntity.ok(response);
     }
 
     @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "Header의 토큰을 사용해 회원을 탈퇴 처리")
-    public ResponseEntity deleteUser(Authentication authentication) {
-        String response = userService.deleteUser(authentication.getName());
+    public ResponseEntity deleteUser(@RequestHeader("X-User-ID") Long userId) {
+        String response = userService.deleteUser(userId);
 
         return ResponseEntity.ok(response);
     }

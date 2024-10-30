@@ -23,8 +23,8 @@ public interface UserService {
     JwtTokenResponse updateJWT(String refreshToken);
 
     // FCM 토큰 저장
-    String updateFcmToken(String userName, String fcmToken);
+    String updateFcmToken(Long userId, String fcmToken);
 
     // 회원 탈퇴
-    String deleteUser(String name);
+    String deleteUser(Long userId);
 }

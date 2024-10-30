@@ -17,7 +17,7 @@ public interface UserDao {
     Optional<UserDto> findUserByUserId(@Param("userId") Long userId);
 
     // FCM 토큰 저장
-    void updateUserFcmTokenByUserKakaoId(@Param("userName") String userName, @Param("fcmToken") String fcmToken);
+    void updateUserFcmTokenByUserId(@Param("userId") Long userId, @Param("fcmToken") String fcmToken);
 
     // 회원 탈퇴
     void deleteUser(UserDeleteRequest deleteRequest);
