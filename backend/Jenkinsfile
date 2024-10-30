@@ -74,15 +74,34 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Calendar Service') {
-//                     when {
-//                         changeset "backend/calendar-service/**"
-//                     }
+                    when {
+                        changeset "backend/calendar-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
                             script {
                                 dir('backend/calendar-service') {
                                     copyApplicationYaml(application_yml)
                                     buildAndRunContainer('calendar-service', 8085, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy User Service') {
+                    steps {
+                        withCredentials([
+                            file(credentialsId: 'user-application.yml', variable: 'application_yml'),
+                            file(credentialsId: 'familring-firebase-key.json', variable: 'firebase_key')
+                        ]) {
+                            script {
+                                dir('backend/user-service') {
+                                    copyFiles(application_yml)
+
+                                    // firebase key 추가
+                                    sh "cp ${firebase_key} src/main/resources/firebaseKey.json"
+
+                                    buildAndRunContainer('user-service', 8086, false) // 내부 네트워크에서만 통신
                                 }
                             }
                         }
