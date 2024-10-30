@@ -19,6 +19,9 @@ public interface UserDao {
     // FCM 토큰 저장
     void updateUserFcmTokenByUserId(@Param("userId") Long userId, @Param("fcmToken") String fcmToken);
 
+    // 회원 기분 변경
+    void updateUserEmotionByUserId(@Param("userId") Long userId, @Param("userEmotion") String userEmotion);
+    
     // 회원 탈퇴
     void deleteUser(UserDeleteRequest deleteRequest);
 }

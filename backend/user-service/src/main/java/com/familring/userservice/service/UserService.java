@@ -1,5 +1,6 @@
 package com.familring.userservice.service;
 
+import com.familring.userservice.model.dto.request.UserEmotionRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
@@ -24,6 +25,9 @@ public interface UserService {
 
     // FCM 토큰 저장
     String updateFcmToken(Long userId, String fcmToken);
+
+    // 회원 기분 설정
+    String updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
 
     // 회원 탈퇴
     String deleteUser(Long userId);

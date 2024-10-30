@@ -1,5 +1,6 @@
 package com.familring.userservice.controller;
 
+import com.familring.userservice.model.dto.request.UserEmotionRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
@@ -55,7 +56,7 @@ public class UserController {
 
     @PostMapping("/jwt")
     @Operation(summary = "JWT 재발급", description = "유효기간 만료로 인한 JWT 토큰 재발급")
-    public ResponseEntity<JwtTokenResponse> updateJWT(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity updateJWT(@RequestHeader("Authorization") String authorizationHeader) {
         // "Bearer " 문자열을 제거하고 refreshToken만 추출
         String refreshToken = authorizationHeader.replace("Bearer ", "");
 
@@ -69,6 +70,15 @@ public class UserController {
     public ResponseEntity updateFcmToken
             (@RequestHeader("X-User-ID") Long userId, @RequestParam String fcmToken) {
         String response = userService.updateFcmToken(userId, fcmToken);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/emotion")
+    @Operation(summary = "회원 기분 설정", description = "회원의 기분 설정")
+    public ResponseEntity updateUserEmotion
+            (@RequestHeader("X-User-ID") Long userId, @RequestBody UserEmotionRequest userEmotionRequest) {
+        String response = userService.updateUserEmotion(userId, userEmotionRequest);
 
         return ResponseEntity.ok(response);
     }
