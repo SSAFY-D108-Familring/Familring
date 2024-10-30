@@ -33,10 +33,6 @@ public class SwaggerConfig {
                 .addList("bearerAuth");
 
         return new OpenAPI()
-//                .addServersItem(new Server().url("https://j11d108.p.ssafy.io") // 배포한 서버
-//                        .description("Default Server URL"))
-                .addServersItem(new Server().url("http://localhost:" + env.getProperty("local.server.port"))
-                        .description("Local Development Server"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(securityRequirement)
                 .info(apiInfo());
@@ -44,8 +40,8 @@ public class SwaggerConfig {
 
     private Info apiInfo() {
         return new Info()
-                .title("Familring API 문서")
-                .description("Familring API에 대한 문서입니다.")
+                .title("User API Specification")
+                .description("회원 관리 API에 대한 문서입니다.")
                 .version("1.0.0");
     }
 }

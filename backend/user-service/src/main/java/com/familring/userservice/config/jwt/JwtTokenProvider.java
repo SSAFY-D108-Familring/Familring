@@ -1,13 +1,20 @@
 package com.familring.userservice.config.jwt;
 
+<<<<<<< HEAD
+import com.familring.userservice.exception.token.EmptyTokenException;
+import com.familring.userservice.exception.token.ExpiredTokenException;
+import com.familring.userservice.exception.token.InvalidTokenException;
+import com.familring.userservice.exception.token.UnsupportedTokenException;
+=======
 import com.familring.userservice.exception.InvalidTokenException;
+import com.familring.userservice.model.dto.UserDto;
+>>>>>>> feature/backend/family
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -46,11 +53,16 @@ public class JwtTokenProvider {
 
         long now = (new Date()).getTime();
 
+        // 사용자 userId 추출
+        UserDto userDetails = (UserDto) authentication.getPrincipal(); // Authentication에서 UserDto 객체 가져오기
+        Long userId = userDetails.getUserId();
+
         // Access RefreshToken 생성
         Date accessTokenExpiresIn = new Date(now + accessTokenExpireTime);
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim("auth", authorities)
+                .claim("auth", authorities) // 권한 정보 추가
+                .claim("userId", userId) // userId를 클레임에 추가
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -90,7 +102,7 @@ public class JwtTokenProvider {
     }
 
     // 토큰 정보 검증 메소드
-    public void validateToken(String token) throws InvalidTokenException {
+    public void validateToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
@@ -99,16 +111,16 @@ public class JwtTokenProvider {
 
         } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
-            throw new InvalidTokenException(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다.");
+            throw new InvalidTokenException();
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);
-            throw new InvalidTokenException(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다. 재발급 해주세요.");
+            throw new ExpiredTokenException();
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
-            throw new InvalidTokenException(HttpStatus.UNAUTHORIZED, "지원되지 않는 토큰입니다.");
+            throw new UnsupportedTokenException();
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
-            throw new InvalidTokenException(HttpStatus.UNAUTHORIZED, "토큰이 비어있습니다.");
+            throw new EmptyTokenException();
         }
     }
 

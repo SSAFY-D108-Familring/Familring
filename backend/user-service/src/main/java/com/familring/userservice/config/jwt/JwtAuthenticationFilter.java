@@ -1,6 +1,6 @@
 package com.familring.userservice.config.jwt;
 
-import com.familring.userservice.exception.InvalidTokenException;
+import com.familring.userservice.exception.token.MalformedTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -8,7 +8,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -36,13 +35,13 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } catch (InvalidTokenException e) {
+        } catch (Exception e) {
             SecurityContextHolder.clearContext();
             HttpServletResponse httpResponse = (HttpServletResponse) response;
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"error\":\"" + e.getMessage() + "\"}");
-            throw new InvalidTokenException(HttpStatus.BAD_REQUEST, "잘못된 토큰입니다.");
+            throw new MalformedTokenException();
         }
 
         chain.doFilter(request, response);

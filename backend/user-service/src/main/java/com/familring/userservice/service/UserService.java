@@ -11,6 +11,7 @@ import java.io.IOException;
 public interface UserService {
     // 회원 정보 조회
     UserInfoResponse getUser(String userName);
+    UserInfoResponse getUser(Long userId);
 
     // 로그인
     JwtTokenResponse login(UserLoginRequest userLogInRequest);
