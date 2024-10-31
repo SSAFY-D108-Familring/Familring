@@ -1,7 +1,6 @@
 package com.familring.familyservice.exception.base;
 
 import com.familring.familyservice.exception.constant.ErrorCode;
-import com.familring.userservice.exception.constant.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
