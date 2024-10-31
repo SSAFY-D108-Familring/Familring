@@ -59,9 +59,9 @@ pipeline {
         stage('Build and Deploy Services') {
             parallel {
                 stage('Build and Deploy Album Service') {
-//                     when {
-//                         changeset "backend/album-service/**"
-//                     }
+                    when {
+                        changeset "backend/album-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
                             script {
@@ -74,9 +74,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Calendar Service') {
-//                     when {
-//                         changeset "backend/calendar-service/**"
-//                     }
+                    when {
+                        changeset "backend/calendar-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
                             script {
@@ -89,9 +89,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy User Service') {
-//                     when {
-//                         changeset "backend/user-service/**"
-//                     }
+                    when {
+                        changeset "backend/user-service/**"
+                    }
                     steps {
                         withCredentials([
                             file(credentialsId: 'user-application.yml', variable: 'application_yml'),
@@ -110,51 +110,51 @@ pipeline {
                         }
                     }
                 }
-//                 stage('Build and Deploy File Service') {
-// //                     when {
-// //                         changeset "backend/file-service/**"
-// //                     }
-//                     steps {
-//                         withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
-//                             script {
-//                                 dir('backend/file-service') {
-//                                     copyApplicationYaml(application_yml)
-//                                     buildAndRunContainer('file-service', 0, false) // 내부 네트워크에서만 통신
-//                                 }
-//                             }
-//                         }
+                stage('Build and Deploy File Service') {
+//                     when {
+//                         changeset "backend/file-service/**"
 //                     }
-//                 }
-//                 stage('Build and Deploy Family Service') {
-// //                     when {
-// //                         changeset "backend/family-service/**"
-// //                     }
-//                     steps {
-//                         withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
-//                             script {
-//                                 dir('backend/family-service') {
-//                                     copyApplicationYaml(application_yml)
-//                                     buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
-//                                 }
-//                             }
-//                         }
+                    steps {
+                        withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/file-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('file-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Family Service') {
+//                     when {
+//                         changeset "backend/family-service/**"
 //                     }
-//                 }
-//                 stage('Build and Deploy Interest Service') {
-// //                     when {
-// //                         changeset "backend/interest-service/**"
-// //                     }
-//                     steps {
-//                         withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
-//                             script {
-//                                 dir('backend/interest-service') {
-//                                     copyApplicationYaml(application_yml)
-//                                     buildAndRunContainer('interest-service', 0, false) // 내부 네트워크에서만 통신
-//                                 }
-//                             }
-//                         }
+                    steps {
+                        withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/family-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Interest Service') {
+//                     when {
+//                         changeset "backend/interest-service/**"
 //                     }
-//                 }
+                    steps {
+                        withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/interest-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('interest-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
 //                 stage('Build and Deploy Notification Service') {
 // //                     when {
 // //                         changeset "backend/notification-service/**"
