@@ -19,7 +19,7 @@ public class SwaggerConfig {
     @Value("${familring.server.url}")
     private String serverUrl;
 
-    @Value("{familring.server.description}")
+    @Value("${familring.server.description}")
     private String description;
 
     @Bean
