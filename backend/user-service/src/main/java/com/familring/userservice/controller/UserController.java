@@ -8,6 +8,7 @@ import com.familring.userservice.model.dto.response.UserInfoResponse;
 import com.familring.userservice.service.CustomUserDetailsService;
 import com.familring.userservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -17,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/users")
@@ -29,7 +32,7 @@ public class UserController {
 
     @GetMapping
     @Operation(summary = "회원 정보 조회 - Header", description = "Header의 토큰을 사용해 회원의 정보를 조회")
-    public ResponseEntity getUser(@RequestHeader("X-User-ID") Long userId) {
+    public ResponseEntity getUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         log.info("userId: {}", userId);
         UserInfoResponse response = userService.getUser(userId);
 
@@ -48,7 +51,7 @@ public class UserController {
     @Operation(summary = "회원가입", description = "회원가입이 되어 있지 않은 사용자 회원가입 처리 후 JWT 발급")
     public ResponseEntity join
             (@RequestPart("userJoinRequest") UserJoinRequest userJoinRequest,
-             @RequestPart(value = "image", required = false) MultipartFile image) {
+             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         JwtTokenResponse tokens = userService.join(userJoinRequest, image);
 
         return ResponseEntity.ok(tokens);
@@ -56,7 +59,7 @@ public class UserController {
 
     @PostMapping("/jwt")
     @Operation(summary = "JWT 재발급", description = "유효기간 만료로 인한 JWT 토큰 재발급")
-    public ResponseEntity updateJWT(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity updateJWT(@Parameter(hidden = true) @RequestHeader("Authorization") String authorizationHeader) {
         // "Bearer " 문자열을 제거하고 refreshToken만 추출
         String refreshToken = authorizationHeader.replace("Bearer ", "");
 
@@ -68,7 +71,8 @@ public class UserController {
     @PostMapping("/fcm")
     @Operation(summary = "발급된 FCM 토큰 저장", description = "Android에서 발급한 FCM 토큰 저장")
     public ResponseEntity updateFcmToken
-            (@RequestHeader("X-User-ID") Long userId, @RequestParam String fcmToken) {
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @RequestParam String fcmToken) {
         String response = userService.updateFcmToken(userId, fcmToken);
 
         return ResponseEntity.ok(response);
@@ -77,7 +81,8 @@ public class UserController {
     @PostMapping("/emotion")
     @Operation(summary = "회원 기분 설정", description = "회원의 기분 설정")
     public ResponseEntity updateUserEmotion
-            (@RequestHeader("X-User-ID") Long userId, @RequestBody UserEmotionRequest userEmotionRequest) {
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @RequestBody UserEmotionRequest userEmotionRequest) {
         String response = userService.updateUserEmotion(userId, userEmotionRequest);
 
         return ResponseEntity.ok(response);
@@ -85,7 +90,7 @@ public class UserController {
 
     @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "Header의 토큰을 사용해 회원을 탈퇴 처리")
-    public ResponseEntity deleteUser(@RequestHeader("X-User-ID") Long userId) {
+    public ResponseEntity deleteUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         String response = userService.deleteUser(userId);
 
         return ResponseEntity.ok(response);
