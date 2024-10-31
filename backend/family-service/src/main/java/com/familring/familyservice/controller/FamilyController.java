@@ -47,7 +47,7 @@ public class FamilyController {
 
     @PostMapping
     public ResponseEntity createFamily
-            (@RequestHeader("X-User-Id") Long userId,
+            (@Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId,
              @RequestBody FamilyCreateRequest familyCreateRequest) {
         FamilyInfoResponse response = familyService.createFamily(userId, familyCreateRequest);
 
@@ -56,7 +56,7 @@ public class FamilyController {
 
     @PostMapping("/join")
     public ResponseEntity joinFamilyMember
-            (@RequestHeader("X-User-Id") Long userId,
+            (@Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId,
              @RequestBody FamilyJoinRequest familyJoinRequest) {
         String response = familyService.joinFamilyMember(userId, familyJoinRequest);
 

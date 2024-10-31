@@ -24,7 +24,7 @@ import java.util.UUID;
 public class FamilyServiceImpl implements FamilyService {
 
     private final FamilyDao familyDao;
-    private final RestTemplate restTemplate;
+    private final UserServiceFeignClient userServiceFeignClient;
 
     @Override
     public FamilyInfoResponse getFamilyInfo(Long userId) {
@@ -67,17 +67,17 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 2-1. 가족 구성원들에 대해 모두 처리
         for (Long memberId : members) {
-            // 2-2. user-service의 URL 설정
-            // user-service의 URL 설정
-            String url = "http://k11d108.p.ssafy.io/users?userId=" + memberId;
-
-            // 2-3. 사용자 정보를 요청하여 리스트에 추가
-            UserInfoResponse userInfo = restTemplate.getForObject(url, UserInfoResponse.class);
+            // 2-2. 사용자 정보를 요청하여 리스트에 추가
+            UserInfoResponse userInfo = getUserInfoFromUserService(memberId);
             response.add(userInfo);
         }
 
         // 3. 응답
         return response;
+    }
+    public UserInfoResponse getUserInfoFromUserService(Long memberId) {
+        // Feign Client를 통해 user-service의 getUser 메서드 호출
+        return userServiceFeignClient.getUserInfo(memberId);
     }
 
     @Override
