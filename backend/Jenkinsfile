@@ -95,12 +95,16 @@ pipeline {
                 }
                 stage('Build and Deploy Question Service') {
                     steps {
-                        build job: 'question-service', propagate: false
+                        if (hasChanges('backend/question-service/**')) {
+                            build job: 'question-service', propagate: false
+                        }
                     }
                 }
                 stage('Deploy Timecapsule Service') {
                     steps {
-                        build job: 'timecapsule-service', propagate: false
+                        if (hasChanges('backend/timecapsule-service/**')) {
+                            build job: 'timecapsule-service', propagate: false
+                        }
                     }
                 }
             }
@@ -136,4 +140,9 @@ def buildAndRunContainer(serviceName, port, exposeToHost) {
     } else {
         sh "docker run --name ${serviceName} -d ${serviceName}"
     }
+}
+
+// 변경 사항 확인 함수
+def hasChanges(String path) {
+    return sh(script: "git diff --quiet HEAD^ HEAD -- ${path}", returnStatus: true) != 0
 }
