@@ -10,13 +10,13 @@ sealed class ApiResponse<out D> {
         open val errorMessage: String = "",
     ) : ApiResponse<Nothing>() {
         data class ServerError(
-            override val errorCode: String = "",
-            override val errorMessage: String = "",
+            override val errorCode: String,
+            override val errorMessage: String,
         ) : Error(errorCode, errorMessage)
 
         data class TokenError(
-            override val errorCode: String = "",
-            override val errorMessage: String = "",
+            override val errorCode: String,
+            override val errorMessage: String,
         ) : Error(errorCode, errorMessage)
 
         data class NetworkError(
