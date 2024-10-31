@@ -8,16 +8,15 @@ pipeline {
             }
         }
         stage('Build and Deploy Timecapsule Service') {
-            // 변경 감지 확인
 //             when {
-//                 changeset "backend/timecapsule-service/**"
+//                 changeset "backend/question-service/**"
 //             }
             steps {
-                withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
+                withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
                     script {
-                        dir('backend/timecapsule-service') {
+                        dir('backend/question-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('timecapsule-service', 0, false)
+                            buildAndRunContainer('question-service', 0, false) // 내부 네트워크에서만 통신
                         }
                     }
                 }

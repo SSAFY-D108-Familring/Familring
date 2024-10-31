@@ -171,18 +171,8 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Question Service') {
-                    when {
-                        changeset "backend/question-service/**"
-                    }
                     steps {
-                        withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/question-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('question-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
+                        build job: 'question-service', propagate: false
                     }
                 }
                 stage('Deploy Timecapsule Service') {
