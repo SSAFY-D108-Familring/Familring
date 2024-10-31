@@ -134,6 +134,54 @@ pipeline {
                         }
                     }
                 }
+                stage('Build and Deploy Interest Service') {
+                    steps {
+                        withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/interest-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('interest-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Notification Service') {
+                    steps {
+                        withCredentials([file(credentialsId: 'notification-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/notification-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('notification-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Question Service') {
+                    steps {
+                        withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/question-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('question-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Timecapsule Service') {
+                    steps {
+                        withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/timecapsule-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('timecapsule-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
