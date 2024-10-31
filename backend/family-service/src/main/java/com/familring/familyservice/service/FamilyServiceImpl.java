@@ -6,6 +6,7 @@ import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
+import jakarta.ws.rs.HEAD;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -60,13 +61,9 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 2-1. 가족 구성원들에 대해 모두 처리
         for (Long memberId : members) {
-<<<<<<< HEAD
             // 2-2. user-service의 URL 설정
-            String url = "http://user-service/users/info?userId=" + memberId;
-=======
             // user-service의 URL 설정
             String url = "http://user-service/users?userId=" + memberId;
->>>>>>> f797428544e125de4f677365416ffbad90da18e0
 
             // 2-3. 사용자 정보를 요청하여 리스트에 추가
             UserInfoResponse userInfo = restTemplate.getForObject(url, UserInfoResponse.class);
