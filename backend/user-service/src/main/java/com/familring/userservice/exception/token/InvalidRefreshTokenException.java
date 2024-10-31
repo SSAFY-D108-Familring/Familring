@@ -5,6 +5,6 @@ import com.familring.userservice.exception.constant.ErrorCode;
 
 public class InvalidRefreshTokenException extends ApplicationException {
     public InvalidRefreshTokenException() {
-        super(ErrorCode.INVALID_REFRESH_TOKEN);
+        super(ErrorCode.EXPIRED_TOKEN);
     }
 }
