@@ -156,9 +156,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Notification Service') {
-//                     when {
-//                         changeset "backend/notification-service/**"
-//                     }
+                    when {
+                        changeset "backend/notification-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'notification-application.yml', variable: 'application_yml')]) {
                             script {
@@ -171,9 +171,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Question Service') {
-//                     when {
-//                         changeset "backend/question-service/**"
-//                     }
+                    when {
+                        changeset "backend/question-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
                             script {
@@ -186,9 +186,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Timecapsule Service') {
-//                     when {
-//                         changeset "backend/timecapsule-service/**"
-//                     }
+                    when {
+                        changeset "backend/timecapsule-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                             script {
