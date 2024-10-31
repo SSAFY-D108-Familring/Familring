@@ -1,6 +1,6 @@
 package com.familring.apigateway.exception;
 
-import com.familring.apigateway.dto.ErrorCodeResponse;
+import com.familring.common_service.base.ErrorCodeResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 
 @Component
 @Order(-1)  // 높은 우선순위로 설정
