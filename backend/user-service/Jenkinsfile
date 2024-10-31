@@ -1,0 +1,63 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Build and Deploy User Service') {
+            when {
+                changeset "backend/user-service/**"
+            }
+            steps {
+                withCredentials([
+                    file(credentialsId: 'user-application.yml', variable: 'application_yml'),
+                    file(credentialsId: 'familring-firebase-key.json', variable: 'firebase_key')
+                ]) {
+                    script {
+                        dir('backend/user-service') {
+                            copyApplicationYaml(application_yml)
+
+                            // firebase key 추가
+                            sh "cp ${firebase_key} src/main/resources/familring-firebase-key.json"
+
+                            buildAndRunContainer('user-service', 0, false) // 내부 네트워크에서만 통신
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 공통 함수: application.yml 복사
+def copyApplicationYaml(application_yml) {
+    sh 'mkdir -p src/main/resources'
+    sh "cp ${application_yml} src/main/resources/application.yml"
+}
+
+// 공통 함수: 컨테이너 중지 및 삭제
+def stopAndRemoveContainer(containerName) {
+    def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    if (container) {
+        sh "docker stop ${container}"
+        sh "docker rm ${container}"
+    }
+}
+
+// 공통 함수: 컨테이너 빌드 및 실행
+def buildAndRunContainer(serviceName, port, exposeToHost) {
+    stopAndRemoveContainer(serviceName)
+    sh 'chmod +x ./gradlew'
+    sh './gradlew clean build -x test'
+    sh "docker build -t ${serviceName} ."
+
+    // 호스트에 노출할지 여부에 따라 -p 옵션을 추가
+    if (exposeToHost) {
+        sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
+    } else {
+        sh "docker run --name ${serviceName} -d ${serviceName}"
+    }
+}
