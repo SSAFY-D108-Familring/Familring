@@ -1,16 +1,19 @@
 package com.familring.presentation.component
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.familring.domain.model.Profile
 
 @Composable
 fun OverlappingProfileLazyRow(
     modifier: Modifier = Modifier,
     profiles: List<Profile>,
+    profileSize: Int = 55,
 ) {
     LazyRow(
         modifier = modifier,
@@ -20,6 +23,7 @@ fun OverlappingProfileLazyRow(
                 OverlappingRow {
                     for (profile in profiles) {
                         ZodiacBackgroundProfile(
+                            modifier = Modifier.size(profileSize.dp),
                             profile = profile,
                         )
                     }
@@ -63,7 +67,7 @@ private fun OverlappingProfileLazyRowPreview() {
         profiles =
             listOf(
                 Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                Profile(zodiacImgUrl = "url1", backgroundColor = "#FFE1E1"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
                 Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
             ),
     )

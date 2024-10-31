@@ -11,12 +11,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,7 +58,11 @@ fun Day(
             if (date == LocalDate.now()) {
                 Modifier
                     .padding(top = 3.dp, bottom = 5.dp)
-                    .background(color = Green02, shape = CircleShape)
+                    .drawBehind {
+                        drawCircle(
+                            color = Green02,
+                        )
+                    }
             } else {
                 Modifier.padding(top = 3.dp, bottom = 5.dp)
             }
@@ -66,7 +70,7 @@ fun Day(
         Text(
             modifier =
                 dateBackground
-                    .padding(2.dp),
+                    .padding(4.dp),
             text = date.dayOfMonth.toString(),
             style = dateStyle,
         )
@@ -147,7 +151,7 @@ private fun DayPreview() {
         modifier = Modifier.size(50.dp, 90.dp),
         daySchedule =
             DaySchedule(
-                date = "2024-11-29",
+                date = "2024-10-31",
                 schedules =
                     listOf(
                         Schedule(

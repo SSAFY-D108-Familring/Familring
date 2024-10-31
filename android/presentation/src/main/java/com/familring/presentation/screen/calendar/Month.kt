@@ -1,27 +1,17 @@
 package com.familring.presentation.screen.calendar
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.familring.domain.model.DaySchedule
-import com.familring.presentation.theme.Black
-import com.familring.presentation.theme.Red01
-import com.familring.presentation.theme.Typography
+import com.familring.domain.model.Schedule
 import com.familring.presentation.util.toLocalDate
 import java.time.LocalDate
 import java.time.YearMonth
@@ -48,47 +38,25 @@ fun MonthGrid(
             }
         }
 
-    Column(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        Row(
-            modifier = Modifier.padding(vertical = 10.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val cellHeight = maxHeight / 6
+        LazyVerticalGrid(
+            modifier = Modifier.fillMaxSize(),
+            columns = GridCells.Fixed(7),
         ) {
-            listOf("일", "월", "화", "수", "목", "금", "토").forEach { day ->
-                val textColor = if (day == "일") Red01 else Black
-                Text(
-                    text = day,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    style =
-                        Typography.displayMedium.copy(
-                            fontSize = 12.sp,
-                            color = textColor.copy(alpha = 0.5f),
-                        ),
+            items(days) { day ->
+                Day(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(cellHeight),
+                    daySchedule = day,
+                    onDayClick = {
+                        day?.date?.let {
+                            onDayClick(it.toLocalDate())
+                        }
+                    },
                 )
-            }
-        }
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            val cellHeight = maxHeight / 6
-            LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Fixed(7),
-            ) {
-                items(days) { day ->
-                    Day(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(cellHeight),
-                        daySchedule = day,
-                        onDayClick = {
-                            day?.date?.let {
-                                onDayClick(it.toLocalDate())
-                            }
-                        },
-                    )
-                }
             }
         }
     }
@@ -105,9 +73,10 @@ private fun MonthGridPreview() {
 }
 
 val sampleSchedules =
+//    listOf<Schedule>()
     listOf(
-        com.familring.domain.model.Schedule("Meeting with Team", "0xFFFEE6C9"),
-        com.familring.domain.model.Schedule("Doctor's Appointment", "0xFFD2F0FF"),
+        Schedule("Meeting with Team", "0xFFFEE6C9"),
+        Schedule("Doctor's Appointment", "0xFFD2F0FF"),
     )
 val daySchedules =
     (1..31).map { day ->

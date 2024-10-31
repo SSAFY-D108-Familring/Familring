@@ -21,6 +21,7 @@ import com.familring.domain.model.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
+import com.familring.presentation.screen.calendar.ScheduleCreateRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.AlbumRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
@@ -85,7 +86,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
         },
     ) { innerPadding ->
         MainNavHost(
-            modifier = modifier.padding(innerPadding).navigationBarsPadding(),
+            modifier =
+                modifier
+                    .padding(innerPadding)
+                    .navigationBarsPadding(),
             navController = navController,
             startDestination = ScreenDestinations.Login.route,
             showSnackBar = onShowSnackBar,
@@ -272,6 +276,12 @@ fun MainNavHost(
                 navigateToNotification = {
                     navController.navigate(ScreenDestinations.Notification.route)
                 },
+                navigateToTimeCapsule = {
+                    navController.navigate(ScreenDestinations.TimeCapsule.route)
+                },
+                navigateToInterest = {
+                    navController.navigate(ScreenDestinations.Interest.route)
+                },
             )
         }
 
@@ -284,7 +294,19 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Calendar.route,
         ) {
-            CalendarRoute(modifier = modifier)
+            CalendarRoute(
+                modifier = modifier,
+                navigateToScheduleCreate = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.ScheduleCreate.route,
+        ) {
+            ScheduleCreateRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
         }
 
         composable(

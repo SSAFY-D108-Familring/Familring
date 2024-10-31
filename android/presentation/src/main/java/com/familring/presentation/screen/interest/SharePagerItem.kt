@@ -1,6 +1,7 @@
 package com.familring.presentation.screen.interest
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun SharePagerItem(
@@ -29,6 +31,7 @@ fun SharePagerItem(
         modifier =
             Modifier
                 .fillMaxSize()
+                .background(color = White, shape = RoundedCornerShape(12.dp))
                 .border(
                     width = 3.dp,
                     color = Gray03,
