@@ -51,14 +51,23 @@ import com.familring.presentation.util.noRippleClickable
 fun HomeRoute(
     modifier: Modifier,
     navigateToNotification: () -> Unit,
+    navigateToTimeCapsule: () -> Unit,
+    navigateToInterest: () -> Unit,
 ) {
-    HomeScreen(modifier = modifier, navigateToNotification = navigateToNotification)
+    HomeScreen(
+        modifier = modifier,
+        navigateToNotification = navigateToNotification,
+        navigateToTimeCapsule = navigateToTimeCapsule,
+        navigateToInterest = navigateToInterest,
+    )
 }
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     navigateToNotification: () -> Unit = {},
+    navigateToTimeCapsule: () -> Unit = {},
+    navigateToInterest: () -> Unit = {},
 ) {
     var progress by remember {
         mutableStateOf(0f)
@@ -72,7 +81,7 @@ fun HomeScreen(
 
     Box(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .background(color = Color.White),
     ) {
@@ -122,7 +131,10 @@ fun HomeScreen(
             )
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
@@ -221,13 +233,23 @@ fun HomeScreen(
                 Image(
                     painter = painterResource(id = R.drawable.img_pill),
                     contentDescription = "pill_img",
-                    modifier = Modifier.size(40.dp),
+                    modifier =
+                        Modifier
+                            .size(40.dp)
+                            .noRippleClickable {
+                                navigateToTimeCapsule()
+                            },
                 )
                 Spacer(modifier = Modifier.fillMaxSize(0.03f))
                 Image(
                     painter = painterResource(id = R.drawable.img_networking),
                     contentDescription = "network_img",
-                    modifier = Modifier.size(60.dp),
+                    modifier =
+                        Modifier
+                            .size(60.dp)
+                            .noRippleClickable {
+                                navigateToInterest()
+                            },
                 )
             }
 
