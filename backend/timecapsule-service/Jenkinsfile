@@ -8,10 +8,6 @@ pipeline {
             }
         }
         stage('Build and Deploy Timecapsule Service') {
-            // 변경 감지 확인
-//             when {
-//                 changeset "backend/timecapsule-service/**"
-//             }
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
