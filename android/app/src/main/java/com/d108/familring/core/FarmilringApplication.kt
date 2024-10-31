@@ -9,7 +9,6 @@ import dagger.hilt.android.HiltAndroidApp
 class FarmilringApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-
         KakaoSdk.init(this, BuildConfig.KAKAO_API_KEY)
     }
 }

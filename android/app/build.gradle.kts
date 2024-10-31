@@ -22,6 +22,9 @@ android {
 
         buildConfigField("String", "KAKAO_API_KEY", getApiKey("KAKAO_API_KEY"))
         resValue("string", "KAKAO_REDIRECT_URI", getApiKey("KAKAO_REDIRECT_URI"))
+
+        manifestPlaceholders["KAKAO_API_KEY"] = getApiKey("KAKAO_API_KEY")
+        manifestPlaceholders["KAKAO_REDIRECT_URI"] = getApiKey("KAKAO_REDIRECT_URI")
     }
 
     buildTypes {
