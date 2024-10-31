@@ -9,6 +9,7 @@ import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
+import jakarta.ws.rs.HEAD;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.*;
@@ -142,7 +143,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String updateFcmToken(Long userId, String fcmToken) {
+    public void updateFcmToken(Long userId, String fcmToken) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {
@@ -152,13 +153,11 @@ public class UserServiceImpl implements UserService {
 
         // 2. 찾은 사용자에게 FCM 토큰 저장
         userDao.updateUserFcmTokenByUserId(user.getUserId(), fcmToken);
-
-        return "토큰이 성공적으로 저장되었습니다.";
     }
 
     @Override
     @Transactional
-    public String updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest) {
+    public void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {
@@ -168,23 +167,18 @@ public class UserServiceImpl implements UserService {
 
         // 2. 사용자의 기분 설정 변경
         userDao.updateUserEmotionByUserId(user.getUserId(), userEmotionRequest.getUserEmotion());
-
-        return "회원 기분 설정 변경에 성공했습니다.";
     }
 
     @Override
     @Transactional
-    public String deleteUser(Long userId) {
-        // 1. 사용자 정보 찾기
+    public void deleteUser(Long userId){
+        // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {
                     UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
-
         // 2. 회원 탈퇴 작업 시행
         customUserDetailsService.deleteUser(user.getUserKakaoId());
-
-        return "회원 탈퇴가 완료되었습니다.";
     }
 }

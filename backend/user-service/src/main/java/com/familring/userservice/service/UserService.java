@@ -24,11 +24,11 @@ public interface UserService {
     JwtTokenResponse updateJWT(String refreshToken);
 
     // FCM 토큰 저장
-    String updateFcmToken(Long userId, String fcmToken);
+    void updateFcmToken(Long userId, String fcmToken);
 
     // 회원 기분 설정
-    String updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
+    void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
 
     // 회원 탈퇴
-    String deleteUser(Long userId);
+    void deleteUser(Long userId);
 }
