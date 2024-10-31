@@ -7,6 +7,7 @@ import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.UserDeleteRequest;
+import com.familring.userservice.model.dto.request.UserEmotionRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
@@ -140,7 +141,7 @@ public class UserServiceImpl implements UserService {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 // 회원이 없는 경우 -> 회원가입 처리
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다. userId를 확인해주세요."));
 
         // 2. 찾은 사용자에게 FCM 토큰 저장
         userDao.updateUserFcmTokenByUserId(userId, fcmToken);
@@ -150,10 +151,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public String updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest) {
+        // 1. 사용자 정보 찾기
+        UserDto user = userDao.findUserByUserId(userId)
+                // 회원이 없는 경우 -> 회원가입 처리
+                .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다. userId를 확인해주세요."));
+
+        // 2. 사용자의 기분 설정 변경
+        userDao.updateUserEmotionByUserId(userId, userEmotionRequest.getUserEmotion());
+
+        return "회원 기분 설정 변경에 성공했습니다.";
+    }
+
+    @Override
+    @Transactional
     public String deleteUser(Long userId) {
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다. userId를 확인해주세요."));
 
         // 2. redis의 refreshToken 제거
         redisService.deleteRefreshToken(user.getUserKakaoId());
