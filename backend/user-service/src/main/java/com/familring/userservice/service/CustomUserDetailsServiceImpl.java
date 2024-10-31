@@ -1,19 +1,32 @@
 package com.familring.userservice.service;
 
+import com.familring.userservice.config.redis.RedisService;
+import com.familring.userservice.exception.user.NoContentUserImageException;
 import com.familring.userservice.model.dao.UserDao;
+import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
+import com.familring.userservice.model.dto.request.FileDeleteRequest;
+import com.familring.userservice.model.dto.request.UserDeleteRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +35,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserDao userDao;
+    private final FileServiceFeignClient fileServiceFeignClient;
+    private final FamilyServiceFeignClient familyServiceFeignClient;
+    private final RedisService redisService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -52,31 +68,39 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public void createUser(UserJoinRequest userJoinRequest, MultipartFile image) {
         String faceImgUrl = "";
 
-        // 나중에 file-service로 업로드 하도록 수정
-        // 프로필 사진 처리
-//        if(!image.isEmpty())
-//            faceImgUrl = s3Service.uploadS3(image, "user-face");
+        // 1. 얼굴 사진 처리
+        if(image.isEmpty()){
+            // 1-1. 얼굴 사진 없는 경우 에러 처리
+            throw new NoContentUserImageException();
+        }
 
-        // 띠 계산
+        // 1-2. 요청에 대한 응답 image url 저장
+        faceImgUrl = uploadFiles(image, "user-face").get(0);
+        log.info("faceImgUrl: {}", faceImgUrl);
+
+        // 2. 회원 띠 계산
+        // 2-1. 날짜 받기
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(userJoinRequest.getUserBirthDate());
-        int year = calendar.get(Calendar.YEAR);
-        // 띠 배열의 시작을 "쥐"로 변경하여 정확한 계산이 가능하도록 설정
+        int birthYear = calendar.get(Calendar.YEAR);
+
+        // 2-2. 띠 배열 선언
         String[] zodiacSign = {"쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"};
 
-        // 띠 계산
-        int birthYear = calendar.get(Calendar.YEAR);
+        // 2-3. 띠 계산
         int zodiacIndex = (birthYear - 4) % 12;
 
-        // 음수 인덱스 방지
+        // 2-4. 음수 인덱스 방지
         if (zodiacIndex < 0)
             zodiacIndex += 12;
-
         log.info("사용자의 띠: {}", zodiacSign[zodiacIndex]);
 
-        // 띠 이미지 URL 생성
-        String zodiacSignImgUrl = "/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
+        // 2-5. 띠 이미지 URL 가져오기
+        String zodiacSignImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
+        log.info("zodiacSignImgUrl: {}", zodiacSignImgUrl);
 
+
+        // 3. 회원 가입 dto 생성
         UserDto user = UserDto.builder()
                 .userKakaoId(userJoinRequest.getUserKakaoId())
                 .userPassword(passwordEncoder.encode(""))
@@ -93,8 +117,20 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 .userIsAdmin(false)
                 .build();
 
-        // 기존 createUser(UserDetails user) 호출
+        // 4. 기존 createUser(UserDetails user) 호출
         createUser(user);
+    }
+    public List<String> uploadFiles(MultipartFile image, String folderPath) {
+        log.info("folderPath: {}", folderPath);
+
+        // List<MultipartFile>로 파일 리스트 구성
+        List<MultipartFile> faceFiles = List.of(image);
+
+        // Feign Client로 파일 업로드 요청
+        ResponseEntity<List<String>> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath);
+        log.info("response: {}", response.getBody());
+
+        return response.getBody();
     }
 
     @Override
@@ -105,9 +141,54 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
     @Override
     @Transactional
-    public void deleteUser(String username) {
+    public void deleteUser(String userName) {
+        // 1. 회원 정보 찾기
+        UserDto user = userDao.findUserByUserKakaoId(userName)
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId(" + userName + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
 
+        // 2. redis의 refreshToken 제거
+        redisService.deleteRefreshToken(user.getUserKakaoId());
+
+        // 3. S3에서 이미지 제거
+        deleteFiles(user.getUserFace());
+
+        // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
+        UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
+                .userId(user.getUserId())
+                .beforeUserKakaoId(userName)
+                .afterUserKakaoId("DELETE_{" + userName + "}")
+                .userPassword("")
+                .userName("탈퇴 회원")
+                .userRole(FamilyRole.N)
+                .userFace("")
+                .userEmotion("")
+                .userFcmToken("")
+                .userIsDeleted(true)
+                .build();
+
+        // 5. user 테이블 수정
+        userDao.deleteUser(deleteRequest);
+
+        // 6. 가족 구성원 제거
+        String familyResponse = deleteFamilyMember(user.getUserId());
+        log.info(familyResponse);
     }
+    public void deleteFiles(String imageUrl) {
+        // List<MultipartFile>로 파일 리스트 구성
+        List<String> faceFiles = List.of(imageUrl);
+
+        // Feign Client로 파일 삭제 요청
+        fileServiceFeignClient.deleteFiles(faceFiles);
+    }
+    public String deleteFamilyMember(Long userId) {
+        ResponseEntity<String> response = familyServiceFeignClient.deleteFamilyMember(userId);
+
+        return response.getBody();
+    }
+
 
     @Override
     @Transactional

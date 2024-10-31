@@ -8,7 +8,9 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.regex.PatternSyntaxException;
@@ -49,6 +51,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED.value()).body(errorResponse);
     }
 
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException ex) {
+        String message = ex.getReason();
+        ErrorResponse errorResponse = new ErrorResponse(message);
+        return ResponseEntity.status(ex.getStatusCode()).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         String message = "서버에서 요청을 처리하는 동안 오류가 발생했습니다.";
@@ -63,5 +72,13 @@ public class GlobalExceptionHandler {
         ex.printStackTrace(pw);
         String stackTraceString = sw.toString();
         log.error("Stack trace: {}", stackTraceString);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorResponse> handleIOException(IOException ex) {
+        String message = "파일 처리 중 오류가 발생했습니다. 다시 시도해 주세요.";
+        ErrorResponse errorResponse = new ErrorResponse(message);
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(errorResponse);
     }
 }

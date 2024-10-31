@@ -1,5 +1,6 @@
 package com.familring.userservice.exception.base;
 
+import com.familring.common_service.base.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.regex.PatternSyntaxException;
@@ -71,5 +73,13 @@ public class GlobalExceptionHandler {
         ex.printStackTrace(pw);
         String stackTraceString = sw.toString();
         log.error("Stack trace: {}", stackTraceString);
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<ErrorResponse> handleIOException(IOException ex) {
+        String message = "파일 처리 중 오류가 발생했습니다. 다시 시도해 주세요.";
+        ErrorResponse errorResponse = new ErrorResponse(message);
+        log.error(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value()).body(errorResponse);
     }
 }

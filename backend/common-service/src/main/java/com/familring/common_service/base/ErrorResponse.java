@@ -1,4 +1,4 @@
-package com.familring.userservice.exception.base;
+package com.familring.common_service.base;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 @Getter
 @RequiredArgsConstructor
 public class ErrorResponse {
-    private String message;
     private LocalDateTime timeStamp;
+    private String message;
 
     public ErrorResponse(String message) {
         this.message = message;

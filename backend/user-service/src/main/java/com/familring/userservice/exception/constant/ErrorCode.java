@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
     // User
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "아이디 또는 비밀번호가 올바르지 않습니다."),
+    NO_CONTENT_USER_IMAGE(HttpStatus.BAD_REQUEST, "이미지가 존재하지 않습니다."),
 
     //Token
     MALFORMED_TOKEN(HttpStatus.BAD_REQUEST, "잘못된 토큰입니다."),
