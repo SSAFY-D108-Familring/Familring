@@ -67,6 +67,8 @@ sealed class ScreenDestinations(
     // 캘린더
     data object Calendar : ScreenDestinations(route = "Calendar")
 
+    data object ScheduleCreate : ScreenDestinations(route = "ScheduleCreate")
+
     // 갤러리
     data object Gallery : ScreenDestinations(route = "Gallery")
 

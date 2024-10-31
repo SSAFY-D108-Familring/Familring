@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
@@ -20,25 +22,44 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray02
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
-fun CustomTab(
+fun CustomTextTab(
     modifier: Modifier = Modifier,
     selectedItemIndex: Int,
     tabs: List<String>,
+    selectedTextColor: Color = Brown01,
+    spaceSize: Int? = null,
     onClick: (index: Int) -> Unit,
 ) {
+    val customModifier =
+        if (spaceSize != null) {
+            Modifier
+        } else {
+            Modifier.fillMaxWidth()
+        }
+    val customHorizontalArrangement =
+        if (spaceSize != null) {
+            Arrangement.spacedBy(40.dp)
+        } else {
+            Arrangement.SpaceEvenly
+        }
+
     Box(
         modifier =
             modifier
                 .background(White)
-                .height(intrinsicSize = IntrinsicSize.Min),
+                .height(intrinsicSize = IntrinsicSize.Min)
+                .fillMaxWidth(),
+        contentAlignment = Alignment.Center,
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(40.dp),
+            modifier = customModifier,
+            horizontalArrangement = customHorizontalArrangement,
         ) {
             tabs.mapIndexed { index, text ->
                 val isSelected = selectedItemIndex == index
@@ -46,6 +67,7 @@ fun CustomTab(
                     isSelected = isSelected,
                     onClick = { onClick(index) },
                     text = text,
+                    selectedTextColor = selectedTextColor,
                 )
             }
         }
@@ -57,13 +79,14 @@ fun TabItem(
     modifier: Modifier = Modifier,
     isSelected: Boolean,
     onClick: () -> Unit,
+    selectedTextColor: Color = Brown01,
     text: String,
 ) {
     val tabTextStyle =
         if (isSelected) {
             Typography.titleMedium.copy(
                 fontSize = 16.sp,
-                color = Brown01,
+                color = selectedTextColor,
             )
         } else {
             Typography.displayMedium.copy(
@@ -88,7 +111,7 @@ fun TabItem(
 
         if (isSelected) {
             HorizontalDivider(
-                color = Brown01,
+                color = selectedTextColor,
                 thickness = 3.dp,
             )
         }
@@ -108,9 +131,11 @@ private fun TabItemPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun CustomTabPreview() {
-    CustomTab(
+    CustomTextTab(
         selectedItemIndex = 0,
         tabs = listOf("작성", "목록"),
         onClick = {},
+        selectedTextColor = Green02,
+        spaceSize = 40,
     )
 }

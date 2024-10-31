@@ -21,6 +21,7 @@ import com.familring.domain.model.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
+import com.familring.presentation.screen.calendar.ScheduleCreateRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
@@ -83,7 +84,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
         },
     ) { innerPadding ->
         MainNavHost(
-            modifier = modifier.padding(innerPadding).navigationBarsPadding(),
+            modifier =
+                modifier
+                    .padding(innerPadding)
+                    .navigationBarsPadding(),
             navController = navController,
             startDestination = ScreenDestinations.Home.route,
             showSnackBar = onShowSnackBar,
@@ -277,7 +281,19 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Calendar.route,
         ) {
-            CalendarRoute(modifier = modifier)
+            CalendarRoute(
+                modifier = modifier,
+                navigateToScheduleCreate = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.ScheduleCreate.route,
+        ) {
+            ScheduleCreateRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
         }
 
         composable(
