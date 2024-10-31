@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +27,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.isDateFormValid
 
 @Composable
 fun TimeCapsuleCreateRoute(
@@ -85,13 +86,17 @@ fun TimeCapsuleCreateScreen(
             Text(
                 text = "미래의 가족이 열어볼 타임캡슐을 준비해 보세요",
                 style =
-                Typography.bodySmall.copy(
-                    color = Gray01,
-                    fontSize = 20.sp,
-                ),
+                    Typography.bodySmall.copy(
+                        color = Gray01,
+                        fontSize = 20.sp,
+                    ),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             DateInputRow(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .align(Alignment.CenterHorizontally),
                 year = year,
                 month = month,
                 date = date,
@@ -110,12 +115,6 @@ fun TimeCapsuleCreateScreen(
         }
     }
 }
-
-fun isDateFormValid(
-    year: String,
-    month: String,
-    date: String,
-): Boolean = year.length == 4 && (month.length in 1..2) && (date.length in 1..2)
 
 @Preview
 @Composable
