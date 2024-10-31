@@ -15,13 +15,10 @@ import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +30,6 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenService tokenService;
     private final CustomUserDetailsService customUserDetailsService;
     private final RedisService redisService;
-    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public UserInfoResponse getUser(String userName) {
@@ -108,7 +104,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) throws IOException {
+    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) {
         // 1. 사용자 회원가입
         customUserDetailsService.createUser(userJoinRequest, image);
 
@@ -179,71 +175,16 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public String deleteUser(Long userId) {
-        // 1. 회원 정보 찾기
+        // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {
                     UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
 
-        // 2. redis의 refreshToken 제거
-        redisService.deleteRefreshToken(user.getUserKakaoId());
+        // 2. 회원 탈퇴 작업 시행
+        customUserDetailsService.deleteUser(user.getUserKakaoId());
 
-        // 3. S3에서 이미지 제거
-        // 3-1. file-service의 URL 설정
-        String fileServiceUrl = "http://http://k11d108.p.ssafy.io/files";
-
-        // 3-2. 삭제할 이미지 추가
-        List<String> fileUrls = new ArrayList<>();
-        fileUrls.add(user.getUserFace());
-        FileDeleteRequest request = FileDeleteRequest.builder()
-                .fileUrls(fileUrls)
-                .build();
-        HttpEntity<FileDeleteRequest> fileEntity = new HttpEntity<>(request);
-
-        // 3-3. DELETE 요청 전송
-        ResponseEntity<Void> fileResponse = restTemplate.exchange(
-                fileServiceUrl,
-                HttpMethod.DELETE,
-                fileEntity,
-                Void.class
-        );
-
-        // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
-        UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
-                .userId(userId)
-                .beforeUserKakaoId(user.getUserKakaoId())
-                .afterUserKakaoId("DELETE_{" + user.getUserKakaoId() + "}")
-                .userPassword("")
-                .userName("탈퇴 회원")
-                .userRole(FamilyRole.N)
-                .userFace("")
-                .userEmotion("")
-                .userFcmToken("")
-                .userIsDeleted(true)
-                .build();
-
-        // 5. user 테이블 수정
-        userDao.deleteUser(deleteRequest);
-
-        // 6. 가족 구성원 제거
-        // 6-1. family-service의 URL 설정
-        String familyServiceUrl = "http://http://k11d108.p.ssafy.io/family/member";
-
-        // 6-2. Header 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-User-Id", userId.toString()); // 헤더에 userId 설정
-        HttpEntity<String> familyEntity = new HttpEntity<>(headers);
-
-        // 6-3. PATCH 요청 전송
-        ResponseEntity<String> familyResponse = restTemplate.exchange(
-                familyServiceUrl,
-                HttpMethod.PATCH,
-                familyEntity,
-                String.class
-        );
-        log.info("response body: {}", familyResponse.getBody());
-
-        return familyResponse.getBody() + ", 회원 삭제 성공";
+        return "회원 탈퇴가 완료되었습니다.";
     }
 }

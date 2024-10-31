@@ -51,7 +51,7 @@ public class UserController {
     @Operation(summary = "회원가입", description = "회원가입이 되어 있지 않은 사용자 회원가입 처리 후 JWT 발급")
     public ResponseEntity join
             (@RequestPart("userJoinRequest") UserJoinRequest userJoinRequest,
-             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+             @RequestPart(value = "image", required = false) MultipartFile image) {
         JwtTokenResponse tokens = userService.join(userJoinRequest, image);
 
         return ResponseEntity.ok(tokens);
