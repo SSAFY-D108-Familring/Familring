@@ -95,15 +95,15 @@ pipeline {
                 }
                 stage('Build and Deploy Question Service') {
                     steps {
-                        if (hasChanges('backend/question-service/**')) {
-                            build job: 'question-service', propagate: false
-                        }
+                        build job: 'question-service', propagate: false
                     }
                 }
                 stage('Deploy Timecapsule Service') {
                     steps {
-                        if (hasChanges('backend/timecapsule-service/**')) {
-                            build job: 'timecapsule-service', propagate: false
+                        script {
+                            if (hasChanges('backend/timecapsule-service/**')) {
+                                build job: 'timecapsule-service', propagate: false
+                            }
                         }
                     }
                 }
