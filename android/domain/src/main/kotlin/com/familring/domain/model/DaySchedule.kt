@@ -1,4 +1,4 @@
-package com.familring.domain
+package com.familring.domain.model
 
 data class DaySchedule(
     val date: String,

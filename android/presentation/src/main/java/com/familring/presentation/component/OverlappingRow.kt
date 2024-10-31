@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
-import com.familring.domain.Profile
+import com.familring.domain.model.Profile
 
 @Composable
 fun OverlappingProfileLazyRow(
