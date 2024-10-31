@@ -1,4 +1,4 @@
-package com.familring.userservice.exception.base;
+package com.familring.common_service.base;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
