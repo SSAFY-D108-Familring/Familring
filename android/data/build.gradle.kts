@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -5,12 +7,17 @@ plugins {
     id("kotlin-kapt")
 }
 
+val properties = Properties()
+properties.load(rootProject.file("local.properties").inputStream())
+
 android {
     namespace = "com.familring.data"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 27
+
+        buildConfigField("String", "SERVER_URL", properties["SERVER_URL"] as String)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
