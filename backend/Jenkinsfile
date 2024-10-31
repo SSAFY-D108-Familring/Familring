@@ -56,152 +56,152 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy Services') {
-            parallel {
-                stage('Build and Deploy Album Service') {
-//                     when {
-//                         changeset "backend/album-service/**"
+//         stage('Build and Deploy Services') {
+//             parallel {
+//                 stage('Build and Deploy Album Service') {
+// //                     when {
+// //                         changeset "backend/album-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/album-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('album-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/album-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('album-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy Calendar Service') {
-//                     when {
-//                         changeset "backend/calendar-service/**"
+//                 }
+//                 stage('Build and Deploy Calendar Service') {
+// //                     when {
+// //                         changeset "backend/calendar-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/calendar-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('calendar-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/calendar-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('calendar-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy User Service') {
-//                     when {
-//                         changeset "backend/user-service/**"
+//                 }
+//                 stage('Build and Deploy User Service') {
+// //                     when {
+// //                         changeset "backend/user-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([
+//                             file(credentialsId: 'user-application.yml', variable: 'application_yml'),
+//                             file(credentialsId: 'familring-firebase-key.json', variable: 'firebase_key')
+//                         ]) {
+//                             script {
+//                                 dir('backend/user-service') {
+//                                     copyApplicationYaml(application_yml)
+//
+//                                     // firebase key 추가
+//                                     sh "cp ${firebase_key} src/main/resources/familring-firebase-key.json"
+//
+//                                     buildAndRunContainer('user-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([
-                            file(credentialsId: 'user-application.yml', variable: 'application_yml'),
-                            file(credentialsId: 'familring-firebase-key.json', variable: 'firebase_key')
-                        ]) {
-                            script {
-                                dir('backend/user-service') {
-                                    copyApplicationYaml(application_yml)
-
-                                    // firebase key 추가
-                                    sh "cp ${firebase_key} src/main/resources/familring-firebase-key.json"
-
-                                    buildAndRunContainer('user-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy File Service') {
-//                     when {
-//                         changeset "backend/file-service/**"
+//                 }
+//                 stage('Build and Deploy File Service') {
+// //                     when {
+// //                         changeset "backend/file-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/file-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('file-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/file-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('file-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy Family Service') {
-//                     when {
-//                         changeset "backend/family-service/**"
+//                 }
+//                 stage('Build and Deploy Family Service') {
+// //                     when {
+// //                         changeset "backend/family-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/family-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/family-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy Interest Service') {
-//                     when {
-//                         changeset "backend/interest-service/**"
+//                 }
+//                 stage('Build and Deploy Interest Service') {
+// //                     when {
+// //                         changeset "backend/interest-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/interest-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('interest-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/interest-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('interest-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy Notification Service') {
-//                     when {
-//                         changeset "backend/notification-service/**"
+//                 }
+//                 stage('Build and Deploy Notification Service') {
+// //                     when {
+// //                         changeset "backend/notification-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'notification-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/notification-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('notification-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'notification-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/notification-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('notification-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy Question Service') {
-//                     when {
-//                         changeset "backend/question-service/**"
+//                 }
+//                 stage('Build and Deploy Question Service') {
+// //                     when {
+// //                         changeset "backend/question-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/question-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('question-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/question-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('question-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-                stage('Build and Deploy Timecapsule Service') {
-//                     when {
-//                         changeset "backend/timecapsule-service/**"
+//                 }
+//                 stage('Build and Deploy Timecapsule Service') {
+// //                     when {
+// //                         changeset "backend/timecapsule-service/**"
+// //                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/timecapsule-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('timecapsule-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
 //                     }
-                    steps {
-                        withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/timecapsule-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('timecapsule-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//                 }
+//             }
+//         }
     }
 }
 
