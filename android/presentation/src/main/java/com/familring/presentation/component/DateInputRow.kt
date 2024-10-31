@@ -10,6 +10,7 @@ import androidx.compose.ui.focus.FocusManager
 
 @Composable
 fun DateInputRow(
+    modifier: Modifier = Modifier,
     year: String,
     month: String,
     date: String,
@@ -19,10 +20,9 @@ fun DateInputRow(
     focusManager: FocusManager,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
     ) {
-        Spacer(modifier = Modifier.fillMaxWidth(0.07f))
         NumberTextField(
             modifier = Modifier.weight(1.5f),
             number = year,
@@ -49,6 +49,5 @@ fun DateInputRow(
             focusManager = focusManager,
             maxLength = 2,
         )
-        Spacer(modifier = Modifier.fillMaxWidth(0.07f))
     }
 }
