@@ -141,18 +141,8 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Interest Service') {
-                    when {
-                        changeset "backend/interest-service/**"
-                    }
                     steps {
-                        withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/interest-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('interest-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
+                        build job: 'interest-service', propagate: false
                     }
                 }
                 stage('Build and Deploy Notification Service') {
