@@ -5,9 +5,9 @@ FROM openjdk:17-slim
 ARG JAR_FILE=build/libs/*.jar
 
 # 컨테이너에 jar 파일을 복사
-COPY ${JAR_FILE} familyService.jar
+COPY ${JAR_FILE} fileService.jar
 
-EXPOSE 8087
+EXPOSE 8088
 
 # 애플리케이션 실행 명령어 설정
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "./familyService.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "./fileService.jar"]
