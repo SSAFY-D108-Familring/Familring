@@ -75,6 +75,15 @@ sealed class ScreenDestinations(
     // 앨범
     data object Album : ScreenDestinations(route = "Album")
 
+    // 관심사 공유
+    data object Interest : ScreenDestinations(route = "Interest")
+
+    // 관심사 공유 목록
+    data object InterestList : ScreenDestinations(route = "InterestList")
+
+    // 선정 안 된 관심사
+    data object OtherInterest : ScreenDestinations(route = "OtherInterest")
+
     // 알림
     data object Notification : ScreenDestinations(route = "Notification")
 }

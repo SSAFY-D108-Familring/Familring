@@ -17,7 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.familring.domain.TimeCapsule
+import com.familring.domain.model.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
@@ -26,6 +26,9 @@ import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.home.NotificationRoute
+import com.familring.presentation.screen.interest.InterestListRoute
+import com.familring.presentation.screen.interest.InterestRoute
+import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -255,9 +258,18 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Home.route,
         ) {
-            HomeRoute(modifier = modifier, navigateToNotification = {
-                navController.navigate(ScreenDestinations.Notification.route)
-            })
+            HomeRoute(
+                modifier = modifier,
+                navigateToNotification = {
+                    navController.navigate(ScreenDestinations.Notification.route)
+                },
+                navigateToTimeCapsule = {
+                    navController.navigate(ScreenDestinations.TimeCapsule.route)
+                },
+                navigateToInterest = {
+                    navController.navigate(ScreenDestinations.Interest.route)
+                },
+            )
         }
 
         composable(
@@ -292,6 +304,38 @@ fun MainNavHost(
                 navigateToAlbum = {
                     navController.navigate(ScreenDestinations.Album.route)
                 },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Interest.route,
+        ) {
+            InterestRoute(
+                modifier = modifier,
+                navigateToInterestList = {
+                    navController.navigate(ScreenDestinations.InterestList.route)
+                },
+                navigateToOtherInterest = {
+                    navController.navigate(ScreenDestinations.OtherInterest.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.InterestList.route,
+        ) {
+            InterestListRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.OtherInterest.route,
+        ) {
+            OtherInterestRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
             )
         }
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="interest_top_title">관심사 공유</string>
+    <string name="interest_script_1">요즘 내가 빠져 있는</string>
+    <string name="interest_script_recent">최근 관심사</string>
+    <string name="interest_script_2">가족 모두와 함께 나눠 보세요!</string>
+    <string name="my_recent_interest">나의 최근 관심사는</string>
+    <string name="interest_keyword_placeholder">야구</string>
+    <string name="interest_ten_word">관심사는 10글자 이내로만 작성할 수 있어요</string>
+    <string name="interest_edit_btn">수정하기</string>
+    <string name="interest_week_select">이번주 선정 관심사는</string>
+    <string name="interest_share_script">내가 어떤 활동을 했는지 공유해 봐요</string>
+    <string name="interest_no_share_script">아직 인증하지 않았네요!</string>
+    <string name="interest_upload_script">인증샷 업로드는</string>
+    <string name="interest_upload_script2">일 뒤까지 가능해요</string>
+</resources>

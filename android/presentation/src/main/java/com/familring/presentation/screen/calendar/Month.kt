@@ -12,6 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.familring.domain.DaySchedule
 import com.familring.domain.Schedule
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.familring.domain.model.DaySchedule
+import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Red01
+import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.toLocalDate
 import java.time.LocalDate
 import java.time.YearMonth

@@ -22,14 +22,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.familring.domain.Profile
-import com.familring.domain.TimeCapsuleMessage
+import com.familring.domain.model.Profile
+import com.familring.domain.model.TimeCapsuleMessage
 import com.familring.presentation.component.OneButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Green03
