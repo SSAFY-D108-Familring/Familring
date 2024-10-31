@@ -8,9 +8,9 @@ pipeline {
             }
         }
         stage('Build and Deploy Calendar Service') {
-            when {
-                changeset "backend/calendar-service/**"
-            }
+//             when {
+//                 changeset "backend/calendar-service/**"
+//             }
             steps {
                 withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
                     script {
