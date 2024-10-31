@@ -9,9 +9,9 @@ pipeline {
         }
 
         stage('Build and Deploy Config Server') {
-//             when {
-//                 changeset "backend/config-service/**"
-//             }
+            when {
+                changeset "backend/config-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
@@ -25,9 +25,9 @@ pipeline {
         }
 
         stage('Build and Deploy Discovery Server') {
-//             when {
-//                 changeset "backend/discovery-service/**"
-//             }
+            when {
+                changeset "backend/discovery-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
                     script {
@@ -41,9 +41,9 @@ pipeline {
         }
 
         stage('Build and Deploy API Gateway') {
-//             when {
-//                 changeset "backend/api-gateway/**"
-//             }
+            when {
+                changeset "backend/api-gateway/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
                     script {
@@ -60,47 +60,83 @@ pipeline {
             parallel {
                 stage('Build and Deploy Album Service') {
                     steps {
-                        build job: 'album-service', propagate: false
+                        script {
+                            if (hasChanges('backend/album-service')) {
+                                build job: 'album-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Build and Deploy Calendar Service') {
                     steps {
-                        build job: 'calendar-service', propagate: false
+                        script {
+                            if (hasChanges('backend/calendar-service')) {
+                                build job: 'calendar-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Build and Deploy User Service') {
                     steps {
-                        build job: 'user-service', propagate: false
+                        script {
+                            if (hasChanges('backend/user-service')) {
+                                build job: 'user-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Build and Deploy Family Service') {
                     steps {
-                        build job: 'family-service', propagate: false
+                        script {
+                            if (hasChanges('backend/family-service')) {
+                                build job: 'family-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Build and Deploy File Service') {
                     steps {
-                        build job: 'file-service', propagate: false
+                        script {
+                            if (hasChanges('backend/file-service')) {
+                                build job: 'file-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Build and Deploy Interest Service') {
                     steps {
-                        build job: 'interest-service', propagate: false
+                        script {
+                            if (hasChanges('backend/interest-service')) {
+                                build job: 'interest-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Build and Deploy Notification Service') {
                     steps {
-                        build job: 'notification-service', propagate: false
+                        script {
+                            if (hasChanges('backend/notification-service')) {
+                                build job: 'notification-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Build and Deploy Question Service') {
                     steps {
-                        build job: 'question-service', propagate: false
+                        script {
+                            if (hasChanges('backend/question-service')) {
+                                build job: 'question-service', propagate: false
+                            }
+                        }
                     }
                 }
                 stage('Deploy Timecapsule Service') {
                     steps {
-                        build job: 'timecapsule-service', propagate: false
+                        script {
+                            if (hasChanges('backend/timecapsule-service')) {
+                                build job: 'timecapsule-service', propagate: false
+                            }
+                        }
                     }
                 }
             }
@@ -136,4 +172,9 @@ def buildAndRunContainer(serviceName, port, exposeToHost) {
     } else {
         sh "docker run --name ${serviceName} -d ${serviceName}"
     }
+}
+
+// 변경 사항 확인 함수
+def hasChanges(String path) {
+    return sh(script: "git diff --quiet HEAD^ HEAD -- ${path}", returnStatus: true) != 0
 }
