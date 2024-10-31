@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 @Getter
 @RequiredArgsConstructor
 public class ErrorResponse {
-    private String message;
     private LocalDateTime timeStamp;
+    private String message;
 
     public ErrorResponse(String message) {
         this.message = message;
