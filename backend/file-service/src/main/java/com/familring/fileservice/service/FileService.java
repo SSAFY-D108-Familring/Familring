@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -28,19 +29,36 @@ public class FileService {
 
     /**
      * 파일들을 S3에 업로드하고 URL 리스트를 반환합니다.
-     * 단일 파일이나 다중 파일 모두 처리 가능합니다.
+     * folderPath를 지정하면 해당 폴더 아래에 파일이 저장됩니다.
+     *
+     * @param files 업로드할 파일 리스트
+     * @param folderPath S3에 저장될 폴더 경로 (선택사항)
+     * @return 업로드된 파일들의 URL 리스트
+     * @throws S3Exception 파일 업로드 중 오류 발생 시
      */
-    public List<String> uploadFiles(List<MultipartFile> files) {
+    public List<String> uploadFiles(List<MultipartFile> files, String folderPath) {
+        if (CollectionUtils.isEmpty(files)) {
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "업로드할 파일이 없습니다.");
+        }
+
         List<String> uploadedUrls = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                try {
-                    uploadedUrls.add(upload(file));
-                } catch (IOException e) {
-                    throw new S3Exception(HttpStatus.INTERNAL_SERVER_ERROR, "이미지 업로드 중 오류가 발생했습니다.");
-                }
+            if (file.isEmpty()) {
+                log.warn("빈 파일이 포함되어 있습니다. 건너뜁니다.");
+                continue;
             }
+
+            try {
+                uploadedUrls.add(upload(file, folderPath));
+            } catch (IOException e) {
+                log.error("파일 업로드 중 오류 발생: {}", e.getMessage(), e);
+                throw new S3Exception(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다.");
+            }
+        }
+
+        if (uploadedUrls.isEmpty()) {
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "업로드된 파일이 없습니다.");
         }
 
         return uploadedUrls;
@@ -48,42 +66,57 @@ public class FileService {
 
     /**
      * S3에서 파일들을 삭제합니다.
-     * 단일 URL이나 다중 URL 모두 처리 가능합니다.
+     *
+     * @param fileUrls 삭제할 파일 URL 리스트
+     * @throws S3Exception 파일 삭제 중 오류 발생 시
      */
     public void deleteFiles(List<String> fileUrls) {
+        if (CollectionUtils.isEmpty(fileUrls)) {
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "삭제할 파일 URL이 없습니다.");
+        }
+
         for (String fileUrl : fileUrls) {
-            if (fileUrl != null && !fileUrl.isEmpty()) {
-                delete(fileUrl);
+            if (fileUrl == null || fileUrl.trim().isEmpty()) {
+                log.warn("잘못된 파일 URL이 포함되어 있습니다. 건너뜁니다.");
+                continue;
             }
+
+            delete(fileUrl.trim());
         }
     }
 
     /**
      * 실제 파일 업로드를 처리하는 private 메서드
      */
-    private String upload(MultipartFile file) throws IOException {
+    private String upload(MultipartFile file, String folderPath) throws IOException {
         String fileName = createFileName(file.getOriginalFilename());
+        String fileKey = createFileKey(folderPath, fileName);
+
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
 
-        amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), metadata));
-        return amazonS3Client.getUrl(bucket, fileName).toString();
+        amazonS3Client.putObject(new PutObjectRequest(bucket, fileKey, file.getInputStream(), metadata));
+        return amazonS3Client.getUrl(bucket, fileKey).toString();
     }
 
     /**
      * 실제 파일 삭제를 처리하는 private 메서드
      */
     private void delete(String fileUrl) {
-        String fileName = extractFileName(fileUrl);
-        log.info("삭제할 파일 이름: {}", fileName);
-        if (!amazonS3Client.doesObjectExist(bucket, fileName)) {
-            throw new S3Exception(HttpStatus.NOT_FOUND,  String.format("존재하지 않는 파일입니다. 파일명: %s", fileName));
+        String fileKey = extractFileKey(fileUrl);
+        log.info("삭제할 파일 키: {}", fileKey);
+
+        if (!amazonS3Client.doesObjectExist(bucket, fileKey)) {
+            throw new S3Exception(HttpStatus.NOT_FOUND,
+                    String.format("존재하지 않는 파일입니다. 파일 키: %s", fileKey));
         }
 
         try {
-            amazonS3Client.deleteObject(bucket, fileName);
+            amazonS3Client.deleteObject(bucket, fileKey);
+            log.info("파일 삭제 완료: {}", fileKey);
         } catch (Exception e) {
+            log.error("파일 삭제 중 오류 발생: {}", e.getMessage(), e);
             throw new S3Exception(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다.");
         }
     }
@@ -96,9 +129,27 @@ public class FileService {
     }
 
     /**
-     * URL에서 파일명 추출
+     * 폴더 경로와 파일명을 조합하여 최종 파일 키를 생성
      */
-    private String extractFileName(String fileUrl) {
-        return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+    private String createFileKey(String folderPath, String fileName) {
+        if (folderPath == null || folderPath.trim().isEmpty()) {
+            return fileName;
+        }
+
+        String normalizedPath = folderPath.trim();
+        normalizedPath = normalizedPath.replaceAll("^/+|/+$", "");
+
+        return normalizedPath + "/" + fileName;
+    }
+
+    /**
+     * URL에서 파일 키 추출
+     */
+    private String extractFileKey(String fileUrl) {
+        String[] urlParts = fileUrl.split(bucket + ".s3");
+        if (urlParts.length < 2) {
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "잘못된 파일 URL 형식입니다.");
+        }
+        return urlParts[1].substring(urlParts[1].indexOf("/") + 1);
     }
 }
