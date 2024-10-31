@@ -111,6 +111,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy File Service') {
+                    when {
+                        changeset "backend/file-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
                             script {
@@ -123,6 +126,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy Family Service') {
+                    when {
+                        changeset "backend/family-service/**"
+                    }
                     steps {
                         withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
                             script {
