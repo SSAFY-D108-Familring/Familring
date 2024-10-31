@@ -349,8 +349,8 @@ private fun scheduleText(
     endSchedule: LocalDateTime,
     isTimeChecked: Boolean,
 ): String {
-    val formatWithTime = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 a hh:mm")
-    val formatWithoutTime = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")
+    val formatWithTime = DateTimeFormatter.ofPattern("MM월 dd일 E a hh:mm")
+    val formatWithoutTime = DateTimeFormatter.ofPattern("MM월 dd일 E")
     val formatWithOnlyTime = DateTimeFormatter.ofPattern("a hh:mm")
 
     val text =
