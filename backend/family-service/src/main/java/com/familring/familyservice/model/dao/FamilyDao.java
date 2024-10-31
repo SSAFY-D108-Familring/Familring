@@ -7,17 +7,18 @@ import org.apache.ibatis.annotations.Param;
 import org.mybatis.spring.annotation.MapperScan;
 
 import java.util.List;
+import java.util.Optional;
 
 @Mapper
 public interface FamilyDao {
     // familyId로 family 찾기
-    FamilyDto findFamilyByFamilyId(@Param("familyId") Long familyId);
+    Optional<FamilyDto> findFamilyByFamilyId(@Param("familyId") Long familyId);
 
     // userId로 family 찾기
-    FamilyDto findFamilyByUserId(@Param("userId")Long userId);
+    Optional<FamilyDto> findFamilyByUserId(@Param("userId")Long userId);
 
     // familyCode로 family 찾기
-    FamilyDto findFamilyByFamilyCode(String familyCode);
+    Optional<FamilyDto> findFamilyByFamilyCode(String familyCode);
 
     // userId로 family_user 모두 찾기
     List<Long> findFamilyUserByUserId(@Param("userId") Long userId);

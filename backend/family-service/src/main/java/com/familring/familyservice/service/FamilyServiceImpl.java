@@ -1,5 +1,6 @@
 package com.familring.familyservice.service;
 
+import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.FamilyDto;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
@@ -28,7 +29,8 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     public FamilyInfoResponse getFamilyInfo(Long userId) {
         // 1. 가족 조회
-        FamilyDto familyDto = familyDao.findFamilyByUserId(userId);
+        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
+                .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
@@ -44,10 +46,14 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     public String getFamilyCode(Long userId) {
-        // 1.  가족 코드 조회
-        String familyCode = familyDao.findFamilyByUserId(userId).getFamilyCode();
+        // 1. 가족 조회
+        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
+                .orElseThrow(() -> new FamilyNotFoundException());
 
-        // 2. 응답
+        // 2.  가족 코드 조회
+        String familyCode = familyDto.getFamilyCode();
+
+        // 3. 응답
         return familyCode;
     }
 
@@ -63,7 +69,7 @@ public class FamilyServiceImpl implements FamilyService {
         for (Long memberId : members) {
             // 2-2. user-service의 URL 설정
             // user-service의 URL 설정
-            String url = "http://http://k11d108.p.ssafy.io/user-service/users?userId=" + memberId;
+            String url = "http://k11d108.p.ssafy.io/users?userId=" + memberId;
 
             // 2-3. 사용자 정보를 요청하여 리스트에 추가
             UserInfoResponse userInfo = restTemplate.getForObject(url, UserInfoResponse.class);
@@ -104,7 +110,8 @@ public class FamilyServiceImpl implements FamilyService {
         familyDao.insetFamily_User(familyId, userId);
 
         // 3. 가족 조회
-        FamilyDto familyDto = familyDao.findFamilyByFamilyId(familyId);
+        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
+                .orElseThrow(() -> new FamilyNotFoundException());
 
         // 4. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
@@ -122,7 +129,8 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional
     public String joinFamilyMember(Long userId, FamilyJoinRequest familyJoinRequest) {
         // 1. 가족 찾기
-        FamilyDto familyDto = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode());
+        FamilyDto familyDto = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode())
+                .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 가족 구성원 추가
         familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), 1);
@@ -136,7 +144,8 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional
     public String deleteFamilyMember(Long userId) {
         // 1. 회원에 해당하는 가족 찾기
-        FamilyDto familyDto = familyDao.findFamilyByUserId(userId);
+        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
+                .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 가족 구성원 제거
         familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), -1);
