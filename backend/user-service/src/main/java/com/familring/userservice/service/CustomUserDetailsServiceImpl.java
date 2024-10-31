@@ -112,8 +112,8 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         log.info("사용자의 띠: {}", zodiacSign[zodiacIndex]);
 
-        // 띠 이미지 URL 생성
-        String zodiacSignImgUrl = "/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
+        // 띠 이미지 URL 가져오기
+        String zodiacSignImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
 
         UserDto user = UserDto.builder()
                 .userKakaoId(userJoinRequest.getUserKakaoId())

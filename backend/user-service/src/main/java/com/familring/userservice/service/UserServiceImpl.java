@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserKakaoId(userName)
                 .orElseThrow(() -> {
-                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId not found: " + userName);
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId(" + userName + ")로 회원을 찾을 수 없습니다.");
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
         log.info("userNickname: {}", user.getUserNickname());
@@ -67,7 +67,10 @@ public class UserServiceImpl implements UserService {
     public UserInfoResponse getUser(Long userId) {
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userId));
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
 
         // 2. 응답 빌더 생성
         UserInfoResponse response = UserInfoResponse.builder()
@@ -93,7 +96,7 @@ public class UserServiceImpl implements UserService {
         UserDto user = userDao.findUserByUserKakaoId(userLogInRequest.getUserKakaoId())
                 // 2-1. 회원이 없는 경우 -> 회원가입 처리
                 .orElseThrow(() -> {
-                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId not found: " + userLogInRequest.getUserKakaoId());
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId(" + userLogInRequest.getUserKakaoId() + ")로 회원을 찾을 수 없습니다. 회원가입을 진행해주세요!");
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
 
@@ -146,11 +149,13 @@ public class UserServiceImpl implements UserService {
     public String updateFcmToken(Long userId, String fcmToken) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
-                // 회원이 없는 경우 -> 회원가입 처리
-                .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다. userId를 확인해주세요."));
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
 
         // 2. 찾은 사용자에게 FCM 토큰 저장
-        userDao.updateUserFcmTokenByUserId(userId, fcmToken);
+        userDao.updateUserFcmTokenByUserId(user.getUserId(), fcmToken);
 
         return "토큰이 성공적으로 저장되었습니다.";
     }
@@ -160,11 +165,13 @@ public class UserServiceImpl implements UserService {
     public String updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
-                // 회원이 없는 경우 -> 회원가입 처리
-                .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다. userId를 확인해주세요."));
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
 
         // 2. 사용자의 기분 설정 변경
-        userDao.updateUserEmotionByUserId(userId, userEmotionRequest.getUserEmotion());
+        userDao.updateUserEmotionByUserId(user.getUserId(), userEmotionRequest.getUserEmotion());
 
         return "회원 기분 설정 변경에 성공했습니다.";
     }
@@ -174,7 +181,10 @@ public class UserServiceImpl implements UserService {
     public String deleteUser(Long userId) {
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
-                .orElseThrow(() -> new UsernameNotFoundException("회원을 찾을 수 없습니다. userId를 확인해주세요."));
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
 
         // 2. redis의 refreshToken 제거
         redisService.deleteRefreshToken(user.getUserKakaoId());
