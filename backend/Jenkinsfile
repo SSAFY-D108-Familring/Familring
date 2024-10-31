@@ -110,43 +110,55 @@ pipeline {
                         }
                     }
                 }
-
                 stage('Build and Deploy Family Service') {
-                    when {
-                        changeset "backend/family-service/**"
-                    }
+//                     when {
+//                         changeset "backend/family-service/**"
+//                     }
                     steps {
-                        withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/family-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
+                        build job: 'family-service', propagate: false
                     }
                 }
                 stage('Build and Deploy File Service') {
+                    // 변경 감지 확인
+                    when {
+                        changeset "backend/file-service/**"
+                    }
                     steps {
                         build job: 'file-service', propagate: false
                     }
                 }
                 stage('Build and Deploy Interest Service') {
+                    // 변경 감지 확인
+                    when {
+                        changeset "backend/interest-service/**"
+                    }
                     steps {
                         build job: 'interest-service', propagate: false
                     }
                 }
                 stage('Build and Deploy Notification Service') {
+                    // 변경 감지 확인
+                    when {
+                        changeset "backend/notification-service/**"
+                    }
                     steps {
                         build job: 'notification-service', propagate: false
                     }
                 }
                 stage('Build and Deploy Question Service') {
+                    // 변경 감지 확인
+                    when {
+                        changeset "backend/question-service/**"
+                    }
                     steps {
                         build job: 'question-service', propagate: false
                     }
                 }
                 stage('Deploy Timecapsule Service') {
+                    // 변경 감지 확인
+                    when {
+                        changeset "backend/timecapsule-service/**"
+                    }
                     steps {
                         build job: 'timecapsule-service', propagate: false
                     }

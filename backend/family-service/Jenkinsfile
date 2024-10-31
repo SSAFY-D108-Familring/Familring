@@ -7,13 +7,13 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Deploy Notification Service') {
+        stage('Build and Deploy Family Service') {
             steps {
-                withCredentials([file(credentialsId: 'notification-application.yml', variable: 'application_yml')]) {
+                withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
                     script {
-                        dir('backend/notification-service') {
+                        dir('backend/family-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('notification-service', 0, false) // 내부 네트워크에서만 통신
+                            buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
                         }
                     }
                 }

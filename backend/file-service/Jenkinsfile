@@ -8,9 +8,6 @@ pipeline {
             }
         }
         stage('Build and Deploy File Service') {
-//             when {
-//                 changeset "backend/file-service/**"
-//             }
             steps {
                 withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
                     script {
