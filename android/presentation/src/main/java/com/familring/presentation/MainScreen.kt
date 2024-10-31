@@ -259,6 +259,12 @@ fun MainNavHost(
                 navigateToNotification = {
                     navController.navigate(ScreenDestinations.Notification.route)
                 },
+                navigateToTimeCapsule = {
+                    navController.navigate(ScreenDestinations.TimeCapsule.route)
+                },
+                navigateToInterest = {
+                    navController.navigate(ScreenDestinations.Interest.route)
+                },
             )
         }
 
