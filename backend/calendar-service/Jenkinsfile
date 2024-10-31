@@ -7,16 +7,16 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Deploy Family Service') {
+        stage('Build and Deploy Calendar Service') {
             when {
-                changeset "backend/family-service/**"
+                changeset "backend/calendar-service/**"
             }
             steps {
-                withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
+                withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
                     script {
-                        dir('backend/family-service') {
+                        dir('backend/calendar-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
+                            buildAndRunContainer('calendar-service', 0, false) // 내부 네트워크에서만 통신
                         }
                     }
                 }

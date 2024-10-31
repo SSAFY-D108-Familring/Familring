@@ -7,16 +7,16 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Deploy Family Service') {
+        stage('Build and Deploy Album Service') {
             when {
-                changeset "backend/family-service/**"
+                changeset "backend/album-service/**"
             }
             steps {
-                withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
+                withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
                     script {
-                        dir('backend/family-service') {
+                        dir('backend/album-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
+                            buildAndRunContainer('album-service', 0, false) // 내부 네트워크에서만 통신
                         }
                     }
                 }
