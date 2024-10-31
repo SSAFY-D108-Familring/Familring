@@ -34,6 +34,12 @@
         WHERE f.user_id = #{userId}
     </select>
 
+    <select id ="findFamilyByFamilyCode" resultMap="familyInfo">
+        SELECT *
+        FROM family
+        WHERE family_code = #{familyCode}
+    </select>
+
     <select id="existsFamilyByFamilyCode" resultType="boolean" parameterType="string">
         SELECT COUNT(1) > 0
         FROM family
@@ -46,11 +52,22 @@
 
     <insert id="insertFamily" parameterType="com.familring.familyservice.model.dto.request.FamilyCreateRequest">
         INSERT INTO family(family_code, family_count, family_communication_status, family_created_at)
-        VALUES (#{familyCode}, #{familyCount}, #{familyCommunicationStatus}, NOW())
+        VALUES (#{familyCode}, 1, #{familyCommunicationStatus}, NOW())
     </insert>
 
     <insert id="insetFamily_User">
         INSERT INTO family_user(family_id, user_id)
         VALUES (#{familyId}, #{userId})
     </insert>
+
+    <update id="updateFamilyCountByFamilyId">
+        UPDATE family
+        SET family_count = family_count + #{amount}
+        WHERE family_id = #{familyId}
+    </update>
+
+    <delete id="deleteFamily_UserByFamilyIdAndUserId">
+        DELETE FROM family_user
+        WHERE family_id = #{familyId} AND user_id = #{userId}
+    </delete>
 </mapper>
