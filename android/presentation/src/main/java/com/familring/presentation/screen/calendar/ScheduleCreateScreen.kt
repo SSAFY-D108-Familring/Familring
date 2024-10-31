@@ -170,6 +170,7 @@ fun ScheduleCreateScreen(
                     },
                 )
                 Text(
+                    modifier = Modifier.padding(top = 8.dp),
                     text = "10월 24일 목 오전 9:00 - 오후 12:00",
                     style =
                         Typography.headlineLarge.copy(
