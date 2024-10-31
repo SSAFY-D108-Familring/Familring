@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -31,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
-import com.familring.presentation.component.CodeTextField
+import com.familring.presentation.component.GrayBigTextField
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
@@ -106,8 +105,8 @@ fun FirstScreen(
                         style = Typography.displayMedium.copy(fontSize = 18.sp),
                     )
                     Spacer(modifier = Modifier.height(15.dp))
-                    CodeTextField(
-                        code = code,
+                    GrayBigTextField(
+                        keyword = code,
                         onValueChange = {
                             code = it
                         },
