@@ -19,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,10 @@ public class UserServiceImpl implements UserService {
         log.info("userName: {}", userName);
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserKakaoId(userName)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + userName));
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId not found: " + userName);
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
         log.info("userNickname: {}", user.getUserNickname());
 
         // 2. 응답 빌더 생성
@@ -89,7 +93,7 @@ public class UserServiceImpl implements UserService {
         UserDto user = userDao.findUserByUserKakaoId(userLogInRequest.getUserKakaoId())
                 // 2-1. 회원이 없는 경우 -> 회원가입 처리
                 .orElseThrow(() -> {
-                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("User not found: " + userLogInRequest.getUserKakaoId());
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId not found: " + userLogInRequest.getUserKakaoId());
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
 
@@ -101,7 +105,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) {
+    public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) throws IOException {
         // 1. 사용자 회원가입
         customUserDetailsService.createUser(userJoinRequest, image);
 

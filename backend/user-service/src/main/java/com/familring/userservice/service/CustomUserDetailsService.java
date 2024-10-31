@@ -14,7 +14,7 @@ public interface CustomUserDetailsService extends UserDetailsManager {
 
     // 회원 생성
     void createUser(UserDetails user);
-    void createUser(UserJoinRequest userJoinRequest, MultipartFile image);
+    void createUser(UserJoinRequest userJoinRequest, MultipartFile image) throws IOException;
 
     // 회원 정보 수정
     void updateUser(UserDetails user);

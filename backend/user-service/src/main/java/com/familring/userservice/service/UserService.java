@@ -18,7 +18,7 @@ public interface UserService {
     JwtTokenResponse login(UserLoginRequest userLogInRequest);
 
     // 회원가입
-    JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image);
+    JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image)throws IOException;
 
     // JWT 재발급
     JwtTokenResponse updateJWT(String refreshToken);

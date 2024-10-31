@@ -18,6 +18,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -48,7 +50,7 @@ public class UserController {
     @Operation(summary = "회원가입", description = "회원가입이 되어 있지 않은 사용자 회원가입 처리 후 JWT 발급")
     public ResponseEntity join
             (@RequestPart("userJoinRequest") UserJoinRequest userJoinRequest,
-             @RequestPart(value = "image", required = false) MultipartFile image) {
+             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         JwtTokenResponse tokens = userService.join(userJoinRequest, image);
 
         return ResponseEntity.ok(tokens);
