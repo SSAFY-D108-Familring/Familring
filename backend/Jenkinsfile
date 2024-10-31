@@ -89,6 +89,9 @@ pipeline {
                     }
                 }
                 stage('Build and Deploy User Service') {
+                    when {
+                        changeset "backend/user-service/**"
+                    }
                     steps {
                         withCredentials([
                             file(credentialsId: 'user-application.yml', variable: 'application_yml'),
@@ -102,6 +105,30 @@ pipeline {
                                     sh "cp ${firebase_key} src/main/resources/familring-firebase-key.json"
 
                                     buildAndRunContainer('user-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy File Service') {
+                    steps {
+                        withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/file-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('file-service', 0, false) // 내부 네트워크에서만 통신
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Family Service') {
+                    steps {
+                        withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
+                            script {
+                                dir('backend/family-service') {
+                                    copyApplicationYaml(application_yml)
+                                    buildAndRunContainer('family-service', 0, false) // 내부 네트워크에서만 통신
                                 }
                             }
                         }
