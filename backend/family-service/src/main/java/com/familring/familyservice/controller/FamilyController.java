@@ -61,4 +61,11 @@ public class FamilyController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/member")
+    public ResponseEntity deleteFamilyMember (@RequestHeader("X-User-Id") Long userId) {
+        String response = familyService.deleteFamilyMember(userId);
+
+        return ResponseEntity.ok(response);
+    }
 }

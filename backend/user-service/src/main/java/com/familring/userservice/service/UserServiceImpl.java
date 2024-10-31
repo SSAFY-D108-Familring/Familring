@@ -14,10 +14,11 @@ import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -31,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenService tokenService;
     private final CustomUserDetailsService customUserDetailsService;
     private final RedisService redisService;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public UserInfoResponse getUser(String userName) {
@@ -192,8 +194,24 @@ public class UserServiceImpl implements UserService {
         // 5. user 테이블 수정
         userDao.deleteUser(deleteRequest);
 
-        // 6. 가족 구성원 수 - 1
+        // 6. 가족 구성원 제거
+        // 6-1. family-service의 URL 설정
+        String url = "http://http://k11d108.p.ssafy.io/family-service/member";
 
-        return "회원 삭제 성공";
+        // 6-2. Header 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("X-User-Id", userId.toString()); // 헤더에 userId 설정
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        // PATCH 요청 전송
+        ResponseEntity<String> response = restTemplate.exchange(
+                url,
+                HttpMethod.PATCH,
+                entity,
+                String.class
+        );
+        log.info("response body: {}", response.getBody());
+
+        return response.getBody() + ", 회원 삭제 성공";
     }
 }

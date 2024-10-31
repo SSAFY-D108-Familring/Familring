@@ -23,4 +23,7 @@ public interface FamilyService {
 
     // 가족 구성원 추가
     String joinFamilyMember(Long userId, FamilyJoinRequest familyJoinRequest);
+
+    // 가족 구성원 제거
+    String deleteFamilyMember(Long userId);
 }

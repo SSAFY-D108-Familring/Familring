@@ -63,7 +63,7 @@ public class FamilyServiceImpl implements FamilyService {
         for (Long memberId : members) {
             // 2-2. user-service의 URL 설정
             // user-service의 URL 설정
-            String url = "http://user-service/users?userId=" + memberId;
+            String url = "http://http://k11d108.p.ssafy.io/user-service/users?userId=" + memberId;
 
             // 2-3. 사용자 정보를 요청하여 리스트에 추가
             UserInfoResponse userInfo = restTemplate.getForObject(url, UserInfoResponse.class);
@@ -125,9 +125,23 @@ public class FamilyServiceImpl implements FamilyService {
         FamilyDto familyDto = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode());
 
         // 2. 가족 구성원 추가
+        familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), 1);
         familyDao.insetFamily_User(familyDto.getFamilyId(), userId);
         
         // 3. 응답
         return "가죽 구성원 추가 완료";
+    }
+
+    @Override
+    @Transactional
+    public String deleteFamilyMember(Long userId) {
+        // 1. 회원에 해당하는 가족 찾기
+        FamilyDto familyDto = familyDao.findFamilyByUserId(userId);
+
+        // 2. 가족 구성원 제거
+        familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), -1);
+        familyDao.deleteFamily_UserByFamilyIdAndUserId(familyDto.getFamilyId(), userId);
+
+        return "가족 구성원 수정 완료";
     }
 }
