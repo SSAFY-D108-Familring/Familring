@@ -17,14 +17,17 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,10 +35,13 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.Profile
+import com.familring.domain.model.Profile
+import com.familring.presentation.R
 import com.familring.presentation.component.CustomCheckBox
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
@@ -52,6 +58,7 @@ import com.familring.presentation.theme.Red02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow03
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun ScheduleCreateRoute(
@@ -76,10 +83,32 @@ fun ScheduleCreateScreen(
     var isTimeChecked by remember { mutableStateOf(false) }
     var isNotiChecked by remember { mutableStateOf(false) }
 
+    val colors =
+        listOf(
+            Red02,
+            Orange01,
+            Yellow03,
+            Green08,
+            Blue01,
+            Pink02,
+            Gray02,
+            Black,
+        )
+    var selectedColorIdx by remember { mutableIntStateOf(0) }
+    val isSelectedColorList by remember {
+        derivedStateOf {
+            List(colors.size) { index ->
+                index == selectedColorIdx
+            }.toMutableStateList()
+        }
+    }
+
     var isProfileCheckedList by remember {
         mutableStateOf(profiles.map { false }.toMutableStateList())
     }
     var isAllChecked by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -99,45 +128,47 @@ fun ScheduleCreateScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = title,
-                onValueChange = { title = it },
-                textStyle =
-                    Typography.titleLarge.copy(
-                        fontSize = 24.sp,
-                        color = Black,
-                    ),
-                placeholder = {
-                    Text(
-                        text = "일정 제목",
-                        style =
-                            Typography.titleLarge.copy(
-                                fontSize = 24.sp,
-                                color = Gray03,
-                            ),
-                    )
-                },
-                singleLine = true,
-                maxLines = 1,
-                colors =
-                    TextFieldDefaults.colors(
-                        focusedContainerColor = White,
-                        unfocusedContainerColor = White,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = Black,
-                        focusedTextColor = Black,
-                        unfocusedTextColor = Gray03,
-                    ),
-            )
+            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             Column(
                 modifier =
                     Modifier
                         .padding(horizontal = 20.dp)
                         .fillMaxWidth(),
             ) {
+                BasicTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    modifier =
+                        Modifier
+                            .background(
+                                color = White,
+                            ),
+                    singleLine = true,
+                    textStyle =
+                        Typography.titleLarge.copy(
+                            fontSize = 24.sp,
+                            color = Black,
+                        ),
+                    keyboardActions =
+                        KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus()
+                            },
+                        ),
+                    decorationBox = { innerTextField ->
+                        if (title.isEmpty()) {
+                            Text(
+                                text = "일정 제목",
+                                style =
+                                    Typography.titleLarge.copy(
+                                        fontSize = 24.sp,
+                                        color = Gray03,
+                                    ),
+                            )
+                        }
+                        innerTextField()
+                    },
+                )
                 Text(
                     text = "10월 24일 목 오전 9:00 - 오후 12:00",
                     style =
@@ -179,7 +210,7 @@ fun ScheduleCreateScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Row(
-                        verticalAlignment = Alignment.Bottom
+                        verticalAlignment = Alignment.Bottom,
                     ) {
                         Text(
                             text = "알림",
@@ -230,26 +261,15 @@ fun ScheduleCreateScreen(
                         .padding(top = 10.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    val colors =
-                        listOf(
-                            Red02,
-                            Orange01,
-                            Yellow03,
-                            Green08,
-                            Blue01,
-                            Pink02,
-                            Gray02,
-                            Black,
-                        )
-                    colors.forEach { color ->
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(30.dp)
-                                    .background(
-                                        color = color,
-                                        shape = CircleShape,
-                                    ),
+                    colors.forEachIndexed { index, color ->
+                        ColorBox(
+                            isSelected = isSelectedColorList[index],
+                            color = color,
+                            onColorSelected = {
+                                isSelectedColorList[selectedColorIdx] = false
+                                isSelectedColorList[index] = true
+                                selectedColorIdx = index
+                            },
                         )
                     }
                 }
@@ -262,16 +282,24 @@ fun ScheduleCreateScreen(
                             color = Black,
                         ),
                 )
-                LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                LazyVerticalGrid(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    columns = GridCells.Fixed(2),
+                ) {
                     itemsIndexed(profiles) { index, profile ->
                         ZodiacProfileWithNameAndCheckedBox(
                             profile = profile,
                             isChecked = isProfileCheckedList[index],
                             onChecked = {
-                                isProfileCheckedList[index] = it
                                 if (isAllChecked) {
                                     isAllChecked = false
                                 }
+                                isProfileCheckedList[index] = it
+
+                                isAllChecked =
+                                    isProfileCheckedList.all { item ->
+                                        item
+                                    }
                             },
                         )
                     }
@@ -294,6 +322,35 @@ fun ScheduleCreateScreen(
                 modifier = Modifier.padding(bottom = 20.dp),
                 text = "일정 추가하기",
                 onClick = {},
+            )
+        }
+    }
+}
+
+@Composable
+fun ColorBox(
+    modifier: Modifier = Modifier,
+    color: Color,
+    isSelected: Boolean = false,
+    onColorSelected: (selectedColor: Color) -> Unit = {},
+) {
+    Box(
+        modifier =
+            modifier
+                .size(30.dp)
+                .background(
+                    color = color,
+                    shape = CircleShape,
+                ).noRippleClickable {
+                    onColorSelected(color)
+                },
+    ) {
+        if (isSelected) {
+            Icon(
+                modifier = Modifier.padding(3.dp),
+                painter = painterResource(id = R.drawable.ic_check),
+                contentDescription = "ic_check",
+                tint = Black,
             )
         }
     }
@@ -343,7 +400,7 @@ fun ZodiacProfileWithNameAndCheckedBox(
         modifier =
             modifier
                 .padding(vertical = 10.dp)
-                .clickable { onChecked(!isChecked) },
+                .noRippleClickable { onChecked(!isChecked) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CustomCheckBox(

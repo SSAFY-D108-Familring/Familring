@@ -2,7 +2,6 @@ package com.familring.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -18,6 +17,7 @@ import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun CustomCheckBox(
@@ -46,12 +46,12 @@ fun UnCheckedCheckBox(
     Box(
         modifier =
             modifier
-                .size(20.dp)
+                .size(30.dp)
                 .background(
                     color = White,
                     shape = CircleShape,
                 ).border(width = 1.dp, color = Gray02, shape = CircleShape)
-                .clickable { onChecked(true) },
+                .noRippleClickable { onChecked(true) },
     ) {
         Icon(
             modifier = Modifier.padding(2.dp),
@@ -70,12 +70,12 @@ fun CheckedCheckBox(
     Box(
         modifier =
             modifier
-                .size(20.dp)
+                .size(30.dp)
                 .background(
                     color = Black,
                     shape = CircleShape,
                 ).border(width = 1.dp, color = Black, shape = CircleShape)
-                .clickable { onChecked(false) },
+                .noRippleClickable { onChecked(false) },
     ) {
         Icon(
             modifier = Modifier.padding(2.dp),
