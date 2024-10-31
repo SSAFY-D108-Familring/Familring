@@ -146,7 +146,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String updateFcmToken(Long userId, String fcmToken) {
+    public void updateFcmToken(Long userId, String fcmToken) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {
@@ -156,13 +156,11 @@ public class UserServiceImpl implements UserService {
 
         // 2. 찾은 사용자에게 FCM 토큰 저장
         userDao.updateUserFcmTokenByUserId(user.getUserId(), fcmToken);
-
-        return "토큰이 성공적으로 저장되었습니다.";
     }
 
     @Override
     @Transactional
-    public String updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest) {
+    public void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {
@@ -172,13 +170,11 @@ public class UserServiceImpl implements UserService {
 
         // 2. 사용자의 기분 설정 변경
         userDao.updateUserEmotionByUserId(user.getUserId(), userEmotionRequest.getUserEmotion());
-
-        return "회원 기분 설정 변경에 성공했습니다.";
     }
 
     @Override
     @Transactional
-    public String deleteUser(Long userId) {
+    public void deleteUser(Long userId) {
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {
@@ -243,7 +239,5 @@ public class UserServiceImpl implements UserService {
                 String.class
         );
         log.info("response body: {}", familyResponse.getBody());
-
-        return familyResponse.getBody() + ", 회원 삭제 성공";
     }
 }
