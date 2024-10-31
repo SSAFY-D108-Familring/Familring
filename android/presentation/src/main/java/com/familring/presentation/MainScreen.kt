@@ -21,6 +21,7 @@ import com.familring.domain.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
+import com.familring.presentation.screen.calendar.ScheduleCreateRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
@@ -37,7 +38,6 @@ import com.familring.presentation.screen.signup.ProfileColorRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
-import com.familring.presentation.screen.timecapsule.WritingTimeCapsule
 import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -81,7 +81,10 @@ fun MainScreen(modifier: Modifier = Modifier) {
         },
     ) { innerPadding ->
         MainNavHost(
-            modifier = modifier.padding(innerPadding).navigationBarsPadding(),
+            modifier =
+                modifier
+                    .padding(innerPadding)
+                    .navigationBarsPadding(),
             navController = navController,
             startDestination = ScreenDestinations.Home.route,
             showSnackBar = onShowSnackBar,
@@ -266,7 +269,19 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Calendar.route,
         ) {
-            CalendarRoute(modifier = modifier)
+            CalendarRoute(
+                modifier = modifier,
+                navigateToScheduleCreate = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.ScheduleCreate.route,
+        ) {
+            ScheduleCreateRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
         }
 
         composable(

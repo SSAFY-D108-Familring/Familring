@@ -24,13 +24,21 @@ val Green04 = Color(0xFFC5DF71)
 val Green05 = Color(0xFFE9F1B5)
 val Green06 = Color(0xFFEEFFEF)
 val Green07 = Color(0xFFF2FAF3)
+val Green08 = Color(0xFFB5FF84)
 
 val Brown01 = Color(0xFF453A26)
-val Pink01 = Color(0xFFFFE1E1)
+
 val Blue01 = Color(0xFFC9D0FF)
 val Blue02 = Color(0xFF2643FF)
+
 val Yellow01 = Color(0xFFFFEAB0)
 val Yellow02 = Color(0xFFFFFFEE)
+val Yellow03 = Color(0xFFFFF383)
+
 val Red01 = Color(0xFFFF3232)
+val Red02 = Color(0xFFFFA6A6)
 
+val Orange01 = Color(0xFFFFC76E)
 
+val Pink01 = Color(0xFFFFE1E1)
+val Pink02 = Color(0xFFF09BFF)

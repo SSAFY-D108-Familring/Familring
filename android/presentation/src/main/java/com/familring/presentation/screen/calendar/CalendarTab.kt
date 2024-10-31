@@ -7,7 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -156,66 +155,52 @@ fun DailyItem(
     dailyLife: DailyLife,
 ) {
     val scrollState = rememberScrollState()
-    BoxWithConstraints(
-        modifier = modifier.fillMaxSize(),
-    ) {
-        val containerHeight = (maxHeight * 0.9f).coerceAtLeast(minHeight)
 
-        Column(
-//            modifier =
-//                Modifier
-// //                .height(IntrinsicSize.Max)
-//                    .heightIn(min = maxHeight * 0.9f, max = maxHeight)
-//                    .fillMaxWidth()
-//                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(12.dp))
-//                    .background(color = White)
-//                    .padding(20.dp),
-            modifier =
-                Modifier
-//                .height(IntrinsicSize.Max)
-                    .fillMaxWidth()
-                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(12.dp))
-                    .background(color = White)
-                    .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(12.dp))
+                .background(color = White)
+                .padding(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(modifier = Modifier.fillMaxHeight(0.01f))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Spacer(modifier = Modifier.fillMaxHeight(0.01f))
-            Row(
+            ZodiacBackgroundProfile(
+                modifier = Modifier.size(35.dp),
+                profile = dailyLife.profile,
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = dailyLife.profile.nickName,
+                style =
+                    Typography.titleMedium.copy(
+                        fontSize = 16.sp,
+                        color = Gray01,
+                    ),
+            )
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Column(modifier = Modifier.verticalScroll(scrollState)) {
+            Text(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                ZodiacBackgroundProfile(
-                    modifier = Modifier.size(35.dp),
-                    profile = dailyLife.profile,
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = dailyLife.profile.nickName,
-                    style =
-                        Typography.titleMedium.copy(
-                            fontSize = 16.sp,
-                            color = Gray01,
-                        ),
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Column(modifier = Modifier.verticalScroll(scrollState)) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Start,
-                    text = dailyLife.content,
-                    style =
-                        Typography.headlineMedium.copy(
-                            fontSize = 17.sp,
-                            color = Black,
-                        ),
-                )
-                Spacer(modifier = Modifier.height(15.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.tuna),
-                    contentDescription = "img_daily",
-                )
-            }
+                textAlign = TextAlign.Start,
+                text = dailyLife.content,
+                style =
+                    Typography.headlineMedium.copy(
+                        fontSize = 17.sp,
+                        color = Black,
+                    ),
+            )
+            Spacer(modifier = Modifier.height(15.dp))
+            Image(
+                painter = painterResource(id = R.drawable.tuna),
+                contentDescription = "img_daily",
+            )
         }
     }
 }

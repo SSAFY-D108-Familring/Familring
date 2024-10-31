@@ -1,18 +1,15 @@
 package com.familring.presentation.screen.calendar
 
-import android.util.Log
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -32,11 +29,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
@@ -51,13 +46,22 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @Composable
-fun CalendarRoute(modifier: Modifier) {
-    CalendarScreen(modifier = modifier)
+fun CalendarRoute(
+    modifier: Modifier,
+    navigateToScheduleCreate: () -> Unit,
+) {
+    CalendarScreen(
+        modifier = modifier,
+        navigateToScheduleCreate = navigateToScheduleCreate,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CalendarScreen(modifier: Modifier = Modifier) {
+fun CalendarScreen(
+    modifier: Modifier = Modifier,
+    navigateToScheduleCreate: () -> Unit = {},
+) {
     // pager
     val coroutineScope = rememberCoroutineScope()
     val pageCount = 120
@@ -83,7 +87,7 @@ fun CalendarScreen(modifier: Modifier = Modifier) {
         containerColor = White,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /*TODO*/ },
+                onClick = { navigateToScheduleCreate() },
                 containerColor = Green01,
                 contentColor = White,
                 shape = CircleShape,
