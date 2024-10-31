@@ -185,21 +185,21 @@ pipeline {
                         }
                     }
                 }
-                stage('Build and Deploy Timecapsule Service') {
-                    when {
-                        changeset "backend/timecapsule-service/**"
-                    }
-                    steps {
-                        withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/timecapsule-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('timecapsule-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
+//                 stage('Build and Deploy Timecapsule Service') {
+//                     when {
+//                         changeset "backend/timecapsule-service/**"
+//                     }
+//                     steps {
+//                         withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
+//                             script {
+//                                 dir('backend/timecapsule-service') {
+//                                     copyApplicationYaml(application_yml)
+//                                     buildAndRunContainer('timecapsule-service', 0, false) // 내부 네트워크에서만 통신
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
             }
         }
     }
