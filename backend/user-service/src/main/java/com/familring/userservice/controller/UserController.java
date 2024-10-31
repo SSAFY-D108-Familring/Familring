@@ -61,10 +61,7 @@ public class UserController {
 
     @PostMapping("/jwt")
     @Operation(summary = "JWT 재발급", description = "유효기간 만료로 인한 JWT 토큰 재발급")
-    public ResponseEntity<BaseResponse<JwtTokenResponse>> updateJWT(@Parameter(hidden = true) @RequestHeader("Authorization") String authorizationHeader) {
-        // "Bearer " 문자열을 제거하고 refreshToken만 추출
-        String refreshToken = authorizationHeader.replace("Bearer ", "");
-
+    public ResponseEntity<BaseResponse<JwtTokenResponse>> updateJWT(@RequestParam("refreshToken") String refreshToken) {
         JwtTokenResponse tokens = userService.updateJWT(refreshToken);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "토큰이 정상적으로 재발급 되었습니다.", tokens));
