@@ -6,10 +6,7 @@ import com.familring.userservice.exception.token.InvalidRefreshTokenException;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
-import com.familring.userservice.model.dto.request.UserDeleteRequest;
-import com.familring.userservice.model.dto.request.UserEmotionRequest;
-import com.familring.userservice.model.dto.request.UserJoinRequest;
-import com.familring.userservice.model.dto.request.UserLoginRequest;
+import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -176,6 +176,24 @@ public class UserServiceImpl implements UserService {
         redisService.deleteRefreshToken(user.getUserKakaoId());
 
         // 3. S3에서 이미지 제거
+        // 3-1. file-service의 URL 설정
+        String fileServiceUrl = "http://http://k11d108.p.ssafy.io/files";
+
+        // 3-2. 삭제할 이미지 추가
+        List<String> fileUrls = new ArrayList<>();
+        fileUrls.add(user.getUserFace());
+        FileDeleteRequest request = FileDeleteRequest.builder()
+                .fileUrls(fileUrls)
+                .build();
+        HttpEntity<FileDeleteRequest> fileEntity = new HttpEntity<>(request);
+
+        // 3-3. DELETE 요청 전송
+        ResponseEntity<Void> fileResponse = restTemplate.exchange(
+                fileServiceUrl,
+                HttpMethod.DELETE,
+                fileEntity,
+                Void.class
+        );
 
         // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
         UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
@@ -196,22 +214,22 @@ public class UserServiceImpl implements UserService {
 
         // 6. 가족 구성원 제거
         // 6-1. family-service의 URL 설정
-        String url = "http://http://k11d108.p.ssafy.io/family-service/member";
+        String familyServiceUrl = "http://http://k11d108.p.ssafy.io/family/member";
 
         // 6-2. Header 설정
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-User-Id", userId.toString()); // 헤더에 userId 설정
-        HttpEntity<String> entity = new HttpEntity<>(headers);
+        HttpEntity<String> familyEntity = new HttpEntity<>(headers);
 
-        // PATCH 요청 전송
-        ResponseEntity<String> response = restTemplate.exchange(
-                url,
+        // 6-3. PATCH 요청 전송
+        ResponseEntity<String> familyResponse = restTemplate.exchange(
+                familyServiceUrl,
                 HttpMethod.PATCH,
-                entity,
+                familyEntity,
                 String.class
         );
-        log.info("response body: {}", response.getBody());
+        log.info("response body: {}", familyResponse.getBody());
 
-        return response.getBody() + ", 회원 삭제 성공";
+        return familyResponse.getBody() + ", 회원 삭제 성공";
     }
 }
