@@ -110,21 +110,7 @@ pipeline {
                         }
                     }
                 }
-                stage('Build and Deploy File Service') {
-                    when {
-                        changeset "backend/file-service/**"
-                    }
-                    steps {
-                        withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
-                            script {
-                                dir('backend/file-service') {
-                                    copyApplicationYaml(application_yml)
-                                    buildAndRunContainer('file-service', 0, false) // 내부 네트워크에서만 통신
-                                }
-                            }
-                        }
-                    }
-                }
+
                 stage('Build and Deploy Family Service') {
                     when {
                         changeset "backend/family-service/**"
@@ -138,6 +124,11 @@ pipeline {
                                 }
                             }
                         }
+                    }
+                }
+                stage('Build and Deploy File Service') {
+                    steps {
+                        build job: 'file-service', propagate: false
                     }
                 }
                 stage('Build and Deploy Interest Service') {

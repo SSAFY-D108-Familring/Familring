@@ -7,16 +7,16 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Deploy Interest Service') {
-            when {
-                changeset "backend/interest-service/**"
-            }
+        stage('Build and Deploy File Service') {
+//             when {
+//                 changeset "backend/file-service/**"
+//             }
             steps {
-                withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
+                withCredentials([file(credentialsId: 'file-application.yml', variable: 'application_yml')]) {
                     script {
-                        dir('backend/interest-service') {
+                        dir('backend/file-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('interest-service', 0, false) // 내부 네트워크에서만 통신
+                            buildAndRunContainer('file-service', 0, false) // 내부 네트워크에서만 통신
                         }
                     }
                 }
