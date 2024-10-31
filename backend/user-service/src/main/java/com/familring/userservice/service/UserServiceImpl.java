@@ -120,13 +120,19 @@ public class UserServiceImpl implements UserService {
     public JwtTokenResponse updateJWT(String refreshToken) {
         // 1. refreshToken 검증
         jwtTokenProvider.validateToken(refreshToken);
+        log.info("refreshToken 검증 완료");
 
         // 2. 사용자 식별 정보 추출
         String userName = jwtTokenProvider.getAuthentication(refreshToken).getName();
+        log.info("userName: {}", userName);
 
-        // 3. redis에서 refreshToken 유효성 확인
+        // 3-1. redis에서 refreshToken 가져오기
         String storedRefreshToken = redisService.getRefreshToken(userName);
-        if (storedRefreshToken.equals(refreshToken)) {
+        log.info("refreshToken 가져오기");
+
+        // 3-2. 저장된 refreshToekn과 같은지 확인
+        if (!storedRefreshToken.equals(refreshToken)) {
+            // 3-3. 같지 않으면 만료된 토큰이라고 전달
             throw new InvalidRefreshTokenException();
         }
 
