@@ -28,7 +28,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -62,6 +61,8 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow03
 import com.familring.presentation.util.noRippleClickable
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ScheduleCreateRoute(
@@ -79,10 +80,15 @@ fun ScheduleCreateRoute(
 @Composable
 fun ScheduleCreateScreen(
     modifier: Modifier = Modifier,
+    startSchedule: LocalDateTime = LocalDateTime.now().withHour(9).withMinute(0),
+    endSchedule: LocalDateTime = LocalDateTime.now().withHour(12).withMinute(0),
     popUpBackStack: () -> Unit = {},
     profiles: List<Profile> = listOf(),
 ) {
     var title by remember { mutableStateOf("") }
+
+    var startSchedule by remember { mutableStateOf(startSchedule) }
+    var endSchedule by remember { mutableStateOf(endSchedule) }
 
     var isTimeChecked by remember { mutableStateOf(false) }
     var isNotiChecked by remember { mutableStateOf(false) }
@@ -99,13 +105,6 @@ fun ScheduleCreateScreen(
             Black,
         )
     var selectedColorIdx by remember { mutableIntStateOf(0) }
-    val isSelectedColorList by remember {
-        derivedStateOf {
-            List(colors.size) { index ->
-                index == selectedColorIdx
-            }.toMutableStateList()
-        }
-    }
 
     var isProfileCheckedList by remember {
         mutableStateOf(profiles.map { false }.toMutableStateList())
@@ -181,7 +180,7 @@ fun ScheduleCreateScreen(
                         Modifier
                             .padding(top = 8.dp)
                             .noRippleClickable { showBottomSheet = true },
-                    text = "10월 24일 목 오전 9:00 - 오후 12:00",
+                    text = scheduleText(startSchedule, endSchedule, isTimeChecked),
                     style =
                         Typography.headlineLarge.copy(
                             fontSize = 18.sp,
@@ -274,11 +273,9 @@ fun ScheduleCreateScreen(
                 ) {
                     colors.forEachIndexed { index, color ->
                         ColorBox(
-                            isSelected = isSelectedColorList[index],
+                            isSelected = (index == selectedColorIdx),
                             color = color,
                             onColorSelected = {
-                                isSelectedColorList[selectedColorIdx] = false
-                                isSelectedColorList[index] = true
                                 selectedColorIdx = index
                             },
                         )
@@ -301,28 +298,22 @@ fun ScheduleCreateScreen(
                         ZodiacProfileWithNameAndCheckedBox(
                             profile = profile,
                             isChecked = isProfileCheckedList[index],
-                            onChecked = {
-                                if (isAllChecked) {
-                                    isAllChecked = false
-                                }
-                                isProfileCheckedList[index] = it
+                            onChecked = { isChecked ->
+                                isProfileCheckedList[index] = isChecked
 
                                 isAllChecked =
-                                    isProfileCheckedList.all { item ->
-                                        item
-                                    }
+                                    isProfileCheckedList.all { it }
                             },
                         )
                     }
                     item {
                         AllCheckBox(
                             isChecked = isAllChecked,
-                            onChecked = { checked ->
-                                isAllChecked = checked
-                                isProfileCheckedList =
-                                    isProfileCheckedList
-                                        .map { checked }
-                                        .toMutableStateList()
+                            onChecked = { isChecked ->
+                                isAllChecked = isChecked
+                                for (i in isProfileCheckedList.indices) {
+                                    isProfileCheckedList[i] = isChecked
+                                }
                             },
                         )
                     }
@@ -343,10 +334,44 @@ fun ScheduleCreateScreen(
                 sheetState = sheetState,
                 containerColor = White,
             ) {
-                TimeSelectTap()
+                TimeSelectTap(
+                    startSchedule = startSchedule,
+                    endSchedule = endSchedule,
+                    isTimeChecked = isTimeChecked,
+                )
             }
         }
     }
+}
+
+private fun scheduleText(
+    startSchedule: LocalDateTime,
+    endSchedule: LocalDateTime,
+    isTimeChecked: Boolean,
+): String {
+    val formatWithTime = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 a hh:mm")
+    val formatWithoutTime = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")
+    val formatWithOnlyTime = DateTimeFormatter.ofPattern("a hh:mm")
+
+    val text =
+        if (isTimeChecked) {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithOnlyTime)
+            } else {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithTime)
+            }
+        } else {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithoutTime)
+            } else {
+                startSchedule.format(formatWithoutTime) +
+                    " - " + endSchedule.format(formatWithoutTime)
+            }
+        }
+
+    return text
 }
 
 @Composable
