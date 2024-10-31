@@ -20,6 +20,9 @@ public class SwaggerConfig {
     @Value("${familring.server.url}")
     private String serverUrl;
 
+    @Value("{familring.server.description}")
+    private String description;
+
     @Bean
     public OpenAPI openAPI() {
         // Define the security scheme
@@ -35,10 +38,7 @@ public class SwaggerConfig {
                 .addList("bearerAuth");
 
         return new OpenAPI()
-                .addServersItem(new Server().url(serverUrl)
-                        .description("Default Server URL"))
-                .addServersItem(new Server().url("http://localhost:8000")
-                        .description("Local Development Server"))
+                .addServersItem(new Server().url(serverUrl).description(description))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .addSecurityItem(securityRequirement)
                 .info(apiInfo());
