@@ -1,6 +1,6 @@
 package com.familring.domain.model
 
 data class ErrorResponse(
-    val errorCode: String,
-    val message: String,
+    val errorMessage: String,
+    val timeStamp: String,
 )

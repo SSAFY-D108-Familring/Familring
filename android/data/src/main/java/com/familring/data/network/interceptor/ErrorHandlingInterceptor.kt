@@ -1,5 +1,6 @@
 package com.familring.data.network.interceptor
 
+import android.util.Log
 import com.familring.data.exception.ApiException
 import com.familring.data.exception.RefreshTokenExpiredException
 import com.familring.domain.model.ErrorResponse
@@ -14,13 +15,14 @@ class ErrorHandlingInterceptor : Interceptor {
         try {
             val response = chain.proceed(request)
             if (response.isSuccessful) return response
-            val errorBody = response.body?.toString()
+            val errorBody = response.body?.string()
+            Log.d("nakyung", errorBody!!)
             val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
             errorResponse?.let {
                 // 나중에 여기 코드 수정
-                if (it.errorCode == "404") {
-                    throw RefreshTokenExpiredException(it)
-                }
+//                if (it.errorCode == "404") {
+//                    throw RefreshTokenExpiredException(it)
+//                }
             }
             throw ApiException(error = errorResponse)
         } catch (e: Throwable) {

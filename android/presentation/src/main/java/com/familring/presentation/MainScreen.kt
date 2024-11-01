@@ -139,6 +139,9 @@ fun MainNavHost(
                 navigateToFirst = {
                     navController.navigate(ScreenDestinations.First.route)
                 },
+                navigateToHome = {
+                    navController.navigate(ScreenDestinations.Home.route)
+                }
             )
         }
 

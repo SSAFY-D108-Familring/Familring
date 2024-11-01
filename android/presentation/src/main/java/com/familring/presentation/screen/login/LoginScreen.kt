@@ -27,11 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.familring.presentation.MainActivity
 import com.familring.presentation.R
 import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Typography
@@ -42,21 +44,30 @@ import com.familring.presentation.util.noRippleClickable
 fun LoginRoute(
     modifier: Modifier = Modifier,
     navigateToFirst: () -> Unit,
+    navigateToHome: () -> Unit,
 ) {
-    LoginScreen(modifier = modifier, navigateToFirst = navigateToFirst)
+    LoginScreen(
+        modifier = modifier,
+        navigateToFirst = navigateToFirst,
+        navigateToHome = navigateToHome
+    )
 }
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     navigateToFirst: () -> Unit = {},
+    navigateToHome: () -> Unit = {},
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val loginState by viewModel.loginState.collectAsState()
+    val context = LocalContext.current
+    val activity = context as? MainActivity
 
     LaunchedEffect(loginState) {
         when (loginState) {
-            is LoginState.Success -> navigateToFirst()
+            is LoginState.Success -> navigateToHome()
+            is LoginState.NoRegistered -> navigateToFirst()
             is LoginState.Error -> Log.d("login", "로그인 에러")
             else -> {
                 Log.d("login", "로그인 초기화")
@@ -87,10 +98,10 @@ fun LoginScreen(
 
                 Row(
                     modifier =
-                        Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .padding(top = 50.dp),
+                    Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                        .padding(top = 50.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     repeat(pagerState.pageCount) { iteration ->
@@ -98,11 +109,11 @@ fun LoginScreen(
                             if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
                         Box(
                             modifier =
-                                Modifier
-                                    .padding(4.dp)
-                                    .clip(CircleShape)
-                                    .size(10.dp)
-                                    .background(color),
+                            Modifier
+                                .padding(4.dp)
+                                .clip(CircleShape)
+                                .size(10.dp)
+                                .background(color),
                         )
                     }
                 }
@@ -124,11 +135,13 @@ fun LoginScreen(
                 painter = painterResource(id = R.drawable.img_img_kakao_login),
                 contentDescription = "img_kakao_login",
                 modifier =
-                    Modifier
-                        .padding(bottom = 50.dp)
-                        .noRippleClickable {
-                            viewModel.handleKakaoLogin()
-                        },
+                Modifier
+                    .padding(bottom = 50.dp)
+                    .noRippleClickable {
+                        if (activity != null) {
+                            viewModel.handleKakaoLogin(activity)
+                        }
+                    },
             )
         }
     }

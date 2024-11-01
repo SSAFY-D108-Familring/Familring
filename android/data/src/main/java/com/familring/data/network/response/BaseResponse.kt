@@ -25,14 +25,14 @@ suspend fun <T> emitApiResponse(
             when (e) {
                 is ApiException ->
                     ApiResponse.Error.ServerError(
-                        errorCode = e.error.errorCode,
-                        errorMessage = e.error.message,
+                        errorCode = e.error.timeStamp,
+                        errorMessage = e.error.errorMessage,
                     )
 
                 is RefreshTokenExpiredException ->
                     ApiResponse.Error.TokenError(
-                        errorCode = e.error.errorCode,
-                        errorMessage = e.error.message,
+                        errorCode = e.error.timeStamp,
+                        errorMessage = e.error.errorMessage,
                     )
 
                 is IOException ->
