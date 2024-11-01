@@ -141,7 +141,7 @@ fun ScheduleCreateScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(30.dp))
             Column(
                 modifier =
                     Modifier
@@ -204,7 +204,7 @@ fun ScheduleCreateScreen(
                         Modifier
                             .fillMaxWidth()
                             .padding(top = 5.dp),
-                    text = "일정 형식을 확인해주세요!",
+                    text = "일정 형식을 확인해 주세요!",
                     style =
                         Typography.labelMedium.copy(
                             fontSize = 12.sp,

@@ -78,4 +78,7 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    // Glide
+    implementation(libs.glide)
 }

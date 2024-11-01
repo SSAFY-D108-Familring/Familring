@@ -149,7 +149,7 @@ fun TimeSelectTap(
                     Modifier
                         .fillMaxWidth(0.9f)
                         .padding(top = 5.dp, bottom = 10.dp, start = 5.dp),
-                text = "일정 형식을 확인해주세요!",
+                text = "일정 형식을 확인해 주세요!",
                 style =
                     Typography.labelMedium.copy(
                         fontSize = 12.sp,
