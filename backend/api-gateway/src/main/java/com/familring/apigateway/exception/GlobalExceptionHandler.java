@@ -1,6 +1,6 @@
 package com.familring.apigateway.exception;
 
-import com.familring.common_service.base.ErrorCodeResponse;
+import com.familring.common_service.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,19 +29,19 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         var response = exchange.getResponse();
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
-        ErrorCodeResponse errorResponse;
+        ErrorResponse errorResponse;
         HttpStatus status;
 
         if (ex instanceof JwtValidationException jwtEx) {
             status = jwtEx.getHttpStatus();
-            errorResponse = new ErrorCodeResponse(
+            errorResponse = new ErrorResponse(
                     jwtEx.getErrorCode(),
                     jwtEx.getMessage()
             );
         } else {
             // 기타 예외 처리
             status = HttpStatus.INTERNAL_SERVER_ERROR;
-            errorResponse = new ErrorCodeResponse(
+            errorResponse = new ErrorResponse(
                     "INTERNAL_SERVER_ERROR",
                     "서버 내부 오류가 발생했습니다"
             );

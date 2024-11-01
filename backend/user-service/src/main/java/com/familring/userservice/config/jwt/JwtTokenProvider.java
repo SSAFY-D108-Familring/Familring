@@ -103,7 +103,8 @@ public class JwtTokenProvider {
         log.info("생성된 authorities 리스트: {}", authorities);
 
         if (authorities.isEmpty()) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            log.error("권한 정보가 없는 토큰입니다.");
+            throw new EmptyTokenException();
         }
 
         // UserDetails 객체를 만들어서 Authentication return
@@ -135,7 +136,7 @@ public class JwtTokenProvider {
             throw new UnsupportedTokenException();
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
-            throw new EmptyTokenException();
+            throw new InvalidTokenException();
         }
     }
 

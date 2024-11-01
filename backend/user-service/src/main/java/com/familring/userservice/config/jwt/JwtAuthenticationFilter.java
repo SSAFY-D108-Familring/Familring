@@ -1,6 +1,6 @@
 package com.familring.userservice.config.jwt;
 
-import com.familring.userservice.exception.token.MalformedTokenException;
+import com.familring.userservice.exception.token.InvalidSignatureTokenException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             httpResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"error\":\"" + e.getMessage() + "\"}");
-            throw new MalformedTokenException();
+            throw new InvalidSignatureTokenException();
         }
 
         chain.doFilter(request, response);

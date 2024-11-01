@@ -44,7 +44,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             ServerHttpRequest request = exchange.getRequest();
 
             if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                throw new JwtValidationException(MISSING_AUTHORIZATION_HEADER);
+                throw new JwtValidationException(EMPTY_AUTHORIZATION_HEADER);
             }
 
             String authorizationHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
@@ -76,13 +76,13 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
             String subject = claims.getSubject();
             if (subject == null || subject.isEmpty()) {
-                throw new JwtValidationException(MISSING_SUBJECT);
+                throw new JwtValidationException(EMPTY_SUBJECT);
             }
 
             // userId 클레임 가져오기
             Long userId = claims.get("userId", Long.class);
             if (userId == null) {
-                throw new JwtValidationException(MISSING_USER_ID);
+                throw new JwtValidationException(EMPTY_TOKEN);
             }
 
             return userId;  // userId 반환
@@ -91,13 +91,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             throw new JwtValidationException(EXPIRED_TOKEN);
         } catch (SecurityException | MalformedJwtException e) {
             throw new JwtValidationException(INVALID_SIGNATURE);
-
         } catch (UnsupportedJwtException e) {
             throw new JwtValidationException(UNSUPPORTED_TOKEN);
-
         } catch (IllegalArgumentException e) {
             throw new JwtValidationException(INVALID_TOKEN);
-
         }
     }
 

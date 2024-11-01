@@ -1,4 +1,4 @@
-package com.familring.common_service.base;
+package com.familring.common_service.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
