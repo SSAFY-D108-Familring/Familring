@@ -43,7 +43,7 @@ sealed class ScreenDestinations(
     data object Picture : ScreenDestinations(route = "Picture")
 
     // 구성원 수 입력
-    data object FamilyCount : ScreenDestinations(route = "FamilyCount")
+    data object FamilyInfo : ScreenDestinations(route = "FamilyCount")
 
     // 회원가입 완료
     data object Done : ScreenDestinations(route = "Done")
