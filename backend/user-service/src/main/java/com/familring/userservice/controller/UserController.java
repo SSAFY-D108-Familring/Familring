@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    @Operation(summary = "회원 정보 조회 - Header", description = "Header의 토큰을 사용해 회원의 정보를 조회")
+    @Operation(summary = "회원 정보 조회", description = "Header의 토큰을 사용해 요청 회원의 정보만을 조회")
     public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         log.info("userId: {}", userId);
         UserInfoResponse response = userService.getUser(userId);
@@ -36,6 +38,16 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 성공적으로 조회 했습니다.", response));
     }
 
+    @GetMapping("/info")
+    @Operation(summary = "회원 정보 모두 조회", description = "List로 전달받은 회원 정보 모두 조회")
+    public ResponseEntity<BaseResponse<List<UserInfoResponse>>> getAllUser(@RequestBody List<Long> userIds) {
+        log.info("userIds: {}", userIds);
+        List<UserInfoResponse> response = userService.getAllUser(userIds);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 모두 성공적으로 조회 했습니다.", response));
+    }
+    
+    
     @PostMapping("/login")
     @Operation(summary = "카카오톡 소셜 로그인", description = "로그인 시 회원가입 여부 확인 후 회원가입")
     public ResponseEntity<BaseResponse<JwtTokenResponse>> login(@RequestBody UserLoginRequest userLogInRequest) {
