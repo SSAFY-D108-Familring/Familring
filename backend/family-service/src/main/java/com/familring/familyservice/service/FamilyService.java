@@ -19,7 +19,7 @@ public interface FamilyService {
     List<UserInfoResponse> getFamilyMemberList(Long userId);
 
     // 가족 생성
-    FamilyInfoResponse createFamily(Long userId, FamilyCreateRequest familyCreateRequest);
+    FamilyInfoResponse createFamily(Long userId);
 
     // 가족 구성원 추가
     String joinFamilyMember(Long userId, FamilyJoinRequest familyJoinRequest);
