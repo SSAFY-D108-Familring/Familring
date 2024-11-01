@@ -112,6 +112,13 @@ fun MainNavHost(
         ) {
             LoginRoute(
                 modifier = modifier,
+                navigateToHome = {
+                    navController.navigate(ScreenDestinations.Home.route)
+                },
+                navigateToSignUp = {
+                    navController.navigate(ScreenDestinations.First.route)
+                },
+                showSnackBar = showSnackBar,
             )
         }
 

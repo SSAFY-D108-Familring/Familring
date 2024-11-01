@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.login
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -21,6 +20,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,15 +30,72 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
 @Composable
-fun LoginScreen() {
+fun LoginRoute(
+    modifier: Modifier,
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    navigateToHome: () -> Unit,
+    navigateToSignUp: () -> Unit,
+    showSnackBar: (String) -> Unit,
+) {
+    val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
+
+    LoginScreen(
+        modifier = modifier,
+        loginState = loginState,
+        login = loginViewModel::login,
+        navigateToHome = navigateToHome,
+        navigateToSignUp = navigateToSignUp,
+        showSnackBar = showSnackBar,
+    )
+}
+
+@Composable
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    loginState: LoginState,
+    login: (String) -> Unit = {},
+    navigateToHome: () -> Unit = {},
+    navigateToSignUp: () -> Unit = {},
+    showSnackBar: (String) -> Unit = {},
+) {
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is LoginState.Loading -> {}
+
+            is LoginState.Success -> {
+                // 여기서 login api 수행 후 제대로 반환 받아왔을 때 처리 수행
+                // 여긴 홈으로 가기
+                navigateToHome()
+            }
+
+            is LoginState.Error -> {
+                // 여긴 회원가입으로 가야 함.
+                showSnackBar(loginState.errorMessage)
+                navigateToSignUp()
+            }
+        }
+    }
+    LoginContent(
+        modifier = modifier,
+        login = login,
+    )
+}
+
+@Composable
+private fun LoginContent(
+    modifier: Modifier = Modifier,
+    login: (String) -> Unit = {},
+) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = White,
     ) {
         Column(
@@ -58,10 +116,10 @@ fun LoginScreen() {
 
                 Row(
                     modifier =
-                    Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth()
-                        .padding(top = 50.dp),
+                        Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                            .padding(top = 50.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     repeat(pagerState.pageCount) { iteration ->
@@ -69,11 +127,11 @@ fun LoginScreen() {
                             if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
                         Box(
                             modifier =
-                            Modifier
-                                .padding(4.dp)
-                                .clip(CircleShape)
-                                .size(10.dp)
-                                .background(color),
+                                Modifier
+                                    .padding(4.dp)
+                                    .clip(CircleShape)
+                                    .size(10.dp)
+                                    .background(color),
                         )
                     }
                 }
@@ -88,7 +146,6 @@ fun LoginScreen() {
                         2 -> ThirdPage()
                         3 -> FourthPage()
                     }
-
                 }
             }
 
@@ -96,11 +153,12 @@ fun LoginScreen() {
                 painter = painterResource(id = R.drawable.img_img_kakao_login),
                 contentDescription = "img_kakao_login",
                 modifier =
-                Modifier
-                    .padding(bottom = 50.dp)
-                    .clickable {
-                        Log.d("login", "카카오 로그인")
-                    },
+                    Modifier
+                        .padding(bottom = 50.dp)
+                        .clickable {
+                            // 카카오 로그인 제대로 되었을 때 login 함수 실행하기
+                            login("TEST1") // 예시
+                        },
             )
         }
     }
@@ -148,15 +206,15 @@ private fun SecondPage() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "사진을 업로드하면 ",
-                style = Typography.labelLarge.copy(fontSize = 24.sp)
+                style = Typography.labelLarge.copy(fontSize = 24.sp),
             )
             Text(
                 text = "얼굴을 인식",
-                style = Typography.headlineLarge
+                style = Typography.headlineLarge,
             )
             Text(
                 text = "하고,",
-                style = Typography.labelLarge.copy(fontSize = 24.sp)
+                style = Typography.labelLarge.copy(fontSize = 24.sp),
             )
         }
         Spacer(modifier = Modifier.padding(2.dp))
@@ -173,11 +231,11 @@ private fun SecondPage() {
             )
             Text(
                 text = "분류",
-                style = Typography.headlineLarge
+                style = Typography.headlineLarge,
             )
             Text(
                 text = "해 줘요!",
-                style = Typography.labelLarge.copy(fontSize = 24.sp)
+                style = Typography.labelLarge.copy(fontSize = 24.sp),
             )
         }
 
@@ -199,11 +257,11 @@ private fun ThirdPage() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "공유 캘린더",
-                style = Typography.headlineLarge
+                style = Typography.headlineLarge,
             )
             Text(
                 text = "로 가족 일정을",
-                style = Typography.labelLarge.copy(fontSize = 24.sp)
+                style = Typography.labelLarge.copy(fontSize = 24.sp),
             )
         }
         Spacer(modifier = Modifier.padding(2.dp))
@@ -248,18 +306,17 @@ private fun FourthPage() {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = "매일 달라지는 랜덤 질문",
-                style = Typography.headlineLarge
+                style = Typography.headlineLarge,
             )
             Text(
                 text = "으로",
-                style = Typography.labelLarge.copy(fontSize = 24.sp)
+                style = Typography.labelLarge.copy(fontSize = 24.sp),
             )
         }
         Spacer(modifier = Modifier.padding(2.dp))
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-
             Text(
                 text = "우리 가족의 ",
                 style = Typography.labelLarge.copy(fontSize = 24.sp),
@@ -287,6 +344,6 @@ private fun FourthPage() {
 @Composable
 fun LoginScreenPreview() {
     FamilringTheme {
-        LoginScreen()
+//        LoginScreen()
     }
 }
