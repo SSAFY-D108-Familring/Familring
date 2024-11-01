@@ -41,7 +41,7 @@ import com.familring.presentation.util.noRippleClickable
  */
 
 // style
-data class CustomDropdownMenuStyles(
+data class IconCustomDropBoxStyles(
     val containerColor: Color = White,
     val cornerRadius: Dp = 10.dp,
     val textStyle: TextStyle = Typography.bodySmall.copy(fontSize = 18.sp, color = Black),
@@ -53,13 +53,13 @@ data class CustomDropdownMenuStyles(
     val expandedIconDrawableId: Int = R.drawable.ic_more,
 )
 
-fun CustomDropdownMenuStyles.getIconDrawable(expanded: Boolean): Int = if (expanded) expandedIconDrawableId else iconDrawableId
+fun IconCustomDropBoxStyles.getIconDrawable(expanded: Boolean): Int = if (expanded) expandedIconDrawableId else iconDrawableId
 
 @Composable
 fun IconCustomDropdownMenu(
     modifier: Modifier = Modifier,
     menuItems: List<Pair<String, () -> Unit>>,
-    styles: CustomDropdownMenuStyles = CustomDropdownMenuStyles(),
+    styles: IconCustomDropBoxStyles = IconCustomDropBoxStyles(),
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -115,7 +115,7 @@ fun IconCustomDropdownMenu(
 fun DropdownButton(
     modifier: Modifier = Modifier,
     iconDrawableId: Int?,
-    styles: CustomDropdownMenuStyles,
+    styles: IconCustomDropBoxStyles,
     onClick: () -> Unit,
 ) {
     Row(
@@ -147,6 +147,6 @@ fun CustomDropdownMenuPreview() {
                 "삭제" to {},
                 "앨범 생성" to {},
             ),
-        styles = CustomDropdownMenuStyles(),
+        styles = IconCustomDropBoxStyles(),
     )
 }
