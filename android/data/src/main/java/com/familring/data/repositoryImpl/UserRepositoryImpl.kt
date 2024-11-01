@@ -7,6 +7,7 @@ import com.familring.domain.datasource.AuthDataSource
 import com.familring.domain.datasource.TokenDataSource
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.JwtToken
+import com.familring.domain.model.User
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserJoinRequest
 import com.familring.domain.request.UserLoginRequest
@@ -62,6 +63,25 @@ class UserRepositoryImpl
                 if (response is ApiResponse.Success) {
                     tokenDataSource.saveJwtToken(response.data)
                     authDataSource.saveKakaoId(request.userKakaoId)
+                }
+                emit(response)
+            }
+
+        override suspend fun getUser(): Flow<ApiResponse<User>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.getUser() },
+                        default = User(),
+                    )
+                if (response is ApiResponse.Success) {
+                    authDataSource.saveNickname(response.data.userNickname)
+                    authDataSource.saveBirthDate(response.data.userBirthDate)
+                    authDataSource.saveZodiacSign(response.data.userZodiacSign)
+                    authDataSource.saveRole(response.data.userRole)
+                    authDataSource.saveFace(response.data.userFace)
+                    authDataSource.saveColor(response.data.userColor)
+                    authDataSource.saveEmotion(response.data.userEmotion)
                 }
                 emit(response)
             }

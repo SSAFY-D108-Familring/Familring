@@ -1,6 +1,7 @@
 package com.familring.data.di
 
 import com.familring.data.network.api.AuthApi
+import com.familring.data.network.api.FamilyApi
 import com.familring.data.network.api.UserApi
 import dagger.Module
 import dagger.Provides
@@ -24,4 +25,10 @@ object ApiModule {
     fun provideUserApi(
         @NetworkModule.BaseClient retrofit: Retrofit,
     ): UserApi = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideFamilyApi(
+        @NetworkModule.BaseClient retrofit: Retrofit,
+    ): FamilyApi = retrofit.create()
 }

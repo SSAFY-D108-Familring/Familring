@@ -114,7 +114,7 @@ fun MainNavHost(
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route)
                 },
-                navigateToSignUp = {
+                navigateToFirst = {
                     navController.navigate(ScreenDestinations.First.route)
                 },
                 showSnackBar = showSnackBar,
@@ -141,20 +141,6 @@ fun MainNavHost(
                 navigateToColor = {
                     navController.navigate(ScreenDestinations.ProfileColor.route)
                 },
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.Login.route,
-        ) {
-            LoginRoute(
-                modifier = modifier,
-                navigateToFirst = {
-                    navController.navigate(ScreenDestinations.First.route)
-                },
-                navigateToHome = {
-                    navController.navigate(ScreenDestinations.Home.route)
-                }
             )
         }
 
