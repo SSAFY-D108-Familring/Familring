@@ -29,6 +29,7 @@ import com.familring.presentation.screen.home.NotificationRoute
 import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
+import com.familring.presentation.screen.login.LoginRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -89,7 +90,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     .padding(innerPadding)
                     .navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.Home.route,
+            startDestination = ScreenDestinations.Login.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -106,6 +107,14 @@ fun MainNavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
+        composable(
+            route = ScreenDestinations.Login.route,
+        ) {
+            LoginRoute(
+                modifier = modifier,
+            )
+        }
+
         composable(
             route = ScreenDestinations.First.route,
         ) {
