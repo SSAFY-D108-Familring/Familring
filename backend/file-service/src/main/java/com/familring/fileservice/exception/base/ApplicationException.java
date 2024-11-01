@@ -11,7 +11,7 @@ public abstract class ApplicationException extends RuntimeException {
 
     protected ApplicationException(ErrorDetail errorDetail) {
         super(errorDetail.getErrorMessage());
-        this.errorCode = getErrorCode();
+        this.errorCode = errorDetail.getErrorCode();
         this.httpStatus = errorDetail.getHttpStatus();
     }
 
