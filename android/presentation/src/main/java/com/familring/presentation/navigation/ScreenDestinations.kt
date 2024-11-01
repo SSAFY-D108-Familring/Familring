@@ -18,6 +18,9 @@ package com.familring.presentation.navigation
 sealed class ScreenDestinations(
     open val route: String,
 ) {
+    // 로그인
+    data object Login : ScreenDestinations(route = "Login")
+
     // 첫 번째 화면 (초대코드 입력)
     data object First : ScreenDestinations(route = "First")
 

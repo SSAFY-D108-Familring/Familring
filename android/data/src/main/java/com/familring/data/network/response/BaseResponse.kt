@@ -6,7 +6,7 @@ import com.familring.domain.model.ApiResponse
 import java.io.IOException
 
 data class BaseResponse<T>(
-    val code: String,
+    val statusCode: Int,
     val data: T?,
     val message: String,
 )
@@ -25,24 +25,24 @@ suspend fun <T> emitApiResponse(
             when (e) {
                 is ApiException ->
                     ApiResponse.Error.ServerError(
-                        errorCode = e.error.timeStamp,
-                        errorMessage = e.error.errorMessage,
+                        code = e.error.errorCode,
+                        message = e.error.errorMessage,
                     )
 
                 is RefreshTokenExpiredException ->
                     ApiResponse.Error.TokenError(
-                        errorCode = e.error.timeStamp,
-                        errorMessage = e.error.errorMessage,
+                        code = e.error.errorCode,
+                        message = e.error.errorMessage,
                     )
 
                 is IOException ->
                     ApiResponse.Error.NetworkError(
-                        errorMessage = e.message ?: "Network Error",
+                        message = e.message ?: "Network Error",
                     )
 
                 else ->
                     ApiResponse.Error.UnknownError(
-                        errorMessage = e.message ?: "Unknown Error",
+                        message = e.message ?: "Unknown Error",
                     )
             }
         },

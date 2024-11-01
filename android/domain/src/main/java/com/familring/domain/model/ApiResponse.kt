@@ -6,25 +6,25 @@ sealed class ApiResponse<out D> {
     ) : ApiResponse<D>()
 
     sealed class Error(
-        open val errorCode: String = "",
-        open val errorMessage: String = "",
+        open val code: String = "",
+        open val message: String = "",
     ) : ApiResponse<Nothing>() {
         data class ServerError(
-            override val errorCode: String,
-            override val errorMessage: String,
-        ) : Error(errorCode, errorMessage)
+            override val code: String = "",
+            override val message: String = "",
+        ) : Error(code, message)
 
         data class TokenError(
-            override val errorCode: String,
-            override val errorMessage: String,
-        ) : Error(errorCode, errorMessage)
+            override val code: String = "",
+            override val message: String = "",
+        ) : Error(code, message)
 
         data class NetworkError(
-            override val errorMessage: String,
-        ) : Error(errorMessage = errorMessage)
+            override val message: String,
+        ) : Error(message = message)
 
         data class UnknownError(
-            override val errorMessage: String,
-        ) : Error(errorMessage = errorMessage)
+            override val message: String,
+        ) : Error(message = message)
     }
 }

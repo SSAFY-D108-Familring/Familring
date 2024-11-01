@@ -109,6 +109,21 @@ fun MainNavHost(
         startDestination = startDestination,
     ) {
         composable(
+            route = ScreenDestinations.Login.route,
+        ) {
+            LoginRoute(
+                modifier = modifier,
+                navigateToHome = {
+                    navController.navigate(ScreenDestinations.Home.route)
+                },
+                navigateToSignUp = {
+                    navController.navigate(ScreenDestinations.First.route)
+                },
+                showSnackBar = showSnackBar,
+            )
+        }
+
+        composable(
             route = ScreenDestinations.First.route,
         ) {
             FirstRoute(

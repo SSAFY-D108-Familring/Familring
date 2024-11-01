@@ -19,11 +19,14 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -72,6 +75,7 @@ fun ScheduleCreateRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleCreateScreen(
     modifier: Modifier = Modifier,
@@ -109,6 +113,9 @@ fun ScheduleCreateScreen(
     var isAllChecked by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -170,7 +177,10 @@ fun ScheduleCreateScreen(
                     },
                 )
                 Text(
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier =
+                        Modifier
+                            .padding(top = 8.dp)
+                            .noRippleClickable { showBottomSheet = true },
                     text = "10월 24일 목 오전 9:00 - 오후 12:00",
                     style =
                         Typography.headlineLarge.copy(
@@ -324,6 +334,17 @@ fun ScheduleCreateScreen(
                 text = "일정 추가하기",
                 onClick = {},
             )
+        }
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+                sheetState = sheetState,
+                containerColor = White,
+            ) {
+                TimeSelectTap()
+            }
         }
     }
 }

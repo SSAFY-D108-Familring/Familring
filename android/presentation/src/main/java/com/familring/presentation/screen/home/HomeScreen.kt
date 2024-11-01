@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.home
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -54,6 +55,7 @@ fun HomeRoute(
     navigateToTimeCapsule: () -> Unit,
     navigateToInterest: () -> Unit,
 ) {
+    Log.d("nakyung", "홈화면 그려짐")
     HomeScreen(
         modifier = modifier,
         navigateToNotification = navigateToNotification,
