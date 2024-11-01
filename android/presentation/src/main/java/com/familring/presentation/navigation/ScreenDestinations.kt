@@ -27,6 +27,8 @@ sealed class ScreenDestinations(
     // 생년월일 입력
     data object Birth : ScreenDestinations(route = "Birth")
 
+    data object Login : ScreenDestinations(route = "Login")
+
     // 질문 화면
     data object Question : ScreenDestinations(route = "Question")
 

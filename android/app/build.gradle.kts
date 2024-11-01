@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -17,6 +19,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "KAKAO_API_KEY", getApiKey("KAKAO_API_KEY"))
+        resValue("string", "KAKAO_REDIRECT_URI", getApiKey("KAKAO_REDIRECT_URI"))
+
+        manifestPlaceholders["KAKAO_API_KEY"] = getApiKey("KAKAO_API_KEY")
+        manifestPlaceholders["KAKAO_REDIRECT_URI"] = getApiKey("KAKAO_REDIRECT_URI")
     }
 
     buildTypes {
@@ -49,11 +57,18 @@ android {
     }
 }
 
+fun getApiKey(key: String): String {
+    val properties = Properties()
+    properties.load(project.rootProject.file("local.properties").inputStream())
+    return properties.getProperty(key)
+}
+
 dependencies {
     // hilt
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.v2.all)
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":presentation"))
