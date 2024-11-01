@@ -1,10 +1,8 @@
 package com.familring.presentation.screen.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,46 +25,38 @@ import com.familring.presentation.component.DateInputRow
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TimeInputRow
 import com.familring.presentation.theme.Brown01
-import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import com.familring.presentation.util.noRippleClickable
+import com.familring.presentation.util.isDateFormValid
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun TimeSelectTap(
     modifier: Modifier = Modifier,
-    startSchedule: LocalDateTime,
-    endSchedule: LocalDateTime,
+    title: String,
+    schedule: LocalDateTime,
     isTimeChecked: Boolean,
+    onButtonClicked: (selectedSchedule: LocalDateTime) -> Unit = {},
 ) {
-    var isStartSelected by remember { mutableStateOf(true) }
+    var year by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("yyyy"))) }
+    var month by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("MM"))) }
+    var date by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("dd"))) }
 
-    var startSchedule by remember { mutableStateOf(startSchedule) }
-    var endSchedule by remember { mutableStateOf(endSchedule) }
+    var hour by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("hh"))) }
+    var minute by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("mm"))) }
+    var isAm by remember { mutableStateOf(schedule.hour < 12) }
 
-    val startIsAm by remember { derivedStateOf { startSchedule.hour < 12 } }
-    val endIsAm by remember { derivedStateOf { startSchedule.hour < 12 } }
-
-//    var startYear by remember { mutableStateOf(startSchedule.year.toString()) }
-//    var startMonth by remember { mutableStateOf(startSchedule.monthValue.toString()) }
-//    var startDate by remember { mutableStateOf(startSchedule.dayOfMonth.toString()) }
-//
-//    var startHour by remember { mutableStateOf(startSchedule.hour.toString()) }
-//    var startMinute by remember { mutableStateOf("") }
-//    var startIsAm by remember { mutableStateOf(true) }
-//
-//    var endYear by remember { mutableStateOf("") }
-//    var endMonth by remember { mutableStateOf("") }
-//    var endDate by remember { mutableStateOf("") }
-//
-//    var endHour by remember { mutableStateOf("") }
-//    var endMinute by remember { mutableStateOf("") }
-//    var endIsAm by remember { mutableStateOf(true) }
-
-//    val isButtonEnabled = isDateFormValid(startYear, startMonth, startDate)
+    val isButtonEnabled =
+        isDateFormValid(
+            year,
+            month,
+            date,
+            hour,
+            minute,
+        )
 
     val focusManager = LocalFocusManager.current
 
@@ -75,40 +64,29 @@ fun TimeSelectTap(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp),
+                .padding(bottom = 10.dp),
         color = White,
     ) {
         Column(
             modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                Column {
-                    SelectedTime(
-                        title = "시작",
-                        schedule = startSchedule,
-                        isSelected = isStartSelected,
-                        onClick = { isStartSelected = true },
-                        isTimeChecked = isTimeChecked,
-                    )
-                }
-                Column {
-                    SelectedTime(
-                        title = "종료",
-                        schedule = endSchedule,
-                        isSelected = !isStartSelected,
-                        onClick = { isStartSelected = false },
-                        isTimeChecked = isTimeChecked,
-                    )
-                }
-            }
+            Text(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(top = 10.dp, start = 5.dp),
+                text = title,
+                style =
+                    Typography.headlineMedium.copy(
+                        fontSize = 22.sp,
+                    ),
+            )
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(20.dp)
+                        .padding(start = 20.dp, end = 20.dp, top = 10.dp)
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center,
             ) {
@@ -124,38 +102,17 @@ fun TimeSelectTap(
                     )
                     DateInputRow(
                         modifier = Modifier.padding(top = 5.dp),
-                        year = if (isStartSelected) startSchedule.year.toString() else endSchedule.year.toString(),
-                        month = if (isStartSelected) startSchedule.monthValue.toString() else endSchedule.monthValue.toString(),
-                        date = if (isStartSelected) startSchedule.dayOfMonth.toString() else endSchedule.dayOfMonth.toString(),
+                        year = year,
+                        month = month,
+                        date = date,
                         onYearChange = {
-                            if (isStartSelected) {
-                                setScheduleYear(
-                                    startSchedule,
-                                    it,
-                                )
-                            } else {
-                                setScheduleYear(endSchedule, it)
-                            }
+                            year = it
                         },
                         onMonthChange = {
-                            if (isStartSelected) {
-                                setScheduleMonth(
-                                    startSchedule,
-                                    it,
-                                )
-                            } else {
-                                setScheduleMonth(endSchedule, it)
-                            }
+                            month = it
                         },
                         onDateChange = {
-                            if (isStartSelected) {
-                                setScheduleDate(
-                                    startSchedule,
-                                    it,
-                                )
-                            } else {
-                                setScheduleDate(endSchedule, it)
-                            }
+                            date = it
                         },
                         focusManager = focusManager,
                     )
@@ -168,35 +125,17 @@ fun TimeSelectTap(
                             )
                             TimeInputRow(
                                 modifier = Modifier.padding(top = 5.dp),
-                                hour = if (isStartSelected) startSchedule.hour.toString() else endSchedule.hour.toString(),
-                                minute = if (isStartSelected) startSchedule.minute.toString() else endSchedule.minute.toString(),
-                                isAm = if (isStartSelected) startIsAm else endIsAm,
+                                hour = hour,
+                                minute = minute,
+                                isAm = isAm,
                                 onHourChange = {
-                                    if (isStartSelected) {
-                                        setScheduleHour(startSchedule, it)
-                                    } else {
-                                        setScheduleHour(endSchedule, it)
-                                    }
+                                    hour = it
                                 },
                                 onMinuteChange = {
-                                    if (isStartSelected) {
-                                        setScheduleMinute(
-                                            startSchedule,
-                                            it,
-                                        )
-                                    } else {
-                                        setScheduleMinute(
-                                            endSchedule,
-                                            it,
-                                        )
-                                    }
+                                    minute = it
                                 },
                                 onAmPmChanged = {
-                                    if (isStartSelected) {
-                                        if (it != startIsAm) setAmPm(startSchedule, it)
-                                    } else {
-                                        if (it != endIsAm) setAmPm(endSchedule, it)
-                                    }
+                                    isAm = it
                                 },
                                 focusManager = focusManager,
                             )
@@ -205,83 +144,63 @@ fun TimeSelectTap(
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
+            Text(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(top = 5.dp, bottom = 10.dp, start = 5.dp),
+                text = "일정 형식을 확인해주세요!",
+                style =
+                    Typography.labelMedium.copy(
+                        fontSize = 12.sp,
+                        color = if (isButtonEnabled) White else Red01,
+                    ),
+            )
             RoundLongButton(
                 text = "시간 선택 완료하기",
-                onClick = { /*TODO*/ },
-//                enabled = isButtonEnabled,
+                onClick = {
+                    onButtonClicked(
+                        LocalDateTime.of(
+                            year.toInt(),
+                            month.toInt(),
+                            date.toInt(),
+                            calculateAmPmHour(hour.toInt(), isAm),
+                            minute.toInt(),
+                        ),
+                    )
+                },
+                enabled = isButtonEnabled,
             )
         }
     }
 }
 
-private fun setScheduleYear(
-    schedule: LocalDateTime,
-    year: String,
-) {
-    schedule.withYear(year.toInt())
-}
-
-private fun setScheduleMonth(
-    schedule: LocalDateTime,
-    month: String,
-) {
-    schedule.withMonth(month.toInt())
-}
-
-private fun setScheduleDate(
-    schedule: LocalDateTime,
-    date: String,
-) {
-    schedule.withDayOfMonth(date.toInt())
-}
-
-private fun setScheduleHour(
-    schedule: LocalDateTime,
-    hour: String,
-) {
-    schedule.withHour(hour.toInt())
-}
-
-private fun setScheduleMinute(
-    schedule: LocalDateTime,
-    minute: String,
-) {
-    schedule.withMinute(minute.toInt())
-}
-
-private fun setAmPm(
-    schedule: LocalDateTime,
+private fun calculateAmPmHour(
+    hour: Int,
     isAm: Boolean,
-) {
+): Int =
     if (isAm) {
-        schedule.withHour(schedule.hour - 12)
+        if (hour < 12) hour else hour - 12
     } else {
-        schedule.withHour(schedule.hour + 12)
+        if (hour < 12) hour + 12 else hour
     }
-}
 
 @Composable
 fun SelectedTime(
     modifier: Modifier = Modifier,
     title: String,
     schedule: LocalDateTime,
-    isSelected: Boolean,
     isTimeChecked: Boolean,
-    onClick: () -> Unit = {},
 ) {
-    val textColor = if (isSelected) Brown01 else Gray03
     Column(
-        modifier =
-            Modifier
-                .padding(vertical = 10.dp)
-                .noRippleClickable { onClick() },
+        modifier = modifier,
     ) {
         Text(
             text = title,
             style =
                 Typography.displayLarge.copy(
                     fontSize = 15.sp,
-                    color = textColor,
+                    color = Brown01,
                 ),
         )
         Text(
@@ -289,7 +208,7 @@ fun SelectedTime(
             style =
                 Typography.headlineMedium.copy(
                     fontSize = 22.sp,
-                    color = textColor,
+                    color = Brown01,
                 ),
         )
         if (isTimeChecked) {
@@ -298,7 +217,7 @@ fun SelectedTime(
                 style =
                     Typography.displayLarge.copy(
                         fontSize = 15.sp,
-                        color = textColor,
+                        color = Brown01,
                     ),
             )
         }
@@ -309,8 +228,8 @@ fun SelectedTime(
 @Composable
 private fun TimeSelectTapPreview() {
     TimeSelectTap(
-        startSchedule = LocalDateTime.now(),
-        endSchedule = LocalDateTime.now(),
-        isTimeChecked = false,
+        title = "시작 일정",
+        schedule = LocalDateTime.now(),
+        isTimeChecked = true,
     )
 }

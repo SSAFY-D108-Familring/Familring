@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -56,6 +57,7 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green08
 import com.familring.presentation.theme.Orange01
 import com.familring.presentation.theme.Pink02
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Red02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -113,8 +115,13 @@ fun ScheduleCreateScreen(
 
     val focusManager = LocalFocusManager.current
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val startSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showStartBottomSheet by remember { mutableStateOf(false) }
+
+    val endSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showEndBottomSheet by remember { mutableStateOf(false) }
+
+    val isButtonEnabled = startSchedule.isBefore(endSchedule)
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -134,7 +141,7 @@ fun ScheduleCreateScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+            Spacer(modifier = Modifier.height(15.dp))
             Column(
                 modifier =
                     Modifier
@@ -175,16 +182,33 @@ fun ScheduleCreateScreen(
                         innerTextField()
                     },
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    SelectedTime(
+                        modifier = Modifier.noRippleClickable { showStartBottomSheet = true },
+                        title = "시작",
+                        schedule = startSchedule,
+                        isTimeChecked = isTimeChecked,
+                    )
+                    SelectedTime(
+                        modifier = Modifier.noRippleClickable { showEndBottomSheet = true },
+                        title = "종료",
+                        schedule = endSchedule,
+                        isTimeChecked = isTimeChecked,
+                    )
+                }
                 Text(
                     modifier =
                         Modifier
-                            .padding(top = 8.dp)
-                            .noRippleClickable { showBottomSheet = true },
-                    text = scheduleText(startSchedule, endSchedule, isTimeChecked),
+                            .fillMaxWidth()
+                            .padding(top = 5.dp),
+                    text = "일정 형식을 확인해주세요!",
                     style =
-                        Typography.headlineLarge.copy(
-                            fontSize = 18.sp,
-                            color = Black,
+                        Typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            color = if (isButtonEnabled) White else Red01,
                         ),
                 )
                 Spacer(modifier = Modifier.fillMaxHeight(0.05f))
@@ -203,7 +227,13 @@ fun ScheduleCreateScreen(
                     )
                     Switch(
                         checked = isTimeChecked,
-                        onCheckedChange = { isTimeChecked = it },
+                        onCheckedChange = {
+                            if (!it) {
+                                startSchedule.withHour(9).withMinute(0)
+                                endSchedule.withHour(12).withMinute(0)
+                            }
+                            isTimeChecked = it
+                        },
                         colors =
                             SwitchDefaults.colors(
                                 checkedThumbColor = White,
@@ -324,20 +354,44 @@ fun ScheduleCreateScreen(
                 modifier = Modifier.padding(bottom = 20.dp),
                 text = "일정 추가하기",
                 onClick = {},
+                enabled = isButtonEnabled,
             )
         }
-        if (showBottomSheet) {
+        if (showStartBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
-                    showBottomSheet = false
+                    showStartBottomSheet = false
                 },
-                sheetState = sheetState,
+                sheetState = startSheetState,
                 containerColor = White,
             ) {
                 TimeSelectTap(
-                    startSchedule = startSchedule,
-                    endSchedule = endSchedule,
+                    title = "시작 일정",
+                    schedule = startSchedule,
                     isTimeChecked = isTimeChecked,
+                    onButtonClicked = {
+                        startSchedule = it
+                        showStartBottomSheet = false
+                    },
+                )
+            }
+        }
+        if (showEndBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showEndBottomSheet = false
+                },
+                sheetState = endSheetState,
+                containerColor = White,
+            ) {
+                TimeSelectTap(
+                    title = "종료 일정",
+                    schedule = endSchedule,
+                    isTimeChecked = isTimeChecked,
+                    onButtonClicked = {
+                        endSchedule = it
+                        showEndBottomSheet = false
+                    },
                 )
             }
         }
