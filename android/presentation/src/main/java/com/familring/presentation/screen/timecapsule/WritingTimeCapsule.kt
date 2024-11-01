@@ -1,18 +1,12 @@
 package com.familring.presentation.screen.timecapsule
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,19 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.model.Profile
 import com.familring.presentation.R
+import com.familring.presentation.component.GrayBackgroundTextField
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
-import com.familring.presentation.theme.Gray03
-import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
@@ -106,44 +97,15 @@ fun WritingTimeCapsule(
                     ),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
-            Box(
+            GrayBackgroundTextField(
                 modifier =
                     Modifier
                         .fillMaxWidth(0.9f)
-                        .fillMaxHeight(0.5f)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Gray04)
-                        .padding(16.dp),
-            ) {
-                BasicTextField(
-                    value = content,
-                    onValueChange = { newValue ->
-                        content = newValue
-                    },
-                    modifier =
-                        Modifier.verticalScroll(
-                            state = scrollState,
-                        ),
-                    textStyle =
-                        Typography.bodyMedium.copy(
-                            fontSize = 20.sp,
-                            color = Black,
-                        ),
-                    decorationBox = { innerTextField ->
-                        if (content.isEmpty()) {
-                            Text(
-                                text = "여기에 작성해주세요",
-                                style =
-                                    Typography.bodyMedium.copy(
-                                        fontSize = 20.sp,
-                                        color = Gray03,
-                                    ),
-                            )
-                        }
-                        innerTextField()
-                    },
-                )
-            }
+                        .fillMaxHeight(0.5f),
+                content = content,
+                scrollState = scrollState,
+                onValueChange = { content = it },
+            )
             Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             RoundLongButton(
                 text = "작성 완료",
@@ -180,7 +142,7 @@ private fun WritingTimeCapsulePreview() {
         wroteProfiles =
             listOf(
                 Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                Profile(zodiacImgUrl = "url1", backgroundColor = "#FFE1E1"),
+                Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFFE1E1"),
                 Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
             ),
     )

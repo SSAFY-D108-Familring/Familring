@@ -17,10 +17,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.familring.domain.model.TimeCapsule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
+import com.familring.presentation.screen.calendar.DailyUploadRoute
 import com.familring.presentation.screen.calendar.ScheduleCreateRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.AlbumRoute
@@ -41,9 +41,7 @@ import com.familring.presentation.screen.signup.NicknameRoute
 import com.familring.presentation.screen.signup.PictureRoute
 import com.familring.presentation.screen.signup.ProfileColorRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
-import com.familring.presentation.screen.timecapsule.TimeCapsuleListScreen
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
-import com.familring.presentation.screen.timecapsule.WritingTimeCapsuleScreen
 import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
@@ -248,36 +246,6 @@ fun MainNavHost(
         }
 
         composable(
-            route = ScreenDestinations.TimeCapsuleList.route,
-        ) {
-            TimeCapsuleListScreen(
-                modifier = modifier,
-                onShowSnackBar = { showSnackBar("아직 캡슐을 열 수 없어요!") },
-                timeCapsules =
-                    listOf(
-                        TimeCapsule(0),
-                        TimeCapsule(1),
-                        TimeCapsule(2),
-                        TimeCapsule(3),
-                        TimeCapsule(4),
-                        TimeCapsule(5),
-                        TimeCapsule(6),
-                        TimeCapsule(7, false),
-                    ),
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.WritingTimeCapsule.route,
-        ) {
-            WritingTimeCapsuleScreen(
-                modifier = modifier,
-                writingState = 0,
-                navigateToCreate = { navController.navigate(ScreenDestinations.TimeCapsuleCreate.route) },
-            )
-        }
-
-        composable(
             route = ScreenDestinations.TimeCapsuleCreate.route,
         ) {
             TimeCapsuleCreateRoute(
@@ -314,7 +282,9 @@ fun MainNavHost(
         ) {
             CalendarRoute(
                 modifier = modifier,
-                navigateToScheduleCreate = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
+                navigateToCreateSchedule = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
+                navigateToCreateDaily = { navController.navigate(ScreenDestinations.DailyUpload.route) },
+                navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
             )
         }
 
@@ -322,6 +292,15 @@ fun MainNavHost(
             route = ScreenDestinations.ScheduleCreate.route,
         ) {
             ScheduleCreateRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.DailyUpload.route,
+        ) {
+            DailyUploadRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
             )

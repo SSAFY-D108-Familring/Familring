@@ -80,6 +80,9 @@ dependencies {
     // Timber
     implementation(libs.timber)
 
+    // Glide
+    implementation(libs.glide)
+
     // 카카오 로그인
     implementation(libs.v2.all)
 }

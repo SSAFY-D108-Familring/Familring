@@ -15,7 +15,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,12 +28,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
+import com.familring.presentation.component.CustomDropdownMenuStyles
+import com.familring.presentation.component.IconCustomDropdownMenu
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.theme.Black
@@ -48,11 +48,15 @@ import java.time.LocalDate
 @Composable
 fun CalendarRoute(
     modifier: Modifier,
-    navigateToScheduleCreate: () -> Unit,
+    navigateToCreateSchedule: () -> Unit,
+    navigateToCreateDaily: () -> Unit,
+    navigateToCreateAlbum: () -> Unit,
 ) {
     CalendarScreen(
         modifier = modifier,
-        navigateToScheduleCreate = navigateToScheduleCreate,
+        navigateToCreateSchedule = navigateToCreateSchedule,
+        navigateToCreateDaily = navigateToCreateDaily,
+        navigateToCreateAlbum = navigateToCreateAlbum,
     )
 }
 
@@ -60,7 +64,9 @@ fun CalendarRoute(
 @Composable
 fun CalendarScreen(
     modifier: Modifier = Modifier,
-    navigateToScheduleCreate: () -> Unit = {},
+    navigateToCreateSchedule: () -> Unit = {},
+    navigateToCreateDaily: () -> Unit = {},
+    navigateToCreateAlbum: () -> Unit = {},
 ) {
     // pager
     val coroutineScope = rememberCoroutineScope()
@@ -87,15 +93,25 @@ fun CalendarScreen(
         containerColor = White,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navigateToScheduleCreate() },
+                onClick = { navigateToCreateSchedule() },
                 containerColor = Green01,
                 contentColor = White,
                 shape = CircleShape,
             ) {
-                Icon(
-                    modifier = Modifier.size(36.dp),
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "ic_add",
+                IconCustomDropdownMenu(
+                    modifier = Modifier,
+                    menuItems =
+                        listOf(
+                            "일정 생성" to { navigateToCreateSchedule() },
+                            "일상 공유" to { navigateToCreateDaily() },
+                        ),
+                    styles =
+                        CustomDropdownMenuStyles(
+                            iconSize = 30.dp,
+                            iconDrawableId = R.drawable.ic_add,
+                            expandedIconDrawableId = R.drawable.ic_add,
+                            iconColor = White,
+                        ),
                 )
             }
         },
@@ -199,7 +215,7 @@ fun CalendarScreen(
                 CalendarTab(
                     schedules = schedules,
                     dailyLifes = dailyLifes,
-                    navigateToAlbum = {},
+                    navigateToCreateAlbum = navigateToCreateAlbum,
                 )
             }
         }

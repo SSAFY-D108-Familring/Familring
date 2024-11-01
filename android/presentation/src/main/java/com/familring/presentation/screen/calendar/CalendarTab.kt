@@ -1,11 +1,9 @@
 package com.familring.presentation.screen.calendar
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -27,8 +24,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -42,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,6 +47,8 @@ import com.familring.domain.model.DailyLife
 import com.familring.domain.model.Profile
 import com.familring.domain.model.Schedule
 import com.familring.presentation.R
+import com.familring.presentation.component.IconCustomDropdownMenu
+import com.familring.presentation.component.CustomDropdownMenuStyles
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
@@ -70,10 +66,10 @@ fun CalendarTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
-    navigateToAlbum: () -> Unit = {},
+    navigateToCreateAlbum: () -> Unit = {},
 ) {
     val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
-    var selectedItemIndex by remember { mutableIntStateOf(1) }
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -94,6 +90,7 @@ fun CalendarTab(
                 0 ->
                     ScheduleTab(
                         schedules = schedules,
+                        navigateToCreateAlbum = navigateToCreateAlbum,
                     )
 
                 1 ->
@@ -209,7 +206,7 @@ fun DailyItem(
 fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
-    navigateToAlbum: () -> Unit = {},
+    navigateToCreateAlbum: () -> Unit = {},
 ) {
     if (schedules.isEmpty()) {
         Column {
@@ -233,6 +230,7 @@ fun ScheduleTab(
             items(schedules) { schedule ->
                 ScheduleItem(
                     schedule = schedule,
+                    navigateToCreateAlbum = navigateToCreateAlbum,
                 )
             }
         }
@@ -243,7 +241,7 @@ fun ScheduleTab(
 fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
-    navigateToAlbum: () -> Unit = {},
+    navigateToCreateAlbum: () -> Unit = {},
 ) {
     // drop down menu
     var showDropDownMenu by remember { mutableStateOf(false) }
@@ -252,7 +250,7 @@ fun ScheduleItem(
     Box(
         modifier =
             modifier
-                .clickable { navigateToAlbum() }
+                .clickable { navigateToCreateAlbum() }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
@@ -312,49 +310,19 @@ fun ScheduleItem(
                         Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
                     ),
             )
-            Icon(
+            IconCustomDropdownMenu(
                 modifier =
                     Modifier
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onTap = {
-                                    tapOffset = DpOffset(it.x.toDp(), it.y.toDp())
-                                    Log.d("tapOffset", tapOffset.toString())
-                                    showDropDownMenu = true
-                                },
-                            )
-                        }.padding(3.dp),
-                painter = painterResource(id = R.drawable.ic_more),
-                contentDescription = "ic_more",
+                        .padding(3.dp),
+                menuItems =
+                    listOf(
+                        "수정" to {},
+                        "삭제" to {},
+                        "앨범 생성" to { navigateToCreateAlbum() },
+                    ),
+                styles = CustomDropdownMenuStyles(),
             )
         }
-    }
-
-    DropdownMenu(
-        modifier = Modifier.wrapContentSize(),
-        expanded = showDropDownMenu,
-        onDismissRequest = { showDropDownMenu = false },
-        containerColor = White,
-        offset = tapOffset,
-    ) {
-        DropdownMenuItem(
-            text = {
-                Text(text = "일정 수정")
-            },
-            onClick = { /*TODO*/ },
-        )
-        DropdownMenuItem(
-            text = {
-                Text(text = "일정 삭제")
-            },
-            onClick = { /*TODO*/ },
-        )
-        DropdownMenuItem(
-            text = {
-                Text(text = "앨범 생성")
-            },
-            onClick = { /*TODO*/ },
-        )
     }
 }
 

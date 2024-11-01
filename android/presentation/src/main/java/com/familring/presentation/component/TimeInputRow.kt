@@ -60,7 +60,7 @@ fun TimeInputRow(
             onValueChange = onHourChange,
             placeholder = "09",
             focusManager = focusManager,
-            maxLength = 4,
+            maxLength = 2,
         )
         Spacer(modifier = Modifier.width(5.dp))
         Column(

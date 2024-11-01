@@ -51,17 +51,10 @@ sealed class ScreenDestinations(
     data object Done : ScreenDestinations(route = "Done")
 
     // 타임캡슐
-    // 타임캡슐 화면
     data object TimeCapsule : ScreenDestinations(route = "TimeCapsule")
 
     // 타임캡슐 생성 화면
     data object TimeCapsuleCreate : ScreenDestinations(route = "TimeCapsuleCreate")
-
-    // 타임캡슐 작성 화면
-    data object WritingTimeCapsule : ScreenDestinations(route = "WritingTimeCapsule")
-
-    // 타임캡슐 리스트 화면
-    data object TimeCapsuleList : ScreenDestinations(route = "TimeCapsuleList")
 
     // 홈
     data object Home : ScreenDestinations(route = "Home")
@@ -72,7 +65,11 @@ sealed class ScreenDestinations(
     // 캘린더
     data object Calendar : ScreenDestinations(route = "Calendar")
 
+    // 일정 생성
     data object ScheduleCreate : ScreenDestinations(route = "ScheduleCreate")
+
+    // 일상 업로드
+    data object DailyUpload : ScreenDestinations(route = "DailyUpload")
 
     // 갤러리
     data object Gallery : ScreenDestinations(route = "Gallery")
