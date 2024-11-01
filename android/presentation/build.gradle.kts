@@ -50,6 +50,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -78,4 +79,10 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    // Glide
+    implementation(libs.glide)
+
+    // 카카오 로그인
+    implementation(libs.v2.all)
 }

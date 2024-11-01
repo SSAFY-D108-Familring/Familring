@@ -1,8 +1,9 @@
 package com.familring.presentation.screen.login
 
+import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,34 +27,37 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familring.presentation.MainActivity
 import com.familring.presentation.R
 import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun LoginRoute(
-    modifier: Modifier,
-    loginViewModel: LoginViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
+    navigateToFirst: () -> Unit,
     navigateToHome: () -> Unit,
-    navigateToSignUp: () -> Unit,
     showSnackBar: (String) -> Unit,
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
-    val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
+    val loginState by viewModel.loginState.collectAsStateWithLifecycle()
 
     LoginScreen(
         modifier = modifier,
-        loginState = loginState,
-        login = loginViewModel::login,
+        navigateToFirst = navigateToFirst,
         navigateToHome = navigateToHome,
-        navigateToSignUp = navigateToSignUp,
         showSnackBar = showSnackBar,
+        loginState = loginState,
+        handleKakaoLogin = { activity -> viewModel.handleKakaoLogin(activity) },
     )
 }
 
@@ -61,39 +65,25 @@ fun LoginRoute(
 fun LoginScreen(
     modifier: Modifier = Modifier,
     loginState: LoginState,
-    login: (String) -> Unit = {},
+    navigateToFirst: () -> Unit = {},
     navigateToHome: () -> Unit = {},
-    navigateToSignUp: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    handleKakaoLogin: (Activity) -> Unit = {},
 ) {
+    val context = LocalContext.current
+    val activity = context as? MainActivity
+
     LaunchedEffect(loginState) {
         when (loginState) {
-            is LoginState.Loading -> {}
-
-            is LoginState.Success -> {
-                // 여기서 login api 수행 후 제대로 반환 받아왔을 때 처리 수행
-                // 여긴 홈으로 가기
-                navigateToHome()
-            }
-
-            is LoginState.Error -> {
-                // 여긴 회원가입으로 가야 함.
-                showSnackBar(loginState.errorMessage)
-                navigateToSignUp()
+            is LoginState.Success -> navigateToHome()
+            is LoginState.NoRegistered -> navigateToFirst()
+            is LoginState.Error -> showSnackBar(loginState.errorMessage)
+            else -> {
+                Log.d("login", "로그인 초기화")
             }
         }
     }
-    LoginContent(
-        modifier = modifier,
-        login = login,
-    )
-}
 
-@Composable
-private fun LoginContent(
-    modifier: Modifier = Modifier,
-    login: (String) -> Unit = {},
-) {
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -155,9 +145,8 @@ private fun LoginContent(
                 modifier =
                     Modifier
                         .padding(bottom = 50.dp)
-                        .clickable {
-                            // 카카오 로그인 제대로 되었을 때 login 함수 실행하기
-                            login("TEST1") // 예시
+                        .noRippleClickable {
+                            activity?.let { handleKakaoLogin(it) }
                         },
             )
         }
@@ -344,6 +333,8 @@ private fun FourthPage() {
 @Composable
 fun LoginScreenPreview() {
     FamilringTheme {
-//        LoginScreen()
+        LoginScreen(
+            loginState = LoginState.Loading,
+        )
     }
 }

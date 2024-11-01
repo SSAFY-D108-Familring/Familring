@@ -1,13 +1,9 @@
 package com.familring.presentation.screen.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -29,67 +25,68 @@ import com.familring.presentation.component.DateInputRow
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TimeInputRow
 import com.familring.presentation.theme.Brown01
-import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import com.familring.presentation.util.noRippleClickable
+import com.familring.presentation.util.isDateFormValid
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun TimeSelectTap(modifier: Modifier = Modifier) {
-    var isStartSelected by remember { mutableStateOf(true) }
+fun TimeSelectTap(
+    modifier: Modifier = Modifier,
+    title: String,
+    schedule: LocalDateTime,
+    isTimeChecked: Boolean,
+    onButtonClicked: (selectedSchedule: LocalDateTime) -> Unit = {},
+) {
+    var year by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("yyyy"))) }
+    var month by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("MM"))) }
+    var date by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("dd"))) }
 
-    var startYear by remember { mutableStateOf("") }
-    var startMonth by remember { mutableStateOf("") }
-    var startDate by remember { mutableStateOf("") }
+    var hour by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("hh"))) }
+    var minute by remember { mutableStateOf(schedule.format(DateTimeFormatter.ofPattern("mm"))) }
+    var isAm by remember { mutableStateOf(schedule.hour < 12) }
 
-    var startHour by remember { mutableStateOf("") }
-    var startMinute by remember { mutableStateOf("") }
-    var startIsAm by remember { mutableStateOf(true) }
-
-    var endYear by remember { mutableStateOf("") }
-    var endMonth by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
-
-    var endHour by remember { mutableStateOf("") }
-    var endMinute by remember { mutableStateOf("") }
-    var endIsAm by remember { mutableStateOf(true) }
-
-//    val isButtonEnabled = isDateFormValid(startYear, startMonth, startDate)
+    val isButtonEnabled =
+        isDateFormValid(
+            year,
+            month,
+            date,
+            hour,
+            minute,
+        )
 
     val focusManager = LocalFocusManager.current
 
     Surface(
-        modifier = modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp),
         color = White,
     ) {
         Column(
             modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                Column {
-                    SelectedTime(
-                        title = "시작",
-                        isSelected = isStartSelected,
-                        onClick = { isStartSelected = true },
-                    )
-                }
-                Column {
-                    SelectedTime(
-                        title = "종료",
-                        isSelected = !isStartSelected,
-                        onClick = { isStartSelected = false },
-                    )
-                }
-            }
+            Text(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(top = 10.dp, start = 5.dp),
+                text = title,
+                style =
+                    Typography.headlineMedium.copy(
+                        fontSize = 22.sp,
+                    ),
+            )
             Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(20.dp)
+                        .padding(start = 20.dp, end = 20.dp, top = 10.dp)
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center,
             ) {
@@ -105,83 +102,134 @@ fun TimeSelectTap(modifier: Modifier = Modifier) {
                     )
                     DateInputRow(
                         modifier = Modifier.padding(top = 5.dp),
-                        year = if (isStartSelected) startYear else endYear,
-                        month = if (isStartSelected) startMonth else endMonth,
-                        date = if (isStartSelected) startDate else endDate,
-                        onYearChange = { if (isStartSelected) startYear = it else endYear = it },
-                        onMonthChange = { if (isStartSelected) startMonth = it else endMonth = it },
-                        onDateChange = { if (isStartSelected) startDate = it else endDate = it },
-                        focusManager = focusManager,
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text = "시간",
-                        style = Typography.displayLarge.copy(fontSize = 16.sp),
-                    )
-                    TimeInputRow(
-                        modifier = Modifier.padding(top = 5.dp),
-                        hour = if (isStartSelected) startHour else endHour,
-                        minute = if (isStartSelected) startMinute else endMinute,
-                        isAm = if (isStartSelected) startIsAm else endIsAm,
-                        onHourChange = { if (isStartSelected) startHour = it else endHour = it },
-                        onMinuteChange = {
-                            if (isStartSelected) startMinute = it else endMinute = it
+                        year = year,
+                        month = month,
+                        date = date,
+                        onYearChange = {
+                            year = it
                         },
-                        onAmPmChanged = { if (isStartSelected) startIsAm = it else endIsAm = it },
+                        onMonthChange = {
+                            month = it
+                        },
+                        onDateChange = {
+                            date = it
+                        },
                         focusManager = focusManager,
                     )
+                    if (isTimeChecked) {
+                        Column {
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                text = "시간",
+                                style = Typography.displayLarge.copy(fontSize = 16.sp),
+                            )
+                            TimeInputRow(
+                                modifier = Modifier.padding(top = 5.dp),
+                                hour = hour,
+                                minute = minute,
+                                isAm = isAm,
+                                onHourChange = {
+                                    hour = it
+                                },
+                                onMinuteChange = {
+                                    minute = it
+                                },
+                                onAmPmChanged = {
+                                    isAm = it
+                                },
+                                focusManager = focusManager,
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
+            Text(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(top = 5.dp, bottom = 10.dp, start = 5.dp),
+                text = "일정 형식을 확인해 주세요!",
+                style =
+                    Typography.labelMedium.copy(
+                        fontSize = 12.sp,
+                        color = if (isButtonEnabled) White else Red01,
+                    ),
+            )
             RoundLongButton(
                 text = "시간 선택 완료하기",
-                onClick = { /*TODO*/ },
-//                enabled = isButtonEnabled,
+                onClick = {
+                    onButtonClicked(
+                        LocalDateTime.of(
+                            year.toInt(),
+                            month.toInt(),
+                            date.toInt(),
+                            calculateAmPmHour(hour.toInt(), isAm),
+                            minute.toInt(),
+                        ),
+                    )
+                },
+                enabled = isButtonEnabled,
             )
         }
     }
 }
 
+private fun calculateAmPmHour(
+    hour: Int,
+    isAm: Boolean,
+): Int =
+    if (isAm) {
+        if (hour < 12) hour else hour - 12
+    } else {
+        if (hour < 12) hour + 12 else hour
+    }
+
 @Composable
 fun SelectedTime(
     modifier: Modifier = Modifier,
     title: String,
-    isSelected: Boolean,
-    onClick: () -> Unit = {},
+    schedule: LocalDateTime,
+    isTimeChecked: Boolean,
 ) {
-    val textColor = if (isSelected) Brown01 else Gray03
     Column(
-        modifier = Modifier.padding(vertical = 10.dp).noRippleClickable { onClick() },
+        modifier = modifier,
     ) {
         Text(
             text = title,
             style =
                 Typography.displayLarge.copy(
                     fontSize = 15.sp,
-                    color = textColor,
+                    color = Brown01,
                 ),
         )
         Text(
-            text = "2024년 10월 24일",
+            text = schedule.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")),
             style =
                 Typography.headlineMedium.copy(
                     fontSize = 22.sp,
-                    color = textColor,
+                    color = Brown01,
                 ),
         )
-        Text(
-            text = "오전 9:00",
-            style =
-                Typography.displayLarge.copy(
-                    fontSize = 15.sp,
-                    color = textColor,
-                ),
-        )
+        if (isTimeChecked) {
+            Text(
+                text = schedule.format(DateTimeFormatter.ofPattern("a hh:mm")),
+                style =
+                    Typography.displayLarge.copy(
+                        fontSize = 15.sp,
+                        color = Brown01,
+                    ),
+            )
+        }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun TimeSelectTapPreview() {
-    TimeSelectTap()
+    TimeSelectTap(
+        title = "시작 일정",
+        schedule = LocalDateTime.now(),
+        isTimeChecked = true,
+    )
 }

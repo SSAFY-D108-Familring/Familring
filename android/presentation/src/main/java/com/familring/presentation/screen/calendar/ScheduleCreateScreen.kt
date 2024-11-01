@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,7 +29,6 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -57,11 +57,14 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green08
 import com.familring.presentation.theme.Orange01
 import com.familring.presentation.theme.Pink02
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Red02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow03
 import com.familring.presentation.util.noRippleClickable
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ScheduleCreateRoute(
@@ -79,10 +82,15 @@ fun ScheduleCreateRoute(
 @Composable
 fun ScheduleCreateScreen(
     modifier: Modifier = Modifier,
+    startSchedule: LocalDateTime = LocalDateTime.now().withHour(9).withMinute(0),
+    endSchedule: LocalDateTime = LocalDateTime.now().withHour(12).withMinute(0),
     popUpBackStack: () -> Unit = {},
     profiles: List<Profile> = listOf(),
 ) {
     var title by remember { mutableStateOf("") }
+
+    var startSchedule by remember { mutableStateOf(startSchedule) }
+    var endSchedule by remember { mutableStateOf(endSchedule) }
 
     var isTimeChecked by remember { mutableStateOf(false) }
     var isNotiChecked by remember { mutableStateOf(false) }
@@ -99,13 +107,6 @@ fun ScheduleCreateScreen(
             Black,
         )
     var selectedColorIdx by remember { mutableIntStateOf(0) }
-    val isSelectedColorList by remember {
-        derivedStateOf {
-            List(colors.size) { index ->
-                index == selectedColorIdx
-            }.toMutableStateList()
-        }
-    }
 
     var isProfileCheckedList by remember {
         mutableStateOf(profiles.map { false }.toMutableStateList())
@@ -114,8 +115,13 @@ fun ScheduleCreateScreen(
 
     val focusManager = LocalFocusManager.current
 
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet by remember { mutableStateOf(false) }
+    val startSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showStartBottomSheet by remember { mutableStateOf(false) }
+
+    val endSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showEndBottomSheet by remember { mutableStateOf(false) }
+
+    val isButtonEnabled = startSchedule.isBefore(endSchedule)
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -135,7 +141,7 @@ fun ScheduleCreateScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+            Spacer(modifier = Modifier.height(30.dp))
             Column(
                 modifier =
                     Modifier
@@ -176,16 +182,33 @@ fun ScheduleCreateScreen(
                         innerTextField()
                     },
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    SelectedTime(
+                        modifier = Modifier.noRippleClickable { showStartBottomSheet = true },
+                        title = "시작",
+                        schedule = startSchedule,
+                        isTimeChecked = isTimeChecked,
+                    )
+                    SelectedTime(
+                        modifier = Modifier.noRippleClickable { showEndBottomSheet = true },
+                        title = "종료",
+                        schedule = endSchedule,
+                        isTimeChecked = isTimeChecked,
+                    )
+                }
                 Text(
                     modifier =
                         Modifier
-                            .padding(top = 8.dp)
-                            .noRippleClickable { showBottomSheet = true },
-                    text = "10월 24일 목 오전 9:00 - 오후 12:00",
+                            .fillMaxWidth()
+                            .padding(top = 5.dp),
+                    text = "일정 형식을 확인해 주세요!",
                     style =
-                        Typography.headlineLarge.copy(
-                            fontSize = 18.sp,
-                            color = Black,
+                        Typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            color = if (isButtonEnabled) White else Red01,
                         ),
                 )
                 Spacer(modifier = Modifier.fillMaxHeight(0.05f))
@@ -204,7 +227,13 @@ fun ScheduleCreateScreen(
                     )
                     Switch(
                         checked = isTimeChecked,
-                        onCheckedChange = { isTimeChecked = it },
+                        onCheckedChange = {
+                            if (!it) {
+                                startSchedule.withHour(9).withMinute(0)
+                                endSchedule.withHour(12).withMinute(0)
+                            }
+                            isTimeChecked = it
+                        },
                         colors =
                             SwitchDefaults.colors(
                                 checkedThumbColor = White,
@@ -274,11 +303,9 @@ fun ScheduleCreateScreen(
                 ) {
                     colors.forEachIndexed { index, color ->
                         ColorBox(
-                            isSelected = isSelectedColorList[index],
+                            isSelected = (index == selectedColorIdx),
                             color = color,
                             onColorSelected = {
-                                isSelectedColorList[selectedColorIdx] = false
-                                isSelectedColorList[index] = true
                                 selectedColorIdx = index
                             },
                         )
@@ -301,28 +328,22 @@ fun ScheduleCreateScreen(
                         ZodiacProfileWithNameAndCheckedBox(
                             profile = profile,
                             isChecked = isProfileCheckedList[index],
-                            onChecked = {
-                                if (isAllChecked) {
-                                    isAllChecked = false
-                                }
-                                isProfileCheckedList[index] = it
+                            onChecked = { isChecked ->
+                                isProfileCheckedList[index] = isChecked
 
                                 isAllChecked =
-                                    isProfileCheckedList.all { item ->
-                                        item
-                                    }
+                                    isProfileCheckedList.all { it }
                             },
                         )
                     }
                     item {
                         AllCheckBox(
                             isChecked = isAllChecked,
-                            onChecked = { checked ->
-                                isAllChecked = checked
-                                isProfileCheckedList =
-                                    isProfileCheckedList
-                                        .map { checked }
-                                        .toMutableStateList()
+                            onChecked = { isChecked ->
+                                isAllChecked = isChecked
+                                for (i in isProfileCheckedList.indices) {
+                                    isProfileCheckedList[i] = isChecked
+                                }
                             },
                         )
                     }
@@ -333,20 +354,78 @@ fun ScheduleCreateScreen(
                 modifier = Modifier.padding(bottom = 20.dp),
                 text = "일정 추가하기",
                 onClick = {},
+                enabled = isButtonEnabled,
             )
         }
-        if (showBottomSheet) {
+        if (showStartBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
-                    showBottomSheet = false
+                    showStartBottomSheet = false
                 },
-                sheetState = sheetState,
+                sheetState = startSheetState,
                 containerColor = White,
             ) {
-                TimeSelectTap()
+                TimeSelectTap(
+                    title = "시작 일정",
+                    schedule = startSchedule,
+                    isTimeChecked = isTimeChecked,
+                    onButtonClicked = {
+                        startSchedule = it
+                        showStartBottomSheet = false
+                    },
+                )
+            }
+        }
+        if (showEndBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = {
+                    showEndBottomSheet = false
+                },
+                sheetState = endSheetState,
+                containerColor = White,
+            ) {
+                TimeSelectTap(
+                    title = "종료 일정",
+                    schedule = endSchedule,
+                    isTimeChecked = isTimeChecked,
+                    onButtonClicked = {
+                        endSchedule = it
+                        showEndBottomSheet = false
+                    },
+                )
             }
         }
     }
+}
+
+private fun scheduleText(
+    startSchedule: LocalDateTime,
+    endSchedule: LocalDateTime,
+    isTimeChecked: Boolean,
+): String {
+    val formatWithTime = DateTimeFormatter.ofPattern("MM월 dd일 E a hh:mm")
+    val formatWithoutTime = DateTimeFormatter.ofPattern("MM월 dd일 E")
+    val formatWithOnlyTime = DateTimeFormatter.ofPattern("a hh:mm")
+
+    val text =
+        if (isTimeChecked) {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithOnlyTime)
+            } else {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithTime)
+            }
+        } else {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithoutTime)
+            } else {
+                startSchedule.format(formatWithoutTime) +
+                    " - " + endSchedule.format(formatWithoutTime)
+            }
+        }
+
+    return text
 }
 
 @Composable

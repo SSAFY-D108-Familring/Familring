@@ -1,6 +1,7 @@
 package com.familring.presentation.screen.login
 
 import androidx.compose.runtime.Stable
+import com.kakao.sdk.auth.model.OAuthToken
 import javax.annotation.concurrent.Immutable
 
 @Stable
@@ -10,8 +11,13 @@ sealed interface LoginState {
 
     @Immutable
     data class Success(
-        val accessToken: String = "",
-        val refreshToken: String = "",
+        val token: OAuthToken,
+        val userId: Long?,
+    ) : LoginState
+
+    @Immutable
+    data class NoRegistered(
+        val message: String,
     ) : LoginState
 
     @Immutable
