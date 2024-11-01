@@ -1,32 +1,29 @@
 package com.familring.presentation.navigation
 
 /*
- 추가 하는 방법
+ 받는 변수가 있는 스크린 추가
     data object sample : ScreenDestination(route = "화면이름"){
-        // 넘기는 인자 있어야 하는 경우
+        override val route: String
+            get() = "화면이름/인자변수명"
         val arguments = listOf(
             navArgument(name = "id") { type = NavType.StringType },
-            navArgument(name = "number") { type = NavType.IntType },
         )
         fun createRoute(
             id : String,
-            number : Int
-        ) = this.route/id/$number
+        ) = "화면이름/$id"
     }
  */
 
 sealed class ScreenDestinations(
     open val route: String,
 ) {
-    // 로그인
-    data object Login : ScreenDestinations(route = "Login")
-
     // 첫 번째 화면 (초대코드 입력)
     data object First : ScreenDestinations(route = "First")
 
     // 생년월일 입력
     data object Birth : ScreenDestinations(route = "Birth")
 
+    // 로그인
     data object Login : ScreenDestinations(route = "Login")
 
     // 질문 화면

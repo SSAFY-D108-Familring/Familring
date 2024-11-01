@@ -46,6 +46,7 @@ import com.familring.presentation.theme.Yellow01
 @Composable
 fun ProfileColorRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel,
     popUpBackStack: () -> Unit,
     navigateToNickname: () -> Unit,
 ) {
@@ -60,7 +61,7 @@ fun ProfileColorRoute(
 fun ProfileColorScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
-    navigateToNickname: () -> Unit = {},
+    navigateToNickname: () -> Unit = { },
 ) {
     var selectedColor by remember { mutableStateOf<Color>(Black) }
     val colors =

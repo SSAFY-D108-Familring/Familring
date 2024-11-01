@@ -32,6 +32,7 @@ import com.familring.presentation.util.isDateFormValid
 @Composable
 fun BirthRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel,
     popUpBackStack: () -> Unit,
     navigateToColor: () -> Unit,
 ) {
@@ -45,6 +46,7 @@ fun BirthRoute(
 @Composable
 fun BirthScreen(
     modifier: Modifier = Modifier,
+    make: Boolean = true,
     popUpBackStack: () -> Unit = {},
     navigateToColor: () -> Unit = {},
 ) {

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
 import com.familring.presentation.component.GrayBigTextField
@@ -42,6 +43,7 @@ import com.familring.presentation.util.noRippleClickable
 @Composable
 fun FirstRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel = hiltViewModel(),
     navigateToBirth: () -> Unit,
 ) {
     FirstScreen(
