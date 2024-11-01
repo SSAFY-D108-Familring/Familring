@@ -69,7 +69,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         String faceImgUrl = "";
 
         // 1. 얼굴 사진 처리
-        if (image.isEmpty()) {
+        if (image == null) {
             // 1-1. 얼굴 사진 없는 경우 에러 처리
             throw new NoContentUserImageException();
         }
