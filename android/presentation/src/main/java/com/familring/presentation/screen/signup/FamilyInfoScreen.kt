@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,10 +55,7 @@ fun FamilyInfoScreen(
     navigateToHome: () -> Unit = {},
     navigateToDone: () -> Unit = {},
 ) {
-    var count by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("M") }
-
-    val focusManager = LocalFocusManager.current
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -100,7 +96,7 @@ fun FamilyInfoScreen(
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
             Text(
-                text = "나는 가족에서",
+                text = "나는 우리 가족의",
                 style = Typography.headlineLarge,
                 color = Gray01,
             )
@@ -125,12 +121,6 @@ fun FamilyInfoScreen(
                         color = Black,
                     ),
             )
-            Spacer(modifier = Modifier.height(15.dp))
-            Text(
-                text = "을 맡고 있어요",
-                style = Typography.headlineLarge,
-                color = Gray01,
-            )
             Spacer(modifier = Modifier.fillMaxHeight(0.2f))
             RoundLongButton(
                 onClick = {
@@ -141,7 +131,6 @@ fun FamilyInfoScreen(
                     navigateToHome()
                 },
                 text = "다음으로",
-                enabled = count.isNotEmpty(),
             )
         }
     }

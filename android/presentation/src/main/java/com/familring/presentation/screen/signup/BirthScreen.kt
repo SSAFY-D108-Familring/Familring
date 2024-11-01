@@ -40,15 +40,16 @@ fun BirthRoute(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
         navigateToColor = navigateToColor,
+        updateBirth = viewModel::updateBirthDate,
     )
 }
 
 @Composable
 fun BirthScreen(
     modifier: Modifier = Modifier,
-    make: Boolean = true,
     popUpBackStack: () -> Unit = {},
     navigateToColor: () -> Unit = {},
+    updateBirth: (String) -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }

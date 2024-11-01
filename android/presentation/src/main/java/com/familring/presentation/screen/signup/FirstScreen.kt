@@ -49,6 +49,7 @@ fun FirstRoute(
     FirstScreen(
         modifier = modifier,
         navigateToBirth = navigateToBirth,
+        updateMake = viewModel::updateIsMake,
     )
 }
 
@@ -56,6 +57,7 @@ fun FirstRoute(
 fun FirstScreen(
     modifier: Modifier = Modifier,
     navigateToBirth: () -> Unit = {},
+    updateMake: (Boolean) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     var code by remember { mutableStateOf("") }
@@ -116,7 +118,10 @@ fun FirstScreen(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     BrownRoundButton(
-                        onClick = navigateToBirth,
+                        onClick = {
+                            updateMake(false)
+                            navigateToBirth()
+                        },
                         text = "코드 입력 완료",
                         enabled = code.length == 6,
                     )
@@ -127,6 +132,7 @@ fun FirstScreen(
             Text(
                 modifier =
                     Modifier.noRippleClickable {
+                        updateMake(true)
                         navigateToBirth()
                     },
                 text = "없어요, 새로 개설할래요!",
