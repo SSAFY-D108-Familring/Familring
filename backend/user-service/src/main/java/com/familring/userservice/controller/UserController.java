@@ -38,16 +38,6 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 성공적으로 조회 했습니다.", response));
     }
 
-    @PostMapping("/info")
-    @Operation(summary = "여러 회원 정보 조회", description = "List로 전달받은 userId에 해당하는 회원 정보 모두 조회")
-    public ResponseEntity<BaseResponse<List<UserInfoResponse>>> getAllUser(@RequestBody List<Long> userIds) {
-        log.info("userIds: {}", userIds);
-        List<UserInfoResponse> response = userService.getAllUser(userIds);
-
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 모두 성공적으로 조회 했습니다.", response));
-    }
-    
-    
     @PostMapping("/login")
     @Operation(summary = "카카오톡 소셜 로그인", description = "로그인 시 회원가입 여부 확인 후 회원가입")
     public ResponseEntity<BaseResponse<JwtTokenResponse>> login(@RequestBody UserLoginRequest userLogInRequest) {

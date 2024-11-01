@@ -5,26 +5,22 @@ import com.familring.userservice.exception.user.NoContentUserImageException;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
-import com.familring.userservice.model.dto.request.FileDeleteRequest;
 import com.familring.userservice.model.dto.request.UserDeleteRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
+import com.familring.userservice.service.client.FamilyServiceFeignClient;
+import com.familring.userservice.service.client.FileServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 

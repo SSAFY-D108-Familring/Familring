@@ -1,4 +1,4 @@
-package com.familring.userservice.service;
+package com.familring.userservice.service.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
@@ -10,12 +10,12 @@ import java.util.List;
 
 @FeignClient(name = "file-service")
 public interface FileServiceFeignClient {
-    @PostMapping(value = "/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/client/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     ResponseEntity<List<String>> uploadFiles(
             @RequestPart("files") List<MultipartFile> files,
             @RequestParam(value = "folderPath", required = false) String folderPath
     );
 
-    @DeleteMapping("/files")
+    @DeleteMapping("/client/files")
     ResponseEntity<Void> deleteFiles(@RequestBody List<String> fileUrls);
 }

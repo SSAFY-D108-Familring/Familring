@@ -2,6 +2,7 @@ package com.familring.fileservice.controller;
 
 import com.familring.fileservice.exception.base.ApplicationException;
 import com.familring.fileservice.service.FileService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,10 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/client/files")
 @RequiredArgsConstructor
 @Log4j2
-@Tag(name = "File Management", description = "S3 파일 업로드 및 삭제 API")
+@Hidden
 public class FileController {
 
     private final FileService fileService;
