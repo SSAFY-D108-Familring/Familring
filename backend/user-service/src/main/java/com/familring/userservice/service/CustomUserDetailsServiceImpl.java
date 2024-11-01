@@ -123,10 +123,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         List<MultipartFile> faceFiles = List.of(image);
 
         // Feign Client로 파일 업로드 요청
-        ResponseEntity<List<String>> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath);
-        log.info("response: {}", response.getBody());
+        List<String> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath).getData();
 
-        return response.getBody();
+        return response;
     }
 
     @Override
@@ -147,9 +146,12 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         // 2. redis의 refreshToken 제거
         redisService.deleteRefreshToken(user.getUserKakaoId());
-
+        log.info("redis refreshToken 제거 완료");
+        
         // 3. S3에서 이미지 제거
+        log.info("userFace: {}", user.getUserFace());
         deleteFiles(user.getUserFace());
+        log.info("S3에서 회원 얼굴 이미지 제거 완료");
 
         // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
         UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
@@ -157,7 +159,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 .beforeUserKakaoId(userName)
                 .afterUserKakaoId("DELETE_{" + userName + "}")
                 .userPassword("")
-                .userName("탈퇴 회원")
+                .userNickname("탈퇴 회원")
                 .userRole(FamilyRole.N)
                 .userFace("")
                 .userEmotion("")
@@ -167,6 +169,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         // 5. user 테이블 수정
         userDao.deleteUser(deleteRequest);
+        log.info("user 테이블 수정 완료");
 
         // 6. 가족 구성원 제거
         String familyResponse = deleteFamilyMember(user.getUserId());
@@ -180,9 +183,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         fileServiceFeignClient.deleteFiles(faceFiles);
     }
     public String deleteFamilyMember(Long userId) {
-        ResponseEntity<String> response = familyServiceFeignClient.deleteFamilyMember(userId);
+        familyServiceFeignClient.deleteFamilyMember(userId);
 
-        return response.getBody();
+        return "file-service에서 파일 삭제 완료";
     }
 
 

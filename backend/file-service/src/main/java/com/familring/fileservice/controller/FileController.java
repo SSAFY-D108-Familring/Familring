@@ -175,7 +175,7 @@ public class FileController {
                     )
             )
     })
-    @DeleteMapping()
+    @DeleteMapping
     public ResponseEntity<BaseResponse<Void>> deleteFiles(
             @Parameter(
                     description = "삭제할 파일들의 URL 목록",

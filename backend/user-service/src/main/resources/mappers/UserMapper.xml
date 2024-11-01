@@ -62,7 +62,7 @@
 
     <update id="deleteUser" parameterType="com.familring.userservice.model.dto.request.UserDeleteRequest">
         UPDATE user
-        SET user_kakao_id = #{afterUserKakaoId}, user_password = #{userPassword}, user_name = #{userName}, user_role = #{userRole}, user_face = #{userFace},
+        SET user_kakao_id = #{afterUserKakaoId}, user_password = #{userPassword}, user_nickname = #{userNickname}, user_role = #{userRole}, user_face = #{userFace},
             user_emotion = #{userEmotion}, user_fcm_token = #{userFcmToken}, user_modified_at = NOW(), user_is_deleted = #{userIsDeleted}
         WHERE user_id = #{userId}
     </update>
