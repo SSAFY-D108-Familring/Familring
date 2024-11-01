@@ -39,7 +39,7 @@ fun NoBorderTextField(
     focusManager: FocusManager,
 ) {
     OutlinedTextField(
-        modifier = modifier.width(60.dp),
+        modifier = modifier.width(50.dp),
         placeholder = {
             if (value.isEmpty()) {
                 Box(
@@ -50,7 +50,7 @@ fun NoBorderTextField(
                         text = placeholder,
                         style =
                             Typography.titleLarge.copy(
-                                fontSize = 30.sp,
+                                fontSize = 24.sp,
                                 letterSpacing = 0.em,
                             ),
                         color = Gray03,
@@ -77,7 +77,7 @@ fun NoBorderTextField(
         shape = RoundedCornerShape(12.dp),
         textStyle =
             Typography.titleLarge.copy(
-                fontSize = 30.sp,
+                fontSize = 24.sp,
                 letterSpacing = 0.em,
                 textAlign = TextAlign.Center,
             ),
