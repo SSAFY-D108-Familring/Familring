@@ -23,6 +23,7 @@ import com.familring.presentation.screen.calendar.CalendarRoute
 import com.familring.presentation.screen.calendar.DailyUploadRoute
 import com.familring.presentation.screen.calendar.ScheduleCreateRoute
 import com.familring.presentation.screen.chat.ChatRoute
+import com.familring.presentation.screen.gallery.AlbumRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.home.NotificationRoute
@@ -140,6 +141,20 @@ fun MainNavHost(
                 navigateToColor = {
                     navController.navigate(ScreenDestinations.ProfileColor.route)
                 },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Login.route,
+        ) {
+            LoginRoute(
+                modifier = modifier,
+                navigateToFirst = {
+                    navController.navigate(ScreenDestinations.First.route)
+                },
+                navigateToHome = {
+                    navController.navigate(ScreenDestinations.Home.route)
+                }
             )
         }
 
@@ -341,6 +356,15 @@ fun MainNavHost(
                 modifier = modifier,
                 navigateToHome =
                     navController::popBackStack,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Album.route,
+        ) {
+            AlbumRoute(
+                modifier = modifier,
+                onNavigateBack = navController::popBackStack,
             )
         }
     }
