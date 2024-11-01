@@ -6,7 +6,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface AuthApi {
-    @POST("/users/jwt")
+    @POST("users/jwt")
     suspend fun getNewToken(
         @Body refreshToken: String,
     ): BaseResponse<JwtToken>

@@ -8,6 +8,8 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.familring.data.R
 import com.familring.data.datasourceImpl.AuthDataSourceImpl
 import com.familring.data.datasourceImpl.TokenDataSourceImpl
+import com.familring.domain.datasource.AuthDataSource
+import com.familring.domain.datasource.TokenDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,9 +31,9 @@ object DataSourceModule {
 
     @Singleton
     @Provides
-    fun provideTokenDataSource(dataStore: DataStore<Preferences>): TokenDataSourceImpl = TokenDataSourceImpl(dataStore)
+    fun provideTokenDataSource(dataStore: DataStore<Preferences>): TokenDataSource = TokenDataSourceImpl(dataStore)
 
     @Singleton
     @Provides
-    fun provideAuthDataSource(dataStore: DataStore<Preferences>): AuthDataSourceImpl = AuthDataSourceImpl(dataStore)
+    fun provideAuthDataSource(dataStore: DataStore<Preferences>): AuthDataSource = AuthDataSourceImpl(dataStore)
 }
