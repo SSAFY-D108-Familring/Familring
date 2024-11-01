@@ -1,4 +1,4 @@
-package com.familring.familyservice.service;
+package com.familring.familyservice.service.family;
 
 import com.familring.common_service.dto.BaseResponse;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;

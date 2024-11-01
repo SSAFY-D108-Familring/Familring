@@ -1,8 +1,8 @@
-package com.familring.familyservice.controller;
+package com.familring.familyservice.controller.client;
 
 import com.familring.common_service.dto.BaseResponse;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
-import com.familring.familyservice.service.FamilyService;
+import com.familring.familyservice.service.family.FamilyService;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
