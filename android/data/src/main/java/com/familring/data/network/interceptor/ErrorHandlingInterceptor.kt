@@ -14,11 +14,12 @@ class ErrorHandlingInterceptor : Interceptor {
         try {
             val response = chain.proceed(request)
             if (response.isSuccessful) return response
-            val errorBody = response.body?.toString()
+            val errorBody = response.body?.string() ?: return response
+
             val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+
             errorResponse?.let {
-                // 나중에 여기 코드 수정
-                if (it.errorCode == "404") {
+                if (it.errorCode == "T0004") {
                     throw RefreshTokenExpiredException(it)
                 }
             }
