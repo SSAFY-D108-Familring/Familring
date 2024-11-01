@@ -82,25 +82,29 @@ public class FamilyServiceImpl implements FamilyService {
 
     @Override
     @Transactional
-    public FamilyInfoResponse createFamily(Long userId, FamilyCreateRequest familyCreateRequest) {
+    public FamilyInfoResponse createFamily(Long userId) {
         // 1.  가족 생성
         // 1-1. 가족 코드 생성
         String code;
         do {
-            String uuid = UUID.randomUUID().toString();
+            String uuid = UUID.randomUUID().toString().toUpperCase();
             log.info("UUID: {}", uuid);
-            code = uuid.replaceAll("[^A-Z0-9]", "").substring(0, 6);
+            code = uuid.substring(0, 6);
             log.info("code: {}", code);
         }
         // 1-2. 중복 확인
         while (familyDao.existsFamilyByFamilyCode(code));
         
         // 1-3. dto 수정
-        familyCreateRequest.setFamilyCode(code);
-        familyCreateRequest.setFamilyCommunicationStatus(75);
+        FamilyCreateRequest familyCreateRequest = FamilyCreateRequest.builder()
+                .familyCode(code)
+                .familyCount(1)
+                .familyCommunicationStatus(75)
+                .build();
 
         // 1-4. DB에 가족 생성
         familyDao.insertFamily(familyCreateRequest);
+        log.info("가족 생성 완료");
 
         // 1-5. 생성된 가족 familyId 찾기
         Long familyId = familyDao.findLastInsertedFamilyId();
@@ -108,10 +112,12 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 2. 가족 구성원 추가
         familyDao.insetFamily_User(familyId, userId);
+        log.info("가족 구성원 추가 완료");
 
         // 3. 가족 조회
-        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
-                .orElseThrow(() -> new FamilyNotFoundException());
+        FamilyDto familyDto = familyDao.findFamilyByFamilyId(familyId)
+                        .orElseThrow(() -> new FamilyNotFoundException());
+        log.info("가족 조회 완료");
 
         // 4. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()

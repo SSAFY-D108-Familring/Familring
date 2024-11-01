@@ -52,9 +52,8 @@ public class FamilyController {
     @PostMapping
     @Operation(summary = "가족 생성", description = "가족 테이블을 생성")
     public ResponseEntity createFamily
-            (@Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId,
-             @RequestBody FamilyCreateRequest familyCreateRequest) {
-        FamilyInfoResponse response = familyService.createFamily(userId, familyCreateRequest);
+            (@Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId) {
+        FamilyInfoResponse response = familyService.createFamily(userId);
 
         return ResponseEntity.ok(response);
     }

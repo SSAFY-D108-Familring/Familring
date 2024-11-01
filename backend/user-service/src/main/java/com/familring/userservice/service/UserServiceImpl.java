@@ -4,7 +4,6 @@ import com.familring.userservice.config.jwt.JwtTokenProvider;
 import com.familring.userservice.config.redis.RedisService;
 import com.familring.userservice.exception.token.InvalidRefreshTokenException;
 import com.familring.userservice.model.dao.UserDao;
-import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
