@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.login
 
+import android.app.Activity
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,7 +22,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.MainActivity
 import com.familring.presentation.R
 import com.familring.presentation.theme.FamilringTheme
@@ -45,22 +46,30 @@ fun LoginRoute(
     modifier: Modifier = Modifier,
     navigateToFirst: () -> Unit,
     navigateToHome: () -> Unit,
+    showSnackBar: (String) -> Unit,
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
+    val loginState by viewModel.loginState.collectAsStateWithLifecycle()
+
     LoginScreen(
         modifier = modifier,
         navigateToFirst = navigateToFirst,
-        navigateToHome = navigateToHome
+        navigateToHome = navigateToHome,
+        showSnackBar = showSnackBar,
+        loginState = loginState,
+        handleKakaoLogin = { activity -> viewModel.handleKakaoLogin(activity) },
     )
 }
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
+    loginState: LoginState,
     navigateToFirst: () -> Unit = {},
     navigateToHome: () -> Unit = {},
-    viewModel: LoginViewModel = hiltViewModel(),
+    showSnackBar: (String) -> Unit = {},
+    handleKakaoLogin: (Activity) -> Unit = {},
 ) {
-    val loginState by viewModel.loginState.collectAsState()
     val context = LocalContext.current
     val activity = context as? MainActivity
 
@@ -68,16 +77,15 @@ fun LoginScreen(
         when (loginState) {
             is LoginState.Success -> navigateToHome()
             is LoginState.NoRegistered -> navigateToFirst()
-            is LoginState.Error -> Log.d("login", "로그인 에러")
+            is LoginState.Error -> showSnackBar(loginState.errorMessage)
             else -> {
                 Log.d("login", "로그인 초기화")
             }
         }
     }
 
-
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = White,
     ) {
         Column(
@@ -98,10 +106,10 @@ fun LoginScreen(
 
                 Row(
                     modifier =
-                    Modifier
-                        .wrapContentHeight()
-                        .fillMaxWidth()
-                        .padding(top = 50.dp),
+                        Modifier
+                            .wrapContentHeight()
+                            .fillMaxWidth()
+                            .padding(top = 50.dp),
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     repeat(pagerState.pageCount) { iteration ->
@@ -109,11 +117,11 @@ fun LoginScreen(
                             if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
                         Box(
                             modifier =
-                            Modifier
-                                .padding(4.dp)
-                                .clip(CircleShape)
-                                .size(10.dp)
-                                .background(color),
+                                Modifier
+                                    .padding(4.dp)
+                                    .clip(CircleShape)
+                                    .size(10.dp)
+                                    .background(color),
                         )
                     }
                 }
@@ -135,13 +143,11 @@ fun LoginScreen(
                 painter = painterResource(id = R.drawable.img_img_kakao_login),
                 contentDescription = "img_kakao_login",
                 modifier =
-                Modifier
-                    .padding(bottom = 50.dp)
-                    .noRippleClickable {
-                        if (activity != null) {
-                            viewModel.handleKakaoLogin(activity)
-                        }
-                    },
+                    Modifier
+                        .padding(bottom = 50.dp)
+                        .noRippleClickable {
+                            activity?.let { handleKakaoLogin(it) }
+                        },
             )
         }
     }
@@ -327,6 +333,8 @@ private fun FourthPage() {
 @Composable
 fun LoginScreenPreview() {
     FamilringTheme {
-        LoginScreen()
+        LoginScreen(
+            loginState = LoginState.Loading,
+        )
     }
 }

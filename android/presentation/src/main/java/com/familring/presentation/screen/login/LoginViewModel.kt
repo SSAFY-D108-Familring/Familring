@@ -34,7 +34,7 @@ class LoginViewModel
         private val userRepository: UserRepository,
         private val tokenDataSource: TokenDataSource,
     ) : ViewModel() {
-        private val _loginState = MutableStateFlow<LoginState>(LoginState.Initial)
+        private val _loginState = MutableStateFlow<LoginState>(LoginState.Loading)
         val loginState = _loginState.asStateFlow()
 
         private val _loginEvent = MutableSharedFlow<LoginEvent>()
@@ -161,13 +161,13 @@ class LoginViewModel
                                             }
 
                                             is ApiResponse.Error -> {
-                                                Log.e(TAG, "서버 로그인 실패: ${response.errorMessage}")
+                                                Log.e(TAG, "서버 로그인 실패: ${response.message}")
                                                 _loginState.value =
-                                                    LoginState.NoRegistered("로그인 실패: ${response.errorMessage}")
+                                                    LoginState.NoRegistered("로그인 실패: ${response.message}")
                                                 _loginEvent.emit(
                                                     LoginEvent.Error(
-                                                        errorCode = response.errorCode,
-                                                        errorMessage = "로그인 실패 ${response.errorMessage}",
+                                                        errorCode = response.code,
+                                                        errorMessage = "로그인 실패 ${response.message}",
                                                     ),
                                                 )
                                             }
