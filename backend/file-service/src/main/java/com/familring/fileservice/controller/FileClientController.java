@@ -3,7 +3,6 @@ package com.familring.fileservice.controller;
 import com.familring.common_service.dto.BaseResponse;
 import com.familring.fileservice.exception.base.ApplicationException;
 import com.familring.fileservice.service.FileService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -26,8 +24,7 @@ import java.util.List;
 @RequestMapping("/client/files")
 @RequiredArgsConstructor
 @Log4j2
-@Hidden
-public class FileController {
+public class FileClientController {
 
     private final FileService fileService;
 
