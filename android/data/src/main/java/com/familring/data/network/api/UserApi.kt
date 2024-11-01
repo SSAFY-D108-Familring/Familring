@@ -7,7 +7,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface UserApi {
-    @POST("/users/login")
+    @POST("users/login")
     suspend fun login(
         @Body request: UserLoginRequest,
     ): BaseResponse<JwtToken>
