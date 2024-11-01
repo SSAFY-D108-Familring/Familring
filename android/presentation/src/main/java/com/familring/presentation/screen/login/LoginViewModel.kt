@@ -1,7 +1,6 @@
 package com.familring.presentation.screen.login
 
 import android.app.Activity
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,7 +8,6 @@ import com.familring.domain.datasource.TokenDataSource
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserLoginRequest
-import com.familring.presentation.MainActivity
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -32,7 +30,6 @@ class LoginViewModel
     @Inject
     constructor(
         private val userRepository: UserRepository,
-        private val tokenDataSource: TokenDataSource,
     ) : ViewModel() {
         private val _loginState = MutableStateFlow<LoginState>(LoginState.Loading)
         val loginState = _loginState.asStateFlow()

@@ -1,11 +1,9 @@
 package com.familring.domain.request
 
-import java.util.Date
-
 data class UserJoinRequest(
     val userKakaoId: String,
     val userNickname: String,
-    val userBirthDate: Date,
+    val userBirthDate: String,
     val userRole: UserRole,
     val userColor: String,
 )
