@@ -4,7 +4,6 @@ import com.familring.userservice.config.jwt.JwtTokenProvider;
 import com.familring.userservice.config.redis.RedisService;
 import com.familring.userservice.exception.token.InvalidRefreshTokenException;
 import com.familring.userservice.model.dao.UserDao;
-import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
@@ -20,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -84,6 +85,20 @@ public class UserServiceImpl implements UserService {
 
         // 3. 응답
         return response;
+    }
+
+    @Override
+    public List<UserInfoResponse> getAllUser(List<Long> userIds) {
+        // 1. 응답 생성
+        List<UserInfoResponse> responseList = new ArrayList<>();
+
+        // 2. 각 userId별 메소드 호출
+        for(Long userId : userIds) {
+            responseList.add(getUser(userId));
+        }
+
+        // 3. 응답
+        return responseList;
     }
 
     @Override

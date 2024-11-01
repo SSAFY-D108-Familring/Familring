@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -28,7 +30,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    @Operation(summary = "회원 정보 조회 - Header", description = "Header의 토큰을 사용해 회원의 정보를 조회")
+    @Operation(summary = "회원 정보 조회", description = "Header의 토큰을 사용해 요청 회원의 정보만을 조회")
     public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         log.info("userId: {}", userId);
         UserInfoResponse response = userService.getUser(userId);

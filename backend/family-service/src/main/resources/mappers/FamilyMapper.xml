@@ -9,17 +9,16 @@
         <result column="family_code" property="familyCode"/>
         <result column="family_count" property="familyCount"/>
         <result column="family_communication_status" property="familyCommunicationStatus"/>
-        <result column="family_created_at" property="familyCreatedAt"/>
     </resultMap>
 
     <select id="findFamilyByFamilyId" resultMap="familyInfo">
-        SELECT *
+        SELECT family_id, family_code, family_count, family_communication_status
         FROM family
         WHERE family_id = #{familyId}
     </select>
 
     <select id="findFamilyByUserId" resultMap="familyInfo">
-        SELECT *
+        SELECT f.family_id, f.family_code, f.family_count, f.family_communication_status
         FROM family f
         JOIN family_user fu
             ON f.family_id = fu.family_id
@@ -35,7 +34,7 @@
     </select>
 
     <select id ="findFamilyByFamilyCode" resultMap="familyInfo">
-        SELECT *
+        SELECT family_id, family_code, family_count, family_communication_status
         FROM family
         WHERE family_code = #{familyCode}
     </select>
@@ -46,7 +45,7 @@
         WHERE family_code = #{code}
     </select>
 
-    <select id="findLastInsertedFamilyId" resultType="int">
+    <select id="findLastInsertedFamilyId" resultType="java.lang.Long">
         SELECT LAST_INSERT_ID()
     </select>
 

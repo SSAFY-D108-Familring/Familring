@@ -5,26 +5,22 @@ import com.familring.userservice.exception.user.NoContentUserImageException;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.FamilyRole;
 import com.familring.userservice.model.dto.UserDto;
-import com.familring.userservice.model.dto.request.FileDeleteRequest;
 import com.familring.userservice.model.dto.request.UserDeleteRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
+import com.familring.userservice.service.client.FamilyServiceFeignClient;
+import com.familring.userservice.service.client.FileServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -127,10 +123,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         List<MultipartFile> faceFiles = List.of(image);
 
         // Feign Client로 파일 업로드 요청
-        ResponseEntity<List<String>> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath);
-        log.info("response: {}", response.getBody());
+        List<String> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath).getData();
 
-        return response.getBody();
+        return response;
     }
 
     @Override
@@ -151,9 +146,12 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         // 2. redis의 refreshToken 제거
         redisService.deleteRefreshToken(user.getUserKakaoId());
-
+        log.info("redis refreshToken 제거 완료");
+        
         // 3. S3에서 이미지 제거
+        log.info("userFace: {}", user.getUserFace());
         deleteFiles(user.getUserFace());
+        log.info("S3에서 회원 얼굴 이미지 제거 완료");
 
         // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
         UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
@@ -161,7 +159,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 .beforeUserKakaoId(userName)
                 .afterUserKakaoId("DELETE_{" + userName + "}")
                 .userPassword("")
-                .userName("탈퇴 회원")
+                .userNickname("탈퇴 회원")
                 .userRole(FamilyRole.N)
                 .userFace("")
                 .userEmotion("")
@@ -171,6 +169,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         // 5. user 테이블 수정
         userDao.deleteUser(deleteRequest);
+        log.info("user 테이블 수정 완료");
 
         // 6. 가족 구성원 제거
         String familyResponse = deleteFamilyMember(user.getUserId());
@@ -184,9 +183,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         fileServiceFeignClient.deleteFiles(faceFiles);
     }
     public String deleteFamilyMember(Long userId) {
-        ResponseEntity<String> response = familyServiceFeignClient.deleteFamilyMember(userId);
+        familyServiceFeignClient.deleteFamilyMember(userId);
 
-        return response.getBody();
+        return "file-service에서 파일 삭제 완료";
     }
 
 
