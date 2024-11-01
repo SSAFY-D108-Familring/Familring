@@ -1,19 +1,19 @@
-package com.familring.data.datasourceImpl
+package com.familring.data.datastoreImpl
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.familring.domain.datasource.AuthDataSource
+import com.familring.domain.datasource.AuthDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class AuthDataSourceImpl
+class AuthDataStoreImpl
     @Inject
     constructor(
         private val dataStore: DataStore<Preferences>,
-    ) : AuthDataSource {
+    ) : AuthDataStore {
         override suspend fun saveKakaoId(kakaoId: String) {
             dataStore.edit { prefs ->
                 prefs[KAKAO_ID_KEY] = kakaoId

@@ -2,7 +2,7 @@ package com.familring.domain.datasource
 
 import com.familring.domain.model.JwtToken
 
-interface TokenDataSource {
+interface TokenDataStore {
     suspend fun saveJwtToken(jwtToken: JwtToken)
 
     suspend fun getAccessToken(): String?

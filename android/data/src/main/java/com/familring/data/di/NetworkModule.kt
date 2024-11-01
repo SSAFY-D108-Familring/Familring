@@ -5,7 +5,7 @@ import com.familring.data.network.api.AuthApi
 import com.familring.data.network.interceptor.AccessTokenInterceptor
 import com.familring.data.network.interceptor.ErrorHandlingInterceptor
 import com.familring.data.network.interceptor.JwtAuthenticator
-import com.familring.domain.datasource.TokenDataSource
+import com.familring.domain.datasource.TokenDataStore
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
@@ -92,11 +92,11 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideJwtAuthenticator(
-        tokenDataSource: TokenDataSource,
+        tokenDataStore: TokenDataStore,
         authApi: AuthApi,
-    ): JwtAuthenticator = JwtAuthenticator(tokenDataSource, authApi)
+    ): JwtAuthenticator = JwtAuthenticator(tokenDataStore, authApi)
 
     @Singleton
     @Provides
-    fun provideAccessTokenInterceptor(tokenDataSource: TokenDataSource): AccessTokenInterceptor = AccessTokenInterceptor(tokenDataSource)
+    fun provideAccessTokenInterceptor(tokenDataStore: TokenDataStore): AccessTokenInterceptor = AccessTokenInterceptor(tokenDataStore)
 }

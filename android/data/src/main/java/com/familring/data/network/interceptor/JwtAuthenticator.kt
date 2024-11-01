@@ -3,7 +3,7 @@ package com.familring.data.network.interceptor
 import com.familring.data.exception.ApiException
 import com.familring.data.exception.RefreshTokenExpiredException
 import com.familring.data.network.api.AuthApi
-import com.familring.domain.datasource.TokenDataSource
+import com.familring.domain.datasource.TokenDataStore
 import com.familring.domain.model.JwtToken
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class JwtAuthenticator
     @Inject
     constructor(
-        private val tokenDataSource: TokenDataSource,
+        private val tokenDataStore: TokenDataStore,
         private val authApi: AuthApi,
     ) : Authenticator {
         override fun authenticate(
@@ -29,7 +29,7 @@ class JwtAuthenticator
             }
             val refreshToken =
                 runBlocking {
-                    tokenDataSource.getRefreshToken()
+                    tokenDataStore.getRefreshToken()
                 }
             return try {
                 val newJwtToken: JwtToken? =
@@ -40,7 +40,7 @@ class JwtAuthenticator
                         }
                     }
                 if (newJwtToken == null) return null
-                runBlocking { tokenDataSource.saveJwtToken(newJwtToken) }
+                runBlocking { tokenDataStore.saveJwtToken(newJwtToken) }
 
                 request
                     .newBuilder()

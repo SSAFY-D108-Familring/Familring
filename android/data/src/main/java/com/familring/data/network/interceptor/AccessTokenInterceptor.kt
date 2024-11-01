@@ -1,6 +1,6 @@
 package com.familring.data.network.interceptor
 
-import com.familring.domain.datasource.TokenDataSource
+import com.familring.domain.datasource.TokenDataStore
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -9,14 +9,14 @@ import javax.inject.Inject
 class AccessTokenInterceptor
     @Inject
     constructor(
-        private val tokenDataSource: TokenDataSource,
+        private val tokenDataStore: TokenDataStore,
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val requestBuilder = chain.request().newBuilder()
             val accessToken: String =
                 runBlocking {
                     val token: String =
-                        tokenDataSource.getAccessToken() ?: run {
+                        tokenDataStore.getAccessToken() ?: run {
                             ""
                         }
                     token

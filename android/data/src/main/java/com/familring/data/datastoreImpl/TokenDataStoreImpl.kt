@@ -1,20 +1,20 @@
-package com.familring.data.datasourceImpl
+package com.familring.data.datastoreImpl
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.familring.domain.datasource.TokenDataSource
+import com.familring.domain.datasource.TokenDataStore
 import com.familring.domain.model.JwtToken
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class TokenDataSourceImpl
+class TokenDataStoreImpl
     @Inject
     constructor(
         private val dataStore: DataStore<Preferences>,
-    ) : TokenDataSource {
+    ) : TokenDataStore {
         override suspend fun saveJwtToken(jwtToken: JwtToken) {
             dataStore.edit { prefs ->
                 prefs[ACCESS_TOKEN_KEY] = jwtToken.accessToken
