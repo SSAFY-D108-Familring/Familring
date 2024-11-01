@@ -38,7 +38,7 @@ public class FileService {
      */
     public List<String> uploadFiles(List<MultipartFile> files, String folderPath) {
         if (CollectionUtils.isEmpty(files)) {
-            throw S3Exception.noFilesToUpload();
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "업로드할 파일이 없습니다.");
         }
 
         List<String> uploadedUrls = new ArrayList<>();
@@ -53,12 +53,12 @@ public class FileService {
                 uploadedUrls.add(upload(file, folderPath));
             } catch (IOException e) {
                 log.error("파일 업로드 중 오류 발생: {}", e.getMessage(), e);
-                throw S3Exception.fileUploadError();
+                throw new S3Exception(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다.");
             }
         }
 
         if (uploadedUrls.isEmpty()) {
-            throw S3Exception.noFilesUploaded();
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "업로드된 파일이 없습니다.");
         }
 
         return uploadedUrls;
@@ -72,7 +72,7 @@ public class FileService {
      */
     public void deleteFiles(List<String> fileUrls) {
         if (CollectionUtils.isEmpty(fileUrls)) {
-            throw S3Exception.noUrlsToDelete();
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "삭제할 파일 URL이 없습니다.");
         }
 
         for (String fileUrl : fileUrls) {
@@ -108,7 +108,8 @@ public class FileService {
         log.info("삭제할 파일 키: {}", fileKey);
 
         if (!amazonS3Client.doesObjectExist(bucket, fileKey)) {
-            throw S3Exception.fileNotFound(fileKey);
+            throw new S3Exception(HttpStatus.NOT_FOUND,
+                    String.format("존재하지 않는 파일입니다. 파일 키: %s", fileKey));
         }
 
         try {
@@ -116,7 +117,7 @@ public class FileService {
             log.info("파일 삭제 완료: {}", fileKey);
         } catch (Exception e) {
             log.error("파일 삭제 중 오류 발생: {}", e.getMessage(), e);
-            throw S3Exception.fileDeleteError();
+            throw new S3Exception(HttpStatus.INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다.");
         }
     }
 
@@ -147,7 +148,7 @@ public class FileService {
     private String extractFileKey(String fileUrl) {
         String[] urlParts = fileUrl.split(bucket + ".s3");
         if (urlParts.length < 2) {
-            throw S3Exception.invalidFileUrl();
+            throw new S3Exception(HttpStatus.BAD_REQUEST, "잘못된 파일 URL 형식입니다.");
         }
         return urlParts[1].substring(urlParts[1].indexOf("/") + 1);
     }
