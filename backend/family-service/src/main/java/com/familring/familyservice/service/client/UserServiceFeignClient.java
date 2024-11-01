@@ -10,6 +10,6 @@ import java.util.List;
 
 @FeignClient(name = "user-service")
 public interface UserServiceFeignClient {
-    @PostMapping("/users/client")
+    @PostMapping("/client/users")
     BaseResponse<List<UserInfoResponse>> getAllUser(@RequestBody List<Long> userIds);
 }
