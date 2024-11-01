@@ -2,14 +2,12 @@ package com.familring.common_service.base;
 
 import lombok.Getter;
 
-import java.time.LocalDateTime;
-
 @Getter
 public class ErrorCodeResponse extends ErrorResponse {
-    private String code;
+    private String errorCode;
 
-    public ErrorCodeResponse(String code, String message) {
+    public ErrorCodeResponse(String errorCode, String message) {
         super(message);
-        this.code = code;
+        this.errorCode = errorCode;
     }
 }

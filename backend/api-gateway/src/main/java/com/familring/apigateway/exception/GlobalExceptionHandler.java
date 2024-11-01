@@ -35,7 +35,7 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         if (ex instanceof JwtValidationException jwtEx) {
             status = jwtEx.getHttpStatus();
             errorResponse = new ErrorCodeResponse(
-                    jwtEx.getCode(),
+                    jwtEx.getErrorCode(),
                     jwtEx.getMessage()
             );
         } else {

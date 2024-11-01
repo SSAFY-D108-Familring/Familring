@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ErrorResponse {
     private LocalDateTime timeStamp;
-    private String message;
+    private String errorMessage;
 
-    public ErrorResponse(String message) {
-        this.message = message;
+    public ErrorResponse(String errorMessage) {
+        this.errorMessage = errorMessage;
         this.timeStamp = LocalDateTime.now().withNano(0);
     }
 }

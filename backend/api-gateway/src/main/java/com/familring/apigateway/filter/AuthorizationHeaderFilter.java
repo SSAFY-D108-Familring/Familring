@@ -14,14 +14,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 
 import javax.crypto.SecretKey;
 
-import static com.familring.apigateway.exception.ErrorCode.*;
+import static com.familring.apigateway.exception.ErrorDetail.*;
 
 @Component
 @Log4j2
