@@ -1,5 +1,6 @@
 package com.familring.familyservice.service;
 
+import com.familring.common_service.dto.BaseResponse;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.FamilyDto;
@@ -60,13 +61,14 @@ public class FamilyServiceImpl implements FamilyService {
         // 1.  userId의 가족 구성원 모두의 userId 추출
         List<Long> members = familyDao.findFamilyUserByUserId(userId);
 
-        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users")  api 요청
-        List<UserInfoResponse> response = getUserInfoFromUserService(members);
+        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
+        BaseResponse<List<UserInfoResponse>> response = userServiceFeignClient.getAllUser(members);
+        List<UserInfoResponse> userInfoResponses = response.getData(); // data 필드에 접근
 
         // 3. 응답
-        return response;
+        return userInfoResponses;
     }
-    public List<UserInfoResponse> getUserInfoFromUserService(List<Long> members) {
+    public BaseResponse<List<UserInfoResponse>> getUserInfoFromUserService(List<Long> members) {
         // Feign Client를 통해 user-service의 getUser 메서드 호출
         return userServiceFeignClient.getAllUser(members);
     }
