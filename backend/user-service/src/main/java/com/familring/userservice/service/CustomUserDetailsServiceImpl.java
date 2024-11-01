@@ -11,6 +11,7 @@ import com.familring.userservice.service.client.FamilyServiceFeignClient;
 import com.familring.userservice.service.client.FileServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,6 +35,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final FileServiceFeignClient fileServiceFeignClient;
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final RedisService redisService;
+
+    @Value("${cloud.aws.s3.url}")
+    private String s3Url;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -65,7 +69,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         String faceImgUrl = "";
 
         // 1. 얼굴 사진 처리
-        if(image.isEmpty()){
+        if (image.isEmpty()) {
             // 1-1. 얼굴 사진 없는 경우 에러 처리
             throw new NoContentUserImageException();
         }
@@ -92,7 +96,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         log.info("사용자의 띠: {}", zodiacSign[zodiacIndex]);
 
         // 2-5. 띠 이미지 URL 가져오기
-        String zodiacSignImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
+        String zodiacSignImgUrl = s3Url + "/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
         log.info("zodiacSignImgUrl: {}", zodiacSignImgUrl);
 
 
@@ -116,6 +120,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // 4. 기존 createUser(UserDetails user) 호출
         createUser(user);
     }
+
     public List<String> uploadFiles(MultipartFile image, String folderPath) {
         log.info("folderPath: {}", folderPath);
 
@@ -147,7 +152,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // 2. redis의 refreshToken 제거
         redisService.deleteRefreshToken(user.getUserKakaoId());
         log.info("redis refreshToken 제거 완료");
-        
+
         // 3. S3에서 이미지 제거
         log.info("userFace: {}", user.getUserFace());
         deleteFiles(user.getUserFace());
@@ -175,6 +180,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         String familyResponse = deleteFamilyMember(user.getUserId());
         log.info(familyResponse);
     }
+
     public void deleteFiles(String imageUrl) {
         // List<MultipartFile>로 파일 리스트 구성
         List<String> faceFiles = List.of(imageUrl);
@@ -182,6 +188,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // Feign Client로 파일 삭제 요청
         fileServiceFeignClient.deleteFiles(faceFiles);
     }
+
     public String deleteFamilyMember(Long userId) {
         familyServiceFeignClient.deleteFamilyMember(userId);
 
