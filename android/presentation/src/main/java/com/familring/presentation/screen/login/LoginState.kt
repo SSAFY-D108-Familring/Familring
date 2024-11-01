@@ -1,8 +1,10 @@
 package com.familring.presentation.screen.login
 
+import androidx.compose.runtime.Stable
 import javax.annotation.concurrent.Immutable
 
-interface LoginState {
+@Stable
+sealed interface LoginState {
     @Immutable
     data object Loading : LoginState
 
