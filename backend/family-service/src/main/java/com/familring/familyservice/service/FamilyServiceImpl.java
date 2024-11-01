@@ -7,12 +7,10 @@ import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
-import jakarta.ws.rs.HEAD;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,21 +61,14 @@ public class FamilyServiceImpl implements FamilyService {
         List<Long> members = familyDao.findFamilyUserByUserId(userId);
 
         // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users")  api 요청
-        List<UserInfoResponse> response = new ArrayList<>();
-
-        // 2-1. 가족 구성원들에 대해 모두 처리
-        for (Long memberId : members) {
-            // 2-2. 사용자 정보를 요청하여 리스트에 추가
-            UserInfoResponse userInfo = getUserInfoFromUserService(memberId);
-            response.add(userInfo);
-        }
+        List<UserInfoResponse> response = getUserInfoFromUserService(members);
 
         // 3. 응답
         return response;
     }
-    public UserInfoResponse getUserInfoFromUserService(Long memberId) {
+    public List<UserInfoResponse> getUserInfoFromUserService(List<Long> members) {
         // Feign Client를 통해 user-service의 getUser 메서드 호출
-        return userServiceFeignClient.getUserInfo(memberId);
+        return userServiceFeignClient.getAllUser(members);
     }
 
     @Override

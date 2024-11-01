@@ -39,7 +39,7 @@ public class UserController {
     }
 
     @GetMapping("/info")
-    @Operation(summary = "회원 정보 모두 조회", description = "List로 전달받은 회원 정보 모두 조회")
+    @Operation(summary = "여러 회원 정보 조회", description = "List로 전달받은 userId에 해당하는 회원 정보 모두 조회")
     public ResponseEntity<BaseResponse<List<UserInfoResponse>>> getAllUser(@RequestBody List<Long> userIds) {
         log.info("userIds: {}", userIds);
         List<UserInfoResponse> response = userService.getAllUser(userIds);
