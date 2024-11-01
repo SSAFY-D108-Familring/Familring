@@ -105,6 +105,7 @@ fun DailyUploadScreen(
                     Modifier
                         .fillMaxWidth(0.6f)
                         .aspectRatio(3f / 4f)
+                        .clip(shape = RoundedCornerShape(12.dp))
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp))
                         .clickable {
                             singlePhotoPickerLauncher.launch(
