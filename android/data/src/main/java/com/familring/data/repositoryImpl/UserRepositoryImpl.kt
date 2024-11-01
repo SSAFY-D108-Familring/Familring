@@ -3,8 +3,8 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.UserApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.data.util.toMultiPart
-import com.familring.domain.datasource.AuthDataSource
-import com.familring.domain.datasource.TokenDataSource
+import com.familring.domain.datasource.AuthDataStore
+import com.familring.domain.datasource.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.JwtToken
 import com.familring.domain.repository.UserRepository
@@ -22,8 +22,8 @@ class UserRepositoryImpl
     @Inject
     constructor(
         private val api: UserApi,
-        private val tokenDataSource: TokenDataSource,
-        private val authDataSource: AuthDataSource,
+        private val tokenDataStore: TokenDataStore,
+        private val authDataSource: AuthDataStore,
     ) : UserRepository {
         override suspend fun login(request: UserLoginRequest): Flow<ApiResponse<JwtToken>> =
             flow {
@@ -33,7 +33,7 @@ class UserRepositoryImpl
                         default = JwtToken(),
                     )
                 if (response is ApiResponse.Success) {
-                    tokenDataSource.saveJwtToken(
+                    tokenDataStore.saveJwtToken(
                         jwtToken = response.data,
                     )
                     authDataSource.saveKakaoId(request.userKakaoId)
@@ -60,7 +60,7 @@ class UserRepositoryImpl
                         default = JwtToken(),
                     )
                 if (response is ApiResponse.Success) {
-                    tokenDataSource.saveJwtToken(response.data)
+                    tokenDataStore.saveJwtToken(response.data)
                     authDataSource.saveKakaoId(request.userKakaoId)
                 }
                 emit(response)

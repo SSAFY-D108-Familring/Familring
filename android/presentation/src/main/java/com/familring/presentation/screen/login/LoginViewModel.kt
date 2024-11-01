@@ -4,7 +4,6 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.familring.domain.datasource.TokenDataSource
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserLoginRequest
@@ -134,22 +133,12 @@ class LoginViewModel
                             _loginEvent.emit(LoginEvent.Error(errorMessage = "사용자 정보 요청 실패 ${error.message}"))
                         }
                     } else if (user != null) {
-                        Log.d(
-                            TAG,
-                            "사용자 정보 요청 성공" +
-                                "\n회원번호: ${user.id}" +
-                                "\n닉네임: ${user.kakaoAccount?.profile?.nickname}" +
-                                "\n프로필사진: ${user.kakaoAccount?.profile?.thumbnailImageUrl}",
-                        )
-
                         viewModelScope.launch {
                             try {
-                                Log.d(TAG, "서버 로그인 시도")
                                 userRepository
                                     .login(
                                         UserLoginRequest(userKakaoId = user.id.toString()),
                                     ).collectLatest { response ->
-                                        Log.d(TAG, "서버 응답: $response")
                                         when (response) {
                                             is ApiResponse.Success -> {
                                                 Log.d(TAG, "서버 로그인 성공: ${response.data}")
