@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
 
-@FeignClient(name = "user-service")
+@FeignClient(name = "family-service")
 public interface FamilyServiceFeignClient {
     // 가족의 정보를 조회
     @GetMapping("/client/family")

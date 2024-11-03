@@ -10,12 +10,6 @@ import java.util.List;
 
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    @Query("SELECT DISTINCT s FROM Schedule s " +
-            "JOIN s.scheduleUsers su " +
-            "WHERE (MONTH(s.startTime) = :month OR MONTH(s.endTime) = :month) " +
-            "AND su.userId IN :userIds")
-    List<Schedule> findSchedulesByMonthAndUserIds(
-            @Param("month") int month,
-            @Param("userIds") List<String> userIds
-    );
+    @Query("SELECT s FROM Schedule  s WHERE s.familyId = :familyId AND (MONTH(s.startTime) = :month OR MONTH(s.endTime) = :month)")
+    List<Schedule> findSchedulesByMonthAndFamilyId(int month, Long familyId);
 }

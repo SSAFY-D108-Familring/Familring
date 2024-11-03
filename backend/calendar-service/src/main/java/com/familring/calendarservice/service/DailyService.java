@@ -1,5 +1,6 @@
 package com.familring.calendarservice.service;
 
+import com.familring.calendarservice.dto.response.DailyDateResponse;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.service.client.dto.UserInfoResponse;
 import com.familring.calendarservice.domain.Daily;
@@ -18,13 +19,11 @@ public class DailyService {
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final DailyRepository dailyRepository;
 
-    // 3. 일상 조회는 유저 아이디로 가족 구성원 조회해서 디비에서 그 구성원들의 게시물 긁어오기
-    public void getDailiesByMonth(int month, Long userId) {
+    public List<DailyDateResponse> getDailiesDateByMonth(int month, Long userId) {
         List<Long> userIds = familyServiceFeignClient.getFamilyMemberList(userId).getData()
                 .stream().map(UserInfoResponse::getUserId).toList();
 
-        List<Daily> dailies = dailyRepository.findDailiesByUserIdIn(userIds);
-
-
+        return dailyRepository.findDailiesByMonthAndUserIdIn(month, userIds).stream().map(
+                daily -> DailyDateResponse.builder().id(daily.getId()).createdAt(daily.getCreatedAt()).build()).toList();
     }
 }
