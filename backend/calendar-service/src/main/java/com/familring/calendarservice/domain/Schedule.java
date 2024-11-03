@@ -35,8 +35,11 @@ public class Schedule {
     @Column(name = "schedule_title")
     private String title;
 
-    @Column(name = "schedule_notification")
-    private Boolean notification;
+    @Column(name = "schedule_has_notification")
+    private Boolean hasNotification;
+
+    @Column(name = "schedule_has_time")
+    private Boolean hasTime;
 
     @Column(name = "schedule_color")
     private String color;

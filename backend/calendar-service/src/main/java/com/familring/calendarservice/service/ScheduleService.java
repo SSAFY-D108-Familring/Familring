@@ -26,9 +26,9 @@ public class ScheduleService {
                         .endTime(schedule.getEndTime()).color(schedule.getColor()).build()).toList();
     }
 
-//    public void getSchedules(List<Long> scheduleIds) {
-//        List<ScheduleResponse> schedules = scheduleRepository.findAllById(scheduleIds);
-//    }
+    public void getSchedules(List<Long> scheduleIds) {
+        List<ScheduleResponse> schedules = scheduleRepository.findAllById(scheduleIds);
+    }
 
 
 }

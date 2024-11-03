@@ -19,9 +19,9 @@ public class ScheduleController {
 
     private ScheduleService scheduleService;
 
-//    @GetMapping()
-//    @Operation(summary = "다중 일정 조회", description = "일정들의 세부 정보를 조회합니다.")
-//    public ResponseEntity<BaseResponse> getSchedules(@RequestParam("schedule_id") List<Long> scheduleIds){
-//        scheduleService.getSchedules(scheduleIds);
-//    }
+    @GetMapping()
+    @Operation(summary = "다중 일정 조회", description = "일정들의 세부 정보를 조회합니다.")
+    public ResponseEntity<BaseResponse> getSchedules(@RequestParam("schedule_id") List<Long> scheduleIds){
+        scheduleService.getSchedules(scheduleIds);
+    }
 }
