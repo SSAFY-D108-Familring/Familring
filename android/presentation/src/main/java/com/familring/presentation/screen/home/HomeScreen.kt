@@ -39,6 +39,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familring.domain.model.User
 import com.familring.presentation.R
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green02
@@ -51,25 +54,44 @@ import com.familring.presentation.util.noRippleClickable
 @Composable
 fun HomeRoute(
     modifier: Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
     navigateToNotification: () -> Unit,
     navigateToTimeCapsule: () -> Unit,
     navigateToInterest: () -> Unit,
+    showSnackBar: (String) -> Unit,
 ) {
-    Log.d("nakyung", "홈화면 그려짐")
-    HomeScreen(
-        modifier = modifier,
-        navigateToNotification = navigateToNotification,
-        navigateToTimeCapsule = navigateToTimeCapsule,
-        navigateToInterest = navigateToInterest,
-    )
+    val homeState by viewModel.homeState.collectAsStateWithLifecycle()
+
+    when (val state = homeState) {
+        is HomeState.Loading -> {
+            Log.d("nakyung", "홈화면 로딩중")
+        }
+        is HomeState.Success -> {
+            Log.d("nakyung", "홈화면 그려짐")
+            HomeScreen(
+                modifier = modifier,
+                familyMembers = state.familyMembers,
+                navigateToNotification = navigateToNotification,
+                navigateToTimeCapsule = navigateToTimeCapsule,
+                navigateToInterest = navigateToInterest,
+                showSnackBar = showSnackBar,
+            )
+        }
+        is HomeState.Error -> {
+            Log.d("nakyung", "홈화면 에러")
+        }
+
+    }
 }
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
+    familyMembers: List<User>,
     navigateToNotification: () -> Unit = {},
     navigateToTimeCapsule: () -> Unit = {},
     navigateToInterest: () -> Unit = {},
+    showSnackBar: (String) -> Unit = {},
 ) {
     var progress by remember {
         mutableStateOf(0f)
@@ -81,6 +103,9 @@ fun HomeScreen(
 
     var childCount = 4
 
+    val father = familyMembers.find { it.userRole == "F" }
+    val mother = familyMembers.find { it.userRole == "M" }
+    val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
     Box(
         modifier =
             modifier
@@ -261,22 +286,30 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                FamilyCard() // 엄마 카드 자리
+                if (mother != null) {
+                    FamilyCard(mother)
+                } else{
+                    EmptyCard()
+                }
                 Spacer(modifier = Modifier.width(16.dp))
                 Image(
                     painter = painterResource(id = R.drawable.img_heart),
                     contentDescription = "heart_img",
                 )
                 Spacer(modifier = Modifier.width(15.dp))
-                FamilyCard() // 아빠 카드 자리
+                if (father != null) {
+                    FamilyCard(father)
+                } else{
+                    EmptyCard()
+                }
             }
             Spacer(modifier = Modifier.fillMaxSize(0.1f))
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(childCount) {
-                    FamilyCard() // 자식 카드 자리
+                items(children.size) { index ->
+                    FamilyCard(children[index]) // 자식 카드 자리
                 }
             }
         }
@@ -288,7 +321,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun FamilyCard() {
+fun FamilyCard(user: User) {
     ElevatedCard(
         shape = RoundedCornerShape(15.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -318,8 +351,39 @@ fun FamilyCard() {
     }
 }
 
+@Composable
+fun EmptyCard() {
+    ElevatedCard(
+        shape = RoundedCornerShape(15.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    ) {
+        Column(
+            modifier =
+            Modifier
+                .background(color = Green06)
+                .padding(horizontal = 22.dp)
+                .padding(vertical = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(text = "비엇음", style = Typography.titleLarge.copy(fontSize = 15.sp))
+            Spacer(modifier = Modifier.fillMaxSize(0.01f))
+            Image(
+                painter = painterResource(id = R.drawable.img_chicken),
+                contentDescription = "chicken_img",
+            )
+            Spacer(
+                modifier = Modifier.height(15.dp),
+            )
+            Text(
+                text = "비엇어요 \uD83E\uDD2C",
+                style = Typography.displaySmall.copy(fontSize = 11.sp),
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+    //HomeScreen()
 }
