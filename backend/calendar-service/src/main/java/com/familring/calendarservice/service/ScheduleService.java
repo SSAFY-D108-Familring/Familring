@@ -6,6 +6,8 @@ import com.familring.calendarservice.dto.response.ScheduleDateResponse;
 import com.familring.calendarservice.dto.response.ScheduleRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.dto.response.ScheduleUserResponse;
+import com.familring.calendarservice.exception.schedule.InvalidScheduleRequestException;
+import com.familring.calendarservice.exception.schedule.ScheduleNotFoundException;
 import com.familring.calendarservice.repository.ScheduleUserRepository;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.ScheduleRepository;
@@ -27,6 +29,7 @@ public class ScheduleService {
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleUserRepository scheduleUserRepository;
+    private final FamilyServiceFeignClient familyServiceFeignClient;
 
     public List<ScheduleDateResponse> getSchedulesByMonth(int year, int month, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
@@ -76,13 +79,14 @@ public class ScheduleService {
         scheduleRepository.save(schedule);
     }
 
+    public void deleteSchedule(Long scheduleId, Long userId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(ScheduleNotFoundException::new);
 
-    private Long familyId;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    private String title;
-    private Boolean hasNotification;
-    private Boolean hasTime;
-    private String color;
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+        if (!schedule.getFamilyId().equals(familyId)) {
+            throw new InvalidScheduleRequestException();
+        }
 
+        scheduleRepository.delete(schedule);
+    }
 }

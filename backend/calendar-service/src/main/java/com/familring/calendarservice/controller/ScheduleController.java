@@ -36,8 +36,16 @@ public class ScheduleController {
             @RequestBody ScheduleRequest scheduleRequest,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         scheduleService.createSchedule(scheduleRequest, userId);
-
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 생성했습니다."));
+    }
+
+    @DeleteMapping("/{schedule_id}")
+    public ResponseEntity<BaseResponse<Void>> deleteSchedule(
+            @PathVariable("schedule_id") Long scheduleId,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        scheduleService.deleteSchedule(scheduleId, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 삭제했습니다."));
     }
 
 }
