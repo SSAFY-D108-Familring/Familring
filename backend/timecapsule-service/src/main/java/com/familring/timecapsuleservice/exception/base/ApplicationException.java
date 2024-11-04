@@ -1,6 +1,6 @@
-package com.familring.familyservice.exception.base;
+package com.familring.timecapsuleservice.exception.base;
 
-import com.familring.familyservice.exception.constant.ErrorDetail;
+import com.familring.timecapsuleservice.exception.constant.ErrorDetail;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
