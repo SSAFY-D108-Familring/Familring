@@ -14,7 +14,5 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TimeCapsuleCreateRequest {
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 }
