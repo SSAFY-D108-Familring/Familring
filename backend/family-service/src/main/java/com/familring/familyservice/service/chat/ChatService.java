@@ -20,5 +20,5 @@ public interface ChatService {
     Mono<Chat> sendMessage(ChatSendRequest chatSendRequest);
 
     // 투표 참여
-    Mono<Void> participateInVote(VoteParticipationRequest voteRequest);
+    void participateInVote(VoteParticipationRequest voteRequest);
 }

@@ -29,7 +29,7 @@ public class Vote {
         if (participantsChoices.containsKey(userId)) {
             throw new AlreadyParticipatedException();
         }
-        // 참여자 목록에 추가
+        // 참여자 목록에 추가하고 결과 업데이트
         participantsChoices.put(userId, option);
         voteResult.put(option, voteResult.getOrDefault(option, 0) + 1);
     }
@@ -38,10 +38,5 @@ public class Vote {
     public boolean checkIfCompleted(int familySize) {
         this.isCompleted = participantsChoices.size() >= familySize;
         return this.isCompleted;
-    }
-
-    public void updateVoteResult(String option) {
-        // 옵션에 해당하는 투표 결과 업데이트
-        voteResult.put(option, voteResult.getOrDefault(option, 0) + 1);
     }
 }

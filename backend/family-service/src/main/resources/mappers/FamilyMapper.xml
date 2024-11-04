@@ -39,6 +39,20 @@
         WHERE family_code = #{familyCode}
     </select>
 
+    <select id="findLastInsertedFamilyId" resultType="java.lang.Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <select id="countFamilyMembersByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM family_user
+        WHERE family_id = (
+            SELECT family_id
+            FROM family_user
+            WHERE user_id = #{userId}
+            )
+    </select>
+
     <select id="existsFamilyByFamilyCode" resultType="boolean">
         SELECT COUNT(1) > 0
         FROM family
@@ -49,10 +63,6 @@
         SELECT COUNT(1) > 0
         FROM family_user
         WHERE family_id = #{familyId} AND user_id = #{userId}
-    </select>
-
-    <select id="findLastInsertedFamilyId" resultType="java.lang.Long">
-        SELECT LAST_INSERT_ID()
     </select>
 
     <insert id="insertFamily" parameterType="com.familring.familyservice.model.dto.request.FamilyCreateRequest">

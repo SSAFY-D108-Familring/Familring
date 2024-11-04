@@ -2,7 +2,9 @@ package com.familring.familyservice.service.chat;
 
 import com.familring.common_service.dto.BaseResponse;
 import com.familring.familyservice.exception.chat.AlreadyParticipatedException;
+import com.familring.familyservice.exception.chat.VoteNotFoundException;
 import com.familring.familyservice.model.dao.ChatRepository;
+import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dao.VoteRepository;
 import com.familring.familyservice.model.dto.Chat;
 import com.familring.familyservice.model.dto.Vote;
@@ -16,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -32,9 +35,15 @@ public class ChatServiceImpl implements ChatService {
 
     private static final int DEFAULT_PAGE_SIZE = 50; // 기본 페이지 사이즈 설정
 
+    private final FamilyDao familyDao;
+
     private final ChatRepository chatRepository;
     private final VoteRepository voteRepository;
+
     private final UserServiceFeignClient userServiceFeignClient;
+
+    private final SimpMessagingTemplate messagingTemplate;
+
 
     @Override
     public Page<Chat> getMessagesByFamilyId(String familyId, int page) {
@@ -106,17 +115,33 @@ public class ChatServiceImpl implements ChatService {
         return chatRepository.save(chat);
     }
 
-    public Mono<Void> participateInVote(VoteParticipationRequest voteRequest) {
-        return voteRepository.findById(voteRequest.getVoteId())
-                .switchIfEmpty(Mono.error(new RuntimeException("투표를 찾을 수 없습니다.")))
-                .flatMap(vote -> {
-                    try {
-                        // 참여자 추가 시 예외가 발생할 수 있으므로 예외 처리
-                        vote.addParticipant(voteRequest.getUserId().toString(), voteRequest.getVoteComment()); // 예시로 "찬성" 선택
-                        return voteRepository.save(vote).then();
-                    } catch (AlreadyParticipatedException e) {
-                        return Mono.error(e); // 이미 참여한 경우 예외 반환
-                    }
-                });
+    @Override
+    @Transactional
+    public void participateInVote(VoteParticipationRequest voteRequest) {
+        Vote vote = voteRepository.findById(voteRequest.getVoteId())
+                .switchIfEmpty(Mono.error(new VoteNotFoundException()))
+                .block();
+
+        try {
+            // 2. 이미 참여한 경우 예외 발생
+            vote.addParticipant(voteRequest.getUserId().toString(), voteRequest.getVoteComment());
+
+            // 3-1. 가족 구성원 모두 참여했는지 확인
+            int familyCount = familyDao.countFamilyUserByUserId(voteRequest.getUserId());
+            if(familyCount == vote.getParticipantsChoices().size()) {
+                // 3-2. 투표 종료하기 -> isCompleted true로 변경
+                vote.setCompleted(true);
+
+                // 3-3. 모두 참여한 경우, 투표 결과를 채팅창에 보이도록 설정
+                messagingTemplate.convertAndSend("/topic/chat/" + voteRequest.getFamilyId(), vote.getVoteResult());
+                log.info("Vote result sent: {}", vote.getVoteResult());
+            }
+
+            // 투표 저장
+            voteRepository.save(vote);
+        } catch (AlreadyParticipatedException e) {
+            // 이미 참여한 경우 예외 처리
+            throw new AlreadyParticipatedException();
+        }
     }
 }

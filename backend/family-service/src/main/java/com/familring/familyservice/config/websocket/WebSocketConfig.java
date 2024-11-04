@@ -25,11 +25,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // STOMP 엔드포인트 등록
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        // "/ws" 엔드포인트를 등록하여 클라이언트가 WebSocket을 통해 연결할 수 있도록 함
-        // setAllowedOriginPatterns는 CORS 설정으로, 허용된 도메인에서의 요청만 받아들임
-        // withSockJS()는 SockJS를 활성화하여 WebSocket을 지원하지 않는 브라우저에서도 동작하도록 함
-        registry.addEndpoint("/ws-chat")
-                .setAllowedOriginPatterns("*")
-                .withSockJS();
+        registry.addEndpoint("/ws-chat") // "/ws-chat" 엔드포인트를 등록하여 클라이언트가 WebSocket을 통해 연결할 수 있도록 함
+                .setAllowedOriginPatterns("*") // CORS 설정으로, 허용된 도메인에서의 요청만 받아들임
+                .withSockJS(); // SockJS를 활성화하여 WebSocket을 지원하지 않는 브라우저에서도 동작하도록 함
     }
 }

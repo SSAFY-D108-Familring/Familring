@@ -168,14 +168,14 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional
     public void updateFamilyStatus(FamilyStatusRequest familyStatusRequest) {
         // 1. 가족 찾기
-        FamilyDto familyDto = familyDao.findFamilyByFamilyId(familyStatusRequest.getFamilyId())
+        Family family = familyDao.findFamilyByFamilyId(familyStatusRequest.getFamilyId())
                 .orElseThrow(() -> new FamilyNotFoundException());
-        log.info("before: {}", familyDto.getFamilyCommunicationStatus());
+        log.info("before: {}", family.getFamilyCommunicationStatus());
 
         // 2. 가족 상태 변경
         familyDao.updateFamilyCommunicationStatusByFamilyId(familyStatusRequest.getFamilyId(), familyStatusRequest.getAmount());
 
         // 3. 로그 확인
-        log.info("after: {}", familyDto.getFamilyCommunicationStatus());
+        log.info("after: {}", family.getFamilyCommunicationStatus());
     }
 }
