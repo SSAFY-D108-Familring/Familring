@@ -16,9 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,7 +49,7 @@ public class TimeCapsuleService {
 
         // 1. 작성할 수 있는 타임캡슐이 아예 없는 경우 (0)
         // 현재 날짜를 기준으로 해당 날짜가 포함된 타임캡슐이 없으면 작성할 수 있는 타임캡슐이 없는 경우
-        LocalDateTime currentDate = LocalDateTime.now(); // 현재 날짜
+        LocalDate currentDate = LocalDate.now(); // 현재 날짜
         Optional<TimeCapsule> timeCapsuleOpt  = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
 
         if(timeCapsuleOpt .isEmpty()) {
@@ -108,7 +110,7 @@ public class TimeCapsuleService {
 
         TimeCapsule timeCapsule = TimeCapsule.builder()
                 .familyId(familyId)
-                .startDate(LocalDateTime.now())
+                .startDate(LocalDate.now())
                 .endDate(timeCapsuleCreateRequest.getDate())
                 .build();
 
