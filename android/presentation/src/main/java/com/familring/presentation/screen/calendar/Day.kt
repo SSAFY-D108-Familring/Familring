@@ -33,6 +33,7 @@ import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toColor
 import com.familring.presentation.util.toLocalDate
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun Day(
@@ -141,8 +142,8 @@ private fun SchedulePreview() {
             PreviewSchedule(
                 id = 0,
                 title = "Meeting with Team",
-                startTime = "2024-10-01T10:00:00",
-                endTime = "2024-10-03T12:00:00",
+                startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
+                endTime = LocalDateTime.parse("2024-10-03T10:00:00"),
                 color = "0xFFFEE6C9",
             ),
     )
@@ -161,15 +162,15 @@ private fun DayPreview() {
                         PreviewSchedule(
                             id = 0,
                             title = "Meeting with Team",
-                            startTime = "2024-10-01T10:00:00",
-                            endTime = "2024-10-03T12:00:00",
+                            startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
+                            endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
                             color = "0xFFFEE6C9",
                         ),
                         PreviewSchedule(
                             id = 0,
                             title = "Meeting with Team",
-                            startTime = "2024-10-01T10:00:00",
-                            endTime = "2024-10-03T12:00:00",
+                            startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
+                            endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
                             color = "0xFFFEE6C9",
                         ),
                     ),

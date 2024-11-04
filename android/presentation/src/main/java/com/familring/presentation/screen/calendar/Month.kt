@@ -14,6 +14,7 @@ import com.familring.domain.model.DaySchedule
 import com.familring.domain.model.PreviewSchedule
 import com.familring.presentation.util.toLocalDate
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 
 @Composable
@@ -77,15 +78,15 @@ val samplePreviewSchedules =
         PreviewSchedule(
             id = 0,
             title = "Meeting with Team",
-            startTime = "2024-10-01T10:00:00",
-            endTime = "2024-10-03T12:00:00",
+            startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
+            endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
             color = "0xFFFAA6C9",
         ),
         PreviewSchedule(
             id = 1,
             title = "Meeting with Team",
-            startTime = "2024-10-06T10:00:00",
-            endTime = "2024-10-06T12:00:00",
+            startTime = LocalDateTime.parse("2024-10-06T10:00:00"),
+            endTime = LocalDateTime.parse("2024-10-06T12:00:00"),
             color = "0xFFFEE6C9",
         ),
     )
