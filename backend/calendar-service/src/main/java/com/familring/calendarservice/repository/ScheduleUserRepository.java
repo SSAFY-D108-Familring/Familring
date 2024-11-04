@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface ScheduleUserRepository extends JpaRepository<ScheduleUser, Long> {
 
+    List<ScheduleUser> findBySchedule(Schedule schedule);
 }

@@ -16,7 +16,7 @@ public interface FamilyServiceFeignClient {
 
     // 가족 구성원들을 조회
     @GetMapping("/client/family/member")
-    BaseResponse<List<UserInfoResponse>> getFamilyMemberList(Long userId);
+    BaseResponse<List<UserInfoResponse>> getFamilyMembers(Long userId);
 }
 
 

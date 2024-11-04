@@ -3,7 +3,6 @@ package com.familring.calendarservice.service;
 import com.familring.calendarservice.dto.response.DailyDateResponse;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.service.client.dto.UserInfoResponse;
-import com.familring.calendarservice.domain.Daily;
 import com.familring.calendarservice.repository.DailyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,7 @@ public class DailyService {
     private final DailyRepository dailyRepository;
 
     public List<DailyDateResponse> getDailiesDateByMonth(int month, Long userId) {
-        List<Long> userIds = familyServiceFeignClient.getFamilyMemberList(userId).getData()
+        List<Long> userIds = familyServiceFeignClient.getFamilyMembers(userId).getData()
                 .stream().map(UserInfoResponse::getUserId).toList();
 
         return dailyRepository.findDailiesByMonthAndUserIdIn(month, userIds).stream().map(
