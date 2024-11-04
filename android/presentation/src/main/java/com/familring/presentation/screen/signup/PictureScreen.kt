@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -95,6 +96,13 @@ fun PictureScreen(
                 cameraLauncher.launch(null)
             }
         }
+
+    LaunchedEffect(bitmap) {
+        val file = bitmap?.toFile(context)
+        if (file != null) {
+            updatePicture(file)
+        }
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -173,14 +181,10 @@ fun PictureScreen(
             RoundLongButton(
                 text = "촬영 완료",
                 onClick = {
-                    bitmap?.let { bmp ->
-                        val file = bmp.toFile(context)
-                        if (file != null) {
-                            updatePicture(file)
-                            navigateToCount()
-                        } else {
-                            showSnackBar("사진을 다시 한 번 촬영해 주세요!")
-                        }
+                    if (bitmap != null) {
+                        navigateToCount()
+                    } else {
+                        showSnackBar("사진을 다시 한 번 촬영해 주세요!")
                     }
                 },
                 enabled = bitmap != null,

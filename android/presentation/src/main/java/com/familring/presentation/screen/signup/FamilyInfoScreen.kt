@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.signup
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -50,16 +51,24 @@ fun FamilyInfoRoute(
         viewModel.event.collectLatest { event ->
             when (event) {
                 is SignUpUiEvent.Success -> {
+                    Log.d("nakyung", "make: ${uiState.value.make}")
+
                     if (uiState.value.make) {
                         navigateToDone()
                     } else {
-                        navigateToHome()
+                        viewModel.joinFamily(uiState.value.familyCode)
                     }
                 }
 
                 is SignUpUiEvent.Error -> {
                     showSnackBar(event.message)
                 }
+
+                is SignUpUiEvent.JoinSuccess -> {
+                    navigateToHome()
+                }
+
+                else -> {}
             }
         }
     }

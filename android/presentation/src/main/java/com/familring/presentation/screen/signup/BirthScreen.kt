@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.signup
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +38,10 @@ fun BirthRoute(
     popUpBackStack: () -> Unit,
     navigateToColor: () -> Unit,
 ) {
+    LaunchedEffect(Unit) {
+        Log.d("nakyung", "state: ${viewModel.state.value}")
+    }
+
     BirthScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
@@ -57,6 +63,10 @@ fun BirthScreen(
     val isButtonEnabled = isDateFormValid(year, month, date)
 
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(year, month, date) {
+        updateBirth("$year-$month-$date")
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -105,10 +115,7 @@ fun BirthScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             RoundLongButton(
                 text = "다음으로",
-                onClick = {
-                    updateBirth("$year-$month-$date")
-                    navigateToColor()
-                },
+                onClick = navigateToColor,
                 enabled = isButtonEnabled,
             )
         }

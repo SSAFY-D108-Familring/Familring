@@ -10,4 +10,5 @@ data class SignUpUiState(
     val userRole: String = "",
     val userColor: String = "",
     val userFace: File? = null,
+    val familyCode: String = "",
 )
