@@ -5,6 +5,7 @@ import com.familring.timecapsuleservice.domain.TimeCapsule;
 import com.familring.timecapsuleservice.domain.TimeCapsuleAnswer;
 import com.familring.timecapsuleservice.dto.client.FamilyDto;
 import com.familring.timecapsuleservice.dto.client.UserInfoResponse;
+import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
 import com.familring.timecapsuleservice.exception.FamilyNotFoundException;
 import com.familring.timecapsuleservice.repository.TimeCapsuleAnswerRepository;
@@ -31,6 +32,7 @@ public class TimeCapsuleService {
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final UserServiceFeignClient userServiceFeignClient;
 
+    // 상태 관리 (3가지 상태로 구분)
     public TimeCapsuleStatusResponse getTimeCapsuleStatus(Long userId) {
         TimeCapsuleStatusResponse response = null;
 
@@ -98,5 +100,19 @@ public class TimeCapsuleService {
         return response;
     }
 
+    // 타임캡슐 생성
+    public void createTimeCapsule(Long userId, TimeCapsuleCreateRequest timeCapsuleCreateRequest) {
+        // 가족 조회
+        FamilyDto familyDto = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = familyDto.getFamilyId();
+
+        TimeCapsule timeCapsule = TimeCapsule.builder()
+                .familyId(familyId)
+                .startDate(LocalDateTime.now())
+                .endDate(timeCapsuleCreateRequest.getDate())
+                .build();
+
+        timeCapsuleRepository.save(timeCapsule);
+    }
 
 }
