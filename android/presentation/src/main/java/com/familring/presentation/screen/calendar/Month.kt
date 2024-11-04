@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.familring.domain.model.DaySchedule
-import com.familring.domain.model.Schedule
+import com.familring.domain.model.PreviewSchedule
 import com.familring.presentation.util.toLocalDate
 import java.time.LocalDate
 import java.time.YearMonth
@@ -38,7 +38,7 @@ fun MonthGrid(
             }
         }
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val cellHeight = maxHeight / 6
         LazyVerticalGrid(
             modifier = Modifier.fillMaxSize(),
@@ -72,16 +72,27 @@ private fun MonthGridPreview() {
     )
 }
 
-val sampleSchedules =
-//    listOf<Schedule>()
+val samplePreviewSchedules =
     listOf(
-        Schedule("Meeting with Team", "0xFFFEE6C9"),
-        Schedule("Doctor's Appointment", "0xFFD2F0FF"),
+        PreviewSchedule(
+            id = 0,
+            title = "Meeting with Team",
+            startTime = "2024-10-01T10:00:00",
+            endTime = "2024-10-03T12:00:00",
+            color = "0xFFFAA6C9",
+        ),
+        PreviewSchedule(
+            id = 1,
+            title = "Meeting with Team",
+            startTime = "2024-10-06T10:00:00",
+            endTime = "2024-10-06T12:00:00",
+            color = "0xFFFEE6C9",
+        ),
     )
 val daySchedules =
     (1..31).map { day ->
         DaySchedule(
             date = "2024-10-${day.toString().padStart(2, '0')}",
-            schedules = if (day % 3 == 0) sampleSchedules else emptyList(),
+            schedules = if (day % 3 == 0) samplePreviewSchedules else emptyList(),
         )
     }
