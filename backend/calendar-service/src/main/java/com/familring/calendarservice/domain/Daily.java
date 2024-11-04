@@ -25,8 +25,11 @@ public class Daily {
     @Column(name = "daily_id")
     private Long id;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "family_id")
+    private Long familyId;
+
+    @Column(name = "author_id")
+    private Long authorId;
 
     @Column(name = "daily_content")
     private String content;
@@ -41,4 +44,12 @@ public class Daily {
     @LastModifiedDate
     @Column(name = "daily_modified_at")
     private LocalDateTime modifiedAt;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updatePhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
 }

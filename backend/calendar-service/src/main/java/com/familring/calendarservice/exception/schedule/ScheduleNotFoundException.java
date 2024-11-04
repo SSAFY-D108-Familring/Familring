@@ -5,6 +5,6 @@ import com.familring.calendarservice.exception.constant.ErrorDetail;
 
 public class ScheduleNotFoundException extends ApplicationException {
     public ScheduleNotFoundException() {
-        super(ErrorDetail.NOT_FOUND_SCHEDULE);
+        super(ErrorDetail.SCHEDULE_NOT_FOUND);
     }
 }
