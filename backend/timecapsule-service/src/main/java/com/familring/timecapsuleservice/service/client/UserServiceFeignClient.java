@@ -1,7 +1,7 @@
-package com.familring.familyservice.service.client;
+package com.familring.timecapsuleservice.service.client;
 
 import com.familring.common_service.dto.BaseResponse;
-import com.familring.familyservice.model.dto.response.UserInfoResponse;
+import com.familring.timecapsuleservice.dto.client.UserInfoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
