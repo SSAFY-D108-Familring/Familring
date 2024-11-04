@@ -139,7 +139,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             BirthRoute(
@@ -157,7 +157,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             ProfileColorRoute(
@@ -175,7 +175,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             NicknameRoute(
@@ -193,7 +193,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             PictureRoute(
@@ -212,7 +212,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             FamilyInfoRoute(
@@ -232,11 +232,18 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Done.route,
         ) {
+            val viewModel =
+                hiltViewModel<SignUpViewModel>(
+                    navController.getBackStackEntry("First"),
+                )
+
             DoneRoute(
                 modifier = modifier,
+                viewModel = viewModel,
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route)
                 },
+                showSnackBar = showSnackBar,
             )
         }
 
