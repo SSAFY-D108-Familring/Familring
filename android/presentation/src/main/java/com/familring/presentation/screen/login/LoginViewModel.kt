@@ -4,6 +4,7 @@ import android.app.Activity
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.datasource.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserLoginRequest
@@ -29,6 +30,7 @@ class LoginViewModel
     @Inject
     constructor(
         private val userRepository: UserRepository,
+        private val authDataStore: AuthDataStore,
     ) : ViewModel() {
         private val _loginState = MutableStateFlow<LoginState>(LoginState.Loading)
         val loginState = _loginState.asStateFlow()
@@ -39,14 +41,12 @@ class LoginViewModel
         fun handleKakaoLogin(activity: Activity) {
             viewModelScope.launch {
                 try {
-                    Log.d(TAG, "카카오 로그인 시도")
                     if (UserApiClient.instance.isKakaoTalkLoginAvailable(activity)) {
                         loginWithKakaoTalk(activity)
                     } else {
                         loginWithKakaoAccount(activity)
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "카카오 로그인 실패", e)
                     _loginState.value = LoginState.Error("로그인 실패: ${e.message}")
                     _loginEvent.emit(LoginEvent.Error(errorMessage = e.message ?: "알 수 없는 오류 발생"))
                 }
@@ -55,8 +55,6 @@ class LoginViewModel
 
         private suspend fun loginWithKakaoTalk(activity: Activity) {
             try {
-                Log.d(TAG, "카카오톡으로 로그인 시도")
-
                 val token =
                     suspendCancellableCoroutine<OAuthToken?> { continuation ->
                         UserApiClient.instance.loginWithKakaoTalk(activity) { token, error ->
@@ -64,10 +62,8 @@ class LoginViewModel
                                 error != null -> {
                                     // 카카오톡 로그인 실패 시 카카오 계정으로 로그인 시도
                                     if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
-                                        Log.d(TAG, "카카오톡 로그인 취소")
                                         continuation.resume(null) {}
                                     } else {
-                                        Log.e(TAG, "카카오톡 로그인 실패, 카카오 계정으로 시도", error)
                                         viewModelScope.launch {
                                             try {
                                                 loginWithKakaoAccount(activity)
@@ -134,6 +130,7 @@ class LoginViewModel
                         }
                     } else if (user != null) {
                         viewModelScope.launch {
+                            authDataStore.saveKakaoId(kakaoId = user.id.toString())
                             try {
                                 userRepository
                                     .login(
