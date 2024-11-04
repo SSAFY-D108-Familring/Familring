@@ -1,11 +1,13 @@
 package com.familring.familyservice.service.chat;
 
 import com.familring.common_service.dto.BaseResponse;
+import com.familring.familyservice.exception.chat.AlreadyParticipatedException;
 import com.familring.familyservice.model.dao.ChatRepository;
 import com.familring.familyservice.model.dao.VoteRepository;
 import com.familring.familyservice.model.dto.Chat;
 import com.familring.familyservice.model.dto.Vote;
 import com.familring.familyservice.model.dto.request.ChatSendRequest;
+import com.familring.familyservice.model.dto.request.VoteParticipationRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,8 +55,8 @@ public class ChatServiceImpl implements ChatService {
                             .switchIfEmpty(Mono.error(new RuntimeException("투표를 찾을 수 없습니다.")))
                             .block();
 
-                    // 2. participantIds를 Long 타입으로 변환
-                    List<Long> userIdList = vote.getParticipants().stream()
+                    // 2. participantChoices의 keySet으로 참여자 ID 목록을 Long 타입으로 변환
+                    List<Long> userIdList = vote.getParticipantsChoices().keySet().stream()
                             .map(Long::parseLong)
                             .collect(Collectors.toList());
 
@@ -88,7 +89,7 @@ public class ChatServiceImpl implements ChatService {
             Vote vote = Vote.builder()
                     .voteTitle(chatSendRequest.getVoteTitle())
                     .createdAt(LocalDateTime.now())
-                    .participants(new ArrayList<>()) // 참여자 초기화
+                    .participantsChoices(new HashMap<>()) // 사용자 선택 초기화
                     .isCompleted(false) // 투표 완료 여부 초기화
                     .voteResult(new HashMap<>()) // 결과 초기화
                     .build();
@@ -103,5 +104,19 @@ public class ChatServiceImpl implements ChatService {
 
         // MongoDB에 저장하고 저장된 Chat 객체 반환
         return chatRepository.save(chat);
+    }
+
+    public Mono<Void> participateInVote(VoteParticipationRequest voteRequest) {
+        return voteRepository.findById(voteRequest.getVoteId())
+                .switchIfEmpty(Mono.error(new RuntimeException("투표를 찾을 수 없습니다.")))
+                .flatMap(vote -> {
+                    try {
+                        // 참여자 추가 시 예외가 발생할 수 있으므로 예외 처리
+                        vote.addParticipant(voteRequest.getUserId().toString(), voteRequest.getVoteComment()); // 예시로 "찬성" 선택
+                        return voteRepository.save(vote).then();
+                    } catch (AlreadyParticipatedException e) {
+                        return Mono.error(e); // 이미 참여한 경우 예외 반환
+                    }
+                });
     }
 }

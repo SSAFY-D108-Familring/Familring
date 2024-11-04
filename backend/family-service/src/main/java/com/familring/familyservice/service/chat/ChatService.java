@@ -2,6 +2,7 @@ package com.familring.familyservice.service.chat;
 
 import com.familring.familyservice.model.dto.Chat;
 import com.familring.familyservice.model.dto.request.ChatSendRequest;
+import com.familring.familyservice.model.dto.request.VoteParticipationRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import org.springframework.data.domain.Page;
 import reactor.core.publisher.Mono;
@@ -18,4 +19,6 @@ public interface ChatService {
     // 채팅 전송
     Mono<Chat> sendMessage(ChatSendRequest chatSendRequest);
 
+    // 투표 참여
+    Mono<Void> participateInVote(VoteParticipationRequest voteRequest);
 }

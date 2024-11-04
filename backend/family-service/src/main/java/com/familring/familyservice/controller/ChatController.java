@@ -3,9 +3,11 @@ package com.familring.familyservice.controller;
 import com.familring.common_service.dto.BaseResponse;
 import com.familring.familyservice.model.dto.Chat;
 import com.familring.familyservice.model.dto.request.ChatSendRequest;
+import com.familring.familyservice.model.dto.request.VoteParticipationRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.chat.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -17,6 +19,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
@@ -55,5 +58,22 @@ public class ChatController {
         Mono<Chat> response = chatService.sendMessage(chatSendRequest);
         log.info(response);
         messagingTemplate.convertAndSend("/topic/chat" + chatSendRequest.getFamilyId(), response);
+    }
+
+    @MessageMapping("/chat/vote")
+    public void participateInVote (VoteParticipationRequest voteRequest) {
+        // 비동기로 투표 참여를 처리
+        Mono<Void> response = chatService.participateInVote(voteRequest);
+
+        response.subscribe(
+                success -> {
+                    // 구독 중인 클라이언트에게 투표 결과 알림 전송
+                    messagingTemplate.convertAndSend("/topic/vote/" + voteRequest.getVoteId(), voteRequest.getVoteComment());
+                },
+                error -> {
+                    // 오류 발생 시, 클라이언트에 오류 알림 전송
+                    messagingTemplate.convertAndSend("/topic/vote/" + voteRequest.getVoteId(), "투표 참여에 실패했습니다: " + error.getMessage());
+                }
+        );
     }
 }
