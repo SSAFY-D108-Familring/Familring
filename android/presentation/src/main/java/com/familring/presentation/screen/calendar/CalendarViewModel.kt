@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.CalendarRepository
+import com.familring.presentation.util.zonedDateTimeToLocalDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,6 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,7 +40,13 @@ class CalendarViewModel
                         is ApiResponse.Success -> {
                             _uiState.update {
                                 it.copy(
-                                    previewSchedules = result.data.previewSchedules,
+                                    previewSchedules =
+                                        result.data.previewSchedules.map { schedule ->
+                                            schedule.copy(
+                                                startTime = zonedDateTimeToLocalDate(schedule.startTime).toString(),
+                                                endTime = zonedDateTimeToLocalDate(schedule.endTime).toString(),
+                                            )
+                                        },
                                     previewDailies = result.data.previewDailies,
                                 )
                             }
