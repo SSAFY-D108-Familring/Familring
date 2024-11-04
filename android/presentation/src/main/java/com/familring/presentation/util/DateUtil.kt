@@ -2,18 +2,12 @@ package com.familring.presentation.util
 
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 fun String.toLocalDate(): LocalDate {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     return LocalDate.parse(this, formatter)
 }
-
-/**
- * ZonedDateTime 형식 String을 LocalDate로 변환하는 함수
- */
-fun zonedDateTimeToLocalDate(dateTime: String): LocalDate = ZonedDateTime.parse(dateTime, DateTimeFormatter.ISO_INSTANT).toLocalDate()
 
 /***
  * 날짜 형식이 올바른지 확인하는 함수

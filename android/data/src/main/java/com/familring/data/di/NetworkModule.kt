@@ -70,8 +70,11 @@ object NetworkModule {
     ): Retrofit =
         Retrofit
             .Builder()
-            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-            .baseUrl(BuildConfig.SERVER_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder().setLenient().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create(),
+                ),
+            ).baseUrl(BuildConfig.SERVER_URL)
             .client(okHttpClient)
             .build()
 
@@ -84,8 +87,11 @@ object NetworkModule {
     ): Retrofit =
         Retrofit
             .Builder()
-            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-            .baseUrl(BuildConfig.SERVER_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").setLenient().create(),
+                ),
+            ).baseUrl(BuildConfig.SERVER_URL)
             .client(okHttpClient)
             .build()
 
