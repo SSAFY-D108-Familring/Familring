@@ -7,6 +7,7 @@ import com.familring.calendarservice.service.ScheduleService;
 import com.familring.common_service.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/calendars/schedules")
 @RequiredArgsConstructor
+@Tag(name = "일정 컨트롤러", description = "일정 관리")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
@@ -54,9 +56,9 @@ public class ScheduleController {
     @Operation(summary = "일정 수정", description = "일정을 수정합니다.")
     public ResponseEntity<BaseResponse<Void>> updateSchedule(
             @RequestBody ScheduleUpdateRequest scheduleRequest,
-            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
-    ) {
-        scheduleService.updateSchedule(scheduleRequest, userId);
+            @PathVariable("schedule_id") Long scheduleId,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        scheduleService.updateSchedule(scheduleId, scheduleRequest, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 수정했습니다."));
     }
 }

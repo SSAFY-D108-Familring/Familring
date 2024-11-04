@@ -25,6 +25,9 @@ public class Daily {
     @Column(name = "daily_id")
     private Long id;
 
+    @Column(name = "family_id")
+    private Long familyId;
+
     @Column(name = "user_id")
     private Long userId;
 

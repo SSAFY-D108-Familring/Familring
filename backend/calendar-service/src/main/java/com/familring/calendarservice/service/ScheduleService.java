@@ -31,7 +31,7 @@ public class ScheduleService {
 
     public List<ScheduleDateResponse> getSchedulesByMonth(int year, int month, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
-        return scheduleRepository.findSchedulesByMonthAndFamilyId(year, month, familyId).stream().map(
+        return scheduleRepository.findSchedulesByDateAndFamilyId(year, month, familyId).stream().map(
                 schedule -> ScheduleDateResponse.builder().id(schedule.getId()).title(schedule.getTitle()).startTime(schedule.getStartTime())
                         .endTime(schedule.getEndTime()).color(schedule.getColor()).build()).toList();
     }
@@ -96,8 +96,8 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void updateSchedule(ScheduleUpdateRequest request, Long userId) {
-        Schedule schedule = scheduleRepository.findById(request.getId()).orElseThrow(ScheduleNotFoundException::new);
+    public void updateSchedule(Long scheduleId, ScheduleUpdateRequest request, Long userId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(ScheduleNotFoundException::new);
 
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
         if (!schedule.getFamilyId().equals(familyId)) {
