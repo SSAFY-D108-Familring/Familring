@@ -55,7 +55,7 @@ public class ScheduleService {
                     .endTime(s.getEndTime()).hasTime(s.getHasTime()).hasNotification(s.getHasNotification()).hasAlbum(false)
                     .color(s.getColor()).build();
             // 해당 스케줄에 참여하는 회원 바인딩
-            scheduleUserRepository.findBySchedule(s).forEach(su -> response.getUserInfoResponses().add(userMap.get(su.getUserId())));
+            scheduleUserRepository.findBySchedule(s).forEach(su -> response.getUserInfoResponses().add(userMap.get(su.getAttendeeId())));
             return response;
         }).toList();
     }
@@ -125,7 +125,7 @@ public class ScheduleService {
         ));
 
         schedule.getScheduleUsers().forEach(scheduleUser -> {
-            scheduleUser.updateAttendanceStatus(attendanceMap.get(scheduleUser.getUserId()));
+            scheduleUser.updateAttendanceStatus(attendanceMap.get(scheduleUser.getAttendeeId()));
         });
 
     }
