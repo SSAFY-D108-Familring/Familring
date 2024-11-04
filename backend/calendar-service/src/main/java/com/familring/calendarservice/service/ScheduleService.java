@@ -1,6 +1,8 @@
 package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Schedule;
+import com.familring.calendarservice.domain.ScheduleUser;
+import com.familring.calendarservice.dto.client.UserInfoResponse;
 import com.familring.calendarservice.dto.request.ScheduleUpdateRequest;
 import com.familring.calendarservice.dto.request.UserAttendance;
 import com.familring.calendarservice.dto.response.ScheduleDateResponse;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,11 +43,8 @@ public class ScheduleService {
         // 전체 스케줄 조회
         List<Schedule> schedules = scheduleRepository.findAllById(scheduleIds);
 
-        // 가족 정보를 (id, 회원 정보) 형태의 맵으로 변환
-        Map<Long, ScheduleUserResponse> userMap = familyServiceFeignClient.getFamilyMembers(userId).getData().stream()
-                .map(u -> ScheduleUserResponse.builder()
-                        .userId(u.getUserId()).userNickname(u.getUserNickname()).userZodiacSign(u.getUserZodiacSign())
-                        .userColor(u.getUserColor()).build()).collect(Collectors.toMap(ScheduleUserResponse::getUserId, u -> u));
+        // 가족 구성원 정보 조회
+        List<UserInfoResponse> familyUsersInfo = familyServiceFeignClient.getFamilyMembers(userId).getData();
 
         return schedules.stream().map(s -> {
             // 해당 일정으로 생성된 앨범이 있는지 확인
@@ -52,10 +52,22 @@ public class ScheduleService {
 
             // 스케줄 DTO로 변환
             ScheduleResponse response = ScheduleResponse.builder().id(s.getId()).title(s.getTitle()).startTime(s.getStartTime())
-                    .endTime(s.getEndTime()).hasTime(s.getHasTime()).hasNotification(s.getHasNotification()).hasAlbum(false)
+                    .endTime(s.getEndTime()).hasTime(s.getHasTime()).hasNotification(s.getHasNotification()).hasAlbum(hasAlbum)
                     .color(s.getColor()).build();
-            // 해당 스케줄에 참여하는 회원 바인딩
-            scheduleUserRepository.findBySchedule(s).forEach(su -> response.getUserInfoResponses().add(userMap.get(su.getUserId())));
+
+            // 해당 스케줄에 참여하는 가족 정보 조회
+            Map<Long, Boolean> attendanceMap = scheduleUserRepository.findBySchedule(s).stream()
+                    .collect(Collectors.toMap(ScheduleUser::getAttendeeId, ScheduleUser::getAttendanceStatus));
+
+            // 해당 스케줄에 참여하는 가족 정보 + 미참여 가족 정보 넣어주기
+            familyUsersInfo.forEach(user -> {
+                Boolean attendanceStatus = attendanceMap.getOrDefault(user.getUserId(), false);
+                response.getUserInfoResponses().add(ScheduleUserResponse.builder().userId(user.getUserId())
+                        .userNickname(user.getUserNickname()).userZodiacSign(user.getUserZodiacSign())
+                        .userColor(user.getUserColor()).attendanceStatus(attendanceStatus).build()
+                );
+            });
+
             return response;
         }).toList();
     }
@@ -75,7 +87,7 @@ public class ScheduleService {
 
         request.getAttendances().forEach(
                 userAttendance -> {
-                    schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendance());
+                    schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendanceStatus());
                 });
 
         // @@ 알림 등록해주기 @@
@@ -119,14 +131,17 @@ public class ScheduleService {
                 request.getColor()
         );
 
-        Map<Long, Boolean> attendanceMap = request.getAttendances().stream().collect(Collectors.toMap(
-                UserAttendance::getUserId,
-                UserAttendance::getAttendance
-        ));
+        request.getAttendances().forEach(userAttendance -> {
+            // 해당 스케줄에 참여하는 회원을 조회 후 존재하면 참석 여부 update, 없으면 새로 추가함
+            Optional<ScheduleUser> scheduleUser = schedule.getScheduleUsers().stream()
+                    .filter(su -> su.getAttendeeId().equals(userAttendance.getUserId()))
+                    .findAny();
 
-        schedule.getScheduleUsers().forEach(scheduleUser -> {
-            scheduleUser.updateAttendanceStatus(attendanceMap.get(scheduleUser.getUserId()));
+            if (scheduleUser.isPresent()) {
+                scheduleUser.get().updateAttendanceStatus(userAttendance.getAttendanceStatus());
+            } else {
+                schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendanceStatus());
+            }
         });
-
     }
 }

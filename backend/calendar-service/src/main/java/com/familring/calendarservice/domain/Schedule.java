@@ -48,17 +48,17 @@ public class Schedule {
     @Builder.Default
     private List<ScheduleUser> scheduleUsers = new ArrayList<>();
 
-    public void addUser(Long userId, Boolean attendanceStatus) {
+    public void addUser(Long attendeeId, Boolean attendanceStatus) {
         ScheduleUser scheduleUser = ScheduleUser.builder()
                 .schedule(this)
-                .userId(userId)
+                .attendeeId(attendeeId)
                 .attendanceStatus(attendanceStatus)
                 .build();
         this.scheduleUsers.add(scheduleUser);
     }
 
     public void removeUser(Long userId) {
-        this.scheduleUsers.removeIf(su -> su.getUserId().equals(userId));
+        this.scheduleUsers.removeIf(su -> su.getAttendeeId().equals(userId));
     }
 
     public void updateSchedule(LocalDateTime startTime, LocalDateTime endTime,

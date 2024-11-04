@@ -23,8 +23,8 @@ public class ScheduleUser {
     @JoinColumn(name = "schedule_id")
     private Schedule schedule;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "attendee_id")
+    private Long attendeeId;
 
     @Column(name = "schedule_user_attendance_status")
     private Boolean attendanceStatus;

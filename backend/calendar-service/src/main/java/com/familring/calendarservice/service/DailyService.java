@@ -45,7 +45,7 @@ public class DailyService {
         files.add(image);
         String photoUrl = fileServiceFeignClient.uploadFiles(files, "daily").getData().get(0);
 
-        Daily newDaily = Daily.builder().familyId(familyId).userId(userId)
+        Daily newDaily = Daily.builder().familyId(familyId).authorId(userId)
                 .content(content).photoUrl(photoUrl).build();
 
         dailyRepository.save(newDaily);
