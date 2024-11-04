@@ -123,7 +123,7 @@ fun HomeScreen(
 
         is FamilyState.Success -> {
             LaunchedEffect(key1 = true) {
-                progress = (familyState.familyMembers.familyCommunicationStatus / 100).toFloat()
+                progress = familyState.familyMembers.familyCommunicationStatus.toFloat() / 100f
             }
         }
 
