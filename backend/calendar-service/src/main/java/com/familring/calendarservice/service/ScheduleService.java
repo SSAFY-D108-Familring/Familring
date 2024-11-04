@@ -4,7 +4,6 @@ import com.familring.calendarservice.domain.Schedule;
 import com.familring.calendarservice.domain.ScheduleUser;
 import com.familring.calendarservice.dto.client.UserInfoResponse;
 import com.familring.calendarservice.dto.request.ScheduleUpdateRequest;
-import com.familring.calendarservice.dto.request.UserAttendance;
 import com.familring.calendarservice.dto.response.ScheduleDateResponse;
 import com.familring.calendarservice.dto.request.ScheduleRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;

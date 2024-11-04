@@ -55,10 +55,10 @@ public class ScheduleController {
     @PatchMapping("/{schedule_id}")
     @Operation(summary = "일정 수정", description = "일정을 수정합니다.")
     public ResponseEntity<BaseResponse<Void>> updateSchedule(
-            @RequestBody ScheduleUpdateRequest scheduleRequest,
+            @RequestBody ScheduleUpdateRequest scheduleUpdateRequest,
             @PathVariable("schedule_id") Long scheduleId,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        scheduleService.updateSchedule(scheduleId, scheduleRequest, userId);
+        scheduleService.updateSchedule(scheduleId, scheduleUpdateRequest, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 수정했습니다."));
     }
 }

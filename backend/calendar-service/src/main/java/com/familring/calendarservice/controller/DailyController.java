@@ -21,13 +21,25 @@ public class DailyController {
     private final DailyService dailyService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "일상 생성", description = "일상을 수정합니다.")
+    @Operation(summary = "일상 생성", description = "일상을 생성합니다.")
     public ResponseEntity<BaseResponse<Void>> createDaily(
-            @RequestParam("content") String content,  // 일반 텍스트는 RequestParam으로 받기
-            @RequestParam("image") MultipartFile image,  // 파일도 RequestParam으로 받을 수 있음
+            @RequestPart("content") String content,
+            @RequestPart("image") MultipartFile image,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
     ) {
         dailyService.createDaily(content, image, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 업로드했습니다."));
+    }
+
+    @PatchMapping(path = "/{daily_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "일상 수정", description = "일상을 수정합니다.")
+    public ResponseEntity<BaseResponse<Void>> updateDaily(
+            @RequestPart("content") String content,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @PathVariable("daily_id") Long dailyId,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        dailyService.updateDaily(content, image, dailyId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 업로드했습니다."));
     }
 

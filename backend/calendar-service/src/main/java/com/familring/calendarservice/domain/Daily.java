@@ -44,4 +44,12 @@ public class Daily {
     @LastModifiedDate
     @Column(name = "daily_modified_at")
     private LocalDateTime modifiedAt;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updatePhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
 }
