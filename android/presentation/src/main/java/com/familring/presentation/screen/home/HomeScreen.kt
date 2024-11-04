@@ -85,6 +85,15 @@ fun HomeRoute(
 
         is HomeState.Error -> {
             Log.d("nakyung", "홈화면 에러")
+            HomeScreen(
+                modifier = modifier,
+                familyMembers = emptyList(),
+                navigateToNotification = navigateToNotification,
+                navigateToTimeCapsule = navigateToTimeCapsule,
+                navigateToInterest = navigateToInterest,
+                showSnackBar = showSnackBar,
+                familyState = familyState,
+            )
         }
     }
 }
@@ -106,7 +115,7 @@ fun HomeScreen(
         targetValue = progress,
         tween(delayMillis = 200, durationMillis = 1000, easing = LinearOutSlowInEasing),
     )
-    
+
     when (familyState) {
         is FamilyState.Loading -> {
             Log.d("nakyung", "가족정보 로딩중")
@@ -114,7 +123,7 @@ fun HomeScreen(
 
         is FamilyState.Success -> {
             LaunchedEffect(key1 = true) {
-                progress = familyState.familyMembers.familyCommunicationStatus.toFloat()
+                progress = (familyState.familyMembers.familyCommunicationStatus / 100).toFloat()
             }
         }
 
@@ -127,6 +136,7 @@ fun HomeScreen(
     val father = familyMembers.find { it.userRole == "F" }
     val mother = familyMembers.find { it.userRole == "M" }
     val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
+
     Box(
         modifier =
             modifier
@@ -335,8 +345,6 @@ fun HomeScreen(
             }
         }
     }
-
-
 }
 
 @Composable
@@ -413,7 +421,7 @@ fun EmptyCard() {
         ) {
             Text(
                 text = "아직 가족이 등록되지\n않았어요!",
-                style = Typography.displayMedium,
+                style = Typography.headlineMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
@@ -424,5 +432,12 @@ fun EmptyCard() {
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    EmptyCard()
+    HomeScreen(
+        familyMembers = emptyList(),
+        navigateToNotification = {},
+        navigateToTimeCapsule = {},
+        navigateToInterest = {},
+        showSnackBar = {},
+        familyState = FamilyState.Loading,
+    )
 }

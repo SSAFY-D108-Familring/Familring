@@ -40,6 +40,7 @@ import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun LoginRoute(
@@ -76,10 +77,10 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is LoginState.Success -> navigateToHome()
-            is LoginState.NoRegistered -> navigateToFirst()
+            is LoginState.NoRegistered -> navigateToHome()
             is LoginState.Error -> showSnackBar(loginState.errorMessage)
             else -> {
-                Log.d("login", "로그인 초기화")
+                Timber.tag("login").d("로그인 초기화")
             }
         }
     }

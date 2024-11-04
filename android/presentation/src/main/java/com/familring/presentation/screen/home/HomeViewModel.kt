@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
@@ -9,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -59,6 +61,7 @@ class HomeViewModel
 
                             is ApiResponse.Error -> {
                                 _familyState.value = FamilyState.Error(response.message)
+                                Timber.tag("HomeViewModel").e("Error: " + response.message)
                             }
                         }
                     }
