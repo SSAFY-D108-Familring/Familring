@@ -1,6 +1,6 @@
 package com.familring.calendarservice.controller;
 
-import com.familring.calendarservice.dto.response.ScheduleRequest;
+import com.familring.calendarservice.dto.request.ScheduleRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.service.ScheduleService;
 import com.familring.common_service.dto.BaseResponse;
@@ -40,6 +40,7 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/{schedule_id}")
+    @Operation(summary = "일정 삭제", description = "일정을 삭제합니다.")
     public ResponseEntity<BaseResponse<Void>> deleteSchedule(
             @PathVariable("schedule_id") Long scheduleId,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
@@ -48,4 +49,13 @@ public class ScheduleController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 삭제했습니다."));
     }
 
+    @PatchMapping("/{schedule_id}")
+    @Operation(summary = "일정 수정", description = "일정을 수정합니다.")
+    public ResponseEntity<BaseResponse<Void>> updateSchedule(
+            @RequestBody ScheduleRequest scheduleRequest,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        scheduleService.updateSchedule(scheduleRequest, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 수정했습니다."));
+    }
 }

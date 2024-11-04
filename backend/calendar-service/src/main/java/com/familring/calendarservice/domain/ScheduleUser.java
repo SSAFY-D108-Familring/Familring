@@ -28,4 +28,8 @@ public class ScheduleUser {
 
     @Column(name = "schedule_user_attendance_status")
     private Boolean attendanceStatus;
+
+    public void updateAttendanceStatus(Boolean attendanceStatus) {
+        this.attendanceStatus = attendanceStatus;
+    }
 }

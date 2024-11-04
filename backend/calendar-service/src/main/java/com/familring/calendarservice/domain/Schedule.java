@@ -60,4 +60,14 @@ public class Schedule {
     public void removeUser(Long userId) {
         this.scheduleUsers.removeIf(su -> su.getUserId().equals(userId));
     }
+
+    public void updateSchedule(LocalDateTime startTime, LocalDateTime endTime,
+                               String title, Boolean hasNotification, Boolean hasTime, String color) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.title = title;
+        this.hasNotification = hasNotification;
+        this.hasTime = hasTime;
+        this.color = color;
+    }
 }

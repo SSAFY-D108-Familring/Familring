@@ -1,4 +1,4 @@
-package com.familring.calendarservice.dto.response;
+package com.familring.calendarservice.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

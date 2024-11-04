@@ -1,9 +1,9 @@
 package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Schedule;
-import com.familring.calendarservice.domain.ScheduleUser;
+import com.familring.calendarservice.dto.request.UserAttendance;
 import com.familring.calendarservice.dto.response.ScheduleDateResponse;
-import com.familring.calendarservice.dto.response.ScheduleRequest;
+import com.familring.calendarservice.dto.request.ScheduleRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.dto.response.ScheduleUserResponse;
 import com.familring.calendarservice.exception.schedule.InvalidScheduleRequestException;
@@ -11,12 +11,10 @@ import com.familring.calendarservice.exception.schedule.ScheduleNotFoundExceptio
 import com.familring.calendarservice.repository.ScheduleUserRepository;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.ScheduleRepository;
-import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -29,7 +27,6 @@ public class ScheduleService {
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleUserRepository scheduleUserRepository;
-    private final FamilyServiceFeignClient familyServiceFeignClient;
 
     public List<ScheduleDateResponse> getSchedulesByMonth(int year, int month, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
@@ -59,26 +56,30 @@ public class ScheduleService {
         }).toList();
     }
 
-    public void createSchedule(ScheduleRequest scheduleRequest, Long userId) {
+    @Transactional
+    public void createSchedule(ScheduleRequest request, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
 
         Schedule schedule = Schedule.builder()
                 .familyId(familyId)
-                .startTime(scheduleRequest.getStartTime())
-                .endTime(scheduleRequest.getEndTime())
-                .title(scheduleRequest.getTitle())
-                .hasNotification(scheduleRequest.getHasNotification())
-                .hasTime(scheduleRequest.getHasTime())
-                .color(scheduleRequest.getColor()).build();
+                .startTime(request.getStartTime())
+                .endTime(request.getEndTime())
+                .title(request.getTitle())
+                .hasNotification(request.getHasNotification())
+                .hasTime(request.getHasTime())
+                .color(request.getColor()).build();
 
-        scheduleRequest.getAttendances().forEach(
+        request.getAttendances().forEach(
                 userAttendance -> {
                     schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendance());
                 });
 
+        // @@ 알림 등록해주기 @@
+
         scheduleRepository.save(schedule);
     }
 
+    @Transactional
     public void deleteSchedule(Long scheduleId, Long userId) {
         Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(ScheduleNotFoundException::new);
 
@@ -88,5 +89,40 @@ public class ScheduleService {
         }
 
         scheduleRepository.delete(schedule);
+    }
+
+    @Transactional
+    public void updateSchedule(ScheduleRequest request, Long userId) {
+        Schedule schedule = scheduleRepository.findById(request.getId()).orElseThrow(ScheduleNotFoundException::new);
+
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+        if (!schedule.getFamilyId().equals(familyId)) {
+            throw new InvalidScheduleRequestException();
+        }
+
+        /* 알람 수정해주기
+        ON -> OFF 알람 삭제
+        OFF -> ON 알람 등록
+        ON -> ON 알람 시간 변경해야 하는지 체크
+         */
+
+        schedule.updateSchedule(
+                request.getStartTime(),
+                request.getEndTime(),
+                request.getTitle(),
+                request.getHasNotification(),
+                request.getHasTime(),
+                request.getColor()
+        );
+
+        Map<Long, Boolean> attendanceMap = request.getAttendances().stream().collect(Collectors.toMap(
+                UserAttendance::getUserId,
+                UserAttendance::getAttendance
+        ));
+
+        schedule.getScheduleUsers().forEach(scheduleUser -> {
+            scheduleUser.updateAttendanceStatus(attendanceMap.get(scheduleUser.getUserId()));
+        });
+
     }
 }
