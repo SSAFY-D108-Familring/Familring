@@ -24,7 +24,7 @@ public class FamilyClientController {
 
     private final FamilyService familyService;
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<BaseResponse<FamilyInfoResponse>> getFamilyInfo(Long userId) {
         FamilyInfoResponse response = familyService.getFamilyInfo(userId);
 

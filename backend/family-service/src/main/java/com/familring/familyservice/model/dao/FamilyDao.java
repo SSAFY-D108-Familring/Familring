@@ -29,6 +29,9 @@ public interface FamilyDao {
     // familyCode로 family 유무 확인
     boolean existsFamilyByFamilyCode(@Param("code") String code);
 
+    // familyI와 userId로 가족 구성원 유무 확인
+    boolean existsFamilyByFamilyIdAndUserId(@Param("familyId") Long familyId,@Param("userId") Long userId);
+
     // family 생성
     void insertFamily(FamilyCreateRequest familyCreateRequest);
 

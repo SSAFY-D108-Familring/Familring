@@ -1,6 +1,7 @@
 package com.familring.familyservice.service;
 
 import com.familring.common_service.dto.BaseResponse;
+import com.familring.familyservice.exception.family.AlreadyInFamilyException;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.FamilyDto;
@@ -132,9 +133,17 @@ public class FamilyServiceImpl implements FamilyService {
                 .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 가족 구성원 추가
-        familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), 1);
+        // 2-1. 가족에 이미 추가 되어있는 경우 에러 발생
+        if(familyDao.existsFamilyByFamilyIdAndUserId(familyDto.getFamilyId(), userId)) {
+            throw new AlreadyInFamilyException();
+        }
+
+        // 2-2. 가족에 추가
         familyDao.insetFamily_User(familyDto.getFamilyId(), userId);
-        
+
+        // 2-3. 가족 구성원 수 + 1
+        familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), 1);
+
         // 3. 응답
         return "가죽 구성원 추가 완료";
     }
