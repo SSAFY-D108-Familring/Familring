@@ -35,8 +35,8 @@ public class TimeCapsuleAnswer {
     @Column(name="timecapsule_answer_content")
     private String content;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name="timecapsule_answer_created_at")
     private LocalDateTime createAt;
 
