@@ -53,6 +53,7 @@ public class TimeCapsuleService {
         // 현재 날짜를 기준으로 해당 날짜가 포함된 타임캡슐이 없으면 작성할 수 있는 타임캡슐이 없는 경우
         LocalDate currentDate = LocalDate.now(); // 현재 날짜
         Optional<TimeCapsule> timeCapsuleOpt  = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
+        int cnt = timeCapsuleRepository.countByFamilyId(familyId);
 
         if(timeCapsuleOpt.isEmpty()) {
             response = TimeCapsuleStatusResponse.builder()
@@ -95,7 +96,7 @@ public class TimeCapsuleService {
 
                 response = TimeCapsuleStatusResponse.builder()
                         .status(2)
-                        .count(timeCapsule.getId()) // 몇 번째 타임캡슐인지
+                        .count(cnt) // 몇 번째 타임캡슐인지
                         .users(users)
                         .build();
             }
