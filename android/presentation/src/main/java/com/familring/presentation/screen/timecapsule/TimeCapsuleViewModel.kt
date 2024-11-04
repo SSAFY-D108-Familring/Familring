@@ -2,6 +2,7 @@ package com.familring.presentation.screen.timecapsule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.mapper.toProfile
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.TimeCapsuleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,29 +34,14 @@ class TimeCapsuleViewModel
                 timeCapsuleRepository.getTimeCapsuleStatus().collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
-                            _uiState.update {
+                            _uiState.update { it ->
                                 it.copy(
                                     writingStatus = result.data.status,
                                     leftDays = result.data.leftDays ?: 0,
                                     timeCapsuleCount = result.data.timeCapsuleCount ?: 0,
-                                    writers = result.data.writers ?: listOf(),
+                                    writers = result.data.writers?.map { it.toProfile() } ?: listOf(),
                                 )
                             }
-                        }
-
-                        is ApiResponse.Error -> {
-                            Timber.d("code: ${result.code}, message: ${result.message}")
-                        }
-                    }
-                }
-            }
-        }
-
-        fun createTimeCapsule(openDate: String) {
-            viewModelScope.launch {
-                timeCapsuleRepository.createTimeCapsule(openDate).collect { result ->
-                    when (result) {
-                        is ApiResponse.Success -> {
                         }
 
                         is ApiResponse.Error -> {
@@ -71,6 +57,7 @@ class TimeCapsuleViewModel
                 timeCapsuleRepository.createTimeCapsuleAnswer(content).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
+                            // 이벤트 필요
                         }
 
                         is ApiResponse.Error -> {

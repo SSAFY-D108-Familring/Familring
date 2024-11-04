@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.familring.presentation.R
 import com.familring.presentation.component.DateInputRow
 import com.familring.presentation.component.RoundLongButton
@@ -32,10 +33,12 @@ import com.familring.presentation.util.isDateFormValid
 @Composable
 fun TimeCapsuleCreateRoute(
     modifier: Modifier = Modifier,
+    timeCapsuleCreateViewModel: TimeCapsuleCreateViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
 ) {
     TimeCapsuleCreateScreen(
         modifier = modifier,
+        createTimeCapsule = timeCapsuleCreateViewModel::createTimeCapsule,
         popUpBackStack = popUpBackStack,
     )
 }
@@ -43,6 +46,7 @@ fun TimeCapsuleCreateRoute(
 @Composable
 fun TimeCapsuleCreateScreen(
     modifier: Modifier = Modifier,
+    createTimeCapsule: (String) -> Unit = {},
     popUpBackStack: () -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
@@ -108,7 +112,7 @@ fun TimeCapsuleCreateScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             RoundLongButton(
                 text = "타임캡슐 작성하러 가기",
-                onClick = { /*TODO*/ },
+                onClick = { createTimeCapsule("$year-$month-$date") },
                 enabled = isButtonEnabled,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))

@@ -173,7 +173,7 @@ fun DailyItem(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = dailyLife.profile.nickName,
+                text = dailyLife.profile.nickname,
                 style =
                     Typography.titleMedium.copy(
                         fontSize = 16.sp,
@@ -358,7 +358,7 @@ val dailyLifes =
             content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
             profile =
                 Profile(
-                    nickName = "엄마미",
+                    nickname = "엄마미",
                     zodiacImgUrl = "url",
                     backgroundColor = "0xFFFEE222",
                 ),
@@ -388,7 +388,7 @@ val dailyLifes =
                     "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 ",
             profile =
                 Profile(
-                    nickName = "엄마미",
+                    nickname = "엄마미",
                     zodiacImgUrl = "url",
                     backgroundColor = "0xFFFEE222",
                 ),
@@ -398,7 +398,7 @@ val dailyLifes =
             content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
             profile =
                 Profile(
-                    nickName = "엄마미",
+                    nickname = "엄마미",
                     zodiacImgUrl = "url",
                     backgroundColor = "0xFFFEE222",
                 ),

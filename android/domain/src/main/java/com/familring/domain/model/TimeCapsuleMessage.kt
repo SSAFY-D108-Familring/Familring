@@ -1,8 +1,20 @@
 package com.familring.domain.model
 
+import com.google.gson.annotations.SerializedName
+
 data class TimeCapsuleMessage(
-    val id: Int,
-    val profile: Profile,
-    val message: String,
-    val createdAt: String,
-)
+    val userNickname: String = "",
+    val userZodiacSign: String = "",
+    val userColor: String = "",
+    @SerializedName("content")
+    val message: String = "",
+    @SerializedName("date")
+    val createdAt: String = "",
+) {
+    val profile =
+        Profile(
+            nickname = userNickname,
+            zodiacImgUrl = userZodiacSign,
+            backgroundColor = userColor,
+        )
+}
