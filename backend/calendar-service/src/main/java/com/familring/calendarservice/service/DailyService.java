@@ -2,6 +2,8 @@ package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Daily;
 import com.familring.calendarservice.dto.response.DailyDateResponse;
+import com.familring.calendarservice.exception.daily.DailyNotFoundException;
+import com.familring.calendarservice.exception.daily.InvalidDailyRequestException;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.DailyRepository;
 import com.familring.calendarservice.service.client.FileServiceFeignClient;
@@ -49,5 +51,15 @@ public class DailyService {
                 .content(content).photoUrl(photoUrl).build();
 
         dailyRepository.save(newDaily);
+    }
+
+    public void deleteDaily(Long dailyId, Long userId) {
+        Daily daily = dailyRepository.findById(dailyId).orElseThrow(DailyNotFoundException::new);
+
+        if (!daily.getAuthorId().equals(userId)) {
+            throw new InvalidDailyRequestException();
+        }
+
+        dailyRepository.delete(daily);
     }
 }

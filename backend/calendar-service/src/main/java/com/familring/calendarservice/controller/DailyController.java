@@ -30,4 +30,14 @@ public class DailyController {
         dailyService.createDaily(content, image, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 업로드했습니다."));
     }
+
+    @DeleteMapping("/{daily_id}")
+    @Operation(summary = "일상 삭제", description = "일상을 삭제합니다.")
+    public ResponseEntity<BaseResponse<Void>> deleteDaily(
+            @PathVariable("daily_id") Long dailyId,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        dailyService.deleteDaily(dailyId, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 삭제했습니다."));
+    }
 }
