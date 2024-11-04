@@ -42,10 +42,12 @@ import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Pink01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.Yellow01
+import com.familring.presentation.util.toColorLongString
 
 @Composable
 fun ProfileColorRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel,
     popUpBackStack: () -> Unit,
     navigateToNickname: () -> Unit,
 ) {
@@ -53,6 +55,7 @@ fun ProfileColorRoute(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
         navigateToNickname = navigateToNickname,
+        updateColor = viewModel::updateColor,
     )
 }
 
@@ -61,8 +64,9 @@ fun ProfileColorScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToNickname: () -> Unit = {},
+    updateColor: (String) -> Unit = {},
 ) {
-    var selectedColor by remember { mutableStateOf<Color>(Black) }
+    var selectedColor by remember { mutableStateOf(Black) }
     val colors =
         mapOf(
             Black to "검정색",
@@ -136,12 +140,17 @@ fun ProfileColorScreen(
                     colors = colors,
                     secondColors = secondColors,
                     selectedColor = selectedColor,
-                    onColorSelected = { selectedColor = it },
+                    onColorSelected = {
+                        selectedColor = it
+                    },
                 )
                 Spacer(modifier = Modifier.fillMaxHeight(0.3f))
                 RoundLongButton(
                     text = "다음으로",
-                    onClick = navigateToNickname,
+                    onClick = {
+                        updateColor(selectedColor.toColorLongString())
+                        navigateToNickname()
+                    },
                 )
             }
         }
