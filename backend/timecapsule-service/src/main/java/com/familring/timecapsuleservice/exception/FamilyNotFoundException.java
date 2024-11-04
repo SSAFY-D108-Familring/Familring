@@ -1,7 +1,8 @@
-package com.familring.familyservice.exception.family;
+package com.familring.timecapsuleservice.exception;
 
-import com.familring.familyservice.exception.base.ApplicationException;
-import com.familring.familyservice.exception.constant.ErrorDetail;
+
+import com.familring.timecapsuleservice.exception.base.ApplicationException;
+import com.familring.timecapsuleservice.exception.constant.ErrorDetail;
 
 public class FamilyNotFoundException extends ApplicationException {
     public FamilyNotFoundException() {
