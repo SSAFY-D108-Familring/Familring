@@ -57,6 +57,7 @@ class HomeViewModel
                         when (response) {
                             is ApiResponse.Success -> {
                                 _familyState.value = FamilyState.Success(response.data)
+                                Timber.d("${response.data}")
                             }
 
                             is ApiResponse.Error -> {
