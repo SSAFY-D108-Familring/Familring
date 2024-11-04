@@ -7,5 +7,5 @@ import org.springframework.web.bind.annotation.*;
 @FeignClient(name = "family-service")
 public interface FamilyServiceFeignClient {
     @PutMapping("/client/family/member")
-    BaseResponse<String> deleteFamilyMember(Long userId);
+    BaseResponse<String> deleteFamilyMember(@RequestParam Long userId);
 }

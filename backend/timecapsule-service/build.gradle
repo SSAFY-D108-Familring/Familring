@@ -2,6 +2,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    runtimeOnly 'com.mysql:mysql-connector-j'
     implementation project(':common-service')
     // Config Client
     implementation 'org.springframework.cloud:spring-cloud-config-client'
@@ -11,6 +12,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+    // Spring Data JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // Open Feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3'
 }
 
 dependencyManagement {

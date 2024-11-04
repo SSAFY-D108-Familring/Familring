@@ -1,6 +1,7 @@
 package com.familring.familyservice.service.family;
 
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
+import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 
@@ -24,4 +25,7 @@ public interface FamilyService {
 
     // 가족 구성원 제거
     String deleteFamilyMember(Long userId);
+
+    // 가족 상태 변경
+    void updateFamilyStatus(FamilyStatusRequest familyStatusRequest);
 }

@@ -1,11 +1,13 @@
 package com.familring.familyservice.service.family;
 
 import com.familring.common_service.dto.BaseResponse;
+import com.familring.familyservice.exception.family.AlreadyInFamilyException;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.Family;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
+import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
@@ -132,11 +134,20 @@ public class FamilyServiceImpl implements FamilyService {
                 .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 가족 구성원 추가
-        familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
+        // 2-1. 가족에 이미 추가 되어있는 경우 에러 발생
+        if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
+            throw new AlreadyInFamilyException();
+        }
+
+        // 2-2. 가족에 추가
         familyDao.insetFamily_User(family.getFamilyId(), userId);
-        
+
+        // 2-3. 가족 구성원 수 + 1
+        familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
+
         // 3. 응답
         return "가죽 구성원 추가 완료";
+
     }
 
     @Override
@@ -151,5 +162,20 @@ public class FamilyServiceImpl implements FamilyService {
         familyDao.deleteFamily_UserByFamilyIdAndUserId(family.getFamilyId(), userId);
 
         return "가족 구성원 수정 완료";
+    }
+
+    @Override
+    @Transactional
+    public void updateFamilyStatus(FamilyStatusRequest familyStatusRequest) {
+        // 1. 가족 찾기
+        FamilyDto familyDto = familyDao.findFamilyByFamilyId(familyStatusRequest.getFamilyId())
+                .orElseThrow(() -> new FamilyNotFoundException());
+        log.info("before: {}", familyDto.getFamilyCommunicationStatus());
+
+        // 2. 가족 상태 변경
+        familyDao.updateFamilyCommunicationStatusByFamilyId(familyStatusRequest.getFamilyId(), familyStatusRequest.getAmount());
+
+        // 3. 로그 확인
+        log.info("after: {}", familyDto.getFamilyCommunicationStatus());
     }
 }
