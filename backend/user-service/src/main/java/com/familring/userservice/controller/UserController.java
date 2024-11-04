@@ -1,6 +1,6 @@
 package com.familring.userservice.controller;
 
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import com.familring.userservice.model.dto.request.UserEmotionRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
@@ -17,8 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")

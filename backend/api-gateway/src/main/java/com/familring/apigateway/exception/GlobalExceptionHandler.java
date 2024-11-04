@@ -1,6 +1,6 @@
 package com.familring.apigateway.exception;
 
-import com.familring.common_service.dto.ErrorResponse;
+import com.familring.common_module.dto.ErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;

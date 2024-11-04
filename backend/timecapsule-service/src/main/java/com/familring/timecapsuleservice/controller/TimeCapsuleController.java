@@ -1,6 +1,6 @@
 package com.familring.timecapsuleservice.controller;
 
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleAnswerCreateRequest;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleListResponse;

@@ -4,7 +4,7 @@ import com.familring.calendarservice.dto.request.ScheduleRequest;
 import com.familring.calendarservice.dto.request.ScheduleUpdateRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.service.ScheduleService;
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

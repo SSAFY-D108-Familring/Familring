@@ -1,6 +1,6 @@
 package com.familring.familyservice.service;
 
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import com.familring.familyservice.exception.family.AlreadyInFamilyException;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;

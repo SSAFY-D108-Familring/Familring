@@ -1,6 +1,6 @@
 package com.familring.timecapsuleservice.exception.base;
 
-import com.familring.common_service.dto.ErrorResponse;
+import com.familring.common_module.dto.ErrorResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;

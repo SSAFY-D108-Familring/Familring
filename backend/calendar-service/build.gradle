@@ -3,7 +3,7 @@ dependencies {
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     runtimeOnly 'com.mysql:mysql-connector-j'
-    implementation project(':common-service')
+    implementation project(':common-module')
     // Config Client
     implementation 'org.springframework.cloud:spring-cloud-config-client'
     // Eureka Client
