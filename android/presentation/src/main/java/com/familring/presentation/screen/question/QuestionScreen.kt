@@ -23,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -121,39 +123,70 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
                 },
             )
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_pin_title_question),
-                    contentDescription = "pin_title_question_img",
-                    contentScale = ContentScale.Fit,
-                )
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(
-                        text = "99번째 질문",
-                        textAlign = TextAlign.Center,
-                        style = Typography.bodySmall,
+            Box {
+                Column {
+                    Spacer(modifier = Modifier.fillMaxSize(0.012f))
+                    Box(
                         modifier =
                             Modifier
-                                .background(color = Green01, shape = RoundedCornerShape(8.dp))
-                                .padding(horizontal = 15.dp, vertical = 8.dp),
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp)
+                                .shadow(
+                                    elevation = 6.dp,
+                                    spotColor = Color.Black.copy(alpha = 0.6f),
+                                    ambientColor = Color.Black.copy(alpha = 0.6f),
+                                    shape = RoundedCornerShape(10.dp),
+                                ).background(
+                                    Color.White,
+                                    shape = RoundedCornerShape(10.dp),
+                                ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Spacer(modifier = Modifier.fillMaxSize(0.03f))
+                            Text(
+                                text = "99번째 질문",
+                                textAlign = TextAlign.Center,
+                                style = Typography.bodySmall,
+                                modifier =
+                                    Modifier
+                                        .background(color = Green01, shape = RoundedCornerShape(8.dp))
+                                        .padding(horizontal = 15.dp, vertical = 8.dp),
+                            )
+                            Spacer(modifier = Modifier.fillMaxSize(0.03f))
+                            Text(
+                                text = "그동안 미안했지만 사과하지 못했던 일이 있나요? 있다면 여기에 적어보세요",
+                                textAlign = TextAlign.Center,
+                                softWrap = true,
+                                modifier = Modifier.padding(horizontal = 26.dp),
+                                overflow = TextOverflow.Visible,
+                                style = Typography.displayMedium.copy(fontSize = 22.sp),
+                            )
+                            Spacer(modifier = Modifier.fillMaxSize(0.05f))
+                        }
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 46.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_pin),
+                        contentDescription = "pin img",
+                        contentScale = ContentScale.Fit,
                     )
-                    Spacer(modifier = Modifier.fillMaxSize(0.03f))
-                    Text(
-                        text = "그동안 미안했지만 사과하지 못했던 일이 있나요? 있다면 여기에 적어보세요",
-                        textAlign = TextAlign.Center,
-                        softWrap = true,
-                        modifier = Modifier.padding(horizontal = 50.dp),
-                        overflow = TextOverflow.Visible,
-                        style = Typography.displayMedium.copy(fontSize = 22.sp),
+                    Image(
+                        painter = painterResource(id = R.drawable.img_pin),
+                        contentDescription = "pin img",
+                        contentScale = ContentScale.Fit,
                     )
                 }
             }
+
             Spacer(modifier = Modifier.fillMaxSize(0.05f))
             LazyColumn(
                 modifier =
