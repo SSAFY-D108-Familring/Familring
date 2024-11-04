@@ -7,6 +7,7 @@ import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.FamilyDto;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
+import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
@@ -160,5 +161,20 @@ public class FamilyServiceImpl implements FamilyService {
         familyDao.deleteFamily_UserByFamilyIdAndUserId(familyDto.getFamilyId(), userId);
 
         return "가족 구성원 수정 완료";
+    }
+
+    @Override
+    @Transactional
+    public void updateFamilyStatus(FamilyStatusRequest familyStatusRequest) {
+        // 1. 가족 찾기
+        FamilyDto familyDto = familyDao.findFamilyByFamilyId(familyStatusRequest.getFamilyId())
+                .orElseThrow(() -> new FamilyNotFoundException());
+        log.info("before: {}", familyDto.getFamilyCommunicationStatus());
+
+        // 2. 가족 상태 변경
+        familyDao.updateFamilyCommunicationStatusByFamilyId(familyStatusRequest.getFamilyId(), familyStatusRequest.getAmount());
+
+        // 3. 로그 확인
+        log.info("after: {}", familyDto.getFamilyCommunicationStatus());
     }
 }

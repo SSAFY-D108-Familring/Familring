@@ -71,6 +71,12 @@
         WHERE family_id = #{familyId}
     </update>
 
+    <update id="updateFamilyCommunicationStatusByFamilyId">
+        UPDATE family
+        SET family_communication_status = family_communication_status + #{amount}
+        WHERE family_id = #{familyId}
+    </update>
+
     <delete id="deleteFamily_UserByFamilyIdAndUserId">
         DELETE FROM family_user
         WHERE family_id = #{familyId} AND user_id = #{userId}
