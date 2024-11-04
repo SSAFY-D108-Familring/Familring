@@ -1,8 +1,10 @@
 package com.familring.presentation.screen.signup
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.datasource.AuthDataStore
+import com.familring.domain.datasource.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
@@ -26,6 +28,7 @@ class SignUpViewModel
         private val userRepository: UserRepository,
         private val familyRepository: FamilyRepository,
         private val authDataStore: AuthDataStore,
+        private val tokenDataStore: TokenDataStore,
     ) : ViewModel() {
         private val _state = MutableStateFlow(SignUpUiState())
         val state = _state.asStateFlow()
@@ -132,6 +135,7 @@ class SignUpViewModel
 
         fun joinFamily(code: String) {
             viewModelScope.launch {
+                Log.d("nakyung", tokenDataStore.getJwtToken().toString())
                 familyRepository.joinFamily(code).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {

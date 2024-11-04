@@ -34,6 +34,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -51,11 +52,12 @@ fun FamilyInfoRoute(
         viewModel.event.collectLatest { event ->
             when (event) {
                 is SignUpUiEvent.Success -> {
-                    Log.d("nakyung", "make: ${uiState.value.make}")
-
                     if (uiState.value.make) {
                         navigateToDone()
                     } else {
+                        Log.d("nakyung", "state: ${uiState.value}")
+                        coroutineScope {
+                        }
                         viewModel.joinFamily(uiState.value.familyCode)
                     }
                 }
@@ -115,9 +117,9 @@ fun FamilyInfoScreen(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp),
                 text = "우리 가족의 정보를 알려 주세요!",
                 style = Typography.bodyLarge,
                 color = Black,
@@ -125,9 +127,9 @@ fun FamilyInfoScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             Image(
                 modifier =
-                    Modifier
-                        .fillMaxWidth(0.45f)
-                        .aspectRatio(1f),
+                Modifier
+                    .fillMaxWidth(0.45f)
+                    .aspectRatio(1f),
                 painter = painterResource(id = R.drawable.img_family),
                 contentDescription = "img_family",
             )
