@@ -5,6 +5,7 @@ import com.familring.timecapsuleservice.domain.TimeCapsule;
 import com.familring.timecapsuleservice.domain.TimeCapsuleAnswer;
 import com.familring.timecapsuleservice.dto.client.FamilyDto;
 import com.familring.timecapsuleservice.dto.client.UserInfoResponse;
+import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
 import com.familring.timecapsuleservice.exception.FamilyNotFoundException;
 import com.familring.timecapsuleservice.repository.TimeCapsuleAnswerRepository;
@@ -15,9 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +34,7 @@ public class TimeCapsuleService {
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final UserServiceFeignClient userServiceFeignClient;
 
+    // 상태 관리 (3가지 상태로 구분)
     public TimeCapsuleStatusResponse getTimeCapsuleStatus(Long userId) {
         TimeCapsuleStatusResponse response = null;
 
@@ -45,7 +49,7 @@ public class TimeCapsuleService {
 
         // 1. 작성할 수 있는 타임캡슐이 아예 없는 경우 (0)
         // 현재 날짜를 기준으로 해당 날짜가 포함된 타임캡슐이 없으면 작성할 수 있는 타임캡슐이 없는 경우
-        LocalDateTime currentDate = LocalDateTime.now(); // 현재 날짜
+        LocalDate currentDate = LocalDate.now(); // 현재 날짜
         Optional<TimeCapsule> timeCapsuleOpt  = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
 
         if(timeCapsuleOpt .isEmpty()) {
@@ -98,5 +102,19 @@ public class TimeCapsuleService {
         return response;
     }
 
+    // 타임캡슐 생성
+    public void createTimeCapsule(Long userId, TimeCapsuleCreateRequest timeCapsuleCreateRequest) {
+        // 가족 조회
+        FamilyDto familyDto = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = familyDto.getFamilyId();
+
+        TimeCapsule timeCapsule = TimeCapsule.builder()
+                .familyId(familyId)
+                .startDate(LocalDate.now())
+                .endDate(timeCapsuleCreateRequest.getDate())
+                .build();
+
+        timeCapsuleRepository.save(timeCapsule);
+    }
 
 }
