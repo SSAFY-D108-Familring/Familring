@@ -8,7 +8,8 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class ScheduleRequest {
+public class ScheduleUpdateRequest {
+    private Long id;
 
     private String title;
 

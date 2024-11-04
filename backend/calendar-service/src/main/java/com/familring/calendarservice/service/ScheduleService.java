@@ -1,6 +1,7 @@
 package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Schedule;
+import com.familring.calendarservice.dto.request.ScheduleUpdateRequest;
 import com.familring.calendarservice.dto.request.UserAttendance;
 import com.familring.calendarservice.dto.response.ScheduleDateResponse;
 import com.familring.calendarservice.dto.request.ScheduleRequest;
@@ -95,7 +96,7 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void updateSchedule(ScheduleRequest request, Long userId) {
+    public void updateSchedule(ScheduleUpdateRequest request, Long userId) {
         Schedule schedule = scheduleRepository.findById(request.getId()).orElseThrow(ScheduleNotFoundException::new);
 
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
