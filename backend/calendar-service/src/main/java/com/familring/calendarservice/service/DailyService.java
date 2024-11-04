@@ -1,12 +1,15 @@
 package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Daily;
+import com.familring.calendarservice.dto.client.UserInfoResponse;
 import com.familring.calendarservice.dto.response.DailyDateResponse;
+import com.familring.calendarservice.dto.response.DailyResponse;
 import com.familring.calendarservice.exception.daily.DailyNotFoundException;
 import com.familring.calendarservice.exception.daily.InvalidDailyRequestException;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.DailyRepository;
 import com.familring.calendarservice.service.client.FileServiceFeignClient;
+import com.familring.calendarservice.service.client.UserServiceFeignClient;
 import com.familring.common_service.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +20,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,6 +32,7 @@ public class DailyService {
 
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final FileServiceFeignClient fileServiceFeignClient;
+    private final UserServiceFeignClient userServiceFeignClient;
     private final DailyRepository dailyRepository;
 
     @Value("${aws.s3.daily-photo-path}")
@@ -92,5 +99,21 @@ public class DailyService {
 
             daily.updatePhotoUrl(uploadFuture.join().getData().get(0));
         }
+    }
+
+    public List<DailyResponse> getDailies(List<Long> dailyIds, Long userId) {
+        List<Daily> dailies = dailyRepository.findAllById(dailyIds);
+
+        Map<Long, UserInfoResponse> userMap = userServiceFeignClient
+                .getAllUser(dailies.stream().map(Daily::getAuthorId).distinct().toList()).getData()
+                .stream().collect(Collectors.toMap(UserInfoResponse::getUserId, u -> u));
+
+        return dailies.stream().map(daily -> {
+            UserInfoResponse userInfo = userMap.get(daily.getAuthorId());
+
+            return DailyResponse.builder().content(daily.getContent()).photoUrl(daily.getPhotoUrl())
+                    .userNickname(userInfo.getUserNickname()).userZodiacSign(userInfo.getUserZodiacSign())
+                    .userColor(userInfo.getUserColor()).build();
+        }).toList();
     }
 }

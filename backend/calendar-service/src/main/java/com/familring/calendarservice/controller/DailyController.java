@@ -1,5 +1,7 @@
 package com.familring.calendarservice.controller;
 
+import com.familring.calendarservice.dto.response.DailyResponse;
+import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.service.DailyService;
 import com.familring.common_service.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/calendars/dailies")
 @RequiredArgsConstructor
@@ -19,6 +23,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class DailyController {
 
     private final DailyService dailyService;
+
+    @GetMapping()
+    @Operation(summary = "다중 일상 조회", description = "일상들의 정보를 조회합니다.")
+    public ResponseEntity<BaseResponse<List<DailyResponse>>> getSchedules(
+            @RequestParam("daily_id") List<Long> dailyIds,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(),
+                "일상 정보를 조회했습니다.", dailyService.getDailies(dailyIds, userId)));
+    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "일상 생성", description = "일상을 생성합니다.")
