@@ -197,7 +197,7 @@ public class TimeCapsuleService {
                             .map(answer -> {
                                 // userId로 사용자 정보 가져오기
                                 // 타임 캡슐, 타임 캡슐 답변으로 userId 찾기
-                                Long id = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByIdAndTimecapsule(answer.getId(), timeCapsule);
+                                Long id = timeCapsuleAnswerRepository.findUserIdByIdAndTimecapsule(answer.getId(), timeCapsule);
                                 UserInfoResponse user = userServiceFeignClient.getAllUser(Collections.singletonList(id)).getData().get(0);
 
                                 return TimeCapsuleAnswerItem.builder()
