@@ -48,7 +48,7 @@ import com.familring.domain.model.Profile
 import com.familring.domain.model.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.IconCustomDropdownMenu
-import com.familring.presentation.component.CustomDropdownMenuStyles
+import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
@@ -320,7 +320,7 @@ fun ScheduleItem(
                         "삭제" to {},
                         "앨범 생성" to { navigateToCreateAlbum() },
                     ),
-                styles = CustomDropdownMenuStyles(),
+                styles = IconCustomDropBoxStyles(),
             )
         }
     }

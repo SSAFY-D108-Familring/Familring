@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
 import com.familring.presentation.component.GrayBigTextField
@@ -42,11 +43,13 @@ import com.familring.presentation.util.noRippleClickable
 @Composable
 fun FirstRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel = hiltViewModel(),
     navigateToBirth: () -> Unit,
 ) {
     FirstScreen(
         modifier = modifier,
         navigateToBirth = navigateToBirth,
+        updateMake = viewModel::updateIsMake,
     )
 }
 
@@ -54,6 +57,7 @@ fun FirstRoute(
 fun FirstScreen(
     modifier: Modifier = Modifier,
     navigateToBirth: () -> Unit = {},
+    updateMake: (Boolean) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     var code by remember { mutableStateOf("") }
@@ -114,7 +118,10 @@ fun FirstScreen(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                     BrownRoundButton(
-                        onClick = navigateToBirth,
+                        onClick = {
+                            updateMake(false)
+                            navigateToBirth()
+                        },
                         text = "코드 입력 완료",
                         enabled = code.length == 6,
                     )
@@ -125,6 +132,7 @@ fun FirstScreen(
             Text(
                 modifier =
                     Modifier.noRippleClickable {
+                        updateMake(true)
                         navigateToBirth()
                     },
                 text = "없어요, 새로 개설할래요!",

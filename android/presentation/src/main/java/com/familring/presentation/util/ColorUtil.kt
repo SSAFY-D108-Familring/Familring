@@ -9,3 +9,8 @@ fun String.toColor(): Color {
     val colorInt = this.removePrefix("0x").toLong(radix = 16).toInt()
     return Color(colorInt)
 }
+
+fun Color.toColorLongString(): String {
+    val colorString = "0x" + this.value.toString(16).substring(0, 8).uppercase()
+    return colorString
+}

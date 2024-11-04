@@ -21,8 +21,8 @@ interface UserApi {
     @Multipart
     @POST("users/join")
     suspend fun join(
-        @Part("request") request: RequestBody,
-        @Part userFace: MultipartBody.Part,
+        @Part("userJoinRequest") request: RequestBody,
+        @Part image: MultipartBody.Part?,
     ): BaseResponse<JwtToken>
 
     @GET("users")

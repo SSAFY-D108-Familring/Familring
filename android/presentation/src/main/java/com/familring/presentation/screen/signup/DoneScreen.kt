@@ -17,12 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +27,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
+import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
@@ -39,17 +36,25 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
 @Composable
-fun DoneRoute(modifier: Modifier) {
-    DoneScreen(modifier = modifier)
+fun DoneRoute(
+    modifier: Modifier,
+    navigateToHome: () -> Unit,
+) {
+    DoneScreen(
+        modifier = modifier,
+        navigateToHome = navigateToHome,
+    )
 }
 
 @Composable
-fun DoneScreen(modifier: Modifier = Modifier) {
-    val focusManager = LocalFocusManager.current
+fun DoneScreen(
+    modifier: Modifier = Modifier,
+    navigateToHome: () -> Unit = {},
+) {
     val code = "A3B9S2"
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         color = White,
     ) {
         Column(
@@ -62,7 +67,7 @@ fun DoneScreen(modifier: Modifier = Modifier) {
                 style = Typography.titleLarge.copy(fontSize = 45.sp),
                 color = Green03,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.04f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             Image(
                 modifier =
                     Modifier
@@ -85,12 +90,12 @@ fun DoneScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
             Box(
                 modifier =
-                Modifier.run {
-                    fillMaxWidth(0.82f)
-                                    .wrapContentSize()
-                                    .background(color = White)
-                                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp))
-                },
+                    Modifier.run {
+                        fillMaxWidth(0.82f)
+                            .wrapContentSize()
+                            .background(color = White)
+                            .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp))
+                    },
             ) {
                 Column(
                     modifier =
@@ -122,6 +127,11 @@ fun DoneScreen(modifier: Modifier = Modifier) {
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
+            Spacer(modifier = Modifier.fillMaxHeight(0.35f))
+            RoundLongButton(
+                text = "홈으로 이동하기",
+                onClick = navigateToHome,
+            )
         }
     }
 }
