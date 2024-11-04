@@ -32,10 +32,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,11 +63,13 @@ fun HomeRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
+    val familyState by viewModel.familyState.collectAsStateWithLifecycle()
 
     when (val state = homeState) {
         is HomeState.Loading -> {
             Log.d("nakyung", "홈화면 로딩중")
         }
+
         is HomeState.Success -> {
             Log.d("nakyung", "홈화면 그려짐")
             HomeScreen(
@@ -75,12 +79,13 @@ fun HomeRoute(
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
                 showSnackBar = showSnackBar,
+                familyState = familyState,
             )
         }
+
         is HomeState.Error -> {
             Log.d("nakyung", "홈화면 에러")
         }
-
     }
 }
 
@@ -92,6 +97,7 @@ fun HomeScreen(
     navigateToTimeCapsule: () -> Unit = {},
     navigateToInterest: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    familyState: FamilyState,
 ) {
     var progress by remember {
         mutableStateOf(0f)
@@ -100,8 +106,23 @@ fun HomeScreen(
         targetValue = progress,
         tween(delayMillis = 200, durationMillis = 1000, easing = LinearOutSlowInEasing),
     )
+    
+    when (familyState) {
+        is FamilyState.Loading -> {
+            Log.d("nakyung", "가족정보 로딩중")
+        }
 
-    var childCount = 4
+        is FamilyState.Success -> {
+            LaunchedEffect(key1 = true) {
+                progress = familyState.familyMembers.familyCommunicationStatus.toFloat()
+            }
+        }
+
+        is FamilyState.Error -> {
+            showSnackBar("가족 정보 에러")
+            Log.d("nakyung", "가족정보 에러")
+        }
+    }
 
     val father = familyMembers.find { it.userRole == "F" }
     val mother = familyMembers.find { it.userRole == "M" }
@@ -288,7 +309,7 @@ fun HomeScreen(
             ) {
                 if (mother != null) {
                     FamilyCard(mother)
-                } else{
+                } else {
                     EmptyCard()
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -299,7 +320,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.width(15.dp))
                 if (father != null) {
                     FamilyCard(father)
-                } else{
+                } else {
                     EmptyCard()
                 }
             }
@@ -315,9 +336,7 @@ fun HomeScreen(
         }
     }
 
-    LaunchedEffect(key1 = true) {
-        progress = 0.7f
-    }
+
 }
 
 @Composable
@@ -334,17 +353,17 @@ fun FamilyCard(user: User) {
                     .padding(vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "엄마밍", style = Typography.titleLarge.copy(fontSize = 15.sp))
+            Text(text = user.userNickname, style = Typography.titleLarge.copy(fontSize = 15.sp))
             Spacer(modifier = Modifier.fillMaxSize(0.01f))
             Image(
                 painter = painterResource(id = R.drawable.img_chicken),
-                contentDescription = "chicken_img",
+                contentDescription = "chicken_img", // 이미지를 서버에서 주는건가...? 뭐징
             )
             Spacer(
                 modifier = Modifier.height(15.dp),
             )
             Text(
-                text = "화났어요 \uD83E\uDD2C",
+                text = user.userEmotion,
                 style = Typography.displaySmall.copy(fontSize = 11.sp),
             )
         }
@@ -353,30 +372,50 @@ fun FamilyCard(user: User) {
 
 @Composable
 fun EmptyCard() {
-    ElevatedCard(
-        shape = RoundedCornerShape(15.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-    ) {
-        Column(
-            modifier =
-            Modifier
-                .background(color = Green06)
-                .padding(horizontal = 22.dp)
-                .padding(vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Box {
+        ElevatedCard(
+            shape = RoundedCornerShape(15.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         ) {
-            Text(text = "비엇음", style = Typography.titleLarge.copy(fontSize = 15.sp))
-            Spacer(modifier = Modifier.fillMaxSize(0.01f))
-            Image(
-                painter = painterResource(id = R.drawable.img_chicken),
-                contentDescription = "chicken_img",
-            )
-            Spacer(
-                modifier = Modifier.height(15.dp),
-            )
+            Column(
+                modifier =
+                    Modifier
+                        .background(color = Green06)
+                        .padding(horizontal = 22.dp)
+                        .padding(vertical = 12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "우리가좍",
+                    style = Typography.titleLarge.copy(fontSize = 15.sp),
+                    modifier = Modifier.alpha(0.3f),
+                )
+                Spacer(modifier = Modifier.fillMaxSize(0.01f))
+                Image(
+                    painter = painterResource(id = R.drawable.img_chicken),
+                    contentDescription = "chicken_img",
+                    modifier = Modifier.alpha(0.3f),
+                )
+                Spacer(
+                    modifier = Modifier.height(15.dp),
+                )
+                Text(
+                    text = "평범해요",
+                    style = Typography.displaySmall.copy(fontSize = 11.sp),
+                    modifier = Modifier.alpha(0.3f),
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier.matchParentSize(),
+            contentAlignment = Alignment.Center,
+        ) {
             Text(
-                text = "비엇어요 \uD83E\uDD2C",
-                style = Typography.displaySmall.copy(fontSize = 11.sp),
+                text = "아직 가족이 등록되지\n않았어요!",
+                style = Typography.displayMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             )
         }
     }
@@ -385,5 +424,5 @@ fun EmptyCard() {
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    //HomeScreen()
+    EmptyCard()
 }

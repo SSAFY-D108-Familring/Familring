@@ -3,6 +3,7 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.FamilyApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.domain.repository.FamilyRepository
 import kotlinx.coroutines.flow.Flow
@@ -20,6 +21,16 @@ class FamilyRepositoryImpl
                     emitApiResponse(
                         apiResponse = { api.getFamilyMembers() },
                         default = emptyList(),
+                    )
+                emit(response)
+            }
+
+        override suspend fun getFamilyInfo(): Flow<ApiResponse<FamilyInfo>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.getFamilyInfo() },
+                        default = FamilyInfo(),
                     )
                 emit(response)
             }
