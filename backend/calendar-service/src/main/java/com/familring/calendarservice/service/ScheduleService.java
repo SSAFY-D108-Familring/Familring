@@ -46,9 +46,12 @@ public class ScheduleService {
                         .userColor(u.getUserColor()).build()).collect(Collectors.toMap(ScheduleUserResponse::getUserId, u -> u));
 
         return schedules.stream().map(s -> {
+            // 해당 일정으로 생성된 앨범이 있는지 확인
+            Boolean hasAlbum = false; // 일단은 미구현이므로 false
+
             // 스케줄 DTO로 변환
             ScheduleResponse response = ScheduleResponse.builder().id(s.getId()).title(s.getTitle()).startTime(s.getStartTime())
-                    .endTime(s.getEndTime()).hasTime(s.getHasTime()).hasNotification(s.getHasNotification())
+                    .endTime(s.getEndTime()).hasTime(s.getHasTime()).hasNotification(s.getHasNotification()).hasAlbum(false)
                     .color(s.getColor()).build();
             // 해당 스케줄에 참여하는 회원 바인딩
             scheduleUserRepository.findBySchedule(s).forEach(su -> response.getUserInfoResponses().add(userMap.get(su.getUserId())));

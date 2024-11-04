@@ -17,6 +17,7 @@ public class ScheduleResponse {
     private LocalDateTime endTime;
     private Boolean hasTime;
     private Boolean hasNotification;
+    private Boolean hasAlbum;
     private String color;
 
     @Builder.Default
