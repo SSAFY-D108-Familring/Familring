@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,6 +23,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomDropdownMenu
 import com.familring.presentation.component.CustomDropdownMenuStyles
@@ -31,20 +33,42 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun FamilyInfoRoute(
     modifier: Modifier,
     viewModel: SignUpViewModel,
+    showSnackBar: (String) -> Unit,
     popUpBackStack: () -> Unit,
     navigateToDone: () -> Unit,
     navigateToHome: () -> Unit,
 ) {
+    val uiState = viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel.event) {
+        viewModel.event.collectLatest { event ->
+            when (event) {
+                is SignUpUiEvent.Success -> {
+                    if (uiState.value.make) {
+                        navigateToDone()
+                    } else {
+                        navigateToHome()
+                    }
+                }
+
+                is SignUpUiEvent.Error -> {
+                    showSnackBar(event.message)
+                }
+            }
+        }
+    }
+
     FamilyInfoScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
-        navigateToHome = navigateToHome,
-        navigateToDone = navigateToDone,
+        updateRole = viewModel::updateRole,
+        join = viewModel::join,
     )
 }
 
@@ -52,10 +76,14 @@ fun FamilyInfoRoute(
 fun FamilyInfoScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
-    navigateToHome: () -> Unit = {},
-    navigateToDone: () -> Unit = {},
+    updateRole: (String) -> Unit = {},
+    join: () -> Unit = {},
 ) {
     var role by remember { mutableStateOf("M") }
+
+    LaunchedEffect(role) {
+        updateRole(role)
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -123,14 +151,8 @@ fun FamilyInfoScreen(
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.2f))
             RoundLongButton(
-                onClick = {
-                    // 개설자면
-                    navigateToDone()
-
-                    // 참여자면
-                    navigateToHome()
-                },
-                text = "다음으로",
+                onClick = join,
+                text = "가입 완료",
             )
         }
     }

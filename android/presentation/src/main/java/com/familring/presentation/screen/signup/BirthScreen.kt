@@ -105,7 +105,10 @@ fun BirthScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             RoundLongButton(
                 text = "다음으로",
-                onClick = navigateToColor,
+                onClick = {
+                    updateBirth("$year-$month-$date")
+                    navigateToColor()
+                },
                 enabled = isButtonEnabled,
             )
         }

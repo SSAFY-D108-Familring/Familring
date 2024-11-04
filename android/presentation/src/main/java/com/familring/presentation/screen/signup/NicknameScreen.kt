@@ -40,6 +40,7 @@ fun NicknameRoute(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
         navigateToPicture = navigateToPicture,
+        updateNickname = viewModel::updateNickname,
     )
 }
 
@@ -48,8 +49,7 @@ fun NicknameScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToPicture: () -> Unit = {},
-    make: Boolean = true,
-    color: String = "",
+    updateNickname: (String) -> Unit = {},
 ) {
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
@@ -102,7 +102,10 @@ fun NicknameScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             RoundLongButton(
                 text = "설정 완료",
-                onClick = navigateToPicture,
+                onClick = {
+                    updateNickname(nickname)
+                    navigateToPicture()
+                },
             )
         }
     }
