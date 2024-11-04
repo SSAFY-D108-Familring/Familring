@@ -1,4 +1,4 @@
-package com.familring.timecapsuleservice.exception;
+package com.familring.timecapsuleservice.exception.client;
 
 
 import com.familring.timecapsuleservice.exception.base.ApplicationException;
