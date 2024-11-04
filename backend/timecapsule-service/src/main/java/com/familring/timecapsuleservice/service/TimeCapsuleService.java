@@ -6,6 +6,9 @@ import com.familring.timecapsuleservice.dto.client.FamilyDto;
 import com.familring.timecapsuleservice.dto.client.UserInfoResponse;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleAnswerCreateRequest;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
+import com.familring.timecapsuleservice.dto.response.TimeCapsuleAnswerItem;
+import com.familring.timecapsuleservice.dto.response.TimeCapsuleItem;
+import com.familring.timecapsuleservice.dto.response.TimeCapsuleListResponse;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
 import com.familring.timecapsuleservice.exception.AlreadyExistTimeCapsuleAnswerException;
 import com.familring.timecapsuleservice.exception.AlreadyExistTimeCapsuleException;
@@ -17,14 +20,19 @@ import com.familring.timecapsuleservice.repository.TimeCapsuleRepository;
 import com.familring.timecapsuleservice.service.client.FamilyServiceFeignClient;
 import com.familring.timecapsuleservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +63,7 @@ public class TimeCapsuleService {
         Optional<TimeCapsule> timeCapsuleOpt  = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
         int cnt = timeCapsuleRepository.countByFamilyId(familyId);
 
-        if(timeCapsuleOpt.isEmpty()) {
+        if (timeCapsuleOpt.isEmpty()) {
             response = TimeCapsuleStatusResponse.builder()
                     .status(0) // 상태값만 전송
                     .build();
@@ -66,7 +74,7 @@ public class TimeCapsuleService {
             // 2. 이미 작성을 끝낸 상태 (1) - 해당 user 가 이미 작성을 한 경우
             // 타임 캡슐 답변 DB 에서 해당 User 로 작성된 타임 캡슐이 있으면
             Optional<TimeCapsuleAnswer> timeCapsuleAnswer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsule);
-            if(timeCapsuleAnswer.isPresent()) {
+            if (timeCapsuleAnswer.isPresent()) {
                 // 타임 캡슐 마감 날짜 - 현재 날짜 = 남은 날짜 같이 전송
                 int dayCount = (int) ChronoUnit.DAYS.between(currentDate, timeCapsule.getEndDate());
 
@@ -116,7 +124,7 @@ public class TimeCapsuleService {
         Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
 
         TimeCapsule timeCapsule;
-        if(timeCapsuleOpt.isEmpty()) {
+        if (timeCapsuleOpt.isEmpty()) {
             timeCapsule = TimeCapsule.builder()
                     .familyId(familyId)
                     .startDate(LocalDate.now())
@@ -141,9 +149,9 @@ public class TimeCapsuleService {
 
         TimeCapsuleAnswer timeCapsuleAnswer = null;
         // 타임 캡슐이 있을 경우
-        if(timeCapsuleOpt.isPresent()) {
+        if (timeCapsuleOpt.isPresent()) {
             int dayDiff = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleOpt.get().getStartDate());
-            if(dayDiff<=3) { // 타임 캡슐 생성 일자, 현재 날짜 차이가 3일 이내라면
+            if (dayDiff<=3) { // 타임 캡슐 생성 일자, 현재 날짜 차이가 3일 이내라면
                 Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsuleOpt.get());
                 if(answer.isEmpty()) {
                     // 작성한 답변이 없을 경우
@@ -166,6 +174,56 @@ public class TimeCapsuleService {
 
         timeCapsuleAnswerRepository.save(timeCapsuleAnswer);
 
+    }
+
+    // 타임 캡슐 목록 조회
+    public TimeCapsuleListResponse getTimeCapsuleList(Long userId, int pageNo) {
+
+        // 가족 조회
+        FamilyDto familyDto = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = familyDto.getFamilyId();
+
+        PageRequest pageRequest = PageRequest.of(pageNo, 18); // 18개씩
+        Slice<TimeCapsule> timeCapsuleSlice = timeCapsuleRepository.findTimeCapsulesByFamilyId(familyId, pageRequest);
+        List<TimeCapsule> timeCapsuleList = timeCapsuleSlice.getContent();
+
+        List<TimeCapsuleItem> timeCapsuleItems = timeCapsuleList.stream()
+                .map(timeCapsule -> {
+                    // 특정 타임캡슐의 모든 답변 가져오기
+                    List<TimeCapsuleAnswer> answers = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByTimecapsule(timeCapsule);
+
+                    // TimeCapsuleAnswerItem 리스트로 변환
+                    List<TimeCapsuleAnswerItem> answerItems = answers.stream()
+                            .map(answer -> {
+                                // userId로 사용자 정보 가져오기
+                                // 타임 캡슐, 타임 캡슐 답변으로 userId 찾기
+                                Long id = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByIdAndTimecapsule(answer.getId(), timeCapsule);
+                                UserInfoResponse user = userServiceFeignClient.getAllUser(Collections.singletonList(id)).getData().get(0);
+
+                                return TimeCapsuleAnswerItem.builder()
+                                        .userNickname(user.getUserNickname())
+                                        .userZodiacSign(user.getUserZodiacSign())
+                                        .userColor(user.getUserColor())
+                                        .content(answer.getContent())
+                                        .date(answer.getCreateAt())
+                                        .build();
+                            }).collect(Collectors.toList());
+
+                    // TimeCapsuleItem 생성
+                    return TimeCapsuleItem.builder()
+                            .timeCapsuleId(timeCapsule.getId())
+                            .date(timeCapsule.getEndDate()) // LocalDate로 변환
+                            .items(answerItems)
+                            .build();
+                }).collect(Collectors.toList());
+
+        // TimeCapsuleListResponse (Slice 적용)
+        return TimeCapsuleListResponse.builder()
+                .hasNext(timeCapsuleSlice.hasNext())
+                .isLast(timeCapsuleSlice.isLast())
+                .pageNo(pageNo)
+                .items(timeCapsuleItems)
+                .build();
     }
 
 }

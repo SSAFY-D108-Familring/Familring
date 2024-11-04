@@ -3,6 +3,7 @@ package com.familring.timecapsuleservice.controller;
 import com.familring.common_service.dto.BaseResponse;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleAnswerCreateRequest;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
+import com.familring.timecapsuleservice.dto.response.TimeCapsuleListResponse;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
 import com.familring.timecapsuleservice.service.TimeCapsuleService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +22,7 @@ public class TimeCapsuleController {
 
     @GetMapping("/status")
     @Operation(summary = "타입 캡슐 상태 관리", description = "타입 캡슐 3가지 상태에 따라 분기 처리")
-    public ResponseEntity<BaseResponse<TimeCapsuleStatusResponse>> getFamilyInfo(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+    public ResponseEntity<BaseResponse<TimeCapsuleStatusResponse>> getTimeCapsuleStatus(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         TimeCapsuleStatusResponse response = timeCapsuleService.getTimeCapsuleStatus(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "타입 캡슐 상태를 성공적으로 조회 했습니다.", response));
     }
@@ -38,5 +39,14 @@ public class TimeCapsuleController {
     public ResponseEntity<BaseResponse<Void>> createTimeCapsuleAnswer(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestBody TimeCapsuleAnswerCreateRequest timeCapsuleAnswerCreateRequest) {
         timeCapsuleService.createTimeCapsuleAnswer(userId, timeCapsuleAnswerCreateRequest);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "타입 캡슐 답변 작성을 성공했습니다."));
+    }
+
+    @GetMapping()
+    @Operation(summary = "타입 캡슐 목록 조회", description = "타임 캡슐 목록 조회 (답변 목록 조회까지 같이)")
+    public ResponseEntity<BaseResponse<TimeCapsuleListResponse>> getTimeCapsuleList(
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+            @RequestParam("pageNo") int pageNo) {
+        TimeCapsuleListResponse response = timeCapsuleService.getTimeCapsuleList(userId, pageNo);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "타임 캡슐 목록을 성공적으로 조회 했습니다.", response));
     }
 }
