@@ -2,6 +2,7 @@ package com.familring.presentation.screen.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.datasource.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserJoinRequest
@@ -21,6 +22,7 @@ class SignUpViewModel
     @Inject
     constructor(
         private val userRepository: UserRepository,
+        private val authDataStore: AuthDataStore,
     ) : ViewModel() {
         private val _state = MutableStateFlow(SignUpUiState())
         val state = _state.asStateFlow()
@@ -28,12 +30,20 @@ class SignUpViewModel
         private val _event = MutableSharedFlow<SignUpUiEvent>()
         val event = _event.asSharedFlow()
 
+        init {
+            updateKakaoId()
+        }
+
         fun updateIsMake(make: Boolean) {
             _state.update { it.copy(make = make) }
         }
 
-        fun updateKakaoId(kakaoId: String) {
-            _state.update { it.copy(userKakaoId = kakaoId) }
+        private fun updateKakaoId() {
+            viewModelScope.launch {
+                authDataStore.getKakaoId()?.let { kakaoId ->
+                    _state.update { it.copy(userKakaoId = kakaoId) }
+                }
+            }
         }
 
         fun updateNickname(nickname: String) {

@@ -37,7 +37,6 @@ class UserRepositoryImpl
                     tokenDataStore.saveJwtToken(
                         jwtToken = response.data,
                     )
-                    authDataSource.saveKakaoId(request.userKakaoId)
                 }
                 emit(response)
             }
@@ -55,7 +54,7 @@ class UserRepositoryImpl
                         apiResponse = {
                             api.join(
                                 request = requestBody,
-                                userFace = image!!,
+                                image = image,
                             )
                         },
                         default = JwtToken(),

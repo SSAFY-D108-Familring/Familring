@@ -91,7 +91,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     .padding(innerPadding)
                     .navigationBarsPadding(),
             navController = navController,
-            startDestination = ScreenDestinations.First.route,
+            startDestination = ScreenDestinations.Login.route,
             showSnackBar = onShowSnackBar,
         )
     }
@@ -200,6 +200,7 @@ fun MainNavHost(
                 modifier = modifier,
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
+                showSnackBar = showSnackBar,
                 navigateToCount = {
                     navController.navigate(ScreenDestinations.FamilyInfo.route)
                 },
@@ -218,6 +219,7 @@ fun MainNavHost(
                 modifier = modifier,
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
+                showSnackBar = showSnackBar,
                 navigateToDone = {
                     navController.navigate(ScreenDestinations.Done.route)
                 },
@@ -232,6 +234,9 @@ fun MainNavHost(
         ) {
             DoneRoute(
                 modifier = modifier,
+                navigateToHome = {
+                    navController.navigate(ScreenDestinations.Home.route)
+                },
             )
         }
 
