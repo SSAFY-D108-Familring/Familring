@@ -10,6 +10,6 @@ import java.util.List;
 
 @Repository
 public interface DailyRepository extends JpaRepository<Daily, Long> {
-    @Query("SELECT d FROM Daily d WHERE MONTH(d.createdAt) = :month AND d.userId IN :userIds")
-    List<Daily> findDailiesByMonthAndUserIdIn(int month,  List<Long> userIds);
+    @Query("SELECT d FROM Daily d WHERE YEAR(d.createdAt) = :year AND MONTH(d.createdAt) = :month AND d.userId IN :userIds")
+    List<Daily> findDailiesByMonthAndUserIdIn(int year, int month, List<Long> userIds);
 }

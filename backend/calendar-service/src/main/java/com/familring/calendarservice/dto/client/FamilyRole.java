@@ -1,4 +1,4 @@
-package com.familring.calendarservice.service.client.dto;
+package com.familring.calendarservice.dto.client;
 
 public enum FamilyRole {
     F,  // 아빠

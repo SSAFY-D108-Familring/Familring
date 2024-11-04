@@ -1,20 +1,16 @@
 package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Schedule;
-import com.familring.calendarservice.domain.ScheduleUser;
 import com.familring.calendarservice.dto.response.ScheduleDateResponse;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.dto.response.ScheduleUserResponse;
 import com.familring.calendarservice.repository.ScheduleUserRepository;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.ScheduleRepository;
-import com.familring.calendarservice.service.client.dto.UserInfoResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,9 +24,9 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final ScheduleUserRepository scheduleUserRepository;
 
-    public List<ScheduleDateResponse> getSchedulesByMonth(int month, Long userId) {
+    public List<ScheduleDateResponse> getSchedulesByMonth(int year, int month, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
-        return scheduleRepository.findSchedulesByMonthAndFamilyId(month, familyId).stream().map(
+        return scheduleRepository.findSchedulesByMonthAndFamilyId(year, month, familyId).stream().map(
                 schedule -> ScheduleDateResponse.builder().id(schedule.getId()).title(schedule.getTitle()).startTime(schedule.getStartTime())
                         .endTime(schedule.getEndTime()).color(schedule.getColor()).build()).toList();
     }
@@ -55,6 +51,10 @@ public class ScheduleService {
             return response;
         }).toList();
     }
+//
+//    public void createSchedule() {
+//        scheduleRepository.
+//    }
 
 
 }

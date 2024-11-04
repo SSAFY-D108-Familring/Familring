@@ -1,5 +1,6 @@
 package com.familring.calendarservice.controller;
 
+import com.familring.calendarservice.dto.response.ScheduleRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.service.ScheduleService;
 import com.familring.common_service.dto.BaseResponse;
@@ -29,5 +30,12 @@ public class ScheduleController {
                 "일정 정보를 조회했습니다.", scheduleService.getSchedules(scheduleIds, userId)));
     }
 
+//    @PostMapping()
+//    @Operation(summary = "일정 생성", description = "새로운 일정을 추가합니다.")
+//    public ResponseEntity<BaseResponse<Void>> createSchedule(@RequestBody ScheduleRequest scheduleRequest) {
+//        scheduleService.createSchedule(scheduleRequest);
+//
+//        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 생성했습니다."));
+//    }
 
 }

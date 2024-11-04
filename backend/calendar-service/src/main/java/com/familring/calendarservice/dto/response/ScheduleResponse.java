@@ -1,13 +1,9 @@
 package com.familring.calendarservice.dto.response;
 
-import com.familring.calendarservice.domain.ScheduleUser;
-import com.familring.calendarservice.service.client.dto.FamilyRole;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Builder

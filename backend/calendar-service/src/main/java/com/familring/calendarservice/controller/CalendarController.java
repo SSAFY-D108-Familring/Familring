@@ -29,11 +29,12 @@ public class CalendarController {
     @GetMapping
     @Operation(summary = "월별 일정 일상 조회", description = "월별 일정과 일상들의 ID와 날짜를 반환")
     public ResponseEntity<BaseResponse<MonthDailyScheduleResponse>> getSchedulesAndDailiesByMonth(
+            @RequestParam int year,
             @RequestParam int month,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
     ) {
-        List<DailyDateResponse> dailyDateResponses = dailyService.getDailiesDateByMonth(month, userId);
-        List<ScheduleDateResponse> scheduleDateResponses = scheduleService.getSchedulesByMonth(month, userId);
+        List<DailyDateResponse> dailyDateResponses = dailyService.getDailiesDateByMonth(year, month, userId);
+        List<ScheduleDateResponse> scheduleDateResponses = scheduleService.getSchedulesByMonth(year, month, userId);
         MonthDailyScheduleResponse response = MonthDailyScheduleResponse.builder().dailies(dailyDateResponses).schedules(scheduleDateResponses).build();
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), month + "월 일정과 일상 게시물을 모두 조회했습니다.", response));
     }
