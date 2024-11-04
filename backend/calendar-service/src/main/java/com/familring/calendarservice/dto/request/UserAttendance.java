@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserAttendance {
     private Long userId;
-    private Boolean attendance;
+    private Boolean attendanceStatus;
 }

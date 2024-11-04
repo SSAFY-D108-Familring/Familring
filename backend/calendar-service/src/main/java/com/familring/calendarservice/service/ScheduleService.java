@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -86,7 +87,7 @@ public class ScheduleService {
 
         request.getAttendances().forEach(
                 userAttendance -> {
-                    schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendance());
+                    schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendanceStatus());
                 });
 
         // @@ 알림 등록해주기 @@
@@ -130,14 +131,17 @@ public class ScheduleService {
                 request.getColor()
         );
 
-        Map<Long, Boolean> attendanceMap = request.getAttendances().stream().collect(Collectors.toMap(
-                UserAttendance::getUserId,
-                UserAttendance::getAttendance
-        ));
+        request.getAttendances().forEach(userAttendance -> {
+            // 해당 스케줄에 참여하는 회원을 조회 후 존재하면 참석 여부 update, 없으면 새로 추가함
+            Optional<ScheduleUser> scheduleUser = schedule.getScheduleUsers().stream()
+                    .filter(su -> su.getAttendeeId().equals(userAttendance.getUserId()))
+                    .findAny();
 
-        schedule.getScheduleUsers().forEach(scheduleUser -> {
-            scheduleUser.updateAttendanceStatus(attendanceMap.get(scheduleUser.getAttendeeId()));
+            if (scheduleUser.isPresent()) {
+                scheduleUser.get().updateAttendanceStatus(userAttendance.getAttendanceStatus());
+            } else {
+                schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendanceStatus());
+            }
         });
-
     }
 }
