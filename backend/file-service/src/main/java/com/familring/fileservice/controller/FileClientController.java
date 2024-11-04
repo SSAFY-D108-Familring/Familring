@@ -1,6 +1,6 @@
 package com.familring.fileservice.controller;
 
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import com.familring.fileservice.exception.base.ApplicationException;
 import com.familring.fileservice.service.FileService;
 import io.swagger.v3.oas.annotations.Operation;

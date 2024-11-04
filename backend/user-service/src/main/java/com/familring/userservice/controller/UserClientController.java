@@ -1,6 +1,6 @@
 package com.familring.userservice.controller;
 
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
 import com.familring.userservice.service.UserService;
 import io.swagger.v3.oas.annotations.Hidden;

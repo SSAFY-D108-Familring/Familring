@@ -1,9 +1,7 @@
-package com.familring.common_service.dto;
+package com.familring.common_module.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @RequiredArgsConstructor

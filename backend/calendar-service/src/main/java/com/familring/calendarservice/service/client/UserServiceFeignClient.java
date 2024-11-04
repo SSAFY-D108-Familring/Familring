@@ -1,7 +1,7 @@
 package com.familring.calendarservice.service.client;
 
 import com.familring.calendarservice.dto.client.UserInfoResponse;
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

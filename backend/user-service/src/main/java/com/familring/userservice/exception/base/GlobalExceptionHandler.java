@@ -1,8 +1,7 @@
 package com.familring.userservice.exception.base;
 
-import com.familring.common_service.dto.ErrorResponse;
+import com.familring.common_module.dto.ErrorResponse;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
