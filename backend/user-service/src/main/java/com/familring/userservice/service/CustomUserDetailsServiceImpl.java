@@ -11,6 +11,7 @@ import com.familring.userservice.service.client.FamilyServiceFeignClient;
 import com.familring.userservice.service.client.FileServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,6 +35,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     private final FileServiceFeignClient fileServiceFeignClient;
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final RedisService redisService;
+
+    @Value("${cloud.aws.s3.url}")
+    private String s3Url;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -65,7 +69,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         String faceImgUrl = "";
 
         // 1. 얼굴 사진 처리
-        if(image.isEmpty()){
+        if (image == null) {
             // 1-1. 얼굴 사진 없는 경우 에러 처리
             throw new NoContentUserImageException();
         }
@@ -92,7 +96,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         log.info("사용자의 띠: {}", zodiacSign[zodiacIndex]);
 
         // 2-5. 띠 이미지 URL 가져오기
-        String zodiacSignImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
+        String zodiacSignImgUrl = s3Url + "/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
         log.info("zodiacSignImgUrl: {}", zodiacSignImgUrl);
 
 
@@ -116,6 +120,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // 4. 기존 createUser(UserDetails user) 호출
         createUser(user);
     }
+
     public List<String> uploadFiles(MultipartFile image, String folderPath) {
         log.info("folderPath: {}", folderPath);
 
@@ -123,10 +128,9 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         List<MultipartFile> faceFiles = List.of(image);
 
         // Feign Client로 파일 업로드 요청
-        ResponseEntity<List<String>> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath);
-        log.info("response: {}", response.getBody());
+        List<String> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath).getData();
 
-        return response.getBody();
+        return response;
     }
 
     @Override
@@ -147,9 +151,12 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         // 2. redis의 refreshToken 제거
         redisService.deleteRefreshToken(user.getUserKakaoId());
+        log.info("redis refreshToken 제거 완료");
 
         // 3. S3에서 이미지 제거
+        log.info("userFace: {}", user.getUserFace());
         deleteFiles(user.getUserFace());
+        log.info("S3에서 회원 얼굴 이미지 제거 완료");
 
         // 4. kakaoId, 비밀번호, 별명, 가족 역할, 기분, fcm 토큰, 수정 일자, 탈퇴 여부 변경
         UserDeleteRequest deleteRequest = UserDeleteRequest.builder()
@@ -157,7 +164,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 .beforeUserKakaoId(userName)
                 .afterUserKakaoId("DELETE_{" + userName + "}")
                 .userPassword("")
-                .userName("탈퇴 회원")
+                .userNickname("탈퇴 회원")
                 .userRole(FamilyRole.N)
                 .userFace("")
                 .userEmotion("")
@@ -167,11 +174,13 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
 
         // 5. user 테이블 수정
         userDao.deleteUser(deleteRequest);
+        log.info("user 테이블 수정 완료");
 
         // 6. 가족 구성원 제거
         String familyResponse = deleteFamilyMember(user.getUserId());
         log.info(familyResponse);
     }
+
     public void deleteFiles(String imageUrl) {
         // List<MultipartFile>로 파일 리스트 구성
         List<String> faceFiles = List.of(imageUrl);
@@ -179,10 +188,11 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // Feign Client로 파일 삭제 요청
         fileServiceFeignClient.deleteFiles(faceFiles);
     }
-    public String deleteFamilyMember(Long userId) {
-        ResponseEntity<String> response = familyServiceFeignClient.deleteFamilyMember(userId);
 
-        return response.getBody();
+    public String deleteFamilyMember(Long userId) {
+        familyServiceFeignClient.deleteFamilyMember(userId);
+
+        return "file-service에서 파일 삭제 완료";
     }
 
 

@@ -1,8 +1,8 @@
 package com.familring.fileservice.controller;
 
+import com.familring.common_service.dto.BaseResponse;
 import com.familring.fileservice.exception.base.ApplicationException;
 import com.familring.fileservice.service.FileService;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +24,7 @@ import java.util.List;
 @RequestMapping("/client/files")
 @RequiredArgsConstructor
 @Log4j2
-@Hidden
-public class FileController {
+public class FileClientController {
 
     private final FileService fileService;
 
@@ -84,7 +83,7 @@ public class FileController {
             )
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<List<String>> uploadFiles(
+    public ResponseEntity<BaseResponse<List<String>>> uploadFiles(
             @Parameter(
                     description = "업로드할 파일들 (여러 파일 선택 가능)",
                     required = true,
@@ -107,7 +106,7 @@ public class FileController {
         log.info("파일 업로드 요청 - 파일 수: {}, 폴더 경로: {}", files.size(), folderPath);
         List<String> urls = fileService.uploadFiles(files, folderPath);
         log.info("파일 업로드 완료 - 업로드된 파일 수: {}", urls.size());
-        return ResponseEntity.ok(urls);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "파일이 성공적으로 업로드되었습니다.", urls));
     }
 
     @Operation(
@@ -173,8 +172,8 @@ public class FileController {
                     )
             )
     })
-    @DeleteMapping()
-    public ResponseEntity<Void> deleteFiles(
+    @DeleteMapping
+    public ResponseEntity<BaseResponse<Void>> deleteFiles(
             @Parameter(
                     description = "삭제할 파일들의 URL 목록",
                     required = true,
@@ -196,6 +195,6 @@ public class FileController {
         log.info("파일 삭제 요청 - URL 수: {}", fileUrls.size());
         fileService.deleteFiles(fileUrls);
         log.info("파일 삭제 완료");
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "파일이 성공적으로 삭제되었습니다."));
     }
 }

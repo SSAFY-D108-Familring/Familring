@@ -3,7 +3,7 @@ package com.familring.familyservice.service.family;
 import com.familring.common_service.dto.BaseResponse;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
-import com.familring.familyservice.model.dto.FamilyDto;
+import com.familring.familyservice.model.dto.Family;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
@@ -28,15 +28,15 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     public FamilyInfoResponse getFamilyInfo(Long userId) {
         // 1. 가족 조회
-        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
+        Family family = familyDao.findFamilyByUserId(userId)
                 .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
-                .familyId(familyDto.getFamilyId())
-                .familyCode(familyDto.getFamilyCode())
-                .familyCount(familyDto.getFamilyCount())
-                .familyCommunicationStatus(familyDto.getFamilyCommunicationStatus())
+                .familyId(family.getFamilyId())
+                .familyCode(family.getFamilyCode())
+                .familyCount(family.getFamilyCount())
+                .familyCommunicationStatus(family.getFamilyCommunicationStatus())
                 .build();
 
         // 3. 응답
@@ -46,11 +46,11 @@ public class FamilyServiceImpl implements FamilyService {
     @Override
     public String getFamilyCode(Long userId) {
         // 1. 가족 조회
-        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
+        Family family = familyDao.findFamilyByUserId(userId)
                 .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2.  가족 코드 조회
-        String familyCode = familyDto.getFamilyCode();
+        String familyCode = family.getFamilyCode();
 
         // 3. 응답
         return familyCode;
@@ -108,16 +108,16 @@ public class FamilyServiceImpl implements FamilyService {
         log.info("가족 구성원 추가 완료");
 
         // 3. 가족 조회
-        FamilyDto familyDto = familyDao.findFamilyByFamilyId(familyId)
+        Family family = familyDao.findFamilyByFamilyId(familyId)
                         .orElseThrow(() -> new FamilyNotFoundException());
         log.info("가족 조회 완료");
 
         // 4. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
-                .familyId(familyDto.getFamilyId())
-                .familyCode(familyDto.getFamilyCode())
-                .familyCount(familyDto.getFamilyCount())
-                .familyCommunicationStatus(familyDto.getFamilyCommunicationStatus())
+                .familyId(family.getFamilyId())
+                .familyCode(family.getFamilyCode())
+                .familyCount(family.getFamilyCount())
+                .familyCommunicationStatus(family.getFamilyCommunicationStatus())
                 .build();
 
         // 5. 응답
@@ -128,12 +128,12 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional
     public String joinFamilyMember(Long userId, FamilyJoinRequest familyJoinRequest) {
         // 1. 가족 찾기
-        FamilyDto familyDto = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode())
+        Family family = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode())
                 .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 가족 구성원 추가
-        familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), 1);
-        familyDao.insetFamily_User(familyDto.getFamilyId(), userId);
+        familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
+        familyDao.insetFamily_User(family.getFamilyId(), userId);
         
         // 3. 응답
         return "가죽 구성원 추가 완료";
@@ -143,12 +143,12 @@ public class FamilyServiceImpl implements FamilyService {
     @Transactional
     public String deleteFamilyMember(Long userId) {
         // 1. 회원에 해당하는 가족 찾기
-        FamilyDto familyDto = familyDao.findFamilyByUserId(userId)
+        Family family = familyDao.findFamilyByUserId(userId)
                 .orElseThrow(() -> new FamilyNotFoundException());
 
         // 2. 가족 구성원 제거
-        familyDao.updateFamilyCountByFamilyId(familyDto.getFamilyId(), -1);
-        familyDao.deleteFamily_UserByFamilyIdAndUserId(familyDto.getFamilyId(), userId);
+        familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), -1);
+        familyDao.deleteFamily_UserByFamilyIdAndUserId(family.getFamilyId(), userId);
 
         return "가족 구성원 수정 완료";
     }

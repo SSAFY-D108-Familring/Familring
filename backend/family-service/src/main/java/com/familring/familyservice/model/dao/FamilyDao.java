@@ -1,10 +1,9 @@
 package com.familring.familyservice.model.dao;
 
-import com.familring.familyservice.model.dto.FamilyDto;
+import com.familring.familyservice.model.dto.Family;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.mybatis.spring.annotation.MapperScan;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,13 +11,13 @@ import java.util.Optional;
 @Mapper
 public interface FamilyDao {
     // familyId로 family 찾기
-    Optional<FamilyDto> findFamilyByFamilyId(@Param("familyId") Long familyId);
+    Optional<Family> findFamilyByFamilyId(@Param("familyId") Long familyId);
 
     // userId로 family 찾기
-    Optional<FamilyDto> findFamilyByUserId(@Param("userId")Long userId);
+    Optional<Family> findFamilyByUserId(@Param("userId")Long userId);
 
     // familyCode로 family 찾기
-    Optional<FamilyDto> findFamilyByFamilyCode(String familyCode);
+    Optional<Family> findFamilyByFamilyCode(String familyCode);
 
     // userId로 family_user 모두 찾기
     List<Long> findFamilyUserByUserId(@Param("userId") Long userId);

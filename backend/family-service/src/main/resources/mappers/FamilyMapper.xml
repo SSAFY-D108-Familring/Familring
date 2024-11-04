@@ -4,7 +4,7 @@
 <mapper namespace="com.familring.familyservice.model.dao.FamilyDao">
 
     <!-- 가족 정보 ResultMap -->
-    <resultMap id="familyInfo" type="com.familring.familyservice.model.dto.FamilyDto">
+    <resultMap id="familyInfo" type="com.familring.familyservice.model.dto.Family">
         <result column="family_id" property="familyId"/>
         <result column="family_code" property="familyCode"/>
         <result column="family_count" property="familyCount"/>
