@@ -29,12 +29,18 @@ fun TimeCapsuleRoute(
     popUpBackStack: () -> Unit,
     navigateToCreate: () -> Unit,
     timeCapsuleViewModel: TimeCapsuleViewModel = hiltViewModel(),
+    onShowSnackBar: (message: String) -> Unit = {},
 ) {
+    val uiState by timeCapsuleViewModel.uiState.collectAsStateWithLifecycle()
+
     TimeCapsuleScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
         navigateToCreate = navigateToCreate,
-        timeCapsuleViewModel = timeCapsuleViewModel,
+        state = uiState,
+        getTimeCapsuleStatus = timeCapsuleViewModel::getTimeCapsuleStatus,
+        createTimeCapsuleAnswer = timeCapsuleViewModel::createTimeCapsuleAnswer,
+        getTimeCapsules = timeCapsuleViewModel::getTimeCapsules,
     )
 }
 
@@ -43,10 +49,12 @@ fun TimeCapsuleScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToCreate: () -> Unit = {},
-    timeCapsuleViewModel: TimeCapsuleViewModel,
+    state: TimeCapsuleUiState,
+    getTimeCapsuleStatus: () -> Unit = {},
+    createTimeCapsuleAnswer: (String) -> Unit = {},
+    getTimeCapsules: () -> Unit = {},
+    onShowSnackBar: (message: String) -> Unit = {},
 ) {
-    val uiState by timeCapsuleViewModel.uiState.collectAsStateWithLifecycle()
-
     val tabs = listOf("작성", "목록")
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
@@ -77,35 +85,20 @@ fun TimeCapsuleScreen(
             )
             when (selectedItemIndex) {
                 0 -> {
-                    timeCapsuleViewModel.getTimeCapsuleStatus()
+                    WritingTimeCapsuleScreen(
+                        state = state,
+                        navigateToCreate = navigateToCreate,
+                        getTimeCapsuleStatus = getTimeCapsuleStatus,
+                        createTimeCapsuleAnswer = createTimeCapsuleAnswer,
+                    )
                 }
 
-                1 -> timeCapsuleViewModel.getTimeCapsules()
-            }
-
-            when (uiState) {
-                is TimeCapsuleUiState.Loading -> {
-                    //
-                }
-
-                is TimeCapsuleUiState.NoTimeCapsule -> {
-                    NoTimeCapsule(navigateToCreate = navigateToCreate)
-                }
-
-                is TimeCapsuleUiState.WritingTimeCapsule -> {
-                    WritingTimeCapsule()
-                }
-
-                is TimeCapsuleUiState.FinishedTimeCapsule -> {
-                    FinishedTimeCapsule()
-                }
-
-                is TimeCapsuleUiState.TimeCapsuleList -> {
-                    TimeCapsuleList()
-                }
-
-                is TimeCapsuleUiState.Error -> {
-                    //
+                1 -> {
+                    TimeCapsuleListScreen(
+                        state = state,
+                        getTimeCapsules = getTimeCapsules,
+                        onShowSnackBar = onShowSnackBar,
+                    )
                 }
             }
         }
@@ -115,5 +108,10 @@ fun TimeCapsuleScreen(
 @Preview
 @Composable
 private fun TimeCapsuleScreenPreview() {
-//    TimeCapsuleScreen()
+    TimeCapsuleScreen(
+        state =
+            TimeCapsuleUiState(
+                writingStatus = 2,
+            ),
+    )
 }

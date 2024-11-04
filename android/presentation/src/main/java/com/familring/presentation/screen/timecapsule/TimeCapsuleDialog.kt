@@ -164,6 +164,7 @@ private fun TimeCapsulePagerPreview() {
                             "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
                             "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
                             "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
+                    createdAt = "2024-10-05",
                 ),
                 TimeCapsuleMessage(
                     id = 1,
@@ -178,6 +179,7 @@ private fun TimeCapsulePagerPreview() {
                             "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
                             "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
                             "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
+                    createdAt = "2024-10-06",
                 ),
             ),
     )

@@ -4,6 +4,7 @@ import com.familring.data.network.api.TimeCapsuleApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.TimeCapsule
+import com.familring.domain.model.TimeCapsuleStatus
 import com.familring.domain.repository.TimeCapsuleRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -14,41 +15,31 @@ class TimeCapsuleRepositoryImpl
     constructor(
         private val timeCapsuleApi: TimeCapsuleApi,
     ) : TimeCapsuleRepository {
-        override suspend fun getTimeCapsuleStatus(): Flow<ApiResponse<Unit>> =
+        override suspend fun getTimeCapsuleStatus(): Flow<ApiResponse<TimeCapsuleStatus>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
                         apiResponse = { timeCapsuleApi.getTimeCapsuleStatus() },
+                        default = TimeCapsuleStatus(),
+                    )
+                emit(apiResponse)
+            }
+
+        override suspend fun createTimeCapsule(openDate: String): Flow<ApiResponse<Unit>> =
+            flow {
+                val apiResponse =
+                    emitApiResponse(
+                        apiResponse = { timeCapsuleApi.createTimeCapsule(openDate) },
                         default = Unit,
                     )
                 emit(apiResponse)
             }
 
-        override suspend fun createTimeCapsule(timeCapsule: TimeCapsule): Flow<ApiResponse<Unit>> =
+        override suspend fun createTimeCapsuleAnswer(content: String): Flow<ApiResponse<Unit>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { timeCapsuleApi.createTimeCapsule(timeCapsule) },
-                        default = Unit,
-                    )
-                emit(apiResponse)
-            }
-
-        override suspend fun createTimeCapsuleAnswer(): Flow<ApiResponse<Unit>> =
-            flow {
-                val apiResponse =
-                    emitApiResponse(
-                        apiResponse = { timeCapsuleApi.createTimeCapsuleAnswer() },
-                        default = Unit,
-                    )
-                emit(apiResponse)
-            }
-
-        override suspend fun getTimeCapsuleWriters(): Flow<ApiResponse<Unit>> =
-            flow {
-                val apiResponse =
-                    emitApiResponse(
-                        apiResponse = { timeCapsuleApi.getTimeCapsuleWriters() },
+                        apiResponse = { timeCapsuleApi.createTimeCapsuleAnswer(content) },
                         default = Unit,
                     )
                 emit(apiResponse)
@@ -59,16 +50,7 @@ class TimeCapsuleRepositoryImpl
                 val apiResponse =
                     emitApiResponse(
                         apiResponse = { timeCapsuleApi.getTimeCapsules() },
-                        default = listOf<TimeCapsule>(),
-                    )
-            }
-
-        override suspend fun getTimeCapsuleAnswers(): Flow<ApiResponse<Unit>> =
-            flow {
-                val apiResponse =
-                    emitApiResponse(
-                        apiResponse = { timeCapsuleApi.getTimeCapsuleAnswers() },
-                        default = Unit,
+                        default = listOf(),
                     )
                 emit(apiResponse)
             }
