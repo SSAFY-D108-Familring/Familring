@@ -30,12 +30,14 @@ public class ScheduleController {
                 "일정 정보를 조회했습니다.", scheduleService.getSchedules(scheduleIds, userId)));
     }
 
-//    @PostMapping()
-//    @Operation(summary = "일정 생성", description = "새로운 일정을 추가합니다.")
-//    public ResponseEntity<BaseResponse<Void>> createSchedule(@RequestBody ScheduleRequest scheduleRequest) {
-//        scheduleService.createSchedule(scheduleRequest);
-//
-//        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 생성했습니다."));
-//    }
+    @PostMapping()
+    @Operation(summary = "일정 생성", description = "새로운 일정을 추가합니다.")
+    public ResponseEntity<BaseResponse<Void>> createSchedule(
+            @RequestBody ScheduleRequest scheduleRequest,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        scheduleService.createSchedule(scheduleRequest, userId);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 생성했습니다."));
+    }
 
 }

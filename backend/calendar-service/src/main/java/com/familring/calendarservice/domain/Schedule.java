@@ -48,10 +48,11 @@ public class Schedule {
     @Builder.Default
     private List<ScheduleUser> scheduleUsers = new ArrayList<>();
 
-    public void addUser(Long userId) {
+    public void addUser(Long userId, Boolean attendanceStatus) {
         ScheduleUser scheduleUser = ScheduleUser.builder()
                 .schedule(this)
                 .userId(userId)
+                .attendanceStatus(attendanceStatus)
                 .build();
         this.scheduleUsers.add(scheduleUser);
     }

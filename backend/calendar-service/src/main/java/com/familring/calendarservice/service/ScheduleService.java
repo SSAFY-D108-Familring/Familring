@@ -1,16 +1,20 @@
 package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Schedule;
+import com.familring.calendarservice.domain.ScheduleUser;
 import com.familring.calendarservice.dto.response.ScheduleDateResponse;
+import com.familring.calendarservice.dto.response.ScheduleRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.dto.response.ScheduleUserResponse;
 import com.familring.calendarservice.repository.ScheduleUserRepository;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.ScheduleRepository;
+import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -51,10 +55,34 @@ public class ScheduleService {
             return response;
         }).toList();
     }
-//
-//    public void createSchedule() {
-//        scheduleRepository.
-//    }
 
+    public void createSchedule(ScheduleRequest scheduleRequest, Long userId) {
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+
+        Schedule schedule = Schedule.builder()
+                .familyId(familyId)
+                .startTime(scheduleRequest.getStartTime())
+                .endTime(scheduleRequest.getEndTime())
+                .title(scheduleRequest.getTitle())
+                .hasNotification(scheduleRequest.getHasNotification())
+                .hasTime(scheduleRequest.getHasTime())
+                .color(scheduleRequest.getColor()).build();
+
+        scheduleRequest.getAttendances().forEach(
+                userAttendance -> {
+                    schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendance());
+                });
+
+        scheduleRepository.save(schedule);
+    }
+
+
+    private Long familyId;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private String title;
+    private Boolean hasNotification;
+    private Boolean hasTime;
+    private String color;
 
 }
