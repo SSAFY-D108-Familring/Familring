@@ -1,4 +1,4 @@
-package com.familring.familyservice.model.dto;
+package com.familring.timecapsuleservice.dto.client;
 
 public enum FamilyRole {
     F,  // 아빠

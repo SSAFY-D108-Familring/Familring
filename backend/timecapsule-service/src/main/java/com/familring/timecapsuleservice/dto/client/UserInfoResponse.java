@@ -1,6 +1,5 @@
-package com.familring.familyservice.model.dto.response;
+package com.familring.timecapsuleservice.dto.client;
 
-import com.familring.familyservice.model.dto.FamilyRole;
 import lombok.Builder;
 import lombok.Data;
 

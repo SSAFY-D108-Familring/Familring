@@ -1,4 +1,4 @@
-package com.familring.timecapsuleservice.dto;
+package com.familring.timecapsuleservice.dto.client;
 
 import lombok.Builder;
 import lombok.Data;
