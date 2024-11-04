@@ -7,7 +7,9 @@ import com.familring.timecapsuleservice.dto.client.UserInfoResponse;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleAnswerCreateRequest;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
+import com.familring.timecapsuleservice.exception.AlreadyExistTimeCapsuleAnswerException;
 import com.familring.timecapsuleservice.exception.AlreadyExistTimeCapsuleException;
+import com.familring.timecapsuleservice.exception.ExpiredTimeCapsuleAnswerException;
 import com.familring.timecapsuleservice.exception.TimeCapsuleNotFoundException;
 import com.familring.timecapsuleservice.exception.client.FamilyNotFoundException;
 import com.familring.timecapsuleservice.repository.TimeCapsuleAnswerRepository;
@@ -112,7 +114,7 @@ public class TimeCapsuleService {
         LocalDate currentDate = LocalDate.now(); // 현재 날짜
         Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
 
-        TimeCapsule timeCapsule = null;
+        TimeCapsule timeCapsule;
         if(timeCapsuleOpt.isEmpty()) {
             timeCapsule = TimeCapsule.builder()
                     .familyId(familyId)
@@ -126,7 +128,7 @@ public class TimeCapsuleService {
         timeCapsuleRepository.save(timeCapsule);
     }
 
-    // 타임캡슐 답변 생성
+    // 타임캡슐 답변 생성 (타임캡슐 생성 일자 부터 3일 까지만 작성 가능)
     public void createTimeCapsuleAnswer(Long userId, TimeCapsuleAnswerCreateRequest timeCapsuleAnswerCreateRequest) {
         // 가족 조회
         FamilyDto familyDto = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -137,14 +139,26 @@ public class TimeCapsuleService {
         Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
 
         TimeCapsuleAnswer timeCapsuleAnswer = null;
+        // 타임 캡슐이 있을 경우
         if(timeCapsuleOpt.isPresent()) {
-            // 타임 캡슐이 있을 경우
-            timeCapsuleAnswer = TimeCapsuleAnswer.builder()
-                    .timecapsule(timeCapsuleOpt.get())
-                    .content(timeCapsuleAnswerCreateRequest.getContent())
-                    .createAt(currentDate)
-                    .userId(userId)
-                    .build();
+            int dayDiff = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleOpt.get().getStartDate());
+            if(dayDiff<=3) { // 타임 캡슐 생성 일자, 현재 날짜 차이가 3일 이내라면
+                Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsuleOpt.get());
+                if(answer.isEmpty()) {
+                    // 작성한 답변이 없을 경우
+                    timeCapsuleAnswer = TimeCapsuleAnswer.builder()
+                            .timecapsule(timeCapsuleOpt.get())
+                            .content(timeCapsuleAnswerCreateRequest.getContent())
+                            .createAt(currentDate)
+                            .userId(userId)
+                            .build();
+                } else {
+                    throw new AlreadyExistTimeCapsuleAnswerException(); // 이미 답변 작성함
+                }
+            } else {
+                // 3일이 지났으면 답변 작성 불가
+                throw new ExpiredTimeCapsuleAnswerException();
+            }
         } else {
             throw new TimeCapsuleNotFoundException(); // 타임 캡슐이 없으면 답변 작성 불가
         }
