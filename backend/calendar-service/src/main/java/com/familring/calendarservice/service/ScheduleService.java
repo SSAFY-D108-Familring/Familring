@@ -96,8 +96,8 @@ public class ScheduleService {
     }
 
     @Transactional
-    public void updateSchedule(ScheduleUpdateRequest request, Long userId) {
-        Schedule schedule = scheduleRepository.findById(request.getId()).orElseThrow(ScheduleNotFoundException::new);
+    public void updateSchedule(Long scheduleId, ScheduleUpdateRequest request, Long userId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).orElseThrow(ScheduleNotFoundException::new);
 
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
         if (!schedule.getFamilyId().equals(familyId)) {
