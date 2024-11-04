@@ -4,9 +4,11 @@ import com.familring.timecapsuleservice.domain.TimeCapsule;
 import com.familring.timecapsuleservice.domain.TimeCapsuleAnswer;
 import com.familring.timecapsuleservice.dto.client.FamilyDto;
 import com.familring.timecapsuleservice.dto.client.UserInfoResponse;
+import com.familring.timecapsuleservice.dto.request.TimeCapsuleAnswerCreateRequest;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
 import com.familring.timecapsuleservice.exception.AlreadyExistTimeCapsuleException;
+import com.familring.timecapsuleservice.exception.TimeCapsuleNotFoundException;
 import com.familring.timecapsuleservice.exception.client.FamilyNotFoundException;
 import com.familring.timecapsuleservice.repository.TimeCapsuleAnswerRepository;
 import com.familring.timecapsuleservice.repository.TimeCapsuleRepository;
@@ -122,6 +124,33 @@ public class TimeCapsuleService {
         }
 
         timeCapsuleRepository.save(timeCapsule);
+    }
+
+    // 타임캡슐 답변 생성
+    public void createTimeCapsuleAnswer(Long userId, TimeCapsuleAnswerCreateRequest timeCapsuleAnswerCreateRequest) {
+        // 가족 조회
+        FamilyDto familyDto = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = familyDto.getFamilyId();
+
+        // 현재 날짜로 조회했을 때 타임캡슐이 없을 때만 생성 가능
+        LocalDate currentDate = LocalDate.now(); // 현재 날짜
+        Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
+
+        TimeCapsuleAnswer timeCapsuleAnswer = null;
+        if(timeCapsuleOpt.isPresent()) {
+            // 타임 캡슐이 있을 경우
+            timeCapsuleAnswer = TimeCapsuleAnswer.builder()
+                    .timecapsule(timeCapsuleOpt.get())
+                    .content(timeCapsuleAnswerCreateRequest.getContent())
+                    .createAt(currentDate)
+                    .userId(userId)
+                    .build();
+        } else {
+            throw new TimeCapsuleNotFoundException(); // 타임 캡슐이 없으면 답변 작성 불가
+        }
+
+        timeCapsuleAnswerRepository.save(timeCapsuleAnswer);
+
     }
 
 }

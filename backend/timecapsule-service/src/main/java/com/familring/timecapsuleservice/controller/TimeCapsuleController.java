@@ -1,6 +1,7 @@
 package com.familring.timecapsuleservice.controller;
 
 import com.familring.common_service.dto.BaseResponse;
+import com.familring.timecapsuleservice.dto.request.TimeCapsuleAnswerCreateRequest;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
 import com.familring.timecapsuleservice.service.TimeCapsuleService;
@@ -32,4 +33,10 @@ public class TimeCapsuleController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "타입 캡슐 생성에 성공했습니다."));
     }
 
+    @PostMapping("/answers")
+    @Operation(summary = "타입 캡슐 답변 작성", description = "타임 캡슐 답변 작성하기 (내용만 입력)")
+    public ResponseEntity<BaseResponse<Void>> createTimeCapsuleAnswer(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestBody TimeCapsuleAnswerCreateRequest timeCapsuleAnswerCreateRequest) {
+        timeCapsuleService.createTimeCapsuleAnswer(userId, timeCapsuleAnswerCreateRequest);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "타입 캡슐 답변 작성을 성공했습니다."));
+    }
 }
