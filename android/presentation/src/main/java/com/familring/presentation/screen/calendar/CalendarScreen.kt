@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
-import com.familring.presentation.component.CustomDropdownMenuStyles
+import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
@@ -106,7 +105,7 @@ fun CalendarScreen(
                             "일상 공유" to { navigateToCreateDaily() },
                         ),
                     styles =
-                        CustomDropdownMenuStyles(
+                        IconCustomDropBoxStyles(
                             iconSize = 30.dp,
                             iconDrawableId = R.drawable.ic_add,
                             expandedIconDrawableId = R.drawable.ic_add,

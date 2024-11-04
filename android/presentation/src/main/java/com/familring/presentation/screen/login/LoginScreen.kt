@@ -125,8 +125,7 @@ fun LoginScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.fillMaxHeight(0.05f))
-
+                Spacer(modifier = Modifier.fillMaxHeight(0.1f))
                 HorizontalPager(
                     state = pagerState,
                 ) { page ->

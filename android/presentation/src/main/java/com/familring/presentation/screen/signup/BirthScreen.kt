@@ -32,6 +32,7 @@ import com.familring.presentation.util.isDateFormValid
 @Composable
 fun BirthRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel,
     popUpBackStack: () -> Unit,
     navigateToColor: () -> Unit,
 ) {
@@ -39,6 +40,7 @@ fun BirthRoute(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
         navigateToColor = navigateToColor,
+        updateBirth = viewModel::updateBirthDate,
     )
 }
 
@@ -47,6 +49,7 @@ fun BirthScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToColor: () -> Unit = {},
+    updateBirth: (String) -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
@@ -102,7 +105,10 @@ fun BirthScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             RoundLongButton(
                 text = "다음으로",
-                onClick = navigateToColor,
+                onClick = {
+                    updateBirth("$year-$month-$date")
+                    navigateToColor()
+                },
                 enabled = isButtonEnabled,
             )
         }

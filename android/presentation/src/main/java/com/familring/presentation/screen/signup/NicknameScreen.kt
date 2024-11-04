@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -33,6 +32,7 @@ import com.familring.presentation.theme.White
 @Composable
 fun NicknameRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel,
     popUpBackStack: () -> Unit,
     navigateToPicture: () -> Unit,
 ) {
@@ -40,6 +40,7 @@ fun NicknameRoute(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
         navigateToPicture = navigateToPicture,
+        updateNickname = viewModel::updateNickname,
     )
 }
 
@@ -48,6 +49,7 @@ fun NicknameScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToPicture: () -> Unit = {},
+    updateNickname: (String) -> Unit = {},
 ) {
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
@@ -100,7 +102,10 @@ fun NicknameScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             RoundLongButton(
                 text = "설정 완료",
-                onClick = navigateToPicture,
+                onClick = {
+                    updateNickname(nickname)
+                    navigateToPicture()
+                },
             )
         }
     }

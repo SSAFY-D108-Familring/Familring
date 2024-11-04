@@ -14,10 +14,10 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 interface RepositoryModule {
     @Binds
-    fun bindUserRepository(
-        userRepositoryImpl: UserRepositoryImpl
-    ): UserRepository
+    @Singleton
+    fun bindUserRepository(userRepositoryImpl: UserRepositoryImpl): UserRepository
 
     @Binds
+    @Singleton
     fun bindAuthRepository(authRepositoryImpl: AuthRepositoryImpl): AuthRepository
 }
