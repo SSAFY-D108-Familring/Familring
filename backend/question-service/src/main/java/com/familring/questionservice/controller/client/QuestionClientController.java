@@ -14,7 +14,7 @@ public class QuestionClientController {
 
     private final QuestionService questionService;
 
-    @PostMapping()
+    @PostMapping("/initial")
     public ResponseEntity<BaseResponse<Void>> initializeQuestionFamily(@RequestBody Long familyId) {
         questionService.initializeQuestionFamily(familyId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "첫 번째 랜덤 질문 생성에 성공했습니다."));

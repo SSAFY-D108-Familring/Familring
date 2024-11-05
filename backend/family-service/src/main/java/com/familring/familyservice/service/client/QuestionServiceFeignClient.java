@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "question-service")
 public interface QuestionServiceFeignClient {
-    @PostMapping()
+    @PostMapping("/client/questions/initial")
     BaseResponse<Void> initializeQuestionFamily (@RequestBody Long familyId);
 }
