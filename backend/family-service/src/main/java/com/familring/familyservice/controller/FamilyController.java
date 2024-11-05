@@ -4,7 +4,7 @@ import com.familring.common_module.dto.BaseResponse;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
-import com.familring.familyservice.service.FamilyService;
+import com.familring.familyservice.service.family.FamilyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

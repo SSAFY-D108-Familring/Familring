@@ -4,7 +4,7 @@ import com.familring.common_module.dto.BaseResponse;
 import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
-import com.familring.familyservice.service.FamilyService;
+import com.familring.familyservice.service.family.FamilyService;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -50,5 +50,4 @@ public class FamilyClientController {
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 상태를 성공적으로 변경했습니다."));
     }
-
 }

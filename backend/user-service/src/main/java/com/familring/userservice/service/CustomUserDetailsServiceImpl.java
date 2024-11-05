@@ -192,7 +192,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     public String deleteFamilyMember(Long userId) {
         familyServiceFeignClient.deleteFamilyMember(userId);
 
-        return "file-service에서 파일 삭제 완료";
+        return "file-service에서 회원 삭제 완료";
     }
 
 

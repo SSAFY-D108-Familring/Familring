@@ -1,4 +1,4 @@
-package com.familring.userservice.controller;
+package com.familring.userservice.controller.client;
 
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
