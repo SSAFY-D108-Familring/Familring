@@ -14,8 +14,11 @@ public interface FamilyService {
     // 가족 코드 조회
     String getFamilyCode(Long userId);
 
-    // 가족 구성원 전체 조회
+    // 가족 구성원 전체 조회 - userId
     List<UserInfoResponse> getFamilyMemberList(Long userId);
+
+    // 가족 구성원 전체 조회 - familyId
+    List<UserInfoResponse> getFamilyMemberListByFamilyId(Long familyId);
 
     // 모든 가족 조회
     List<Long> getAllFamilyId();
@@ -31,4 +34,5 @@ public interface FamilyService {
 
     // 가족 상태 변경
     void updateFamilyStatus(FamilyStatusRequest familyStatusRequest);
+
 }

@@ -12,6 +12,7 @@ import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
+import com.familring.familyservice.service.client.QuestionServiceFeignClient;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,6 +30,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     private final FamilyDao familyDao;
     private final UserServiceFeignClient userServiceFeignClient;
+    private final QuestionServiceFeignClient questionServiceFeignClient;
 
     @Override
     public FamilyInfoResponse getFamilyInfo(Long userId) {
@@ -65,6 +67,19 @@ public class FamilyServiceImpl implements FamilyService {
     public List<UserInfoResponse> getFamilyMemberList(Long userId) {
         // 1.  userId의 가족 구성원 모두의 userId 추출
         List<Long> members = familyDao.findFamilyUserByUserId(userId);
+
+        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
+        BaseResponse<List<UserInfoResponse>> response = userServiceFeignClient.getAllUser(members);
+        List<UserInfoResponse> userInfoResponses = response.getData(); // data 필드에 접근
+
+        // 3. 응답
+        return userInfoResponses;
+    }
+
+    @Override
+    public List<UserInfoResponse> getFamilyMemberListByFamilyId(Long familyId) {
+        // 1.  userId의 가족 구성원 모두의 userId 추출
+        List<Long> members = familyDao.findFamilyUserByFamilyId(familyId);
 
         // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
         BaseResponse<List<UserInfoResponse>> response = userServiceFeignClient.getAllUser(members);
@@ -123,6 +138,8 @@ public class FamilyServiceImpl implements FamilyService {
         Family family = familyDao.findFamilyByFamilyId(familyId)
                         .orElseThrow(() -> new FamilyNotFoundException());
         log.info("가족 조회 완료");
+
+        questionServiceFeignClient.initializeQuestionFamily(familyId);
 
         // 4. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
