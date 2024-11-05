@@ -48,6 +48,12 @@
         WHERE user_id = #{userId}
     </select>
 
+    <select id="existsUserByUserKakaoId" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM user
+        WHERE user_kakao_id = #{userKakaoId}
+    </select>
+
     <update id="updateUserFcmTokenByUserId">
         UPDATE user
         SET user_fcm_token = #{fcmToken}
