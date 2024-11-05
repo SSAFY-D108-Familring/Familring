@@ -6,6 +6,7 @@ import com.familring.familyservice.exception.family.AlreadyInFamilyException;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.Family;
+import com.familring.familyservice.model.dto.FamilyRole;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
@@ -145,7 +146,7 @@ public class FamilyServiceImpl implements FamilyService {
         // 2-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
         List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
         for (UserInfoResponse member : familyMembers) {
-            if ("M".equals(member.getUserRole()) || "D".equals(member.getUserRole())) {
+            if (FamilyRole.M.equals(member.getUserRole()) || FamilyRole.F.equals(member.getUserRole())) {
                 log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
                 throw new AlreadyFamilyRoleException();
             }
