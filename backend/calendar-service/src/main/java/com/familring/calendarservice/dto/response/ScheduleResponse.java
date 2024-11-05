@@ -12,12 +12,12 @@ import java.util.List;
 @AllArgsConstructor
 public class ScheduleResponse {
     private Long id;
+    private Long albumId;
     private String title;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Boolean hasTime;
     private Boolean hasNotification;
-    private Boolean hasAlbum;
     private String color;
 
     @Builder.Default
