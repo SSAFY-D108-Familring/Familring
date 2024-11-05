@@ -61,8 +61,10 @@ fun BirthScreen(
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(year, month, date) {
-        val birth = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
-        updateBirth(birth)
+        if (year.isNotEmpty() && month.isNotEmpty() && date.isNotEmpty()) {
+            val birth = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
+            updateBirth(birth)
+        }
     }
 
     Surface(
