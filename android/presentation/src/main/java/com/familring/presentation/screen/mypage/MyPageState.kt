@@ -6,9 +6,6 @@ import androidx.compose.runtime.Stable
 @Stable
 sealed interface MyPageState {
     @Immutable
-    data object Init : MyPageState
-
-    @Immutable
     data object Success : MyPageState
 
     @Immutable

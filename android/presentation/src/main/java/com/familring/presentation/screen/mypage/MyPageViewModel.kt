@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,23 +17,19 @@ class MyPageViewModel
     constructor(
         private val userRepository: UserRepository,
     ) : ViewModel() {
-        private val _state = MutableStateFlow<MyPageState>(MyPageState.Init)
-        val state = _state.asStateFlow()
+        private val _event = MutableSharedFlow<MyPageState>()
+        val event = _event.asSharedFlow()
 
         fun signOut() {
             viewModelScope.launch {
                 userRepository.signOut().collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
-                            _state.value = MyPageState.Success
+                            _event.emit(MyPageState.Success)
                         }
 
                         is ApiResponse.Error -> {
-                            _state.value =
-                                MyPageState.Error(
-                                    code = response.code,
-                                    message = response.message,
-                                )
+                            _event.emit(MyPageState.Error(response.code, response.message))
                         }
                     }
                 }
