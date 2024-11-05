@@ -7,17 +7,20 @@ import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
 import com.familring.familyservice.model.dto.Family;
 import com.familring.familyservice.model.dto.FamilyRole;
+import com.familring.familyservice.model.dto.chat.ChatRoomEntry;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
+import com.familring.familyservice.model.repository.ChatRoomEntryRepository;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,6 +32,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     private final FamilyDao familyDao;
     private final UserServiceFeignClient userServiceFeignClient;
+    private final ChatRoomEntryRepository chatRoomEntryRepository;
 
     @Override
     public FamilyInfoResponse getFamilyInfo(Long userId) {
@@ -67,7 +71,7 @@ public class FamilyServiceImpl implements FamilyService {
         List<Long> members = familyDao.findFamilyUserByUserId(userId);
 
         // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
-        BaseResponse<List<UserInfoResponse>> response = userServiceFeignClient.getAllUser(members);
+        BaseResponse<List<UserInfoResponse>> response = getUserInfoFromUserService(members);
         List<UserInfoResponse> userInfoResponses = response.getData(); // data 필드에 접근
 
         // 3. 응답
@@ -140,7 +144,7 @@ public class FamilyServiceImpl implements FamilyService {
         // 2. 사용자 정보 찾기
         List<Long> members = new ArrayList<>();
         members.add(family.getFamilyId());
-        UserInfoResponse user = userServiceFeignClient.getAllUser(members).getData().get(0);
+        UserInfoResponse user = getUserInfoFromUserService(members).getData().get(0);
 
         // 3. 에러 확인
         // 3-1. 가족에 이미 추가 되어있는 경우 에러 발생
@@ -175,7 +179,15 @@ public class FamilyServiceImpl implements FamilyService {
         log.info("before 가족 구성원 수: {}", family.getFamilyCount());
         familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
 
-        // 5. 응답
+        // 5. 채팅방 입장 시간 추가
+        ChatRoomEntry entry = ChatRoomEntry.builder()
+                .familyId(family.getFamilyId().toString())
+                .userId(userId.toString())
+                .entryTime(LocalDateTime.now()) // 현재 시간을 입장 시간으로 설정
+                .build();
+        chatRoomEntryRepository.save(entry);
+
+        // 6. 응답
         return "가죽 구성원 추가 완료";
     }
 
