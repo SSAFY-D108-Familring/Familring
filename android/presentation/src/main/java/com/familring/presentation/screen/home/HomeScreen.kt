@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -153,52 +154,53 @@ fun HomeScreen(
                 contentScale = ContentScale.FillBounds,
             )
         }
-        Column(
-            modifier =
+        Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier =
                 Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(horizontal = 20.dp),
-        ) {
-            Spacer(modifier = Modifier.fillMaxSize(0.02f))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Image(
-                    modifier =
+            ) {
+                Spacer(modifier = Modifier.fillMaxSize(0.02f))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    Image(
+                        modifier =
                         Modifier
                             .size(24.dp)
                             .noRippleClickable {
                                 navigateToNotification()
                             },
-                    painter = painterResource(id = R.drawable.img_home_notification),
-                    contentDescription = "home notification img",
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                Image(
-                    modifier =
+                        painter = painterResource(id = R.drawable.img_home_notification),
+                        contentDescription = "home notification img",
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Image(
+                        modifier =
                         Modifier
                             .size(24.dp)
                             .noRippleClickable {
                                 // 프로필 이벤트
                             },
-                    painter = painterResource(id = R.drawable.img_profile_circle),
-                    contentDescription = "profile circle img",
+                        painter = painterResource(id = R.drawable.img_profile_circle),
+                        contentDescription = "profile circle img",
+                    )
+                }
+
+                Text(
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    text = "우리 가족의 나무는 지금...",
+                    style = Typography.labelLarge.copy(fontSize = 20.sp),
                 )
-            }
 
-            Text(
-                modifier = Modifier.padding(horizontal = 4.dp),
-                text = "우리 가족의 나무는 지금...",
-                style = Typography.labelLarge.copy(fontSize = 20.sp),
-            )
-
-            Row(
-                modifier =
+                Row(
+                    modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text =
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text =
                         if (progress > 0.69f) {
                             "숲들숲들🎄"
                         } else if (progress > 0.29f) {
@@ -206,32 +208,32 @@ fun HomeScreen(
                         } else {
                             "시들시들\uD83C\uDF84"
                         },
-                    style = Typography.titleLarge.copy(fontSize = 30.sp),
-                    color = Green02,
-                )
+                        style = Typography.titleLarge.copy(fontSize = 30.sp),
+                        color = Green02,
+                    )
 
-                Box(
-                    modifier =
+                    Box(
+                        modifier =
                         Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 14.dp)
                             .padding(top = 12.dp),
-                ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(15.dp),
                     ) {
                         Box(
                             modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(15.dp),
+                        ) {
+                            Box(
+                                modifier =
                                 Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(9.dp))
                                     .background(Gray02),
-                        )
-                        Box(
-                            modifier =
+                            )
+                            Box(
+                                modifier =
                                 Modifier
                                     .fillMaxWidth(size)
                                     .fillMaxHeight()
@@ -245,107 +247,109 @@ fun HomeScreen(
                                             Green04
                                         },
                                     ).animateContentSize(),
-                        )
-                    }
-                    Box(
-                        modifier =
+                            )
+                        }
+                        Box(
+                            modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .padding(top = 20.dp),
-                    ) {
-                        Box(
-                            modifier =
+                        ) {
+                            Box(
+                                modifier =
                                 Modifier
                                     .fillMaxWidth(size)
                                     .padding(end = 0.dp),
-                            contentAlignment = Alignment.CenterEnd,
-                        ) {
-                            Text(
-                                text = "${(progress * 100).toInt()}",
-                                style = Typography.displaySmall.copy(fontSize = 8.sp),
-                                color = Color.Black,
-                            )
-                        }
+                                contentAlignment = Alignment.CenterEnd,
+                            ) {
+                                Text(
+                                    text = "${(progress * 100).toInt()}",
+                                    style = Typography.displaySmall.copy(fontSize = 8.sp),
+                                    color = Color.Black,
+                                )
+                            }
 
-                        Box(
-                            modifier =
+                            Box(
+                                modifier =
                                 Modifier
                                     .fillMaxWidth()
                                     .padding(end = 0.dp),
-                            contentAlignment = Alignment.CenterEnd,
-                        ) {
-                            Text(
-                                text = "100",
-                                style = Typography.displaySmall.copy(fontSize = 8.sp),
-                                color = Gray02,
-                            )
+                                contentAlignment = Alignment.CenterEnd,
+                            ) {
+                                Text(
+                                    text = "100",
+                                    style = Typography.displaySmall.copy(fontSize = 8.sp),
+                                    color = Gray02,
+                                )
+                            }
                         }
                     }
                 }
-            }
-            Column(
-                modifier =
+                Column(
+                    modifier =
                     Modifier
                         .fillMaxWidth()
                         .padding(top = 12.dp),
-                horizontalAlignment = Alignment.End,
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.img_pill),
-                    contentDescription = "pill_img",
-                    modifier =
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.img_pill),
+                        contentDescription = "pill_img",
+                        modifier =
                         Modifier
                             .size(40.dp)
                             .noRippleClickable {
                                 navigateToTimeCapsule()
                             },
-                )
-                Spacer(modifier = Modifier.fillMaxSize(0.03f))
-                Image(
-                    painter = painterResource(id = R.drawable.img_networking),
-                    contentDescription = "network_img",
-                    modifier =
+                    )
+                    Spacer(modifier = Modifier.fillMaxSize(0.03f))
+                    Image(
+                        painter = painterResource(id = R.drawable.img_networking),
+                        contentDescription = "network_img",
+                        modifier =
                         Modifier
                             .size(60.dp)
                             .noRippleClickable {
                                 navigateToInterest()
                             },
-                )
-            }
-
-            Spacer(modifier = Modifier.fillMaxSize(0.35f))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (mother != null) {
-                    FamilyCard(mother)
-                } else {
-                    EmptyCard()
+                    )
                 }
-                Spacer(modifier = Modifier.width(16.dp))
-                Image(
-                    painter = painterResource(id = R.drawable.img_heart),
-                    contentDescription = "heart_img",
-                )
-                Spacer(modifier = Modifier.width(15.dp))
-                if (father != null) {
-                    FamilyCard(father)
-                } else {
-                    EmptyCard()
+                Spacer(modifier = Modifier.fillMaxSize(0.35f))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (mother != null) {
+                        FamilyCard(mother)
+                    } else {
+                        EmptyCard()
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Image(
+                        painter = painterResource(id = R.drawable.img_heart),
+                        contentDescription = "heart_img",
+                    )
+                    Spacer(modifier = Modifier.width(15.dp))
+                    if (father != null) {
+                        FamilyCard(father)
+                    } else {
+                        EmptyCard()
+                    }
                 }
+                Spacer(modifier = Modifier.fillMaxSize(0.1f))
             }
-            Spacer(modifier = Modifier.fillMaxSize(0.1f))
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp)
             ) {
                 items(children.size) { index ->
                     FamilyCard(children[index]) // 자식 카드 자리
                 }
             }
         }
+
     }
 }
 
