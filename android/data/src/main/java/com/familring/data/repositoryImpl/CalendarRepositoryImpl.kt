@@ -6,6 +6,7 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.calendar.MonthSchedulesDailies
 import com.familring.domain.model.calendar.Schedule
 import com.familring.domain.repository.CalendarRepository
+import com.familring.domain.request.ScheduleCreateRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
@@ -38,7 +39,7 @@ class CalendarRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun createSchedule(schedule: Schedule): Flow<ApiResponse<Unit>> =
+        override suspend fun createSchedule(schedule: ScheduleCreateRequest): Flow<ApiResponse<Unit>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
@@ -50,7 +51,7 @@ class CalendarRepositoryImpl
 
         override suspend fun updateSchedule(
             id: Long,
-            schedule: Schedule,
+            schedule: ScheduleCreateRequest,
         ): Flow<ApiResponse<Unit>> =
             flow {
                 val apiResponse =

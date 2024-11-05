@@ -64,7 +64,6 @@ import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow03
 import com.familring.presentation.util.noRippleClickable
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun ScheduleCreateRoute(
