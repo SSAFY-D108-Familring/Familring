@@ -1,6 +1,5 @@
 package com.familring.albumservice.domain;
 
-import com.familring.albumservice.AlbumType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
