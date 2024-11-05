@@ -25,7 +25,7 @@ class AccessTokenInterceptor
                 requestBuilder
                     .header(
                         "Authorization",
-                        accessToken,
+                        "Bearer $accessToken",
                     ).build()
             return chain.proceed(request)
         }

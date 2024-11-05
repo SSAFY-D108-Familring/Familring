@@ -69,6 +69,7 @@ dependencies {
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.v2.all)
+    implementation (libs.timber)
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":presentation"))

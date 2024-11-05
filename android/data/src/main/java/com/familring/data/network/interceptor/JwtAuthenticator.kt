@@ -45,7 +45,7 @@ class JwtAuthenticator
                 request
                     .newBuilder()
                     .removeHeader("Authorization")
-                    .addHeader("Authorization", newJwtToken.accessToken)
+                    .addHeader("Authorization", "Bearer ${newJwtToken.accessToken}")
                     .build()
             } catch (e: Throwable) {
                 when (e) {
