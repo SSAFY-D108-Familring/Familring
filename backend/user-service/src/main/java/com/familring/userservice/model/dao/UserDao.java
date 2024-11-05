@@ -15,6 +15,7 @@ public interface UserDao {
     // 회원 정보 조회
     Optional<UserDto> findUserByUserKakaoId(@Param("userKakaoId") String userKakaoId);
     Optional<UserDto> findUserByUserId(@Param("userId") Long userId);
+    boolean existsUserByUserKakaoId(@Param("userKakaoId") String userKakaoId);
 
     // FCM 토큰 저장
     void updateUserFcmTokenByUserId(@Param("userId") Long userId, @Param("fcmToken") String fcmToken);

@@ -3,6 +3,7 @@ package com.familring.userservice.service;
 import com.familring.userservice.config.jwt.JwtTokenProvider;
 import com.familring.userservice.config.redis.RedisService;
 import com.familring.userservice.exception.token.InvalidRefreshTokenException;
+import com.familring.userservice.exception.user.AlreadyUserException;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,10 +123,15 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) {
-        // 1. 사용자 회원가입
+        // 1. 사용자 중복 확인
+        if(userDao.existsUserByUserKakaoId(userJoinRequest.getUserKakaoId())) {
+            throw new AlreadyUserException();
+        }
+
+        // 2. 사용자 회원가입
         customUserDetailsService.createUser(userJoinRequest, image);
 
-        // 2. 사용자 JWT 발급
+        // 3. 사용자 JWT 발급
         JwtTokenResponse tokens = tokenService.generateToken(userJoinRequest.getUserKakaoId(), "");
 
         return tokens;
