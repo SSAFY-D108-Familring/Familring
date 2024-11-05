@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.signup
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,6 +29,7 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.isDateFormValid
+import java.time.LocalDate
 
 @Composable
 fun BirthRoute(
@@ -38,10 +38,6 @@ fun BirthRoute(
     popUpBackStack: () -> Unit,
     navigateToColor: () -> Unit,
 ) {
-    LaunchedEffect(Unit) {
-        Log.d("nakyung", "state: ${viewModel.state.value}")
-    }
-
     BirthScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
@@ -55,7 +51,7 @@ fun BirthScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToColor: () -> Unit = {},
-    updateBirth: (String) -> Unit = {},
+    updateBirth: (LocalDate) -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
@@ -65,7 +61,8 @@ fun BirthScreen(
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(year, month, date) {
-        updateBirth("$year-$month-$date")
+        val birth = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
+        updateBirth(birth)
     }
 
     Surface(
