@@ -1,5 +1,7 @@
 package com.familring.questionservice.domain;
 
+import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
+import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,5 +40,10 @@ public class QuestionAnswer {
 
     @Column(name="question_modified_at")
     private LocalDate modifiedAt;
+
+    public void updateQuestionAnswer(QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
+        this.answer = questionAnswerUpdateRequest.getContent();
+        this.modifiedAt = questionAnswerUpdateRequest.getModifiedAt();
+    }
 
 }
