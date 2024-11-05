@@ -4,13 +4,13 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 
 @Stable
-sealed interface MyPageState {
+sealed interface MyPageUiEvent {
     @Immutable
-    data object Success : MyPageState
+    data object SignOutSuccess : MyPageUiEvent
 
     @Immutable
     data class Error(
         val code: String,
         val message: String,
-    ) : MyPageState
+    ) : MyPageUiEvent
 }
