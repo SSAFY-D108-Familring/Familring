@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,10 @@ fun NicknameScreen(
 ) {
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
+    
+    LaunchedEffect(nickname) {
+        updateNickname(nickname)
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -102,10 +107,7 @@ fun NicknameScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             RoundLongButton(
                 text = "설정 완료",
-                onClick = {
-                    updateNickname(nickname)
-                    navigateToPicture()
-                },
+                onClick = navigateToPicture,
             )
         }
     }

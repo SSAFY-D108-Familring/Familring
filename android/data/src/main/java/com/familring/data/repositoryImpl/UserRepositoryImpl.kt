@@ -25,6 +25,7 @@ class UserRepositoryImpl
         private val api: UserApi,
         private val tokenDataStore: TokenDataStore,
         private val authDataSource: AuthDataStore,
+        private val gson: Gson,
     ) : UserRepository {
         override suspend fun login(request: UserLoginRequest): Flow<ApiResponse<JwtToken>> =
             flow {
@@ -48,7 +49,7 @@ class UserRepositoryImpl
             flow {
                 val image = userFace.toMultiPart()
                 val requestBody =
-                    Gson().toJson(request).toRequestBody("application/json".toMediaTypeOrNull())
+                    gson.toJson(request).toRequestBody("application/json".toMediaTypeOrNull())
                 val response =
                     emitApiResponse(
                         apiResponse = {
