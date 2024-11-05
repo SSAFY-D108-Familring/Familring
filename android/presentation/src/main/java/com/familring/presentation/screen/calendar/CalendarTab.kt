@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.mapper.toProfile
@@ -69,7 +67,10 @@ fun CalendarTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
-    navigateToCreateAlbum: () -> Unit = {},
+    deleteSchedule: (Long) -> Unit,
+    navigateToModifySchedule: (Long) -> Unit,
+    navigateToCreateAlbum: () -> Unit,
+    navigateToAlbum: (Long) -> Unit,
 ) {
     val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
     var selectedItemIndex by remember { mutableIntStateOf(0) }
@@ -93,7 +94,10 @@ fun CalendarTab(
                 0 ->
                     ScheduleTab(
                         schedules = schedules,
+                        deleteSchedule = deleteSchedule,
+                        navigateToModifySchedule = navigateToModifySchedule,
                         navigateToCreateAlbum = navigateToCreateAlbum,
+                        navigateToAlbum = navigateToAlbum,
                     )
 
                 1 ->
@@ -209,7 +213,10 @@ fun DailyItem(
 fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
+    deleteSchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Long) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
+    navigateToAlbum: (Long) -> Unit = {},
 ) {
     if (schedules.isEmpty()) {
         Column {
@@ -233,7 +240,10 @@ fun ScheduleTab(
             items(schedules) { schedule ->
                 ScheduleItem(
                     schedule = schedule,
+                    deleteSchedule = deleteSchedule,
+                    navigateToModifySchedule = navigateToModifySchedule,
                     navigateToCreateAlbum = navigateToCreateAlbum,
+                    navigateToAlbum = navigateToAlbum,
                 )
             }
         }
@@ -244,16 +254,15 @@ fun ScheduleTab(
 fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
+    deleteSchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Long) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
+    navigateToAlbum: (Long) -> Unit = {},
 ) {
-    // drop down menu
-    var showDropDownMenu by remember { mutableStateOf(false) }
-    var tapOffset by remember { mutableStateOf(DpOffset.Zero) }
-
     Box(
         modifier =
             modifier
-                .clickable { if (schedule.hasAlbum) navigateToCreateAlbum() }
+                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.scheduleId) }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
@@ -277,7 +286,7 @@ fun ScheduleItem(
                                 fontSize = 22.sp,
                             ),
                     )
-                    if (schedule.hasAlbum) {
+                    if (schedule.albumId != null) {
                         Icon(
                             modifier =
                                 Modifier
@@ -321,8 +330,8 @@ fun ScheduleItem(
                         .padding(3.dp),
                 menuItems =
                     listOf(
-                        "수정" to {},
-                        "삭제" to {},
+                        "수정" to { navigateToModifySchedule(schedule.scheduleId) },
+                        "삭제" to { deleteSchedule(schedule.scheduleId) },
                         "앨범 생성" to { navigateToCreateAlbum() },
                     ),
                 styles = IconCustomDropBoxStyles(),
@@ -367,6 +376,10 @@ private fun CalendarTabPreview() {
     CalendarTab(
         dailyLifes = dailyLifes,
         schedules = schedules,
+        deleteSchedule = {},
+        navigateToModifySchedule = {},
+        navigateToCreateAlbum = {},
+        navigateToAlbum = {},
     )
 }
 

@@ -47,7 +47,10 @@ import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toLocalDate
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.LocalDate
 
 @Composable
@@ -56,19 +59,26 @@ fun CalendarRoute(
     navigateToCreateSchedule: () -> Unit,
     navigateToCreateDaily: () -> Unit,
     navigateToCreateAlbum: () -> Unit,
+    navigateToAlbum: (Long) -> Unit,
+    navigateToModifySchedule: (Long) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
+    showSnackBar: (String) -> Unit,
 ) {
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
 
     CalendarScreen(
         modifier = modifier,
         state = uiState,
+        event = calendarViewModel.event,
         getMonthData = calendarViewModel::getMonthData,
         getDaySchedules = calendarViewModel::getDaySchedules,
         deleteSchedule = calendarViewModel::deleteSchedule,
         navigateToCreateSchedule = navigateToCreateSchedule,
         navigateToCreateDaily = navigateToCreateDaily,
         navigateToCreateAlbum = navigateToCreateAlbum,
+        navigateToAlbum = navigateToAlbum,
+        navigateToModifySchedule = navigateToModifySchedule,
+        showSnackBar = showSnackBar,
     )
 }
 
@@ -77,12 +87,16 @@ fun CalendarRoute(
 fun CalendarScreen(
     modifier: Modifier = Modifier,
     state: CalendarUiState,
+    event: SharedFlow<CalendarUiEvent>,
     getMonthData: (Int, Int) -> Unit = { _, _ -> },
     getDaySchedules: (List<Long>) -> Unit = {},
     deleteSchedule: (Long) -> Unit = {},
     navigateToCreateSchedule: () -> Unit = {},
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
+    navigateToAlbum: (Long) -> Unit = {},
+    navigateToModifySchedule: (Long) -> Unit = {},
+    showSnackBar: (String) -> Unit = {},
 ) {
     // pager
     val coroutineScope = rememberCoroutineScope()
@@ -108,10 +122,22 @@ fun CalendarScreen(
         getMonthData(selectedMonth.year, selectedMonth.monthValue)
     }
 
-    LaunchedEffect(selectedDay) {
-        getDaySchedules(
-            state.previewSchedules.map { it.id },
-        )
+    LaunchedEffect(event) {
+        event.collect { event ->
+            when (event) {
+                is CalendarUiEvent.Loading -> {
+                    // 로딩 중
+                }
+
+                is CalendarUiEvent.DeleteSuccess -> {
+                    getMonthData(selectedMonth.year, selectedMonth.monthValue)
+                }
+
+                is CalendarUiEvent.Error -> {
+                    showSnackBar(event.message)
+                }
+            }
+        }
     }
 
     Scaffold(
@@ -225,8 +251,11 @@ fun CalendarScreen(
                                 month,
                                 state.previewSchedules,
                             ),
-                        onDayClick = {
-                            selectedDay = it
+                        onDayClick = { daySchedule ->
+                            getDaySchedules(
+                                daySchedule.schedules.map { it.id },
+                            )
+                            selectedDay = daySchedule.date
                             showBottomSheet = true
                         },
                     )
@@ -245,7 +274,10 @@ fun CalendarScreen(
                 CalendarTab(
                     schedules = state.detailedSchedule,
                     dailyLifes = dailyLifes, // 수정 필요
+                    deleteSchedule = deleteSchedule,
+                    navigateToModifySchedule = navigateToModifySchedule,
                     navigateToCreateAlbum = navigateToCreateAlbum,
+                    navigateToAlbum = navigateToAlbum,
                 )
             }
         }
@@ -265,7 +297,7 @@ private fun createDaySchedules(
 
                 date in startDate..endDate
             }
-        DaySchedule(date.toString(), schedules)
+        DaySchedule(date, schedules)
     }
 
 @Preview
@@ -273,5 +305,6 @@ private fun createDaySchedules(
 private fun CalendarScreenPreview() {
     CalendarScreen(
         state = CalendarUiState(),
+        event = MutableSharedFlow<CalendarUiEvent>(),
     )
 }

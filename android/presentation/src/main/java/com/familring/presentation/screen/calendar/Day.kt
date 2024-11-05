@@ -48,7 +48,7 @@ fun Day(
                 .noRippleClickable { onDayClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val date = daySchedule.date.toLocalDate()
+        val date = daySchedule.date
         val dateStyle =
             if (date == LocalDate.now()) {
                 Typography.bodySmall.copy(fontSize = 10.sp, color = White)
@@ -155,7 +155,7 @@ private fun DayPreview() {
         modifier = Modifier.size(50.dp, 90.dp),
         daySchedule =
             DaySchedule(
-                date = "2024-10-31",
+                date = "2024-10-31".toLocalDate(),
                 schedules =
                     listOf(
                         PreviewSchedule(

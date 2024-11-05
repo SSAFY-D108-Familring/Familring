@@ -16,8 +16,8 @@ data class Schedule(
     val hasTime: Boolean = false,
     @SerializedName("hasNotification")
     val hasNotification: Boolean = false,
-    @SerializedName("hasAlbum")
-    val hasAlbum: Boolean = false,
+    @SerializedName("albumId")
+    val albumId: Long? = null,
     @SerializedName("color")
     val backgroundColor: String = "",
     @SerializedName("userInfoResponses")

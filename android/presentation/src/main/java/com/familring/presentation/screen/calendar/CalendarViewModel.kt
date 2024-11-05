@@ -44,6 +44,12 @@ class CalendarViewModel
 
                         is ApiResponse.Error -> {
                             Timber.d("code: ${result.code}, message: ${result.message}")
+                            _event.emit(
+                                CalendarUiEvent.Error(
+                                    result.code,
+                                    result.message,
+                                ),
+                            )
                         }
                     }
                 }
@@ -51,6 +57,14 @@ class CalendarViewModel
         }
 
         fun getDaySchedules(scheduleIds: List<Long>) {
+            if (scheduleIds.isEmpty()) {
+                _uiState.update {
+                    it.copy(
+                        detailedSchedule = emptyList(),
+                    )
+                }
+                return
+            }
             viewModelScope.launch {
                 calendarRepository.getDaySchedules(scheduleIds).collect { result ->
                     when (result) {
@@ -64,6 +78,12 @@ class CalendarViewModel
 
                         is ApiResponse.Error -> {
                             Timber.d("code: ${result.code}, message: ${result.message}")
+                            _event.emit(
+                                CalendarUiEvent.Error(
+                                    result.code,
+                                    result.message,
+                                ),
+                            )
                         }
                     }
                 }
@@ -75,10 +95,25 @@ class CalendarViewModel
                 calendarRepository.deleteSchedule(id).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
+                            _event.emit(CalendarUiEvent.DeleteSuccess)
+                            _uiState.update {
+                                it.copy(
+                                    detailedSchedule =
+                                        it.detailedSchedule.filterNot { schedule ->
+                                            schedule.scheduleId == id
+                                        },
+                                )
+                            }
                         }
 
                         is ApiResponse.Error -> {
                             Timber.d("code: ${result.code}, message: ${result.message}")
+                            _event.emit(
+                                CalendarUiEvent.Error(
+                                    result.code,
+                                    result.message,
+                                ),
+                            )
                         }
                     }
                 }
