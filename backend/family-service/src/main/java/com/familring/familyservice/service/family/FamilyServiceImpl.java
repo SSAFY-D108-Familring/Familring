@@ -137,29 +137,28 @@ public class FamilyServiceImpl implements FamilyService {
                 .orElseThrow(() -> new FamilyNotFoundException());
         log.info("familyId: {}", family.getFamilyId());
 
-        // 2. 회원
+        // 2. 사용자 정보 찾기
         List<Long> members = new ArrayList<>();
-        members.add(userId);
+        members.add(family.getFamilyId());
         UserInfoResponse user = userServiceFeignClient.getAllUser(members).getData().get(0);
-        log.info("userRole: {}", user.getUserRole());
 
-        // 2. 에러 확인
-        // 2-1. 가족에 이미 추가 되어있는 경우 에러 발생
+        // 3. 에러 확인
+        // 3-1. 가족에 이미 추가 되어있는 경우 에러 발생
         if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
             throw new AlreadyInFamilyException();
         }
-
-        // 2-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
-        if(user.getUserRole().equals(FamilyRole.F)) {
-            List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
+        // 3-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
+        List<UserInfoResponse> familyMembers = new ArrayList<>();
+        if(user.getUserRole().equals(FamilyRole.F)) { // 참여자 가족 역할이 F인 경우
+            familyMembers = getFamilyMemberList(family.getFamilyId());
             for (UserInfoResponse member : familyMembers) {
                 if (FamilyRole.F.equals(member.getUserRole())) {
                     log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
                     throw new AlreadyFamilyRoleException();
                 }
             }
-        } else if (user.getUserRole().equals(FamilyRole.M)) {
-            List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
+        } else if (user.getUserRole().equals(FamilyRole.M)) { // 참여자 가족 역할이 M인 경우
+            familyMembers = getFamilyMemberList(family.getFamilyId());
             for (UserInfoResponse member : familyMembers) {
                 if (FamilyRole.M.equals(member.getUserRole())) {
                     log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
@@ -168,17 +167,16 @@ public class FamilyServiceImpl implements FamilyService {
             }
         }
 
-        // 3-1. 가족에 추가
+        // 4-1. 가족에 추가
         familyDao.insetFamily_User(family.getFamilyId(), userId);
         log.info("가족 추가 완료");
 
-        // 3-2. 가족 구성원 수 + 1
+        // 4-2. 가족 구성원 수 + 1
         log.info("before 가족 구성원 수: {}", family.getFamilyCount());
         familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
-        log.info("after 가족 구성원 수: {}", family.getFamilyCount());
 
-        // 4. 응답
-        return "가족 구성원 추가 완료";
+        // 5. 응답
+        return "가죽 구성원 추가 완료";
     }
 
     @Override
@@ -187,10 +185,16 @@ public class FamilyServiceImpl implements FamilyService {
         // 1. 회원에 해당하는 가족 찾기
         Family family = familyDao.findFamilyByUserId(userId)
                 .orElseThrow(() -> new FamilyNotFoundException());
+        log.info("familyId: {}", family.getFamilyId());
 
         // 2. 가족 구성원 제거
+        // 2-1. 가족 구성원 수 - 1
+        log.info("before familyCount: {}", family.getFamilyCount());
         familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), -1);
+        
+        // 2-2. family_user의 컬럼 삭제
         familyDao.deleteFamily_UserByFamilyIdAndUserId(family.getFamilyId(), userId);
+        log.info("family_user의 컬럼 삭제 완료");
 
         return "가족 구성원 수정 완료";
     }
