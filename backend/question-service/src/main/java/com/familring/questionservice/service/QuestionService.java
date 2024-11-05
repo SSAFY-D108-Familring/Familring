@@ -84,6 +84,7 @@ public class QuestionService {
             if (!hasAnswered) {
                 return false; // 아직 답변하지 않은 구성원이 있음
             }
+            
         }
 
         return true; // 모든 구성원이 답변을 완료함
