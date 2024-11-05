@@ -3,6 +3,7 @@ package com.familring.questionservice.controller;
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
+import com.familring.questionservice.dto.response.QuestionInfoResponse;
 import com.familring.questionservice.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/questions")
@@ -30,6 +33,13 @@ public class QuestionController {
     public ResponseEntity<BaseResponse<Void>> createTimeCapsule(@PathVariable("answer-id") Long answerId, @RequestBody QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
         questionService.updateQuestionAnswer(answerId, questionAnswerUpdateRequest);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "랜덤 질문 답변 수정에 성공했습니다."));
+    }
+
+    @GetMapping()
+    @Operation(summary = "오늘의 랜덤 질문 조회", description = "랜덤 질문 작성자 목록까지 같이 가요")
+    public ResponseEntity<BaseResponse<QuestionInfoResponse>> getQuestionAnswers(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        QuestionInfoResponse response = questionService.getQuestionInfo(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "오늘의 랜덤 질문 조회에 성공했습니다.", response));
     }
 
 }

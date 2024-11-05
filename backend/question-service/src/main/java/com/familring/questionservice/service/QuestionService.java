@@ -7,6 +7,7 @@ import com.familring.questionservice.dto.client.Family;
 import com.familring.questionservice.dto.client.UserInfoResponse;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
+import com.familring.questionservice.dto.response.QuestionAnswerItem;
 import com.familring.questionservice.dto.response.QuestionInfoResponse;
 import com.familring.questionservice.exception.AlreadyExistQuestionAnswerException;
 import com.familring.questionservice.exception.QuestionAnswerNotFoundException;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -150,7 +152,7 @@ public class QuestionService {
 
         // 몇 번째 질문인지 (가족에 대한 질문 정보 가져오기)
         QuestionFamily questionFamily = questionFamilyRepository.findByFamilyId(familyId).orElseThrow(QuestionFamilyNotFoundException::new);
-        Question question = questionRepository.findById(questionFamily.getId()).orElseThrow(QuestionNotFoundException::new);
+        Question question = questionRepository.findById(questionFamily.getQuestion().getId()).orElseThrow(QuestionNotFoundException::new);
 
         // 몇 번째 질문인지
         Long questionId = question.getId();
@@ -162,17 +164,43 @@ public class QuestionService {
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(familyId).getData();
 
         // question_answer 에 question_family_id 랑 user_id 로 확인해서
+        // 있으면 true, 없으면 false
+        List<QuestionAnswerItem> questionAnswerItemList = new ArrayList<>();
+        QuestionAnswerItem questionAnswerItem;
 
-//        private Long answerId;
-//        private String userNickname;
-//        private String userZodiacSign;
-//        private String userColor;
-//        private String answerContent;
-//        private Boolean answerStatus; // 답변 여부
+        for (UserInfoResponse member : familyMembers) {
+            Optional<QuestionAnswer> questionAnswerOpt = questionAnswerRepository.findByQuestionFamilyAndUserId(questionFamily, member.getUserId());
+
+            boolean status;
+            Long answerId = null;
+            String content = null;
+            QuestionAnswer questionAnswer;
+
+            if (questionAnswerOpt.isPresent()) {
+                questionAnswer = questionAnswerOpt.get();
+                answerId = questionAnswer.getId();
+                content = questionAnswer.getAnswer();
+                status = true;
+            } else {
+                status = false;
+            }
+
+            questionAnswerItem = QuestionAnswerItem.builder()
+                    .answerId(answerId)
+                    .userNickname(member.getUserNickname())
+                    .userZodiacSign(member.getUserZodiacSign())
+                    .userColor(member.getUserColor())
+                    .answerContent(content)
+                    .answerStatus(status)
+                    .build();
+
+            questionAnswerItemList.add(questionAnswerItem);
+        }
 
         return QuestionInfoResponse.builder()
                 .questionId(questionId)
                 .questionContent(questionContent)
+                .items(questionAnswerItemList)
                 .build();
     }
 
