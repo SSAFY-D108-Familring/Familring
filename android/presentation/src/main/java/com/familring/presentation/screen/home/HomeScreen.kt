@@ -126,7 +126,7 @@ fun HomeScreen(
 
     when (familyState) {
         is FamilyState.Loading -> {
-            Log.d("nakyung", "가족정보 로딩중")
+            Timber.tag("nakyung").d("가족정보 로딩중")
         }
 
         is FamilyState.Success -> {
@@ -137,7 +137,7 @@ fun HomeScreen(
 
         is FamilyState.Error -> {
             showSnackBar("가족 정보 에러")
-            Log.d("nakyung", "가족정보 에러")
+            Timber.tag("nakyung").d("가족정보 에러")
         }
     }
 

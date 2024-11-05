@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +39,11 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+
+@Composable
+fun QuestionListRoute(onNavigateBack: () -> Unit) {
+    QuestionListScreen(onNavigateBack = onNavigateBack)
+}
 
 @Composable
 fun QuestionListScreen(onNavigateBack: () -> Unit) {
