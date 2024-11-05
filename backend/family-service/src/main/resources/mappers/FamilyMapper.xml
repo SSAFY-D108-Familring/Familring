@@ -43,6 +43,11 @@
         SELECT LAST_INSERT_ID()
     </select>
 
+    <select id="findFamilyId" resultType="java.lang.Long">
+        SELECT family_id
+        FROM family
+    </select>
+
     <select id="countFamilyMembersByUserId" resultType="int">
         SELECT COUNT(*)
         FROM family_user

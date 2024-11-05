@@ -3,6 +3,7 @@ package com.familring.calendarservice.dto.client;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -11,7 +12,7 @@ public class UserInfoResponse {
     private Long userId;
     private String userKakaoId;
     private String userNickname;
-    private Date userBirthDate;
+    private LocalDate userBirthDate;
     private String userZodiacSign;
     private FamilyRole userRole;
     private String userFace;

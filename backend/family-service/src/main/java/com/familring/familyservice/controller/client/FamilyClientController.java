@@ -37,6 +37,13 @@ public class FamilyClientController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 구성원들을 성공적으로 조회 했습니다.", responseList));
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<BaseResponse<List<Long>>> getAllFamilyId() {
+        List<Long> responseList = familyService.getAllFamilyId();
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "모든 가족을 성공적으로 조회 했습니다.", responseList));
+    }
+
     @PutMapping("/member")
     public ResponseEntity<BaseResponse<String>> deleteFamilyMember (Long userId) {
         String response = familyService.deleteFamilyMember(userId);

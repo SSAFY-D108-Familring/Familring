@@ -77,6 +77,13 @@ public class FamilyServiceImpl implements FamilyService {
         // 3. 응답
         return userInfoResponses;
     }
+
+    @Override
+    public List<Long> getAllFamilyId() {
+        List<Long> response = familyDao.findFamilyId();
+        return response;
+    }
+
     public BaseResponse<List<UserInfoResponse>> getUserInfoFromUserService(List<Long> members) {
         // Feign Client를 통해 user-service의 getUser 메서드 호출
         return userServiceFeignClient.getAllUser(members);
@@ -153,14 +160,16 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 2. 사용자 정보 찾기
         List<Long> members = new ArrayList<>();
-        members.add(family.getFamilyId());
-        UserInfoResponse user = getUserInfoFromUserService(members).getData().get(0);
+        members.add(userId);
+        UserInfoResponse user = userServiceFeignClient.getAllUser(members).getData().get(0);
+        log.info("userRole: {}", user.getUserRole());
 
         // 3. 에러 확인
         // 3-1. 가족에 이미 추가 되어있는 경우 에러 발생
         if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
             throw new AlreadyInFamilyException();
         }
+
         // 3-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
         List<UserInfoResponse> familyMembers = new ArrayList<>();
         if(user.getUserRole().equals(FamilyRole.F)) { // 참여자 가족 역할이 F인 경우
