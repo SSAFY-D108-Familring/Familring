@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,6 +17,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "family_vote")
+@Log4j2
 public class Vote {
 
     @Id
@@ -31,6 +33,7 @@ public class Vote {
     public void addParticipant(String userId, String option) {
         // 사용자가 이미 참여한 경우 예외 발생
         if (participantsChoices.containsKey(userId)) {
+            log.info("Participant " + userId + " already exists");
             throw new AlreadyParticipatedException();
         }
         // 참여자 목록에 추가하고 결과 업데이트

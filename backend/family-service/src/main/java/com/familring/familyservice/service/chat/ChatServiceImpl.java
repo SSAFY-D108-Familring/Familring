@@ -54,6 +54,7 @@ public class ChatServiceImpl implements ChatService {
         LocalDateTime entryTime = chatRoomEntryRepository.findByFamilyIdAndUserId(familyId, userId)
                 .map(ChatRoomEntry::getEntryTime)
                 .orElse(LocalDateTime.MIN); // 입장 시간이 없을 경우 모든 메시지 조회
+        log.info("entryTime: {}", entryTime);
 
         // 입장 시간 이후 메시지만 내림차순으로 조회
         Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -70,14 +71,17 @@ public class ChatServiceImpl implements ChatService {
                     Vote vote = voteRepository.findById(voteId)
                             .switchIfEmpty(Mono.error(new RuntimeException("투표를 찾을 수 없습니다.")))
                             .block();
+                    log.info("voteTitle: {}", vote.getVoteTitle());
 
                     // 2. participantChoices의 keySet으로 참여자 ID 목록을 Long 타입으로 변환
                     List<Long> userIdList = vote.getParticipantsChoices().keySet().stream()
                             .map(Long::parseLong)
                             .collect(Collectors.toList());
+                    log.info("userIdList: {}", userIdList);
 
                     // 3. FeignClient를 동기 호출하여 사용자 정보 가져오기
                     BaseResponse<List<UserInfoResponse>> userInfoResponse = userServiceFeignClient.getAllUser(userIdList);
+                    log.info("participants: {}", userInfoResponse.getData());
 
                     // 4. FeignClient의 응답에서 List<UserInfoResponse>를 Mono로 반환
                     sink.success(userInfoResponse.getData());
@@ -102,6 +106,7 @@ public class ChatServiceImpl implements ChatService {
 
         // 투표 메시지일 경우 Vote 객체 생성
         if (chatSendRequest.isVote()) {
+            log.info("투표 생성하기");
             Vote vote = Vote.builder()
                     .voteTitle(chatSendRequest.getVoteTitle())
                     .createdAt(LocalDateTime.now())
@@ -109,12 +114,14 @@ public class ChatServiceImpl implements ChatService {
                     .isCompleted(false) // 투표 완료 여부 초기화
                     .voteResult(new HashMap<>()) // 결과 초기화
                     .build();
+            log.info("voteTitle: {}", vote.getVoteTitle());
 
             // 생성된 Vote 객체를 저장하고 voteId를 Chat 객체에 설정
             vote = voteRepository.save(vote).block(); // Mono에서 동기식으로 값을 추출
 
             if (vote != null) {
                 chat.setVoteId(vote.getId()); // 생성된 Vote의 ID를 Chat에 설정
+                log.info("voteId: {}", chat.getVoteId());
             }
         }
 
@@ -125,30 +132,28 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional
     public void participateInVote(VoteParticipationRequest voteRequest) {
+        // 1. 투표 찾기
         Vote vote = voteRepository.findById(voteRequest.getVoteId())
                 .switchIfEmpty(Mono.error(new VoteNotFoundException()))
                 .block();
+        log.info("voteTitle: {}", vote.getVoteTitle());
+        log.info("voteParticipants: {}", vote.getParticipantsChoices());
 
-        try {
-            // 2. 이미 참여한 경우 예외 발생
-            vote.addParticipant(voteRequest.getUserId().toString(), voteRequest.getVoteComment());
+        // 2. 이미 참여한 경우 예외 발생
+        vote.addParticipant(voteRequest.getUserId().toString(), voteRequest.getVoteComment());
+        log.info("중복 참여 처리 완료");
 
-            // 3-1. 가족 구성원 모두 참여했는지 확인
-            int familyCount = familyDao.countFamilyUserByUserId(voteRequest.getUserId());
-            if(familyCount == vote.getParticipantsChoices().size()) {
-                // 3-2. 투표 종료하기 -> isCompleted true로 변경
-                vote.setCompleted(true);
+        // 3-1. 가족 구성원 모두 참여했는지 확인
+        int familyCount = familyDao.countFamilyUserByUserId(voteRequest.getUserId());
+        if(vote.checkIfCompleted(familyCount)) {
+            // 3-2. 투표 종료하기 -> isCompleted true로 변경
+            vote.setCompleted(true);
+            voteRepository.save(vote); // 투표 저장
+            log.info("투표 종료 처리 완료");
 
-                // 3-3. 모두 참여한 경우, 투표 결과를 채팅창에 보이도록 설정
-                messagingTemplate.convertAndSend("/topic/chat/" + voteRequest.getFamilyId(), vote.getVoteResult());
-                log.info("Vote result sent: {}", vote.getVoteResult());
-            }
-
-            // 투표 저장
-            voteRepository.save(vote);
-        } catch (AlreadyParticipatedException e) {
-            // 이미 참여한 경우 예외 처리
-            throw new AlreadyParticipatedException();
+            // 3-3. 모두 참여한 경우, 투표 결과를 채팅창에 보이도록 설정
+            messagingTemplate.convertAndSend("/topic/chat/" + voteRequest.getFamilyId(), vote.getVoteResult());
+            log.info("voteResult: {}", vote.getVoteResult());
         }
     }
 }

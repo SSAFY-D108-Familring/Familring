@@ -31,6 +31,7 @@ public class ChatController {
             @Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId,
             @RequestParam Long familyId, @RequestParam int page) {
         Page<Chat> chatPage = chatService.getMessagesByFamilyId(userId.toString(), familyId.toString(), page);
+        log.info("ChatPage: {}", chatPage.getTotalPages());
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "채팅 메시지 조회 성공", chatPage));
     }
@@ -39,6 +40,7 @@ public class ChatController {
     @Operation(summary = "투표 참여자 조회", description = "voteId에 해당하는 투표의 참여자 조회")
     public ResponseEntity<BaseResponse<List<UserInfoResponse>>> getVoteParticipants(@PathVariable String voteId) {
         List<UserInfoResponse> response = chatService.getVoteParticipants(voteId).block();
+        log.info("userList: {}", response);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "채팅 내 투표 참가자 조회 성공", response));
     }
