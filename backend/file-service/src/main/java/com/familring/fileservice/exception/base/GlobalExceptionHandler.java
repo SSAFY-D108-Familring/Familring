@@ -1,8 +1,13 @@
 package com.familring.fileservice.exception.base;
 
 import com.familring.common_module.dto.ErrorResponse;
-import lombok.extern.slf4j.Slf4j;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -14,12 +19,17 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-@Slf4j
+@RequiredArgsConstructor
+@Log4j2
 public class GlobalExceptionHandler {
+
+    private final ObjectMapper objectMapper;
+
     @ExceptionHandler(ApplicationException.class)
     public ResponseEntity<ErrorResponse> handleApplicationException(ApplicationException ex) {
         log.error(ex.getMessage());
@@ -63,6 +73,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    @Order(Ordered.LOWEST_PRECEDENCE) // 가장 마지막에 처리되도록
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         String errorCode = "500";
         String message = "서버에서 요청을 처리하는 동안 오류가 발생했습니다.";

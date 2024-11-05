@@ -7,4 +7,6 @@ jar {
 }
 
 dependencies {
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
