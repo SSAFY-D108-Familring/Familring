@@ -8,7 +8,9 @@ import com.familring.data.network.interceptor.JwtAuthenticator
 import com.familring.data.network.interceptor.isJsonArray
 import com.familring.data.network.interceptor.isJsonObject
 import com.familring.domain.datasource.TokenDataStore
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
 import com.google.gson.JsonParser
 import com.google.gson.JsonSyntaxException
 import dagger.Module
@@ -20,6 +22,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -34,6 +37,19 @@ object NetworkModule {
     @Qualifier
     @Retention(AnnotationRetention.BINARY)
     annotation class BaseClient
+
+    @Provides
+    @Singleton
+    fun provideGson(): Gson =
+        GsonBuilder()
+            .setLenient()
+            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+            .registerTypeAdapter(
+                LocalDateTime::class.java,
+                JsonDeserializer { json, _, _ ->
+                    LocalDateTime.parse(json.asString)
+                },
+            ).create()
 
     @BaseClient
     @Singleton
@@ -75,13 +91,12 @@ object NetworkModule {
     fun provideAuthRetrofit(
         @AuthClient
         okHttpClient: OkHttpClient,
+        gson: Gson,
     ): Retrofit =
         Retrofit
             .Builder()
             .addConverterFactory(
-                GsonConverterFactory.create(
-                    GsonBuilder().setLenient().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").create(),
-                ),
+                GsonConverterFactory.create(gson),
             ).baseUrl(BuildConfig.SERVER_URL)
             .client(okHttpClient)
             .build()
@@ -92,13 +107,12 @@ object NetworkModule {
     fun provideRetrofit(
         @BaseClient
         okHttpClient: OkHttpClient,
+        gson: Gson,
     ): Retrofit =
         Retrofit
             .Builder()
             .addConverterFactory(
-                GsonConverterFactory.create(
-                    GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss").setLenient().create(),
-                ),
+                GsonConverterFactory.create(gson),
             ).baseUrl(BuildConfig.SERVER_URL)
             .client(okHttpClient)
             .build()
