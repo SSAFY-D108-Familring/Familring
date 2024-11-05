@@ -162,7 +162,7 @@ public class FamilyServiceImpl implements FamilyService {
         log.info("after 가족 구성원 수: {}", family.getFamilyCount());
 
         // 4. 응답
-        return "가죽 구성원 추가 완료";
+        return "가족 구성원 추가 완료";
     }
 
     @Override
