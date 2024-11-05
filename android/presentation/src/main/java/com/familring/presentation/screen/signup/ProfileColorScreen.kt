@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.signup
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -26,11 +25,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.presentation.R
 import com.familring.presentation.component.ColorPalette
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
@@ -105,13 +102,13 @@ fun ProfileColorScreen(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 modifier = Modifier.padding(start = 20.dp),
-                text = "원숭이띠시군요!",
+                text = "좋아하는 배경색을 설정해 보세요",
                 style = Typography.bodyLarge,
                 color = Gray01,
             )
             Text(
                 modifier = Modifier.padding(start = 20.dp),
-                text = "좋아하는 배경색을 설정해 보세요",
+                text = "12간지 프로필로 만들어 드릴게요!",
                 style = Typography.bodyLarge,
                 color = Gray01,
             )
@@ -123,7 +120,7 @@ fun ProfileColorScreen(
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxWidth(0.5f)
+                            .fillMaxWidth(0.4f)
                             .aspectRatio(1f)
                             .clip(shape = CircleShape)
                             .background(color = selectedColor)
@@ -132,14 +129,7 @@ fun ProfileColorScreen(
                                 color = if (selectedColor == White) Gray03 else Color.Transparent,
                                 shape = CircleShape,
                             ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Image(
-                        modifier = Modifier.padding(35.dp),
-                        painter = painterResource(id = R.drawable.img_img_leg),
-                        contentDescription = "img_profile",
-                    )
-                }
+                )
                 Spacer(modifier = Modifier.fillMaxHeight(0.1f))
                 ColorPalette(
                     colors = colors,
@@ -149,7 +139,7 @@ fun ProfileColorScreen(
                         selectedColor = it
                     },
                 )
-                Spacer(modifier = Modifier.fillMaxHeight(0.3f))
+                Spacer(modifier = Modifier.fillMaxHeight(0.4f))
                 RoundLongButton(
                     text = "다음으로",
                     onClick = navigateToNickname,
