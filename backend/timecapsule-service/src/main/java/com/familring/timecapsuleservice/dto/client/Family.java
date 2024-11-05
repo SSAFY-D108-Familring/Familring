@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class FamilyDto {
+public class Family {
     private Long familyId;
     private String familyCode;
     private Integer familyCount;
