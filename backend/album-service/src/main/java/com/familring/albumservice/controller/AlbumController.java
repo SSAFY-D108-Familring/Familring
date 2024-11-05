@@ -30,7 +30,7 @@ public class AlbumController {
     }
 
     @PatchMapping("/{album_id}")
-    @Operation(summary = "앨범 정보 수정", description = "앨범 정보를 수정합니다. 단, 앨범 타입을 바꾸는건 안돼요")
+    @Operation(summary = "앨범 정보 수정", description = "앨범 정보를 수정합니다. 단, 앨범 타입을 바꾸는 건 안돼요")
     public ResponseEntity<BaseResponse<Void>> updateAlbum(
             @RequestBody AlbumUpdateRequest albumUpdateRequest,
             @PathVariable("album_id") Long albumId,
@@ -38,5 +38,15 @@ public class AlbumController {
     ) {
         albumService.updateAlbum(albumUpdateRequest, albumId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 정보가 수정되었습니다."));
+    }
+
+    @DeleteMapping("/{album_id")
+    @Operation(summary = "앨범 삭제", description = "앨범을 삭제합니다.")
+    public ResponseEntity<BaseResponse<Void>> deleteAlbum(
+            @PathVariable("album_id") Long albumId,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        albumService.deleteAlbum(albumId, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범이 삭제되었습니다."));
     }
 }

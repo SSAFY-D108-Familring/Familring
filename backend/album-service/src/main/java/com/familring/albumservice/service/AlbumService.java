@@ -10,6 +10,7 @@ import com.familring.albumservice.exception.album.InvalidAlbumRequestException;
 import com.familring.albumservice.repository.AlbumRepository;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,5 +61,16 @@ public class AlbumService {
         }
 
         album.updateAlbumName(albumUpdateRequest.getAlbumName());
+    }
+
+    public void deleteAlbum(Long albumId, Long userId) {
+        Album album = albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+
+        if (!album.getFamilyId().equals(familyId)) {
+            throw new InvalidAlbumRequestException();
+        }
+
+        albumRepository.delete(album);
     }
 }
