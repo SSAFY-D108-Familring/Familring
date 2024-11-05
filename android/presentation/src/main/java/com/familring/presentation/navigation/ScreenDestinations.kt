@@ -85,4 +85,7 @@ sealed class ScreenDestinations(
 
     // 알림
     data object Notification : ScreenDestinations(route = "Notification")
+
+    // 마이페이지
+    data object MyPage : ScreenDestinations(route = "MyPage")
 }

@@ -89,4 +89,7 @@ dependencies {
 
     // 이미지 로딩
     implementation(libs.coil.compose)
+
+    // lottie
+    implementation(libs.lottie)
 }
