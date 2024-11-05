@@ -95,7 +95,7 @@ public class TimeCapsuleService {
                     if (answer.isPresent()) { // userInfoResponse.getUserId() 가 timecapsule 에 있으면
                         // DB에 해당 userId로 작성된 답변이 있는 경우 userIds에 추가
                         // uesrIds 에 userInfoResponse.getUserId() 를 추가
-                        userIds.add(userId);
+                        userIds.add(userInfoResponse.getUserId());
                     }
                 }
                 // 그 찾은 user id 들로 userResponse 조회
