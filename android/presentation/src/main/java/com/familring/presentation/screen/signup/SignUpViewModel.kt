@@ -99,6 +99,7 @@ class SignUpViewModel
             val file = state.value.userFace!!
 
             viewModelScope.launch {
+                _state.update { it.copy(isLoading = true) }
                 userRepository.join(request, file).collect { response ->
                     when (response) {
                         is ApiResponse.Success -> {
@@ -120,11 +121,15 @@ class SignUpViewModel
 
         fun makeFamily() {
             viewModelScope.launch {
-                _event.emit(SignUpUiEvent.Loading)
                 familyRepository.makeFamily().collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
-                            _state.update { it.copy(familyCode = response.data.familyCode) }
+                            _state.update {
+                                it.copy(
+                                    familyCode = response.data.familyCode,
+                                    isLoading = false,
+                                )
+                            }
                             _event.emit(SignUpUiEvent.MakeSuccess)
                         }
 
@@ -141,6 +146,7 @@ class SignUpViewModel
                 familyRepository.joinFamily(code).collect { response ->
                     when (response) {
                         is ApiResponse.Success -> {
+                            _state.update { it.copy(isLoading = false) }
                             _event.emit(SignUpUiEvent.JoinSuccess)
                         }
 

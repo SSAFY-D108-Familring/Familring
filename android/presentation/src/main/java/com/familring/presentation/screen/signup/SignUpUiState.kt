@@ -4,6 +4,7 @@ import java.io.File
 import java.time.LocalDate
 
 data class SignUpUiState(
+    val isLoading: Boolean = false,
     val make: Boolean = true,
     val userKakaoId: String = "",
     val userNickname: String = "",

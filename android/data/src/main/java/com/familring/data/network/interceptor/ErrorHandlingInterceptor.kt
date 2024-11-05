@@ -16,7 +16,6 @@ class ErrorHandlingInterceptor : Interceptor {
             val response = chain.proceed(request)
             if (response.isSuccessful) return response
             val errorBody = response.body?.string() ?: return response
-            Log.d("nakyung", "error: $errorBody")
 
             val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
 

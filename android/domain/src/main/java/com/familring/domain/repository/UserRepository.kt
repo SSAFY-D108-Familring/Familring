@@ -17,4 +17,6 @@ interface UserRepository {
     ): Flow<ApiResponse<JwtToken>>
 
     suspend fun getUser(): Flow<ApiResponse<User>>
+
+    suspend fun signOut(): Flow<ApiResponse<Unit>>
 }

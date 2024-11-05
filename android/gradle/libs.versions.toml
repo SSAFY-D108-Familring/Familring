@@ -29,6 +29,7 @@ timber = "5.0.1"
 accompanistSystemuicontroller = "0.34.0"
 v2All = "2.20.0"
 firebaseFirestoreKtx = "25.1.1"
+lottie = "5.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -69,6 +70,7 @@ accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 v2-all = { module = "com.kakao.sdk:v2-all", version.ref = "v2All" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
+lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core", "converter-gson"]
 coroutines = ["coroutines-android", "coroutines-core"]
