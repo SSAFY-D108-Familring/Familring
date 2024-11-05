@@ -301,6 +301,9 @@ fun MainNavHost(
                 navigateToInterest = {
                     navController.navigate(ScreenDestinations.Interest.route)
                 },
+                navigateToMyPage = {
+                    navController.navigate(ScreenDestinations.MyPage.route)
+                },
                 showSnackBar = showSnackBar,
             )
         }

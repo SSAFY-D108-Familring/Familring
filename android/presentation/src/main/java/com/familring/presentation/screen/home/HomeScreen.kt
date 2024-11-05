@@ -62,6 +62,7 @@ fun HomeRoute(
     navigateToNotification: () -> Unit,
     navigateToTimeCapsule: () -> Unit,
     navigateToInterest: () -> Unit,
+    navigateToMyPage: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
@@ -93,6 +94,7 @@ fun HomeRoute(
                 navigateToNotification = navigateToNotification,
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
+                navigateToMyPage = navigateToMyPage,
                 showSnackBar = showSnackBar,
                 familyState = familyState,
             )
@@ -107,6 +109,7 @@ fun HomeScreen(
     navigateToNotification: () -> Unit = {},
     navigateToTimeCapsule: () -> Unit = {},
     navigateToInterest: () -> Unit = {},
+    navigateToMyPage: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
     familyState: FamilyState,
 ) {
@@ -367,9 +370,11 @@ fun FamilyCard(user: User) {
             Spacer(modifier = Modifier.fillMaxSize(0.01f))
             AsyncImage(
                 model = user.userZodiacSign,
-                modifier = Modifier.size(75.dp)
-                    .aspectRatio(1f),
-                contentDescription = "user zodiac img"
+                modifier =
+                    Modifier
+                        .size(75.dp)
+                        .aspectRatio(1f),
+                contentDescription = "user zodiac img",
             )
             Spacer(
                 modifier = Modifier.height(15.dp),
