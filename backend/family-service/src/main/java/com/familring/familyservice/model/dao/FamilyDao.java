@@ -1,6 +1,7 @@
 package com.familring.familyservice.model.dao;
 
 import com.familring.familyservice.model.dto.Family;
+import com.familring.familyservice.model.dto.FamilyRole;
 import com.familring.familyservice.model.dto.request.FamilyCreateRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -31,8 +32,11 @@ public interface FamilyDao {
     // familyCode로 family 유무 확인
     boolean existsFamilyByFamilyCode(@Param("code") String code);
 
-    // familyI와 userId로 가족 구성원 유무 확인
+    // familyId와 userId로 가족 구성원 유무 확인
     boolean existsFamilyByFamilyIdAndUserId(@Param("familyId") Long familyId,@Param("userId") Long userId);
+
+    // familyId로 family 구성원 중 엄마, 아빠 역할이 이미 있는지 확인
+    boolean existsFamilyRoleIsMOrFByFamilyId(@Param("familyId") Long familyId, @Param("userRole")FamilyRole role);
 
     // family 생성
     void insertFamily(FamilyCreateRequest familyCreateRequest);

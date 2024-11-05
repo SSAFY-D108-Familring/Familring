@@ -1,6 +1,7 @@
 package com.familring.familyservice.service.family;
 
 import com.familring.common_module.dto.BaseResponse;
+import com.familring.familyservice.exception.family.AlreadyFamilyRoleException;
 import com.familring.familyservice.exception.family.AlreadyInFamilyException;
 import com.familring.familyservice.exception.family.FamilyNotFoundException;
 import com.familring.familyservice.model.dao.FamilyDao;
@@ -16,6 +17,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -132,22 +134,34 @@ public class FamilyServiceImpl implements FamilyService {
         // 1. 가족 찾기
         Family family = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode())
                 .orElseThrow(() -> new FamilyNotFoundException());
+        log.info("familyId: {}", family.getFamilyId());
 
-        // 2. 가족 구성원 추가
+        // 2. 에러 확인
         // 2-1. 가족에 이미 추가 되어있는 경우 에러 발생
         if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
             throw new AlreadyInFamilyException();
         }
 
-        // 2-2. 가족에 추가
+        // 2-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
+        List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
+        for (UserInfoResponse member : familyMembers) {
+            if ("M".equals(member.getUserRole()) || "D".equals(member.getUserRole())) {
+                log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
+                throw new AlreadyFamilyRoleException();
+            }
+        }
+
+        // 3-1. 가족에 추가
         familyDao.insetFamily_User(family.getFamilyId(), userId);
+        log.info("가족 추가 완료");
 
-        // 2-3. 가족 구성원 수 + 1
+        // 3-2. 가족 구성원 수 + 1
+        log.info("before 가족 구성원 수: {}", family.getFamilyCount());
         familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
+        log.info("after 가족 구성원 수: {}", family.getFamilyCount());
 
-        // 3. 응답
+        // 4. 응답
         return "가죽 구성원 추가 완료";
-
     }
 
     @Override
