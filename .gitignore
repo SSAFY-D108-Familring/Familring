@@ -39,3 +39,6 @@ out/
 **/resources/**/*.yml
 **/resources/**/*.properties
 familring-firebase-key.json
+
+### querydsl ###
+**/src/main/generated/**
