@@ -20,7 +20,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,13 +27,17 @@ import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green07
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun NotificationRoute(
     modifier: Modifier,
     navigateToHome: () -> Unit,
 ) {
-    NotificationScreen(modifier = modifier, navigateToHome = navigateToHome)
+    NotificationScreen(
+        modifier = modifier,
+        navigateToHome = navigateToHome,
+    )
 }
 
 @Composable
@@ -45,10 +48,8 @@ fun NotificationScreen(
     var notificationCnt = 10
 
     Surface(
-        modifier =
-            Modifier
-                .background(color = Color.White)
-                .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
+        color = White,
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
