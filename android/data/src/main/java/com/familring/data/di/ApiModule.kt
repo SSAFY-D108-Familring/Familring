@@ -1,6 +1,7 @@
 package com.familring.data.di
 
 import com.familring.data.network.api.AuthApi
+import com.familring.data.network.api.CalendarApi
 import com.familring.data.network.api.FamilyApi
 import com.familring.data.network.api.TimeCapsuleApi
 import com.familring.data.network.api.UserApi
@@ -36,6 +37,12 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideTimeCapsuleApi(
-        @NetworkModule.AuthClient retrofit: Retrofit,
+        @NetworkModule.BaseClient retrofit: Retrofit,
     ): TimeCapsuleApi = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideCalendarApi(
+        @NetworkModule.BaseClient retrofit: Retrofit,
+    ): CalendarApi = retrofit.create()
 }

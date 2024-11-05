@@ -294,6 +294,7 @@ fun MainNavHost(
                 navigateToInterest = {
                     navController.navigate(ScreenDestinations.Interest.route)
                 },
+                showSnackBar = showSnackBar,
             )
         }
 
