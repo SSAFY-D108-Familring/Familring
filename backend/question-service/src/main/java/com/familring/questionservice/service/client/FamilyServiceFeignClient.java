@@ -19,4 +19,7 @@ public interface FamilyServiceFeignClient {
 
     @GetMapping("/client/family/all")
     BaseResponse<List<Long>> getAllFamilyId();
+
+    @GetMapping("/client/family/member/info")
+    BaseResponse<List<UserInfoResponse>> getFamilyMemberListByFamilyId(@RequestParam Long familyId);
 }

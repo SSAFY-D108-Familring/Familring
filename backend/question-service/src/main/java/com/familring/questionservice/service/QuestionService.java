@@ -41,7 +41,7 @@ public class QuestionService {
     }
 
     // 매일 9시에 자동으로 질문 생성
-    @Scheduled(cron = "0 16 21 * * ?")
+    @Scheduled(cron = "0 41 22 * * ?")
     public void scheduledCreateQuestion() {
         // 모든 가족 조회
         List<Long> allFamilyIds = familyServiceFeignClient.getAllFamilyId().getData();
@@ -76,7 +76,7 @@ public class QuestionService {
     // 가족 구성원이 답장을 했는 지 확인
     private boolean check(Long familyId, Long questionFamilyId) {
         // 1. 가족 구성원 조회 (familyId로 찾는 함수로 변경)
-        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(familyId).getData();
+        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberListByFamilyId(familyId).getData();
 
         // 2. 가족 구성원들이 모두 답변을 했는지 확인
         for (UserInfoResponse member : familyMembers) {
@@ -84,7 +84,6 @@ public class QuestionService {
             if (!hasAnswered) {
                 return false; // 아직 답변하지 않은 구성원이 있음
             }
-            
         }
 
         return true; // 모든 구성원이 답변을 완료함
