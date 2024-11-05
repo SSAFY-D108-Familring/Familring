@@ -75,6 +75,19 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    public List<UserInfoResponse> getFamilyMemberListByFamlyId(Long familyId) {
+        // 1.  userId의 가족 구성원 모두의 userId 추출
+        List<Long> members = familyDao.findFamilyUserByFamilyId(familyId);
+
+        // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
+        BaseResponse<List<UserInfoResponse>> response = userServiceFeignClient.getAllUser(members);
+        List<UserInfoResponse> userInfoResponses = response.getData(); // data 필드에 접근
+
+        // 3. 응답
+        return userInfoResponses;
+    }
+
+    @Override
     public List<Long> getAllFamilyId() {
         List<Long> response = familyDao.findFamilyId();
         return response;

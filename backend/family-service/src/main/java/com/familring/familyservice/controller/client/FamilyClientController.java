@@ -37,6 +37,13 @@ public class FamilyClientController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 구성원들을 성공적으로 조회 했습니다.", responseList));
     }
 
+    @GetMapping("/member/info")
+    public ResponseEntity<BaseResponse<List<UserInfoResponse>>> getFamilyMemberListByFamlyId(Long familyId) {
+        List<UserInfoResponse> responseList = familyService.getFamilyMemberListByFamlyId(familyId);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 구성원들을 성공적으로 조회 했습니다.", responseList));
+    }
+
     @GetMapping("/all")
     public ResponseEntity<BaseResponse<List<Long>>> getAllFamilyId() {
         List<Long> responseList = familyService.getAllFamilyId();
