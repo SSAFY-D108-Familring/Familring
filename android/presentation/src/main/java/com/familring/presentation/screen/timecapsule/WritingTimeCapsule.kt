@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,38 +20,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.model.Profile
 import com.familring.presentation.R
 import com.familring.presentation.component.GrayBackgroundTextField
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.screen.timecapsule.WritingState.FINISHED_TIME_CAPSULE
+import com.familring.presentation.screen.timecapsule.WritingState.NO_TIME_CAPSULE
+import com.familring.presentation.screen.timecapsule.WritingState.WRITING_TIME_CAPSULE
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
+object WritingState {
+    const val NO_TIME_CAPSULE = 0
+    const val FINISHED_TIME_CAPSULE = 1
+    const val WRITING_TIME_CAPSULE = 2
+}
+
 @Composable
 fun WritingTimeCapsuleScreen(
     modifier: Modifier = Modifier,
-    writingState: Int,
     navigateToCreate: () -> Unit = {},
+    state: TimeCapsuleUiState,
+    getTimeCapsuleStatus: () -> Unit = {},
+    createTimeCapsuleAnswer: (String) -> Unit = {},
 ) {
-    when (writingState) {
-        0 ->
+    LaunchedEffect(Unit) {
+        getTimeCapsuleStatus()
+    }
+
+    when (state.writingStatus) {
+        NO_TIME_CAPSULE ->
             NoTimeCapsule(
                 modifier = modifier,
                 navigateToCreate = navigateToCreate,
             )
 
-        1 ->
-            WritingTimeCapsule(
-                modifier = modifier,
-            )
-
-        2 ->
+        FINISHED_TIME_CAPSULE ->
             FinishedTimeCapsule(
                 modifier = modifier,
+                state = state,
+            )
+
+        WRITING_TIME_CAPSULE ->
+            WritingTimeCapsule(
+                modifier = modifier,
+                state = state,
+                createTimeCapsuleAnswer = createTimeCapsuleAnswer,
             )
     }
 }
@@ -58,8 +77,8 @@ fun WritingTimeCapsuleScreen(
 @Composable
 fun WritingTimeCapsule(
     modifier: Modifier = Modifier,
-    letterCount: Int = 0,
-    wroteProfiles: List<Profile> = listOf(),
+    state: TimeCapsuleUiState,
+    createTimeCapsuleAnswer: (String) -> Unit = {},
 ) {
     var content by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -78,12 +97,13 @@ fun WritingTimeCapsule(
         ) {
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             Image(
+                modifier = Modifier.size(130.dp),
                 painter = painterResource(id = R.drawable.img_pill),
                 contentDescription = "pill",
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             Text(
-                text = "${letterCount}번째 타임캡슐을 작성해 보세요!",
+                text = "${state.timeCapsuleCount}번째 타임캡슐을 작성해 보세요!",
                 style = Typography.headlineLarge.copy(fontSize = 26.sp),
                 color = Black,
             )
@@ -109,7 +129,7 @@ fun WritingTimeCapsule(
             Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             RoundLongButton(
                 text = "작성 완료",
-                onClick = { /*TODO*/ },
+                onClick = { createTimeCapsuleAnswer(content) },
                 enabled = content.isNotEmpty(),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.06f))
@@ -127,7 +147,7 @@ fun WritingTimeCapsule(
             Spacer(modifier = Modifier.fillMaxHeight(0.02f))
             OverlappingProfileLazyRow(
                 modifier = Modifier.fillMaxWidth(0.9f),
-                profiles = wroteProfiles,
+                profiles = state.writers,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
         }
@@ -138,12 +158,6 @@ fun WritingTimeCapsule(
 @Composable
 private fun WritingTimeCapsulePreview() {
     WritingTimeCapsule(
-        letterCount = 2,
-        wroteProfiles =
-            listOf(
-                Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFFE1E1"),
-                Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-            ),
+        state = TimeCapsuleUiState(),
     )
 }

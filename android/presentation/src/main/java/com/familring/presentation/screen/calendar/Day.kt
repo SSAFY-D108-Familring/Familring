@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.model.DaySchedule
+import com.familring.domain.model.PreviewSchedule
 import com.familring.domain.model.Schedule
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green03
@@ -32,6 +33,7 @@ import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toColor
 import com.familring.presentation.util.toLocalDate
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Composable
 fun Day(
@@ -112,13 +114,13 @@ fun Day(
 @Composable
 fun Schedule(
     modifier: Modifier = Modifier,
-    schedule: Schedule,
+    schedule: PreviewSchedule,
 ) {
     Text(
         modifier =
             modifier
                 .background(
-                    color = schedule.backgroundColor.toColor(),
+                    color = schedule.color.toColor(),
                     shape = RoundedCornerShape(2.dp),
                 ).padding(
                     horizontal = 5.dp,
@@ -137,9 +139,12 @@ private fun SchedulePreview() {
     Schedule(
         modifier = Modifier.width(50.dp),
         schedule =
-            Schedule(
-                title = "Meeting w/ Chris Meeting w/ Chris",
-                backgroundColor = "0xFFFFEAB0",
+            PreviewSchedule(
+                id = 0,
+                title = "Meeting with Team",
+                startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
+                endTime = LocalDateTime.parse("2024-10-03T10:00:00"),
+                color = "0xFFFEE6C9",
             ),
     )
 }
@@ -154,21 +159,19 @@ private fun DayPreview() {
                 date = "2024-10-31",
                 schedules =
                     listOf(
-                        Schedule(
-                            title = "Meeting w/ Chris Meeting w/ Chris",
-                            backgroundColor = "0xFFFFEAB0",
+                        PreviewSchedule(
+                            id = 0,
+                            title = "Meeting with Team",
+                            startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
+                            endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
+                            color = "0xFFFEE6C9",
                         ),
-                        Schedule(
-                            title = "Meeting w/ Chris Meeting w/ Chris",
-                            backgroundColor = "0xFFFFEAB0",
-                        ),
-                        Schedule(
-                            title = "Meeting w/ Chris Meeting w/ Chris",
-                            backgroundColor = "0xFFFFEAB0",
-                        ),
-                        Schedule(
-                            title = "Meeting w/ Chris Meeting w/ Chris",
-                            backgroundColor = "0xFFFFEAB0",
+                        PreviewSchedule(
+                            id = 0,
+                            title = "Meeting with Team",
+                            startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
+                            endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
+                            color = "0xFFFEE6C9",
                         ),
                     ),
             ),

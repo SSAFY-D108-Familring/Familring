@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +24,7 @@ import com.familring.presentation.theme.White
 @Composable
 fun FinishedTimeCapsule(
     modifier: Modifier = Modifier,
-    leftDay: Int = 0,
+    state: TimeCapsuleUiState,
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -34,9 +33,8 @@ fun FinishedTimeCapsule(
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
         ) {
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
             Image(
                 painter = painterResource(id = R.drawable.img_smile_face),
                 contentDescription = "smile_face",
@@ -49,7 +47,7 @@ fun FinishedTimeCapsule(
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.01f))
             Text(
-                text = "캡슐 오픈까지 ${leftDay}일!\n조금만 더 기다려보아요",
+                text = "캡슐 오픈까지 ${state.leftDays}일!\n조금만 더 기다려보아요",
                 style =
                     Typography.labelLarge.copy(
                         color = Gray01,
@@ -67,6 +65,6 @@ fun FinishedTimeCapsule(
 private fun FinishedTimeCapsuleScreenPreview() {
     FinishedTimeCapsule(
         modifier = Modifier,
-        leftDay = 3,
+        state = TimeCapsuleUiState(),
     )
 }

@@ -52,4 +52,7 @@ dependencies {
     implementation(libs.datastore.preferences)
     implementation(libs.junit)
     implementation(project(":domain"))
+
+    // Timber
+    implementation(libs.timber)
 }
