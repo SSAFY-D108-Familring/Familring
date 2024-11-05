@@ -1,5 +1,7 @@
 package com.familring.albumservice.controller;
 
+import com.familring.albumservice.domain.AlbumType;
+import com.familring.albumservice.dto.AlbumResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
 import com.familring.albumservice.service.AlbumService;
@@ -12,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/albums")
 @RequiredArgsConstructor
@@ -19,6 +24,15 @@ import org.springframework.web.bind.annotation.*;
 public class AlbumController {
 
     private final AlbumService albumService;
+    @GetMapping
+    @Operation(summary = "앨범 목록 조회", description = "일반 앨범, 일정 앨범, 인물 앨범 모두 조회 가능합니다.")
+    public ResponseEntity<BaseResponse<Map<AlbumType, List<AlbumResponse>>>> getAlbums(
+            @RequestParam("album_type") List<AlbumType> albumTypes,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        Map<AlbumType, List<AlbumResponse>> albums = albumService.getAlbums(albumTypes, userId);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 목록을 조회했습니다.", albums));
+    }
 
     @PostMapping
     @Operation(summary = "앨범 생성", description = "일반 앨범, 일정 앨범, 얼굴 사진 분류를 위한 앨범을 생성합니다.")
@@ -34,18 +48,16 @@ public class AlbumController {
     public ResponseEntity<BaseResponse<Void>> updateAlbum(
             @RequestBody AlbumUpdateRequest albumUpdateRequest,
             @PathVariable("album_id") Long albumId,
-            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
-    ) {
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         albumService.updateAlbum(albumUpdateRequest, albumId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 정보가 수정되었습니다."));
     }
 
-    @DeleteMapping("/{album_id")
+    @DeleteMapping("/{album_id}")
     @Operation(summary = "앨범 삭제", description = "앨범을 삭제합니다.")
     public ResponseEntity<BaseResponse<Void>> deleteAlbum(
             @PathVariable("album_id") Long albumId,
-            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
-    ) {
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         albumService.deleteAlbum(albumId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범이 삭제되었습니다."));
     }

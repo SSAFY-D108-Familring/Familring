@@ -2,17 +2,24 @@ package com.familring.albumservice.service;
 
 import com.familring.albumservice.domain.Album;
 import com.familring.albumservice.domain.Album.AlbumBuilder;
+import com.familring.albumservice.domain.AlbumType;
+import com.familring.albumservice.dto.AlbumResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
 import com.familring.albumservice.exception.album.AlbumNotFoundException;
 import com.familring.albumservice.exception.album.InvalidAlbumParameterException;
 import com.familring.albumservice.exception.album.InvalidAlbumRequestException;
+import com.familring.albumservice.repository.AlbumQueryRepository;
 import com.familring.albumservice.repository.AlbumRepository;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.familring.albumservice.domain.AlbumType.*;
 
@@ -23,6 +30,7 @@ public class AlbumService {
 
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final AlbumRepository albumRepository;
+    private final AlbumQueryRepository albumQueryRepository;
 
     /**
      * 일반 앨범 - UserId, ScheduleId가 null
@@ -72,5 +80,10 @@ public class AlbumService {
         }
 
         albumRepository.delete(album);
+    }
+
+    public Map<AlbumType, List<AlbumResponse>> getAlbums(List<AlbumType> albumTypes, Long userId) {
+//        albumQueryRepository.fin
+        return new HashMap<>();
     }
 }
