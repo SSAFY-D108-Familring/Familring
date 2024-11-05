@@ -1,10 +1,10 @@
 package com.familring.data.network.api
 
 import com.familring.data.network.response.BaseResponse
-import com.familring.domain.model.FamilyMake
-import retrofit2.http.Body
 import com.familring.domain.model.FamilyInfo
+import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
@@ -19,6 +19,7 @@ interface FamilyApi {
     suspend fun joinFamily(
         @Body familyCode: String,
     ): BaseResponse<String>
+
     @GET("family/member")
     suspend fun getFamilyMembers(): BaseResponse<List<User>>
 

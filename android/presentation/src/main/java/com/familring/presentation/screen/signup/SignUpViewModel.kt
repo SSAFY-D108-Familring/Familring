@@ -1,10 +1,8 @@
 package com.familring.presentation.screen.signup
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.datasource.AuthDataStore
-import com.familring.domain.datasource.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
@@ -19,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,7 +27,6 @@ class SignUpViewModel
         private val userRepository: UserRepository,
         private val familyRepository: FamilyRepository,
         private val authDataStore: AuthDataStore,
-        private val tokenDataStore: TokenDataStore,
     ) : ViewModel() {
         private val _state = MutableStateFlow(SignUpUiState())
         val state = _state.asStateFlow()
@@ -52,7 +50,7 @@ class SignUpViewModel
             _state.update { it.copy(userNickname = nickname) }
         }
 
-        fun updateBirthDate(birthDate: String) {
+        fun updateBirthDate(birthDate: LocalDate) {
             _state.update { it.copy(userBirthDate = birthDate) }
         }
 
@@ -101,14 +99,19 @@ class SignUpViewModel
             val file = state.value.userFace!!
 
             viewModelScope.launch {
-                userRepository.join(request, file).collectLatest { response ->
+                userRepository.join(request, file).collect { response ->
                     when (response) {
                         is ApiResponse.Success -> {
                             _event.emit(SignUpUiEvent.Success)
                         }
 
                         is ApiResponse.Error -> {
-                            _event.emit(SignUpUiEvent.Error(response.code, response.message))
+                            _event.emit(
+                                SignUpUiEvent.Error(
+                                    response.code,
+                                    "회원가입 오류: " + response.message,
+                                ),
+                            )
                         }
                     }
                 }
@@ -135,15 +138,19 @@ class SignUpViewModel
 
         fun joinFamily(code: String) {
             viewModelScope.launch {
-                Log.d("nakyung", tokenDataStore.getJwtToken().toString())
-                familyRepository.joinFamily(code).collectLatest { response ->
+                familyRepository.joinFamily(code).collect { response ->
                     when (response) {
                         is ApiResponse.Success -> {
-                            _event.emit(SignUpUiEvent.Success)
+                            _event.emit(SignUpUiEvent.JoinSuccess)
                         }
 
                         is ApiResponse.Error -> {
-                            _event.emit(SignUpUiEvent.Error(response.code, response.message))
+                            _event.emit(
+                                SignUpUiEvent.Error(
+                                    response.code,
+                                    "가족 가입 오류: " + response.message,
+                                ),
+                            )
                         }
                     }
                 }
