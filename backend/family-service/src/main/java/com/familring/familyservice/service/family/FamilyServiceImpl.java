@@ -144,11 +144,30 @@ public class FamilyServiceImpl implements FamilyService {
         }
 
         // 2-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
+<<<<<<< Updated upstream
         List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
         for (UserInfoResponse member : familyMembers) {
             if (FamilyRole.M.equals(member.getUserRole()) || FamilyRole.F.equals(member.getUserRole())) {
                 log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
                 throw new AlreadyFamilyRoleException();
+=======
+        List<UserInfoResponse> familyMembers = new ArrayList<>();
+        if(user.getUserRole().equals(FamilyRole.F)) { // 참여자 가족 역할이 F인 경우
+            familyMembers = getFamilyMemberList(family.getFamilyId());
+            for (UserInfoResponse member : familyMembers) {
+                if (FamilyRole.F.equals(member.getUserRole())) {
+                    log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
+                    throw new AlreadyFamilyRoleException();
+                }
+            }
+        } else if (user.getUserRole().equals(FamilyRole.M)) { // 참여자 가족 역할이 M인 경우
+            familyMembers = getFamilyMemberList(family.getFamilyId());
+            for (UserInfoResponse member : familyMembers) {
+                if (FamilyRole.M.equals(member.getUserRole())) {
+                    log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
+                    throw new AlreadyFamilyRoleException();
+                }
+>>>>>>> Stashed changes
             }
         }
 
@@ -171,10 +190,16 @@ public class FamilyServiceImpl implements FamilyService {
         // 1. 회원에 해당하는 가족 찾기
         Family family = familyDao.findFamilyByUserId(userId)
                 .orElseThrow(() -> new FamilyNotFoundException());
+        log.info("familyId: {}", family.getFamilyId());
 
         // 2. 가족 구성원 제거
+        // 2-1. 가족 구성원 수 - 1
+        log.info("before familyCount: {}", family.getFamilyCount());
         familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), -1);
+        
+        // 2-2. family_user의 컬럼 삭제
         familyDao.deleteFamily_UserByFamilyIdAndUserId(family.getFamilyId(), userId);
+        log.info("family_user의 컬럼 삭제 완료");
 
         return "가족 구성원 수정 완료";
     }
