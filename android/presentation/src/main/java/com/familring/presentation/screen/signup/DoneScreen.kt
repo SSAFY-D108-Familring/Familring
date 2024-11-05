@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -25,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
 import com.familring.presentation.component.RoundLongButton
@@ -34,15 +37,43 @@ import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun DoneRoute(
     modifier: Modifier,
+    viewModel: SignUpViewModel,
     navigateToHome: () -> Unit,
+    showSnackBar: (String) -> Unit,
 ) {
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.makeFamily()
+    }
+
+    LaunchedEffect(viewModel.event) {
+        viewModel.event.collectLatest { event ->
+            when (event) {
+                is SignUpUiEvent.Loading -> {
+                    // 로딩창 띄우기
+                }
+
+                is SignUpUiEvent.MakeSuccess -> {
+                    showSnackBar("코드를 이용해 가족을 초대해 보세요!")
+                }
+
+                else -> {
+                    // 에러 스낵바 띄우기
+                }
+            }
+        }
+    }
+
     DoneScreen(
         modifier = modifier,
         navigateToHome = navigateToHome,
+        code = uiState.familyCode,
     )
 }
 
@@ -50,9 +81,8 @@ fun DoneRoute(
 fun DoneScreen(
     modifier: Modifier = Modifier,
     navigateToHome: () -> Unit = {},
+    code: String = "",
 ) {
-    val code = "A3B9S2"
-
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,

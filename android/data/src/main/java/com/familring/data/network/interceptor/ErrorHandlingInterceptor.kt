@@ -1,5 +1,6 @@
 package com.familring.data.network.interceptor
 
+import android.util.Log
 import com.familring.data.exception.ApiException
 import com.familring.data.exception.RefreshTokenExpiredException
 import com.familring.domain.model.ErrorResponse
@@ -15,6 +16,7 @@ class ErrorHandlingInterceptor : Interceptor {
             val response = chain.proceed(request)
             if (response.isSuccessful) return response
             val errorBody = response.body?.string() ?: return response
+            Log.d("nakyung", "error: $errorBody")
 
             val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
 

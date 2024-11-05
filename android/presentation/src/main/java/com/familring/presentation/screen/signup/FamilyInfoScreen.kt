@@ -33,7 +33,6 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun FamilyInfoRoute(
@@ -47,19 +46,25 @@ fun FamilyInfoRoute(
     val uiState = viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.event) {
-        viewModel.event.collectLatest { event ->
+        viewModel.event.collect { event ->
             when (event) {
                 is SignUpUiEvent.Success -> {
                     if (uiState.value.make) {
                         navigateToDone()
                     } else {
-                        navigateToHome()
+                        viewModel.joinFamily(uiState.value.familyCode)
                     }
                 }
 
                 is SignUpUiEvent.Error -> {
                     showSnackBar(event.message)
                 }
+
+                is SignUpUiEvent.JoinSuccess -> {
+                    navigateToHome()
+                }
+
+                else -> {}
             }
         }
     }
