@@ -1,12 +1,12 @@
 package com.familring.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.familring.presentation.theme.FamilringTheme
 import com.kakao.sdk.common.util.Utility
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -16,11 +16,7 @@ class MainActivity : ComponentActivity() {
             FamilringTheme {
                 MainScreen()
             }
-
-            Log.d("dg","keyhash : ${Utility.getKeyHash(this)}")
         }
-        Log.d("keyhash :", "${Utility.getKeyHash(this)}")
-
-
+        Timber.tag("keyhash :").d(Utility.getKeyHash(this))
     }
 }

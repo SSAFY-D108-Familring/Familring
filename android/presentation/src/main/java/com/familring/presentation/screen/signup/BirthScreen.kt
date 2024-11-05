@@ -60,12 +60,12 @@ fun BirthScreen(
 
     val focusManager = LocalFocusManager.current
 
-    LaunchedEffect(year, month, date) {
-        if (year.isNotEmpty() && month.isNotEmpty() && date.isNotEmpty()) {
-            val birth = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
-            updateBirth(birth)
-        }
-    }
+//    LaunchedEffect(year, month, date) {
+//        if (year.isNotEmpty() && month.isNotEmpty() && date.isNotEmpty()) {
+//            val birth = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
+//            updateBirth(birth)
+//        }
+//    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -114,7 +114,11 @@ fun BirthScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             RoundLongButton(
                 text = "다음으로",
-                onClick = navigateToColor,
+                onClick = {
+                    val birth = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
+                    updateBirth(birth)
+                    navigateToColor()
+                },
                 enabled = isButtonEnabled,
             )
         }

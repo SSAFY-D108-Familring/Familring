@@ -8,6 +8,7 @@ import com.familring.domain.datasource.AuthDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import okhttp3.internal.cache2.Relay.Companion.edit
+import java.time.LocalDate
 import java.util.Date
 import javax.inject.Inject
 
@@ -46,7 +47,7 @@ class AuthDataStoreImpl
                     prefs[NICKNAME_KEY]
                 }.first()
 
-        override suspend fun saveBirthDate(birthDateString: Date) {
+        override suspend fun saveBirthDate(birthDateString: LocalDate) {
             dataStore.edit { prefs ->
                 prefs[BIRTH_DATE_KEY] = birthDateString.toString()
             }

@@ -32,7 +32,6 @@ import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
-import com.familring.presentation.screen.mypage.MyPageRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -302,9 +301,6 @@ fun MainNavHost(
                 navigateToInterest = {
                     navController.navigate(ScreenDestinations.Interest.route)
                 },
-                navigateToMypage = {
-                    navController.navigate(ScreenDestinations.MyPage.route)
-                },
                 showSnackBar = showSnackBar,
             )
         }
@@ -401,15 +397,6 @@ fun MainNavHost(
             route = ScreenDestinations.Album.route,
         ) {
             AlbumRoute(
-                modifier = modifier,
-                onNavigateBack = navController::popBackStack,
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.MyPage.route,
-        ) {
-            MyPageRoute(
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
             )

@@ -62,7 +62,6 @@ fun HomeRoute(
     navigateToNotification: () -> Unit,
     navigateToTimeCapsule: () -> Unit,
     navigateToInterest: () -> Unit,
-    navigateToMypage: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
@@ -81,7 +80,6 @@ fun HomeRoute(
                 navigateToNotification = navigateToNotification,
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
-                navigateToMypage = navigateToMypage,
                 showSnackBar = showSnackBar,
                 familyState = familyState,
             )
@@ -109,7 +107,6 @@ fun HomeScreen(
     navigateToNotification: () -> Unit = {},
     navigateToTimeCapsule: () -> Unit = {},
     navigateToInterest: () -> Unit = {},
-    navigateToMypage: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
     familyState: FamilyState,
 ) {
@@ -446,7 +443,6 @@ fun HomeScreenPreview() {
         navigateToNotification = {},
         navigateToTimeCapsule = {},
         navigateToInterest = {},
-        navigateToMypage = {},
         showSnackBar = {},
         familyState = FamilyState.Loading,
     )
