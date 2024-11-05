@@ -12,6 +12,8 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializer
 import com.google.gson.JsonSyntaxException
 import dagger.Module
 import dagger.Provides
@@ -24,6 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -44,16 +47,28 @@ object NetworkModule {
     fun provideGson(): Gson =
         GsonBuilder()
             .setLenient()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
             .registerTypeAdapter(
                 LocalDateTime::class.java,
                 JsonDeserializer { json, _, _ ->
-                    LocalDateTime.parse(json.asString)
+                    LocalDateTime.parse(
+                        json.asString,
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
+                    )
+                },
+            ).registerTypeAdapter(
+                LocalDateTime::class.java,
+                JsonSerializer<LocalDateTime> { src, _, _ ->
+                    JsonPrimitive(src.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
                 },
             ).registerTypeAdapter(
                 LocalDate::class.java,
                 JsonDeserializer { json, _, _ ->
-                    LocalDate.parse(json.asString)
+                    LocalDate.parse(json.asString, DateTimeFormatter.ISO_DATE)
+                },
+            ).registerTypeAdapter(
+                LocalDate::class.java,
+                JsonSerializer<LocalDate> { src, _, _ ->
+                    JsonPrimitive(src.format(DateTimeFormatter.ISO_DATE))
                 },
             ).create()
 
