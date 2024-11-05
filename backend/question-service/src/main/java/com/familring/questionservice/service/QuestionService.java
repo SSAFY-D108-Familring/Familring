@@ -6,8 +6,10 @@ import com.familring.questionservice.domain.QuestionFamily;
 import com.familring.questionservice.dto.client.Family;
 import com.familring.questionservice.dto.client.UserInfoResponse;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
+import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
 import com.familring.questionservice.dto.response.QuestionInfoResponse;
 import com.familring.questionservice.exception.AlreadyExistQuestionAnswerException;
+import com.familring.questionservice.exception.QuestionAnswerNotFoundException;
 import com.familring.questionservice.exception.QuestionFamilyNotFoundException;
 import com.familring.questionservice.exception.QuestionNotFoundException;
 import com.familring.questionservice.repository.QuestionAnswerRepository;
@@ -16,7 +18,6 @@ import com.familring.questionservice.repository.QuestionRepository;
 import com.familring.questionservice.service.client.FamilyServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -126,8 +127,22 @@ public class QuestionService {
         }
     }
 
+    // 랜덤 질문 수정
+    public void updateQuestionAnswer(Long answerId, QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
+
+        Optional<QuestionAnswer> questionAnswer = questionAnswerRepository.findById(answerId);
+
+        if (questionAnswer.isPresent()) {
+            questionAnswer.get().updateQuestionAnswer(questionAnswerUpdateRequest);
+            questionAnswerRepository.save(questionAnswer.get());
+        } else {
+            throw new QuestionAnswerNotFoundException();
+        }
+
+    }
+
     // 랜덤 질문 조회
-    private QuestionInfoResponse getQuestionInfo(Long userId) {
+    public QuestionInfoResponse getQuestionInfo(Long userId) {
 
         // 가족 정보 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
