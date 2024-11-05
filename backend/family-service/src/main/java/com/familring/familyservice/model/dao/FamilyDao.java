@@ -26,6 +26,9 @@ public interface FamilyDao {
     // 가장 마지막에 입력한 familyId 찾기
     Long findLastInsertedFamilyId();
 
+    // 모든 가족 조회
+    List<Long> findFamilyId();
+
     // 가족 구성원 수 조회
     int countFamilyUserByUserId(@Param("userId") Long userId);
 

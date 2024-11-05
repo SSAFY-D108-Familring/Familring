@@ -17,6 +17,9 @@ public interface FamilyService {
     // 가족 구성원 전체 조회
     List<UserInfoResponse> getFamilyMemberList(Long userId);
 
+    // 모든 가족 조회
+    List<Long> getAllFamilyId();
+
     // 가족 생성
     FamilyInfoResponse createFamily(Long userId);
 

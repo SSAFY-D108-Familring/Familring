@@ -73,6 +73,13 @@ public class FamilyServiceImpl implements FamilyService {
         // 3. 응답
         return userInfoResponses;
     }
+
+    @Override
+    public List<Long> getAllFamilyId() {
+        List<Long> response = familyDao.findFamilyId();
+        return response;
+    }
+
     public BaseResponse<List<UserInfoResponse>> getUserInfoFromUserService(List<Long> members) {
         // Feign Client를 통해 user-service의 getUser 메서드 호출
         return userServiceFeignClient.getAllUser(members);
