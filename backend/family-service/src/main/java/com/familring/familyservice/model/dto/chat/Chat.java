@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @Builder
@@ -26,4 +27,6 @@ public class Chat {
 
     private boolean isVote; // 투표 여부 (true면 투표 메시지, false면 일반 메시지)
     private String voteId; // 투표 ID (투표가 있을 경우 투표와 연결)
+
+    private Set<String> readBy; // 읽은 사용자 ID 목록
 }
