@@ -30,7 +30,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,16 +39,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.familring.domain.mapper.toProfile
 import com.familring.domain.model.DailyLife
 import com.familring.domain.model.Profile
 import com.familring.domain.model.Schedule
 import com.familring.presentation.R
-import com.familring.presentation.component.IconCustomDropdownMenu
-import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.CustomTextTab
+import com.familring.presentation.component.IconCustomDropBoxStyles
+import com.familring.presentation.component.IconCustomDropdownMenu
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Black
@@ -60,13 +59,19 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toColor
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
-    navigateToCreateAlbum: () -> Unit = {},
+    deleteSchedule: (Long) -> Unit,
+    showDeleteDialog: (Long) -> Unit,
+    navigateToModifySchedule: (Long) -> Unit,
+    navigateToCreateAlbum: () -> Unit,
+    navigateToAlbum: (Long) -> Unit,
 ) {
     val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
     var selectedItemIndex by remember { mutableIntStateOf(0) }
@@ -90,7 +95,11 @@ fun CalendarTab(
                 0 ->
                     ScheduleTab(
                         schedules = schedules,
+                        deleteSchedule = deleteSchedule,
+                        showDeleteDialog = showDeleteDialog,
+                        navigateToModifySchedule = navigateToModifySchedule,
                         navigateToCreateAlbum = navigateToCreateAlbum,
+                        navigateToAlbum = navigateToAlbum,
                     )
 
                 1 ->
@@ -206,7 +215,11 @@ fun DailyItem(
 fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
+    deleteSchedule: (Long) -> Unit = {},
+    showDeleteDialog: (Long) -> Unit = {},
+    navigateToModifySchedule: (Long) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
+    navigateToAlbum: (Long) -> Unit = {},
 ) {
     if (schedules.isEmpty()) {
         Column {
@@ -230,7 +243,11 @@ fun ScheduleTab(
             items(schedules) { schedule ->
                 ScheduleItem(
                     schedule = schedule,
+                    deleteSchedule = deleteSchedule,
+                    showDeleteDialog = showDeleteDialog,
+                    navigateToModifySchedule = navigateToModifySchedule,
                     navigateToCreateAlbum = navigateToCreateAlbum,
+                    navigateToAlbum = navigateToAlbum,
                 )
             }
         }
@@ -241,16 +258,16 @@ fun ScheduleTab(
 fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
+    showDeleteDialog: (Long) -> Unit = {},
+    deleteSchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Long) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
+    navigateToAlbum: (Long) -> Unit = {},
 ) {
-    // drop down menu
-    var showDropDownMenu by remember { mutableStateOf(false) }
-    var tapOffset by remember { mutableStateOf(DpOffset.Zero) }
-
     Box(
         modifier =
             modifier
-                .clickable { navigateToCreateAlbum() }
+                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.scheduleId) }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
@@ -274,18 +291,25 @@ fun ScheduleItem(
                                 fontSize = 22.sp,
                             ),
                     )
-                    Icon(
-                        modifier =
-                            Modifier
-                                .padding(4.dp)
-                                .size(16.dp),
-                        painter = painterResource(id = R.drawable.ic_gallery),
-                        contentDescription = "ic_album",
-                        tint = Gray02,
-                    )
+                    if (schedule.albumId != null) {
+                        Icon(
+                            modifier =
+                                Modifier
+                                    .padding(4.dp)
+                                    .size(16.dp),
+                            painter = painterResource(id = R.drawable.ic_gallery),
+                            contentDescription = "ic_album",
+                            tint = Gray02,
+                        )
+                    }
                 }
                 Text(
-                    text = "10월 23일 09:00 - 10월 24일 23:00",
+                    text =
+                        getScheduleText(
+                            hasTime = schedule.hasTime,
+                            startSchedule = schedule.startTime,
+                            endSchedule = schedule.endTime,
+                        ),
                     style =
                         Typography.labelSmall.copy(
                             fontSize = 12.sp,
@@ -301,14 +325,9 @@ fun ScheduleItem(
                         .align(Alignment.CenterVertically),
                 profileSize = 32,
                 profiles =
-                    listOf(
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                    ),
+                    schedule.familyMembers
+                        .filter { it.isAttendance }
+                        .map { it.toProfile() },
             )
             IconCustomDropdownMenu(
                 modifier =
@@ -316,8 +335,8 @@ fun ScheduleItem(
                         .padding(3.dp),
                 menuItems =
                     listOf(
-                        "수정" to {},
-                        "삭제" to {},
+                        "수정" to { navigateToModifySchedule(schedule.scheduleId) },
+                        "삭제" to { showDeleteDialog(schedule.scheduleId) },
                         "앨범 생성" to { navigateToCreateAlbum() },
                     ),
                 styles = IconCustomDropBoxStyles(),
@@ -326,12 +345,47 @@ fun ScheduleItem(
     }
 }
 
+private fun getScheduleText(
+    hasTime: Boolean,
+    startSchedule: LocalDateTime,
+    endSchedule: LocalDateTime,
+): String {
+    val formatWithTime = DateTimeFormatter.ofPattern("MM월 dd일 a hh:mm")
+    val formatWithoutTime = DateTimeFormatter.ofPattern("MM월 dd일")
+    val formatWithOnlyTime = DateTimeFormatter.ofPattern("a hh:mm")
+
+    val text =
+        if (hasTime) {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithOnlyTime)
+            } else {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithTime)
+            }
+        } else {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithoutTime)
+            } else {
+                startSchedule.format(formatWithoutTime) +
+                    " - " + endSchedule.format(formatWithoutTime)
+            }
+        }
+
+    return text
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun CalendarTabPreview() {
     CalendarTab(
         dailyLifes = dailyLifes,
         schedules = schedules,
+        deleteSchedule = {},
+        navigateToModifySchedule = {},
+        navigateToCreateAlbum = {},
+        navigateToAlbum = {},
+        showDeleteDialog = {},
     )
 }
 
