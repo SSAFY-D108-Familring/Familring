@@ -376,7 +376,7 @@ fun FamilyCard(user: User) {
                 user.userEmotion.ifEmpty {
                     "평범해요\uD83D\uDE10"
                 },
-                style = Typography.displaySmall.copy(fontSize = 11.sp),
+                style = Typography.displaySmall.copy(fontSize = 14.sp),
             )
         }
     }
@@ -412,13 +412,12 @@ fun EmptyCard() {
                     modifier = Modifier.height(15.dp),
                 )
                 Text(
-                    text = "평범해요",
-                    style = Typography.displaySmall.copy(fontSize = 11.sp),
+                    text = "평범해요\uD83D\uDE10",
+                    style = Typography.displaySmall.copy(fontSize = 14.sp),
                     modifier = Modifier.alpha(0.3f),
                 )
             }
         }
-
         Box(
             modifier = Modifier.matchParentSize(),
             contentAlignment = Alignment.Center,
