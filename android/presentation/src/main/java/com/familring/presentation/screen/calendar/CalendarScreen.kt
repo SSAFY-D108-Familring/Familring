@@ -108,6 +108,12 @@ fun CalendarScreen(
         getMonthData(selectedMonth.year, selectedMonth.monthValue)
     }
 
+    LaunchedEffect(selectedDay) {
+        getDaySchedules(
+            state.previewSchedules.map { it.id },
+        )
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = White,
@@ -237,8 +243,8 @@ fun CalendarScreen(
                 containerColor = White,
             ) {
                 CalendarTab(
-                    schedules = schedules,
-                    dailyLifes = dailyLifes,
+                    schedules = state.detailedSchedule,
+                    dailyLifes = dailyLifes, // 수정 필요
                     navigateToCreateAlbum = navigateToCreateAlbum,
                 )
             }

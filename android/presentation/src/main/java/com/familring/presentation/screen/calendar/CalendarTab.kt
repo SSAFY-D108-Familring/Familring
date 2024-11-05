@@ -43,13 +43,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.familring.domain.mapper.toProfile
 import com.familring.domain.model.DailyLife
 import com.familring.domain.model.Profile
 import com.familring.domain.model.Schedule
 import com.familring.presentation.R
-import com.familring.presentation.component.IconCustomDropdownMenu
-import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.CustomTextTab
+import com.familring.presentation.component.IconCustomDropBoxStyles
+import com.familring.presentation.component.IconCustomDropdownMenu
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Black
@@ -60,6 +61,8 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toColor
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarTab(
@@ -250,7 +253,7 @@ fun ScheduleItem(
     Box(
         modifier =
             modifier
-                .clickable { navigateToCreateAlbum() }
+                .clickable { if (schedule.hasAlbum) navigateToCreateAlbum() }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
@@ -274,18 +277,25 @@ fun ScheduleItem(
                                 fontSize = 22.sp,
                             ),
                     )
-                    Icon(
-                        modifier =
-                            Modifier
-                                .padding(4.dp)
-                                .size(16.dp),
-                        painter = painterResource(id = R.drawable.ic_gallery),
-                        contentDescription = "ic_album",
-                        tint = Gray02,
-                    )
+                    if (schedule.hasAlbum) {
+                        Icon(
+                            modifier =
+                                Modifier
+                                    .padding(4.dp)
+                                    .size(16.dp),
+                            painter = painterResource(id = R.drawable.ic_gallery),
+                            contentDescription = "ic_album",
+                            tint = Gray02,
+                        )
+                    }
                 }
                 Text(
-                    text = "10월 23일 09:00 - 10월 24일 23:00",
+                    text =
+                        getScheduleText(
+                            hasTime = schedule.hasTime,
+                            startSchedule = schedule.startTime,
+                            endSchedule = schedule.endTime,
+                        ),
                     style =
                         Typography.labelSmall.copy(
                             fontSize = 12.sp,
@@ -301,14 +311,9 @@ fun ScheduleItem(
                         .align(Alignment.CenterVertically),
                 profileSize = 32,
                 profiles =
-                    listOf(
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                        Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                    ),
+                    schedule.familyMembers
+                        .filter { it.isAttendance }
+                        .map { it.toProfile() },
             )
             IconCustomDropdownMenu(
                 modifier =
@@ -324,6 +329,36 @@ fun ScheduleItem(
             )
         }
     }
+}
+
+private fun getScheduleText(
+    hasTime: Boolean,
+    startSchedule: LocalDateTime,
+    endSchedule: LocalDateTime,
+): String {
+    val formatWithTime = DateTimeFormatter.ofPattern("MM월 dd일 a hh:mm")
+    val formatWithoutTime = DateTimeFormatter.ofPattern("MM월 dd일")
+    val formatWithOnlyTime = DateTimeFormatter.ofPattern("a hh:mm")
+
+    val text =
+        if (hasTime) {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithOnlyTime)
+            } else {
+                startSchedule.format(formatWithTime) +
+                    " - " + endSchedule.format(formatWithTime)
+            }
+        } else {
+            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
+                startSchedule.format(formatWithoutTime)
+            } else {
+                startSchedule.format(formatWithoutTime) +
+                    " - " + endSchedule.format(formatWithoutTime)
+            }
+        }
+
+    return text
 }
 
 @Preview(showBackground = true)

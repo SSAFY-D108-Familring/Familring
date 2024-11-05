@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.model.DaySchedule
 import com.familring.domain.model.PreviewSchedule
-import com.familring.domain.model.Schedule
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography

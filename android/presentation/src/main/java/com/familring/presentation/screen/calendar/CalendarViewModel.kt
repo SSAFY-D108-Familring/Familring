@@ -57,7 +57,7 @@ class CalendarViewModel
                         is ApiResponse.Success -> {
                             _uiState.update {
                                 it.copy(
-//                                    schedules = result.data,
+                                    detailedSchedule = result.data,
                                 )
                             }
                         }
