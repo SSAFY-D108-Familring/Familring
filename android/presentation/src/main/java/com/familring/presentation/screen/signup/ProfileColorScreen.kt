@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,6 +82,10 @@ fun ProfileColorScreen(
             Pink01 to "분홍색",
             Blue01 to "파란색",
         )
+    
+    LaunchedEffect(selectedColor) {
+        updateColor(selectedColor.toColorLongString())
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -147,10 +152,7 @@ fun ProfileColorScreen(
                 Spacer(modifier = Modifier.fillMaxHeight(0.3f))
                 RoundLongButton(
                     text = "다음으로",
-                    onClick = {
-                        updateColor(selectedColor.toColorLongString())
-                        navigateToNickname()
-                    },
+                    onClick = navigateToNickname,
                 )
             }
         }

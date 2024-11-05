@@ -3,6 +3,7 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.FamilyApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.domain.repository.FamilyRepository
@@ -34,4 +35,28 @@ class FamilyRepositoryImpl
                     )
                 emit(response)
             }
+
+    override suspend fun joinFamily(familyCode: String): Flow<ApiResponse<String>> =
+        flow {
+            val response =
+                emitApiResponse(
+                    apiResponse = { api.joinFamily(familyCode) },
+                    default = "",
+                )
+            emit(response)
+        }
+
+    override suspend fun makeFamily(): Flow<ApiResponse<FamilyMake>> =
+        flow {
+            val response =
+                emitApiResponse(
+                    apiResponse = { api.makeFamily() },
+                    default = FamilyMake(),
+                )
+            emit(response)
+        }
+
+    override suspend fun getFamilyCode(): Flow<ApiResponse<String>> {
+        TODO("Not yet implemented")
+    }
     }

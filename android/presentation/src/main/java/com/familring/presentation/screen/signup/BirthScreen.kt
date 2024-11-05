@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.isDateFormValid
+import java.time.LocalDate
 
 @Composable
 fun BirthRoute(
@@ -49,7 +51,7 @@ fun BirthScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToColor: () -> Unit = {},
-    updateBirth: (String) -> Unit = {},
+    updateBirth: (LocalDate) -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
@@ -57,6 +59,13 @@ fun BirthScreen(
     val isButtonEnabled = isDateFormValid(year, month, date)
 
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(year, month, date) {
+        if (year.isNotEmpty() && month.isNotEmpty() && date.isNotEmpty()) {
+            val birth = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
+            updateBirth(birth)
+        }
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -105,10 +114,7 @@ fun BirthScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             RoundLongButton(
                 text = "다음으로",
-                onClick = {
-                    updateBirth("$year-$month-$date")
-                    navigateToColor()
-                },
+                onClick = navigateToColor,
                 enabled = isButtonEnabled,
             )
         }
