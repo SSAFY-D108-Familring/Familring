@@ -92,14 +92,12 @@ public class TimeCapsuleService {
                     // timeCapsule answer DB 에 있는 구성원 id 들 찾아서
                     Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userInfoResponse.getUserId(), timeCapsule);
 
-                    if (answer.isPresent()) { // userInfoResponse.getUserId() 가 timecapsule 에 있으면
-                        // DB에 해당 userId로 작성된 답변이 있는 경우 userIds에 추가
-                        // uesrIds 에 userInfoResponse.getUserId() 를 추가
-                        userIds.add(userInfoResponse.getUserId());
-                    }
+                    // userInfoResponse.getUserId() 가 timecapsule 에 있으면
+                    // DB에 해당 userId로 작성된 답변이 있는 경우 userIds에 추가
+                    // uesrIds 에 userInfoResponse.getUserId() 를 추가
+                    answer.ifPresent(capsuleAnswer -> userIds.add(capsuleAnswer.getUserId()));
                 }
                 // 그 찾은 user id 들로 userResponse 조회
-                // 이 구성원 목록 for 문으로 돌면서
                 List<UserInfoResponse> users = userServiceFeignClient.getAllUser(userIds).getData();
 
                 response = TimeCapsuleStatusResponse.builder()
