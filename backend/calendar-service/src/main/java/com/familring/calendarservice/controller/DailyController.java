@@ -41,7 +41,7 @@ public class DailyController {
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
     ) {
         dailyService.createDaily(content, image, userId);
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 업로드했습니다."));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 생성했습니다."));
     }
 
     @PatchMapping(path = "/{daily_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -53,7 +53,7 @@ public class DailyController {
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
     ) {
         dailyService.updateDaily(content, image, dailyId, userId);
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 업로드했습니다."));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 수정했습니다."));
     }
 
     @DeleteMapping("/{daily_id}")
