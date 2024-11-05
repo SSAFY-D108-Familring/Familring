@@ -1,10 +1,13 @@
 package com.familring.questionservice.service;
 
 import com.familring.questionservice.domain.Question;
+import com.familring.questionservice.domain.QuestionAnswer;
 import com.familring.questionservice.domain.QuestionFamily;
 import com.familring.questionservice.dto.client.Family;
 import com.familring.questionservice.dto.client.UserInfoResponse;
+import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.response.QuestionInfoResponse;
+import com.familring.questionservice.exception.AlreadyExistQuestionAnswerException;
 import com.familring.questionservice.exception.QuestionFamilyNotFoundException;
 import com.familring.questionservice.exception.QuestionNotFoundException;
 import com.familring.questionservice.repository.QuestionAnswerRepository;
@@ -13,11 +16,14 @@ import com.familring.questionservice.repository.QuestionRepository;
 import com.familring.questionservice.service.client.FamilyServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -41,7 +47,7 @@ public class QuestionService {
     }
 
     // 매일 9시에 자동으로 질문 생성
-    @Scheduled(cron = "0 41 22 * * ?")
+    @Scheduled(cron = "0 0 9 * * ?")
     public void scheduledCreateQuestion() {
         // 모든 가족 조회
         List<Long> allFamilyIds = familyServiceFeignClient.getAllFamilyId().getData();
@@ -61,7 +67,6 @@ public class QuestionService {
 
         // 현재 질문에 가족 구성원이 모두 답변했는지 확인
         if (check(familyId, currentQuestionId)) {
-            log.info("familyId : " + familyId + "currentQuestionId : " + currentQuestionId);
             // 모두 답변했다면 다음 질문 설정
             Long nextQuestionId = currentQuestionId + 1;
             Question nextQuestion = questionRepository.findById(nextQuestionId)
@@ -80,13 +85,45 @@ public class QuestionService {
 
         // 2. 가족 구성원들이 모두 답변을 했는지 확인
         for (UserInfoResponse member : familyMembers) {
-            boolean hasAnswered = questionAnswerRepository.existsByQuestionFamilyIdAndUserId(questionFamilyId, member.getUserId());
-            if (!hasAnswered) {
+            boolean hasAnswer = questionAnswerRepository.existsByQuestionFamilyIdAndUserId(questionFamilyId, member.getUserId());
+            if (!hasAnswer) {
                 return false; // 아직 답변하지 않은 구성원이 있음
             }
         }
 
         return true; // 모든 구성원이 답변을 완료함
+    }
+
+    // 랜덤 질문 답변 작성
+    public void createQuestionAnswer(Long userId, QuestionAnswerCreateRequest questionAnswerCreateRequest) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가족의 현재 질문 조회
+        QuestionFamily questionFamily = questionFamilyRepository.findByFamilyId(familyId)
+                .orElseThrow(QuestionFamilyNotFoundException::new);
+
+        LocalDate now = LocalDate.now();
+        // userId 랑 questionFamily 로 이미 작성된 답변이 있다면 Exception
+        QuestionAnswer questionAnswer;
+
+        boolean hasAnswer = questionAnswerRepository.existsByQuestionFamilyIdAndUserId(questionFamily.getId(), userId);
+
+        if (!hasAnswer) { // 작성된 답변이 없으면
+            questionAnswer = QuestionAnswer.builder()
+                    .questionFamily(questionFamily)
+                    .userId(userId)
+                    .answer(questionAnswerCreateRequest.getContent())
+                    .createdAt(now)
+                    .modifiedAt(now)
+                    .build();
+
+            questionAnswerRepository.save(questionAnswer);
+        } else {
+            throw new AlreadyExistQuestionAnswerException();
+        }
     }
 
     // 랜덤 질문 조회
