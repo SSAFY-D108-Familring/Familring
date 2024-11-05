@@ -68,6 +68,7 @@ fun CalendarTab(
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
     deleteSchedule: (Long) -> Unit,
+    showDeleteDialog: (Long) -> Unit,
     navigateToModifySchedule: (Long) -> Unit,
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
@@ -95,6 +96,7 @@ fun CalendarTab(
                     ScheduleTab(
                         schedules = schedules,
                         deleteSchedule = deleteSchedule,
+                        showDeleteDialog = showDeleteDialog,
                         navigateToModifySchedule = navigateToModifySchedule,
                         navigateToCreateAlbum = navigateToCreateAlbum,
                         navigateToAlbum = navigateToAlbum,
@@ -214,6 +216,7 @@ fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
     deleteSchedule: (Long) -> Unit = {},
+    showDeleteDialog: (Long) -> Unit = {},
     navigateToModifySchedule: (Long) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
@@ -241,6 +244,7 @@ fun ScheduleTab(
                 ScheduleItem(
                     schedule = schedule,
                     deleteSchedule = deleteSchedule,
+                    showDeleteDialog = showDeleteDialog,
                     navigateToModifySchedule = navigateToModifySchedule,
                     navigateToCreateAlbum = navigateToCreateAlbum,
                     navigateToAlbum = navigateToAlbum,
@@ -254,6 +258,7 @@ fun ScheduleTab(
 fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
+    showDeleteDialog: (Long) -> Unit = {},
     deleteSchedule: (Long) -> Unit = {},
     navigateToModifySchedule: (Long) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
@@ -331,7 +336,7 @@ fun ScheduleItem(
                 menuItems =
                     listOf(
                         "수정" to { navigateToModifySchedule(schedule.scheduleId) },
-                        "삭제" to { deleteSchedule(schedule.scheduleId) },
+                        "삭제" to { showDeleteDialog(schedule.scheduleId) },
                         "앨범 생성" to { navigateToCreateAlbum() },
                     ),
                 styles = IconCustomDropBoxStyles(),
@@ -380,6 +385,7 @@ private fun CalendarTabPreview() {
         navigateToModifySchedule = {},
         navigateToCreateAlbum = {},
         navigateToAlbum = {},
+        showDeleteDialog = {},
     )
 }
 
