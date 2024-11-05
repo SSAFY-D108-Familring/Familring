@@ -85,4 +85,18 @@ class UserRepositoryImpl
                 }
                 emit(response)
             }
+
+        override suspend fun signOut(): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.signOut() },
+                        default = Unit,
+                    )
+                if (response is ApiResponse.Success) {
+                    tokenDataStore.deleteJwtToken()
+                    authDataSource.deleteAuthData()
+                }
+                emit(response)
+            }
     }
