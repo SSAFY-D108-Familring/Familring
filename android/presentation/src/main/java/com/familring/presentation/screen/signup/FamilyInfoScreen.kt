@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomDropdownMenu
 import com.familring.presentation.component.CustomDropdownMenuStyles
+import com.familring.presentation.component.LoadingDialog
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
@@ -75,6 +76,10 @@ fun FamilyInfoRoute(
         updateRole = viewModel::updateRole,
         join = viewModel::join,
     )
+
+    if (uiState.value.isLoading) {
+        LoadingDialog()
+    }
 }
 
 @Composable

@@ -7,9 +7,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import com.familring.domain.datasource.AuthDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import okhttp3.internal.cache2.Relay.Companion.edit
 import java.time.LocalDate
-import java.util.Date
 import javax.inject.Inject
 
 class AuthDataStoreImpl
@@ -32,6 +30,13 @@ class AuthDataStoreImpl
         override suspend fun deleteAuthData() {
             dataStore.edit { prefs ->
                 prefs.remove(KAKAO_ID_KEY)
+                prefs.remove(NICKNAME_KEY)
+                prefs.remove(BIRTH_DATE_KEY)
+                prefs.remove(ZODIAC_SIGN_KEY)
+                prefs.remove(ROLE_KEY)
+                prefs.remove(FACE_KEY)
+                prefs.remove(COLOR_KEY)
+                prefs.remove(EMOTION_KEY)
             }
         }
 

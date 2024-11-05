@@ -87,9 +87,7 @@ fun LoginScreen(
             is LoginState.Success -> navigateToHome()
             is LoginState.NoRegistered -> navigateToFirst()
             is LoginState.Error -> showSnackBar(loginState.errorMessage)
-            else -> {
-                Timber.tag("login").d("로그인 초기화")
-            }
+            is LoginState.Loading -> Timber.tag("login").d("로그인 로딩중")
         }
     }
 
