@@ -2,6 +2,7 @@ package com.familring.questionservice.controller.client;
 
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.questionservice.service.QuestionService;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/client/questions")
 @RequiredArgsConstructor
+@Hidden
 public class QuestionClientController {
 
     private final QuestionService questionService;
