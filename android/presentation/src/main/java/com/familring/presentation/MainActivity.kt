@@ -16,8 +16,6 @@ class MainActivity : ComponentActivity() {
             FamilringTheme {
                 MainScreen()
             }
-
-            Log.d("dg","keyhash : ${Utility.getKeyHash(this)}")
         }
         Log.d("keyhash :", "${Utility.getKeyHash(this)}")
     }
