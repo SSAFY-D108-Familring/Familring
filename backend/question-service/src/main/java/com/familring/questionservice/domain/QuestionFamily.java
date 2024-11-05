@@ -28,5 +28,8 @@ public class QuestionFamily {
     @Column(name="family_id")
     private Long familyId;
 
+    public void updateQuestion(Question question) {
+        this.question = question;
+    }
 
 }
