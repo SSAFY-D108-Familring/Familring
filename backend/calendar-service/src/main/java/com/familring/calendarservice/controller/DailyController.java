@@ -25,7 +25,7 @@ public class DailyController {
 
     @GetMapping()
     @Operation(summary = "다중 일상 조회", description = "일상들의 정보를 조회합니다.")
-    public ResponseEntity<BaseResponse<List<DailyResponse>>> getSchedules(
+    public ResponseEntity<BaseResponse<List<DailyResponse>>> getDailies(
             @RequestParam("daily_id") List<Long> dailyIds,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
     ) {
