@@ -12,6 +12,7 @@ import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
+import com.familring.familyservice.service.client.QuestionServiceFeignClient;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,6 +30,7 @@ public class FamilyServiceImpl implements FamilyService {
 
     private final FamilyDao familyDao;
     private final UserServiceFeignClient userServiceFeignClient;
+    private final QuestionServiceFeignClient questionServiceFeignClient;
 
     @Override
     public FamilyInfoResponse getFamilyInfo(Long userId) {
@@ -136,6 +138,8 @@ public class FamilyServiceImpl implements FamilyService {
         Family family = familyDao.findFamilyByFamilyId(familyId)
                         .orElseThrow(() -> new FamilyNotFoundException());
         log.info("가족 조회 완료");
+
+        questionServiceFeignClient.initializeQuestionFamily(familyId);
 
         // 4. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
