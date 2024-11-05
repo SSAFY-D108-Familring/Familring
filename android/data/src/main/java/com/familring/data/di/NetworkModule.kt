@@ -5,8 +5,12 @@ import com.familring.data.network.api.AuthApi
 import com.familring.data.network.interceptor.AccessTokenInterceptor
 import com.familring.data.network.interceptor.ErrorHandlingInterceptor
 import com.familring.data.network.interceptor.JwtAuthenticator
+import com.familring.data.network.interceptor.isJsonArray
+import com.familring.data.network.interceptor.isJsonObject
 import com.familring.domain.datasource.TokenDataStore
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonParser
+import com.google.gson.JsonSyntaxException
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +19,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -34,10 +39,11 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
+        logger: HttpLoggingInterceptor,
         accessTokenInterceptor: AccessTokenInterceptor,
         jwtAuthenticator: JwtAuthenticator,
     ) = OkHttpClient.Builder().run {
-        addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        addInterceptor(logger)
         addInterceptor(ErrorHandlingInterceptor())
         addInterceptor(accessTokenInterceptor)
         authenticator(jwtAuthenticator)
@@ -50,16 +56,18 @@ object NetworkModule {
     @AuthClient
     @Singleton
     @Provides
-    fun provideAuthClient(accessTokenInterceptor: AccessTokenInterceptor) =
-        OkHttpClient.Builder().run {
-            addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            addInterceptor(ErrorHandlingInterceptor())
-            addInterceptor(accessTokenInterceptor)
-            connectTimeout(30, TimeUnit.SECONDS)
-            readTimeout(30, TimeUnit.SECONDS)
-            writeTimeout(30, TimeUnit.SECONDS)
-            build()
-        }
+    fun provideAuthClient(
+        logger: HttpLoggingInterceptor,
+        accessTokenInterceptor: AccessTokenInterceptor,
+    ) = OkHttpClient.Builder().run {
+        addInterceptor(logger)
+        addInterceptor(ErrorHandlingInterceptor())
+        addInterceptor(accessTokenInterceptor)
+        connectTimeout(30, TimeUnit.SECONDS)
+        readTimeout(30, TimeUnit.SECONDS)
+        writeTimeout(30, TimeUnit.SECONDS)
+        build()
+    }
 
     @AuthClient
     @Singleton
@@ -105,4 +113,29 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideAccessTokenInterceptor(tokenDataStore: TokenDataStore): AccessTokenInterceptor = AccessTokenInterceptor(tokenDataStore)
+
+    @Singleton
+    @Provides
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        val loggingInterceptor =
+            HttpLoggingInterceptor {
+                when {
+                    !it.isJsonArray() && !it.isJsonObject() ->
+                        Timber.tag("RETROFIT").d("CONNECTION INFO: $it")
+
+                    else ->
+                        try {
+                            Timber.tag("RETROFIT").d(
+                                GsonBuilder().setPrettyPrinting().create().toJson(
+                                    JsonParser().parse(it),
+                                ),
+                            )
+                        } catch (m: JsonSyntaxException) {
+                            Timber.tag("RETROFIT").d(it)
+                        }
+                }
+            }
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        return loggingInterceptor
+    }
 }
