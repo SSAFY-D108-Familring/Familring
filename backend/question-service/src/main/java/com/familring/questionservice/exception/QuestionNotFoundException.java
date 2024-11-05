@@ -1,10 +1,10 @@
-package com.familring.timecapsuleservice.exception;
+package com.familring.questionservice.exception;
 
-import com.familring.timecapsuleservice.exception.base.ApplicationException;
-import com.familring.timecapsuleservice.exception.constant.ErrorDetail;
+import com.familring.questionservice.exception.constant.ErrorDetail;
+import com.familring.questionservice.exception.base.ApplicationException;
 
-public class TimeCapsuleNotFoundException extends ApplicationException {
-    public TimeCapsuleNotFoundException() {
-        super(ErrorDetail.NOT_FOUND_TIME_CAPSULE);
+public class QuestionNotFoundException extends ApplicationException {
+    public QuestionNotFoundException() {
+        super(ErrorDetail.NOT_FOUND_QUESTION);
     }
 }
