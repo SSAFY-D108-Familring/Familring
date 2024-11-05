@@ -19,6 +19,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +32,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familring.domain.model.DaySchedule
+import com.familring.domain.model.PreviewSchedule
 import com.familring.presentation.R
 import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
@@ -41,6 +46,7 @@ import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.toLocalDate
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -50,9 +56,16 @@ fun CalendarRoute(
     navigateToCreateSchedule: () -> Unit,
     navigateToCreateDaily: () -> Unit,
     navigateToCreateAlbum: () -> Unit,
+    calendarViewModel: CalendarViewModel = hiltViewModel(),
 ) {
+    val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+
     CalendarScreen(
         modifier = modifier,
+        state = uiState,
+        getMonthData = calendarViewModel::getMonthData,
+        getDaySchedules = calendarViewModel::getDaySchedules,
+        deleteSchedule = calendarViewModel::deleteSchedule,
         navigateToCreateSchedule = navigateToCreateSchedule,
         navigateToCreateDaily = navigateToCreateDaily,
         navigateToCreateAlbum = navigateToCreateAlbum,
@@ -63,6 +76,10 @@ fun CalendarRoute(
 @Composable
 fun CalendarScreen(
     modifier: Modifier = Modifier,
+    state: CalendarUiState,
+    getMonthData: (Int, Int) -> Unit = { _, _ -> },
+    getDaySchedules: (List<Long>) -> Unit = {},
+    deleteSchedule: (Long) -> Unit = {},
     navigateToCreateSchedule: () -> Unit = {},
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
@@ -86,6 +103,10 @@ fun CalendarScreen(
     // bottom sheet
     val sheetState = rememberModalBottomSheetState()
     var showBottomSheet by remember { mutableStateOf(false) }
+
+    LaunchedEffect(selectedMonth) {
+        getMonthData(selectedMonth.year, selectedMonth.monthValue)
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -193,7 +214,11 @@ fun CalendarScreen(
                             Modifier
                                 .fillMaxSize(),
                         date = month,
-                        daySchedules = daySchedules, // 나중에 바꿔야 함
+                        daySchedules =
+                            createDaySchedules(
+                                month,
+                                state.previewSchedules,
+                            ),
                         onDayClick = {
                             selectedDay = it
                             showBottomSheet = true
@@ -221,8 +246,26 @@ fun CalendarScreen(
     }
 }
 
+private fun createDaySchedules(
+    selectedMonth: LocalDate,
+    previewSchedules: List<PreviewSchedule>,
+): List<DaySchedule> =
+    (1..selectedMonth.lengthOfMonth()).map { day ->
+        val date = selectedMonth.withDayOfMonth(day)
+        val schedules =
+            previewSchedules.filter {
+                val startDate = it.startTime.toLocalDate()
+                val endDate = it.endTime.toLocalDate()
+
+                date in startDate..endDate
+            }
+        DaySchedule(date.toString(), schedules)
+    }
+
 @Preview
 @Composable
 private fun CalendarScreenPreview() {
-    CalendarScreen()
+    CalendarScreen(
+        state = CalendarUiState(),
+    )
 }

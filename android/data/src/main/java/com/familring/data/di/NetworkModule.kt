@@ -5,8 +5,16 @@ import com.familring.data.network.api.AuthApi
 import com.familring.data.network.interceptor.AccessTokenInterceptor
 import com.familring.data.network.interceptor.ErrorHandlingInterceptor
 import com.familring.data.network.interceptor.JwtAuthenticator
+import com.familring.data.network.interceptor.isJsonArray
+import com.familring.data.network.interceptor.isJsonObject
 import com.familring.domain.datasource.TokenDataStore
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonParser
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSerializer
+import com.google.gson.JsonSyntaxException
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,6 +23,10 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import timber.log.Timber
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -30,14 +42,45 @@ object NetworkModule {
     @Retention(AnnotationRetention.BINARY)
     annotation class BaseClient
 
+    @Provides
+    @Singleton
+    fun provideGson(): Gson =
+        GsonBuilder()
+            .setLenient()
+            .registerTypeAdapter(
+                LocalDateTime::class.java,
+                JsonDeserializer { json, _, _ ->
+                    LocalDateTime.parse(
+                        json.asString,
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"),
+                    )
+                },
+            ).registerTypeAdapter(
+                LocalDateTime::class.java,
+                JsonSerializer<LocalDateTime> { src, _, _ ->
+                    JsonPrimitive(src.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
+                },
+            ).registerTypeAdapter(
+                LocalDate::class.java,
+                JsonDeserializer { json, _, _ ->
+                    LocalDate.parse(json.asString, DateTimeFormatter.ISO_DATE)
+                },
+            ).registerTypeAdapter(
+                LocalDate::class.java,
+                JsonSerializer<LocalDate> { src, _, _ ->
+                    JsonPrimitive(src.format(DateTimeFormatter.ISO_DATE))
+                },
+            ).create()
+
     @BaseClient
     @Singleton
     @Provides
     fun provideOkHttpClient(
+        logger: HttpLoggingInterceptor,
         accessTokenInterceptor: AccessTokenInterceptor,
         jwtAuthenticator: JwtAuthenticator,
     ) = OkHttpClient.Builder().run {
-        addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        addInterceptor(logger)
         addInterceptor(ErrorHandlingInterceptor())
         addInterceptor(accessTokenInterceptor)
         authenticator(jwtAuthenticator)
@@ -50,16 +93,18 @@ object NetworkModule {
     @AuthClient
     @Singleton
     @Provides
-    fun provideAuthClient(accessTokenInterceptor: AccessTokenInterceptor) =
-        OkHttpClient.Builder().run {
-            addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            addInterceptor(ErrorHandlingInterceptor())
-            addInterceptor(accessTokenInterceptor)
-            connectTimeout(30, TimeUnit.SECONDS)
-            readTimeout(30, TimeUnit.SECONDS)
-            writeTimeout(30, TimeUnit.SECONDS)
-            build()
-        }
+    fun provideAuthClient(
+        logger: HttpLoggingInterceptor,
+        accessTokenInterceptor: AccessTokenInterceptor,
+    ) = OkHttpClient.Builder().run {
+        addInterceptor(logger)
+        addInterceptor(ErrorHandlingInterceptor())
+        addInterceptor(accessTokenInterceptor)
+        connectTimeout(30, TimeUnit.SECONDS)
+        readTimeout(30, TimeUnit.SECONDS)
+        writeTimeout(30, TimeUnit.SECONDS)
+        build()
+    }
 
     @AuthClient
     @Singleton
@@ -67,11 +112,13 @@ object NetworkModule {
     fun provideAuthRetrofit(
         @AuthClient
         okHttpClient: OkHttpClient,
+        gson: Gson,
     ): Retrofit =
         Retrofit
             .Builder()
-            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-            .baseUrl(BuildConfig.SERVER_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(gson),
+            ).baseUrl(BuildConfig.SERVER_URL)
             .client(okHttpClient)
             .build()
 
@@ -81,11 +128,13 @@ object NetworkModule {
     fun provideRetrofit(
         @BaseClient
         okHttpClient: OkHttpClient,
+        gson: Gson,
     ): Retrofit =
         Retrofit
             .Builder()
-            .addConverterFactory(GsonConverterFactory.create(GsonBuilder().setLenient().create()))
-            .baseUrl(BuildConfig.SERVER_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(gson),
+            ).baseUrl(BuildConfig.SERVER_URL)
             .client(okHttpClient)
             .build()
 
@@ -99,4 +148,29 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideAccessTokenInterceptor(tokenDataStore: TokenDataStore): AccessTokenInterceptor = AccessTokenInterceptor(tokenDataStore)
+
+    @Singleton
+    @Provides
+    fun provideLoggingInterceptor(): HttpLoggingInterceptor {
+        val loggingInterceptor =
+            HttpLoggingInterceptor {
+                when {
+                    !it.isJsonArray() && !it.isJsonObject() ->
+                        Timber.tag("RETROFIT").d("CONNECTION INFO: $it")
+
+                    else ->
+                        try {
+                            Timber.tag("RETROFIT").d(
+                                GsonBuilder().setPrettyPrinting().create().toJson(
+                                    JsonParser().parse(it),
+                                ),
+                            )
+                        } catch (m: JsonSyntaxException) {
+                            Timber.tag("RETROFIT").d(it)
+                        }
+                }
+            }
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+        return loggingInterceptor
+    }
 }
