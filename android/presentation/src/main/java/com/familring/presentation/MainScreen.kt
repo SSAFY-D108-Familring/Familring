@@ -27,12 +27,12 @@ import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.AlbumRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
-import com.familring.presentation.screen.notification.NotificationRoute
 import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
 import com.familring.presentation.screen.mypage.MyPageRoute
+import com.familring.presentation.screen.notification.NotificationRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -413,6 +413,9 @@ fun MainNavHost(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
                 showSnackBar = showSnackBar,
+                navigateToLogin = {
+                    navController.navigate(ScreenDestinations.Login.route)
+                },
             )
         }
     }
