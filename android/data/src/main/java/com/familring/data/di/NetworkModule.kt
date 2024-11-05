@@ -22,6 +22,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
@@ -48,6 +49,11 @@ object NetworkModule {
                 LocalDateTime::class.java,
                 JsonDeserializer { json, _, _ ->
                     LocalDateTime.parse(json.asString)
+                },
+            ).registerTypeAdapter(
+                LocalDate::class.java,
+                JsonDeserializer { json, _, _ ->
+                    LocalDate.parse(json.asString)
                 },
             ).create()
 
