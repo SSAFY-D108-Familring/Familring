@@ -109,7 +109,7 @@ public class DailyService {
         return dailies.stream().map(daily -> {
             UserInfoResponse userInfo = userMap.get(daily.getAuthorId());
 
-            return DailyResponse.builder().content(daily.getContent()).photoUrl(daily.getPhotoUrl())
+            return DailyResponse.builder().id(daily.getId()).content(daily.getContent()).photoUrl(daily.getPhotoUrl())
                     .userNickname(userInfo.getUserNickname()).userZodiacSign(userInfo.getUserZodiacSign())
                     .userColor(userInfo.getUserColor()).build();
         }).toList();

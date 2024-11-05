@@ -47,11 +47,11 @@ public class ScheduleService {
 
         return schedules.stream().map(s -> {
             // 해당 일정으로 생성된 앨범이 있는지 확인
-            Boolean hasAlbum = false; // 일단은 미구현이므로 false
+            Long albumId = null; // 일단은 미구현이므로 false
 
             // 스케줄 DTO로 변환
             ScheduleResponse response = ScheduleResponse.builder().id(s.getId()).title(s.getTitle()).startTime(s.getStartTime())
-                    .endTime(s.getEndTime()).hasTime(s.getHasTime()).hasNotification(s.getHasNotification()).hasAlbum(hasAlbum)
+                    .endTime(s.getEndTime()).albumId(albumId).hasNotification(s.getHasNotification())
                     .color(s.getColor()).build();
 
             // 해당 스케줄에 참여하는 가족 정보 조회

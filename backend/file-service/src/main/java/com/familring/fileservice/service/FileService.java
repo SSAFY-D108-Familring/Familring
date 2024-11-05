@@ -31,7 +31,7 @@ public class FileService {
      * 파일들을 S3에 업로드하고 URL 리스트를 반환합니다.
      * folderPath를 지정하면 해당 폴더 아래에 파일이 저장됩니다.
      *
-     * @param files 업로드할 파일 리스트
+     * @param files      업로드할 파일 리스트
      * @param folderPath S3에 저장될 폴더 경로 (선택사항)
      * @return 업로드된 파일들의 URL 리스트
      * @throws S3Exception 파일 업로드 중 오류 발생 시
@@ -124,7 +124,11 @@ public class FileService {
      * 파일명 생성 (UUID + 원본 파일명)
      */
     private String createFileName(String originalFileName) {
-        return UUID.randomUUID().toString() + "_" + originalFileName;
+        // 특수문자를 _로 변환하고 연속된 _를 하나로 합침
+        String sanitizedFileName = originalFileName
+                .replaceAll("[^a-zA-Z0-9._-]", "_")  // 특수문자를 _로 변환
+                .replaceAll("_+", "_");              // 연속된 _를 하나로 합침
+        return UUID.randomUUID().toString() + "_" + sanitizedFileName;
     }
 
     /**

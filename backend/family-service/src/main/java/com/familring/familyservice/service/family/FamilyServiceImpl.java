@@ -139,8 +139,9 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 2. 사용자 정보 찾기
         List<Long> members = new ArrayList<>();
-        members.add(family.getFamilyId());
+        members.add(userId);
         UserInfoResponse user = userServiceFeignClient.getAllUser(members).getData().get(0);
+        log.info("userRole: {}", user.getUserRole());
 
         // 3. 에러 확인
         // 3-1. 가족에 이미 추가 되어있는 경우 에러 발생
