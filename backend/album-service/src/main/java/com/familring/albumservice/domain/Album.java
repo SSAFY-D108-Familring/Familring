@@ -40,4 +40,8 @@ public class Album {
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Photo> photos = new ArrayList<>();
+
+    public void updateAlbumName(String newName) {
+        this.albumName = newName;
+    }
 }

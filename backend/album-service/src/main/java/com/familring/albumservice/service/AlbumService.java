@@ -2,12 +2,13 @@ package com.familring.albumservice.service;
 
 import com.familring.albumservice.domain.Album;
 import com.familring.albumservice.domain.Album.AlbumBuilder;
-import com.familring.albumservice.domain.AlbumType;
 import com.familring.albumservice.dto.request.AlbumRequest;
+import com.familring.albumservice.dto.request.AlbumUpdateRequest;
+import com.familring.albumservice.exception.album.AlbumNotFoundException;
 import com.familring.albumservice.exception.album.InvalidAlbumParameterException;
+import com.familring.albumservice.exception.album.InvalidAlbumRequestException;
 import com.familring.albumservice.repository.AlbumRepository;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
-import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,5 +49,16 @@ public class AlbumService {
 
         Album album = albumBuilder.build();
         albumRepository.save(album);
+    }
+
+    public void updateAlbum(AlbumUpdateRequest albumUpdateRequest, Long albumId, Long userId) {
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+        Album album = albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
+
+        if (!album.getFamilyId().equals(familyId)) {
+            throw new InvalidAlbumRequestException();
+        }
+
+        album.updateAlbumName(albumUpdateRequest.getAlbumName());
     }
 }
