@@ -1,4 +1,4 @@
-package com.familring.questionservice.dto.request;
+package com.familring.questionservice.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
