@@ -1,6 +1,6 @@
 package com.familring.familyservice.controller;
 
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import com.familring.familyservice.model.dto.Chat;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.chat.ChatService;

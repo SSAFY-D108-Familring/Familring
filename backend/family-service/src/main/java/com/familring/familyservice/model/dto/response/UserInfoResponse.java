@@ -4,6 +4,7 @@ import com.familring.familyservice.model.dto.FamilyRole;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -12,7 +13,7 @@ public class UserInfoResponse {
     private Long userId;
     private String userKakaoId;
     private String userNickname;
-    private Date userBirthDate;
+    private LocalDate userBirthDate;
     private String userZodiacSign;
     private FamilyRole userRole;
     private String userFace;
