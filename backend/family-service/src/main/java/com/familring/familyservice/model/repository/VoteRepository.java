@@ -1,6 +1,6 @@
-package com.familring.familyservice.model.dao;
+package com.familring.familyservice.model.repository;
 
-import com.familring.familyservice.model.dto.Vote;
+import com.familring.familyservice.model.dto.chat.Vote;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
 

@@ -1,8 +1,10 @@
-package com.familring.familyservice.model.dto;
+package com.familring.familyservice.model.dto.chat;
 
 import com.familring.familyservice.exception.chat.AlreadyParticipatedException;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,6 +13,8 @@ import java.util.Map;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "family_vote")
 public class Vote {
 

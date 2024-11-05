@@ -1,6 +1,6 @@
 package com.familring.familyservice.service.chat;
 
-import com.familring.familyservice.model.dto.Chat;
+import com.familring.familyservice.model.dto.chat.Chat;
 import com.familring.familyservice.model.dto.request.ChatSendRequest;
 import com.familring.familyservice.model.dto.request.VoteParticipationRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ChatService {
     // 채팅 조회
-    Page<Chat> getMessagesByFamilyId(String familyId, int page);
+    Page<Chat> getMessagesByFamilyId(String UserId, String familyId, int page);
 
     // 투표 참가자 조회
     Mono<List<UserInfoResponse>> getVoteParticipants(String voteId);

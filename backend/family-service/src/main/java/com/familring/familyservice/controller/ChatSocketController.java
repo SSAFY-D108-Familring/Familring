@@ -1,6 +1,6 @@
 package com.familring.familyservice.controller;
 
-import com.familring.familyservice.model.dto.Chat;
+import com.familring.familyservice.model.dto.chat.Chat;
 import com.familring.familyservice.model.dto.request.ChatSendRequest;
 import com.familring.familyservice.model.dto.request.VoteParticipationRequest;
 import com.familring.familyservice.service.chat.ChatService;

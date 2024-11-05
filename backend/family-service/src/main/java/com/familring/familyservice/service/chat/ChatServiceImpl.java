@@ -3,11 +3,13 @@ package com.familring.familyservice.service.chat;
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.familyservice.exception.chat.AlreadyParticipatedException;
 import com.familring.familyservice.exception.chat.VoteNotFoundException;
-import com.familring.familyservice.model.dao.ChatRepository;
+import com.familring.familyservice.model.dto.chat.ChatRoomEntry;
+import com.familring.familyservice.model.repository.ChatRepository;
 import com.familring.familyservice.model.dao.FamilyDao;
-import com.familring.familyservice.model.dao.VoteRepository;
-import com.familring.familyservice.model.dto.Chat;
-import com.familring.familyservice.model.dto.Vote;
+import com.familring.familyservice.model.repository.ChatRoomEntryRepository;
+import com.familring.familyservice.model.repository.VoteRepository;
+import com.familring.familyservice.model.dto.chat.Chat;
+import com.familring.familyservice.model.dto.chat.Vote;
 import com.familring.familyservice.model.dto.request.ChatSendRequest;
 import com.familring.familyservice.model.dto.request.VoteParticipationRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
@@ -39,6 +41,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final VoteRepository voteRepository;
+    private final ChatRoomEntryRepository chatRoomEntryRepository;
 
     private final UserServiceFeignClient userServiceFeignClient;
 
@@ -46,11 +49,15 @@ public class ChatServiceImpl implements ChatService {
 
 
     @Override
-    public Page<Chat> getMessagesByFamilyId(String familyId, int page) {
-        // 내림차순으로 정렬하여 최신 메시지가 먼저 나오게 설정
-        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
+    public Page<Chat> getMessagesByFamilyId(String userId, String familyId, int page) {
+        // 사용자 입장 시간 조회
+        LocalDateTime entryTime = chatRoomEntryRepository.findByFamilyIdAndUserId(familyId, userId)
+                .map(ChatRoomEntry::getEntryTime)
+                .orElse(LocalDateTime.MIN); // 입장 시간이 없을 경우 모든 메시지 조회
 
-        return chatRepository.findByFamilyId(familyId, pageable);
+        // 입장 시간 이후 메시지만 내림차순으로 조회
+        Pageable pageable = PageRequest.of(page, DEFAULT_PAGE_SIZE, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return chatRepository.findByFamilyIdAndCreatedAtAfter(familyId, entryTime, pageable);
     }
 
     @Override

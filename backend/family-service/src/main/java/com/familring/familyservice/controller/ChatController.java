@@ -1,10 +1,11 @@
 package com.familring.familyservice.controller;
 
 import com.familring.common_module.dto.BaseResponse;
-import com.familring.familyservice.model.dto.Chat;
+import com.familring.familyservice.model.dto.chat.Chat;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.chat.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -27,8 +28,9 @@ public class ChatController {
     @GetMapping
     @Operation(summary = "채팅 내용 조회", description = "가족 내 채팅 내용 조회")
     public ResponseEntity<BaseResponse<Page<Chat>>> getChatRoomMessages(
-            @RequestParam String familyId, @RequestParam int page) {
-        Page<Chat> chatPage = chatService.getMessagesByFamilyId(familyId, page);
+            @Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId,
+            @RequestParam Long familyId, @RequestParam int page) {
+        Page<Chat> chatPage = chatService.getMessagesByFamilyId(userId.toString(), familyId.toString(), page);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "채팅 메시지 조회 성공", chatPage));
     }
