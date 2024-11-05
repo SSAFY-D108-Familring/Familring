@@ -18,7 +18,7 @@ public interface FamilyService {
     List<UserInfoResponse> getFamilyMemberList(Long userId);
 
     // 가족 구성원 전체 조회 - familyId
-    List<UserInfoResponse> getFamilyMemberListByFamlyId(Long familyId);
+    List<UserInfoResponse> getFamilyMemberListByFamilyId(Long familyId);
 
     // 모든 가족 조회
     List<Long> getAllFamilyId();
