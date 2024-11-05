@@ -1,4 +1,4 @@
-package com.familring.presentation.screen.home
+package com.familring.presentation.screen.notification
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
