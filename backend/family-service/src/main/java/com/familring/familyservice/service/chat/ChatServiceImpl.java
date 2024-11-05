@@ -1,6 +1,6 @@
 package com.familring.familyservice.service.chat;
 
-import com.familring.common_service.dto.BaseResponse;
+import com.familring.common_module.dto.BaseResponse;
 import com.familring.familyservice.exception.chat.AlreadyParticipatedException;
 import com.familring.familyservice.exception.chat.VoteNotFoundException;
 import com.familring.familyservice.model.dao.ChatRepository;

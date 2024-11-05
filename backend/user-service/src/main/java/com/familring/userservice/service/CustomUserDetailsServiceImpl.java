@@ -79,10 +79,8 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         log.info("faceImgUrl: {}", faceImgUrl);
 
         // 2. 회원 띠 계산
-        // 2-1. 날짜 받기
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(userJoinRequest.getUserBirthDate());
-        int birthYear = calendar.get(Calendar.YEAR);
+        // 2-1. 날짜 받기 및 연도 추출
+        int birthYear = userJoinRequest.getUserBirthDate().getYear();
 
         // 2-2. 띠 배열 선언
         String[] zodiacSign = {"쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"};
