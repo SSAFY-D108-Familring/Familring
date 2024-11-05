@@ -137,6 +137,12 @@ public class FamilyServiceImpl implements FamilyService {
                 .orElseThrow(() -> new FamilyNotFoundException());
         log.info("familyId: {}", family.getFamilyId());
 
+        // 2. 회원
+        List<Long> members = new ArrayList<>();
+        members.add(userId);
+        UserInfoResponse user = userServiceFeignClient.getAllUser(members).getData().get(0);
+        log.info("userRole: {}", user.getUserRole());
+
         // 2. 에러 확인
         // 2-1. 가족에 이미 추가 되어있는 경우 에러 발생
         if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
@@ -144,11 +150,21 @@ public class FamilyServiceImpl implements FamilyService {
         }
 
         // 2-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
-        List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
-        for (UserInfoResponse member : familyMembers) {
-            if (FamilyRole.M.equals(member.getUserRole()) || FamilyRole.F.equals(member.getUserRole())) {
-                log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
-                throw new AlreadyFamilyRoleException();
+        if(user.getUserRole().equals(FamilyRole.F)) {
+            List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
+            for (UserInfoResponse member : familyMembers) {
+                if (FamilyRole.F.equals(member.getUserRole())) {
+                    log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
+                    throw new AlreadyFamilyRoleException();
+                }
+            }
+        } else if (user.getUserRole().equals(FamilyRole.M)) {
+            List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
+            for (UserInfoResponse member : familyMembers) {
+                if (FamilyRole.M.equals(member.getUserRole())) {
+                    log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
+                    throw new AlreadyFamilyRoleException();
+                }
             }
         }
 
