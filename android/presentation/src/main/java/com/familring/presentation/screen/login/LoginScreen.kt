@@ -1,7 +1,6 @@
 package com.familring.presentation.screen.login
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -79,9 +78,7 @@ fun LoginScreen(
             is LoginState.Success -> navigateToHome()
             is LoginState.NoRegistered -> navigateToFirst()
             is LoginState.Error -> showSnackBar(loginState.errorMessage)
-            else -> {
-                Timber.tag("login").d("로그인 초기화")
-            }
+            is LoginState.Loading -> Timber.tag("login").d("로그인 로딩중")
         }
     }
 

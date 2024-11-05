@@ -28,7 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
 import com.familring.presentation.theme.Gray02
@@ -62,10 +63,10 @@ fun HomeRoute(
     navigateToNotification: () -> Unit,
     navigateToTimeCapsule: () -> Unit,
     navigateToInterest: () -> Unit,
+    navigateToMyPage: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
-    val familyState by viewModel.familyState.collectAsStateWithLifecycle()
 
     when (val state = homeState) {
         is HomeState.Loading -> {
@@ -73,29 +74,27 @@ fun HomeRoute(
         }
 
         is HomeState.Success -> {
-            Log.d("nakyung", "홈화면 그려짐")
             HomeScreen(
                 modifier = modifier,
                 familyMembers = state.familyMembers,
+                familyInfo = state.familyInfo,
                 navigateToNotification = navigateToNotification,
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
+                navigateToMyPage = navigateToMyPage,
                 showSnackBar = showSnackBar,
-                familyState = familyState,
             )
         }
 
         is HomeState.Error -> {
-            Log.d("nakyung", "홈화면 에러")
             HomeScreen(
                 modifier = modifier,
-                familyMembers = emptyList(),
                 navigateToNotification = navigateToNotification,
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
                 showSnackBar = showSnackBar,
-                familyState = familyState,
             )
+            showSnackBar(state.errorMessage)
         }
     }
 }
@@ -103,36 +102,25 @@ fun HomeRoute(
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    familyMembers: List<User>,
+    familyMembers: List<User> = listOf(),
+    familyInfo: FamilyInfo = FamilyInfo(),
     navigateToNotification: () -> Unit = {},
     navigateToTimeCapsule: () -> Unit = {},
     navigateToInterest: () -> Unit = {},
+    navigateToMyPage: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    familyState: FamilyState,
 ) {
     var progress by remember {
-        mutableStateOf(0f)
+        mutableFloatStateOf(0f)
     }
     val size by animateFloatAsState(
         targetValue = progress,
         tween(delayMillis = 200, durationMillis = 1000, easing = LinearOutSlowInEasing),
+        label = "",
     )
 
-    when (familyState) {
-        is FamilyState.Loading -> {
-            Log.d("nakyung", "가족정보 로딩중")
-        }
-
-        is FamilyState.Success -> {
-            LaunchedEffect(key1 = true) {
-                progress = familyState.familyMembers.familyCommunicationStatus.toFloat() / 100f
-            }
-        }
-
-        is FamilyState.Error -> {
-            showSnackBar("가족 정보 에러")
-            Log.d("nakyung", "가족정보 에러")
-        }
+    LaunchedEffect(Unit) {
+        progress = familyInfo.familyCommunicationStatus.toFloat() / 100f
     }
 
     val father = familyMembers.find { it.userRole == "F" }
@@ -177,7 +165,7 @@ fun HomeScreen(
                         Modifier
                             .size(24.dp)
                             .noRippleClickable {
-                                // 프로필 이벤트
+                                navigateToMyPage()
                             },
                     painter = painterResource(id = R.drawable.img_profile_circle),
                     contentDescription = "profile circle img",
@@ -367,9 +355,11 @@ fun FamilyCard(user: User) {
             Spacer(modifier = Modifier.fillMaxSize(0.01f))
             AsyncImage(
                 model = user.userZodiacSign,
-                modifier = Modifier.size(75.dp)
-                    .aspectRatio(1f),
-                contentDescription = "user zodiac img"
+                modifier =
+                    Modifier
+                        .size(75.dp)
+                        .aspectRatio(1f),
+                contentDescription = "user zodiac img",
             )
             Spacer(
                 modifier = Modifier.height(15.dp),
@@ -444,6 +434,5 @@ fun HomeScreenPreview() {
         navigateToTimeCapsule = {},
         navigateToInterest = {},
         showSnackBar = {},
-        familyState = FamilyState.Loading,
     )
 }

@@ -27,11 +27,12 @@ import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.AlbumRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
 import com.familring.presentation.screen.home.HomeRoute
-import com.familring.presentation.screen.home.NotificationRoute
 import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
+import com.familring.presentation.screen.mypage.MyPageRoute
+import com.familring.presentation.screen.notification.NotificationRoute
 import com.familring.presentation.screen.question.QuestionListScreen
 import com.familring.presentation.screen.question.QuestionScreen
 import com.familring.presentation.screen.signup.BirthRoute
@@ -139,7 +140,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             BirthRoute(
@@ -157,7 +158,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             ProfileColorRoute(
@@ -175,7 +176,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             NicknameRoute(
@@ -193,7 +194,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             PictureRoute(
@@ -212,7 +213,7 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("Birth"),
+                    navController.getBackStackEntry("First"),
                 )
 
             FamilyInfoRoute(
@@ -232,11 +233,18 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Done.route,
         ) {
+            val viewModel =
+                hiltViewModel<SignUpViewModel>(
+                    navController.getBackStackEntry("First"),
+                )
+
             DoneRoute(
                 modifier = modifier,
+                viewModel = viewModel,
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route)
                 },
+                showSnackBar = showSnackBar,
             )
         }
 
@@ -294,6 +302,9 @@ fun MainNavHost(
                 navigateToInterest = {
                     navController.navigate(ScreenDestinations.Interest.route)
                 },
+                navigateToMyPage = {
+                    navController.navigate(ScreenDestinations.MyPage.route)
+                },
                 showSnackBar = showSnackBar,
             )
         }
@@ -312,6 +323,9 @@ fun MainNavHost(
                 navigateToCreateSchedule = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
                 navigateToCreateDaily = { navController.navigate(ScreenDestinations.DailyUpload.route) },
                 navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
+                navigateToAlbum = {},
+                navigateToModifySchedule = { },
+                showSnackBar = showSnackBar,
             )
         }
 
@@ -392,6 +406,19 @@ fun MainNavHost(
             AlbumRoute(
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.MyPage.route,
+        ) {
+            MyPageRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+                showSnackBar = showSnackBar,
+                navigateToLogin = {
+                    navController.navigate(ScreenDestinations.Login.route)
+                },
             )
         }
     }

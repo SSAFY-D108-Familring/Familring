@@ -28,6 +28,8 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.isDateFormValid
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun BirthRoute(
@@ -49,7 +51,7 @@ fun BirthScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToColor: () -> Unit = {},
-    updateBirth: (String) -> Unit = {},
+    updateBirth: (LocalDate) -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
@@ -106,7 +108,12 @@ fun BirthScreen(
             RoundLongButton(
                 text = "다음으로",
                 onClick = {
-                    updateBirth("$year-$month-$date")
+                    val birth =
+                        LocalDate.parse(
+                            "$year-${"%02d".format(month.toInt())}-${"%02d".format(date.toInt())}",
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+                        )
+                    updateBirth(birth)
                     navigateToColor()
                 },
                 enabled = isButtonEnabled,

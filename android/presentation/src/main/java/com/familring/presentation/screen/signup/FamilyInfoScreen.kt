@@ -27,13 +27,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomDropdownMenu
 import com.familring.presentation.component.CustomDropdownMenuStyles
+import com.familring.presentation.component.LoadingDialog
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun FamilyInfoRoute(
@@ -47,19 +47,25 @@ fun FamilyInfoRoute(
     val uiState = viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.event) {
-        viewModel.event.collectLatest { event ->
+        viewModel.event.collect { event ->
             when (event) {
                 is SignUpUiEvent.Success -> {
                     if (uiState.value.make) {
                         navigateToDone()
                     } else {
-                        navigateToHome()
+                        viewModel.joinFamily(uiState.value.familyCode)
                     }
                 }
 
                 is SignUpUiEvent.Error -> {
                     showSnackBar(event.message)
                 }
+
+                is SignUpUiEvent.JoinSuccess -> {
+                    navigateToHome()
+                }
+
+                else -> {}
             }
         }
     }
@@ -70,6 +76,10 @@ fun FamilyInfoRoute(
         updateRole = viewModel::updateRole,
         join = viewModel::join,
     )
+
+    if (uiState.value.isLoading) {
+        LoadingDialog()
+    }
 }
 
 @Composable

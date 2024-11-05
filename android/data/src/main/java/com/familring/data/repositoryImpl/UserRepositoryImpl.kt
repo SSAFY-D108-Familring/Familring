@@ -25,6 +25,7 @@ class UserRepositoryImpl
         private val api: UserApi,
         private val tokenDataStore: TokenDataStore,
         private val authDataSource: AuthDataStore,
+        private val gson: Gson,
     ) : UserRepository {
         override suspend fun login(request: UserLoginRequest): Flow<ApiResponse<JwtToken>> =
             flow {
@@ -48,7 +49,7 @@ class UserRepositoryImpl
             flow {
                 val image = userFace.toMultiPart()
                 val requestBody =
-                    Gson().toJson(request).toRequestBody("application/json".toMediaTypeOrNull())
+                    gson.toJson(request).toRequestBody("application/json".toMediaTypeOrNull())
                 val response =
                     emitApiResponse(
                         apiResponse = {
@@ -81,6 +82,20 @@ class UserRepositoryImpl
                     authDataSource.saveFace(response.data.userFace)
                     authDataSource.saveColor(response.data.userColor)
                     authDataSource.saveEmotion(response.data.userEmotion)
+                }
+                emit(response)
+            }
+
+        override suspend fun signOut(): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.signOut() },
+                        default = Unit,
+                    )
+                if (response is ApiResponse.Success) {
+                    tokenDataStore.deleteJwtToken()
+                    authDataSource.deleteAuthData()
                 }
                 emit(response)
             }
