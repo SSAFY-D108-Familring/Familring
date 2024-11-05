@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.familring.domain.model.User
 import com.familring.presentation.R
 import com.familring.presentation.theme.Gray02
@@ -363,15 +365,19 @@ fun FamilyCard(user: User) {
         ) {
             Text(text = user.userNickname, style = Typography.titleLarge.copy(fontSize = 15.sp))
             Spacer(modifier = Modifier.fillMaxSize(0.01f))
-            Image(
-                painter = painterResource(id = R.drawable.img_chicken),
-                contentDescription = "chicken_img", // 이미지를 서버에서 주는건가...? 뭐징
+            AsyncImage(
+                model = user.userZodiacSign,
+                modifier = Modifier.size(75.dp)
+                    .aspectRatio(1f),
+                contentDescription = "user zodiac img"
             )
             Spacer(
                 modifier = Modifier.height(15.dp),
             )
             Text(
-                text = user.userEmotion,
+                user.userEmotion.ifEmpty {
+                    "평범해요\uD83D\uDE10"
+                },
                 style = Typography.displaySmall.copy(fontSize = 11.sp),
             )
         }

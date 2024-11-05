@@ -86,4 +86,7 @@ dependencies {
 
     // 카카오 로그인
     implementation(libs.v2.all)
+
+    // 이미지 로딩
+    implementation(libs.coil.compose)
 }
