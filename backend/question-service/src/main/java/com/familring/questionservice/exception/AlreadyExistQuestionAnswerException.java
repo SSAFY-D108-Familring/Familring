@@ -1,10 +1,11 @@
-package com.familring.timecapsuleservice.exception;
+package com.familring.questionservice.exception;
 
-import com.familring.timecapsuleservice.exception.base.ApplicationException;
-import com.familring.timecapsuleservice.exception.constant.ErrorDetail;
 
-public class AlreadyExistTimeCapsuleAnswerException extends ApplicationException {
-    public AlreadyExistTimeCapsuleAnswerException() {
-        super(ErrorDetail.EXIST_TIME_CAPSULE_ANSWER);
+import com.familring.questionservice.exception.base.ApplicationException;
+import com.familring.questionservice.exception.constant.ErrorDetail;
+
+public class AlreadyExistQuestionAnswerException extends ApplicationException {
+    public AlreadyExistQuestionAnswerException() {
+        super(ErrorDetail.EXIST_QUESTION_ANSWER);
     }
 }
