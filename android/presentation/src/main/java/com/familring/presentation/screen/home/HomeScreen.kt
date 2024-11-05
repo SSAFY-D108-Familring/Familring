@@ -55,6 +55,7 @@ import com.familring.presentation.theme.Green04
 import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun HomeRoute(
@@ -68,13 +69,17 @@ fun HomeRoute(
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
     val familyState by viewModel.familyState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
     when (val state = homeState) {
         is HomeState.Loading -> {
-            Log.d("nakyung", "홈화면 로딩중")
+            Timber.tag("nakyung").d("홈화면 로딩중")
         }
 
         is HomeState.Success -> {
-            Log.d("nakyung", "홈화면 그려짐")
+            Timber.tag("nakyung").d("홈화면 그려짐")
             HomeScreen(
                 modifier = modifier,
                 familyMembers = state.familyMembers,
@@ -157,30 +162,30 @@ fun HomeScreen(
         Column(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
             ) {
                 Spacer(modifier = Modifier.fillMaxSize(0.02f))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                     Image(
                         modifier =
-                        Modifier
-                            .size(24.dp)
-                            .noRippleClickable {
-                                navigateToNotification()
-                            },
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
+                                    navigateToNotification()
+                                },
                         painter = painterResource(id = R.drawable.img_home_notification),
                         contentDescription = "home notification img",
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Image(
                         modifier =
-                        Modifier
-                            .size(24.dp)
-                            .noRippleClickable {
-                                // 프로필 이벤트
-                            },
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
+                                    // 프로필 이벤트
+                                },
                         painter = painterResource(id = R.drawable.img_profile_circle),
                         contentDescription = "profile circle img",
                     )
@@ -194,72 +199,72 @@ fun HomeScreen(
 
                 Row(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 4.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text =
-                        if (progress > 0.69f) {
-                            "숲들숲들🎄"
-                        } else if (progress > 0.29f) {
-                            "들숲들숲\uD83C\uDF84"
-                        } else {
-                            "시들시들\uD83C\uDF84"
-                        },
+                            if (progress > 0.69f) {
+                                "숲들숲들🎄"
+                            } else if (progress > 0.29f) {
+                                "들숲들숲\uD83C\uDF84"
+                            } else {
+                                "시들시들\uD83C\uDF84"
+                            },
                         style = Typography.titleLarge.copy(fontSize = 30.sp),
                         color = Green02,
                     )
 
                     Box(
                         modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 14.dp)
-                            .padding(top = 12.dp),
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp)
+                                .padding(top = 12.dp),
                     ) {
                         Box(
                             modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(15.dp),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(15.dp),
                         ) {
                             Box(
                                 modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(9.dp))
-                                    .background(Gray02),
+                                    Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .background(Gray02),
                             )
                             Box(
                                 modifier =
-                                Modifier
-                                    .fillMaxWidth(size)
-                                    .fillMaxHeight()
-                                    .clip(RoundedCornerShape(9.dp))
-                                    .background(
-                                        if (progress > 0.69f) {
-                                            Green02
-                                        } else if (progress > 0.29f) {
-                                            Green03
-                                        } else {
-                                            Green04
-                                        },
-                                    ).animateContentSize(),
+                                    Modifier
+                                        .fillMaxWidth(size)
+                                        .fillMaxHeight()
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .background(
+                                            if (progress > 0.69f) {
+                                                Green02
+                                            } else if (progress > 0.29f) {
+                                                Green03
+                                            } else {
+                                                Green04
+                                            },
+                                        ).animateContentSize(),
                             )
                         }
                         Box(
                             modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(top = 20.dp),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 20.dp),
                         ) {
                             Box(
                                 modifier =
-                                Modifier
-                                    .fillMaxWidth(size)
-                                    .padding(end = 0.dp),
+                                    Modifier
+                                        .fillMaxWidth(size)
+                                        .padding(end = 0.dp),
                                 contentAlignment = Alignment.CenterEnd,
                             ) {
                                 Text(
@@ -271,9 +276,9 @@ fun HomeScreen(
 
                             Box(
                                 modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(end = 0.dp),
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(end = 0.dp),
                                 contentAlignment = Alignment.CenterEnd,
                             ) {
                                 Text(
@@ -287,31 +292,31 @@ fun HomeScreen(
                 }
                 Column(
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = 12.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
                     horizontalAlignment = Alignment.End,
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.img_pill),
                         contentDescription = "pill_img",
                         modifier =
-                        Modifier
-                            .size(40.dp)
-                            .noRippleClickable {
-                                navigateToTimeCapsule()
-                            },
+                            Modifier
+                                .size(40.dp)
+                                .noRippleClickable {
+                                    navigateToTimeCapsule()
+                                },
                     )
                     Spacer(modifier = Modifier.fillMaxSize(0.03f))
                     Image(
                         painter = painterResource(id = R.drawable.img_networking),
                         contentDescription = "network_img",
                         modifier =
-                        Modifier
-                            .size(60.dp)
-                            .noRippleClickable {
-                                navigateToInterest()
-                            },
+                            Modifier
+                                .size(60.dp)
+                                .noRippleClickable {
+                                    navigateToInterest()
+                                },
                     )
                 }
                 Spacer(modifier = Modifier.fillMaxSize(0.35f))
@@ -342,14 +347,13 @@ fun HomeScreen(
             LazyRow(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp)
+                contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
                 items(children.size) { index ->
                     FamilyCard(children[index]) // 자식 카드 자리
                 }
             }
         }
-
     }
 }
 
@@ -371,9 +375,11 @@ fun FamilyCard(user: User) {
             Spacer(modifier = Modifier.fillMaxSize(0.01f))
             AsyncImage(
                 model = user.userZodiacSign,
-                modifier = Modifier.size(75.dp)
-                    .aspectRatio(1f),
-                contentDescription = "user zodiac img"
+                modifier =
+                    Modifier
+                        .size(75.dp)
+                        .aspectRatio(1f),
+                contentDescription = "user zodiac img",
             )
             Spacer(
                 modifier = Modifier.height(15.dp),

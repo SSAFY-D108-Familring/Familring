@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
@@ -25,9 +24,19 @@ class HomeViewModel
         private val _familyState = MutableStateFlow<FamilyState>(FamilyState.Loading)
         val familyState = _familyState.asStateFlow()
 
+        private val _refreshTrigger = MutableStateFlow(0) // 실시간으로 받아오기 위해 필요하고
+
         init {
-            getFamilyMembers()
-            getFamilyInfo()
+            viewModelScope.launch {
+                _refreshTrigger.collectLatest {
+                    getFamilyMembers()
+                    getFamilyInfo()
+                }
+            }
+        }
+
+        fun refresh() {
+            _refreshTrigger.value += 1 // 트리거가 필요함 
         }
 
         private fun getFamilyMembers() {
