@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -14,8 +15,8 @@ public class UserJoinRequest {
     private String userKakaoId;
     @Schema(description = "회원 별명", example = "test")
     private String userNickname;
-    @Schema(description = "회원 별명", example = "2000-01-01")
-    private Date userBirthDate;
+    @Schema(description = "회원 생일", example = "2024-11-05")
+    private LocalDate userBirthDate;
     @Schema(description = "회원 가족 역할(F: 아빠, M: 엄마, S: 아들, D: 딸)", example = "F")
     private FamilyRole userRole;
     @Schema(description = "회원 프로필 배경색", example = "#FFFFFF")

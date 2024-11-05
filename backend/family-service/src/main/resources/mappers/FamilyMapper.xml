@@ -4,22 +4,21 @@
 <mapper namespace="com.familring.familyservice.model.dao.FamilyDao">
 
     <!-- 가족 정보 ResultMap -->
-    <resultMap id="familyInfo" type="com.familring.familyservice.model.dto.FamilyDto">
+    <resultMap id="familyInfo" type="com.familring.familyservice.model.dto.Family">
         <result column="family_id" property="familyId"/>
         <result column="family_code" property="familyCode"/>
         <result column="family_count" property="familyCount"/>
         <result column="family_communication_status" property="familyCommunicationStatus"/>
-        <result column="family_created_at" property="familyCreatedAt"/>
     </resultMap>
 
     <select id="findFamilyByFamilyId" resultMap="familyInfo">
-        SELECT *
+        SELECT family_id, family_code, family_count, family_communication_status
         FROM family
         WHERE family_id = #{familyId}
     </select>
 
     <select id="findFamilyByUserId" resultMap="familyInfo">
-        SELECT *
+        SELECT f.family_id, f.family_code, f.family_count, f.family_communication_status
         FROM family f
         JOIN family_user fu
             ON f.family_id = fu.family_id
@@ -34,23 +33,62 @@
         WHERE f.user_id = #{userId}
     </select>
 
-    <select id="existsFamilyByFamilyCode" resultType="boolean" parameterType="string">
+    <select id ="findFamilyByFamilyCode" resultMap="familyInfo">
+        SELECT family_id, family_code, family_count, family_communication_status
+        FROM family
+        WHERE family_code = #{familyCode}
+    </select>
+
+    <select id="findLastInsertedFamilyId" resultType="java.lang.Long">
+        SELECT LAST_INSERT_ID()
+    </select>
+
+    <select id="countFamilyMembersByUserId" resultType="int">
+        SELECT COUNT(*)
+        FROM family_user
+        WHERE family_id = (
+            SELECT family_id
+            FROM family_user
+            WHERE user_id = #{userId}
+            )
+    </select>
+
+    <select id="existsFamilyByFamilyCode" resultType="boolean">
         SELECT COUNT(1) > 0
         FROM family
         WHERE family_code = #{code}
     </select>
-
-    <select id="findLastInsertedFamilyId" resultType="int">
-        SELECT LAST_INSERT_ID()
+    
+    <select id="existsFamilyByFamilyIdAndUserId" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM family_user
+        WHERE family_id = #{familyId} AND user_id = #{userId}
     </select>
 
     <insert id="insertFamily" parameterType="com.familring.familyservice.model.dto.request.FamilyCreateRequest">
         INSERT INTO family(family_code, family_count, family_communication_status, family_created_at)
-        VALUES (#{familyCode}, #{familyCount}, #{familyCommunicationStatus}, NOW())
+        VALUES (#{familyCode}, 1, #{familyCommunicationStatus}, NOW())
     </insert>
 
     <insert id="insetFamily_User">
         INSERT INTO family_user(family_id, user_id)
         VALUES (#{familyId}, #{userId})
     </insert>
+
+    <update id="updateFamilyCountByFamilyId">
+        UPDATE family
+        SET family_count = family_count + #{amount}
+        WHERE family_id = #{familyId}
+    </update>
+
+    <update id="updateFamilyCommunicationStatusByFamilyId">
+        UPDATE family
+        SET family_communication_status = family_communication_status + #{amount}
+        WHERE family_id = #{familyId}
+    </update>
+
+    <delete id="deleteFamily_UserByFamilyIdAndUserId">
+        DELETE FROM family_user
+        WHERE family_id = #{familyId} AND user_id = #{userId}
+    </delete>
 </mapper>

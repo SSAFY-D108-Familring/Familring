@@ -8,11 +8,13 @@ import com.familring.userservice.model.dto.response.UserInfoResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface UserService {
     // 회원 정보 조회
     UserInfoResponse getUser(String userName);
     UserInfoResponse getUser(Long userId);
+    List<UserInfoResponse> getAllUser(List<Long> userIds);
 
     // 로그인
     JwtTokenResponse login(UserLoginRequest userLogInRequest);
@@ -24,11 +26,11 @@ public interface UserService {
     JwtTokenResponse updateJWT(String refreshToken);
 
     // FCM 토큰 저장
-    String updateFcmToken(Long userId, String fcmToken);
+    void updateFcmToken(Long userId, String fcmToken);
 
     // 회원 기분 설정
-    String updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
+    void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
 
     // 회원 탈퇴
-    String deleteUser(Long userId);
+    void deleteUser(Long userId);
 }

@@ -1,16 +1,17 @@
 package com.familring.apigateway.exception;
 
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Getter
 public class JwtValidationException extends RuntimeException {
-    private final HttpStatus status;
+    private final String errorCode;
+    private final HttpStatus httpStatus;
 
-    public JwtValidationException(String message, HttpStatus status) {
-        super(message);
-        this.status = status;
+    public JwtValidationException(ErrorDetail errorDetail) {
+        super(errorDetail.getErrorMessage());
+        this.errorCode = errorDetail.getErrorCode();
+        this.httpStatus = errorDetail.getHttpStatus();
     }
 
-    public HttpStatus getStatus() {
-        return status;
-    }
 }

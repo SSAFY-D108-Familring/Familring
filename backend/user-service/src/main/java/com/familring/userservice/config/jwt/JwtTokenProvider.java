@@ -23,6 +23,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -47,6 +48,11 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        // 권한이 없으면 예외 발생
+        if (authorities.isEmpty()) {
+            throw new RuntimeException("생성 중 권한 정보가 없습니다.");
+        }
+
         long now = (new Date()).getTime();
 
         // 사용자 userId 추출
@@ -65,6 +71,8 @@ public class JwtTokenProvider {
 
         // RefreshToken 생성
         String refreshToken = Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim("auth", authorities) // 권한 정보 추가
                 .setExpiration(new Date(now + refreshTokenExpireTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -80,27 +88,34 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         // Jwt 토큰 복호화
         Claims claims = parseClaims(token);
+        String authClaim = claims.get("auth") != null ? claims.get("auth").toString() : "";
+        log.info("authClaim 값: {}", authClaim); // authClaim 로그 추가
 
-        if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+        // authClaim이 비어있다면 빈 리스트 할당
+        Collection<? extends GrantedAuthority> authorities;
+        if (authClaim.isEmpty()) {
+            authorities = List.of();
+        } else {
+            authorities = Arrays.stream(authClaim.split(","))
+                    .map(SimpleGrantedAuthority::new)
+                    .collect(Collectors.toList());
+        }
+        log.info("생성된 authorities 리스트: {}", authorities);
+
+        if (authorities.isEmpty()) {
+            log.error("권한 정보가 없는 토큰입니다.");
+            throw new EmptyTokenException();
         }
 
-        // 클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-
         // UserDetails 객체를 만들어서 Authentication return
-        // UserDetails: interface, User: UserDetails를 구현한 class
         UserDetails principal = new User(claims.getSubject(), "", authorities);
-
-        // UserDto를 생성하여 Authentication에 추가
         UserDto userDto = UserDto.builder()
                 .userKakaoId(principal.getUsername())
                 .build();
 
         return new UsernamePasswordAuthenticationToken(userDto, "", authorities);
     }
+
 
     // 토큰 정보 검증 메소드
     public void validateToken(String token) {
@@ -121,7 +136,7 @@ public class JwtTokenProvider {
             throw new UnsupportedTokenException();
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty.", e);
-            throw new EmptyTokenException();
+            throw new InvalidTokenException();
         }
     }
 

@@ -13,7 +13,7 @@ public class UserDeleteRequest {
     private String beforeUserKakaoId;
     private String afterUserKakaoId;
     private String userPassword;
-    private String userName;
+    private String userNickname;
     private FamilyRole userRole;
     private String userFace;
     private String userEmotion;
