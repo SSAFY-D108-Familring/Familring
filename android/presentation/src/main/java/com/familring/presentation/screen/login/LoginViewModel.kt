@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
 
@@ -38,10 +39,37 @@ class LoginViewModel
         private val _loginEvent = MutableSharedFlow<LoginEvent>()
         val loginEvent = _loginEvent.asSharedFlow()
 
+        init {
+            viewModelScope.launch {
+                authDataStore.getKakaoId()?.let {
+                    try {
+                        userRepository
+                            .login(UserLoginRequest(userKakaoId = it))
+                            .collectLatest { response ->
+                                when (response) {
+                                    is ApiResponse.Success -> {
+                                        Timber.d("서버 로그인 성공: " + response.data)
+                                        _loginEvent.emit(LoginEvent.LoginSuccess)
+                                    }
+
+                                    is ApiResponse.Error -> {
+                                        Timber.e("서버 로그인 실패: " + response.message)
+                                        _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${response.message}"))
+                                    }
+                                }
+                            }
+                    } catch (e: Exception) {
+                        Timber.e(e, "서버 통신 중 오류 발생")
+                        _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${e.message}"))
+                    }
+                }
+            }
+        }
+
         fun handleKakaoLogin(activity: Activity) {
             viewModelScope.launch {
                 try {
-                    Log.d(TAG, "카카오 로그인 시도")
+                    Timber.d("카카오 로그인 시도")
                     if (UserApiClient.instance.isKakaoTalkLoginAvailable(activity)) {
                         loginWithKakaoTalk(activity)
                     } else {
@@ -50,7 +78,11 @@ class LoginViewModel
                 } catch (e: Exception) {
                     Log.e(TAG, "카카오 로그인 실패", e)
                     _loginState.value = LoginState.Error("로그인 실패: ${e.message}")
-                    _loginEvent.emit(LoginEvent.Error(errorMessage = e.message ?: "알 수 없는 오류 발생"))
+                    _loginEvent.emit(
+                        LoginEvent.Error(
+                            errorMessage = e.message ?: "알 수 없는 오류 발생",
+                        ),
+                    )
                 }
             }
         }
@@ -131,7 +163,8 @@ class LoginViewModel
                     if (error != null) {
                         Log.e(TAG, "사용자 정보 요청 실패", error)
                         viewModelScope.launch {
-                            _loginState.value = LoginState.Error("사용자 정보 요청 실패: ${error.message}")
+                            _loginState.value =
+                                LoginState.Error("사용자 정보 요청 실패: ${error.message}")
                             _loginEvent.emit(LoginEvent.Error(errorMessage = "사용자 정보 요청 실패 ${error.message}"))
                         }
                     } else if (user != null) {
@@ -155,7 +188,9 @@ class LoginViewModel
                                         when (response) {
                                             is ApiResponse.Success -> {
                                                 Log.d(TAG, "서버 로그인 성공: ${response.data}")
-                                                _loginState.value = LoginState.Success(token, user.id)
+
+                                                _loginState.value =
+                                                    LoginState.Success(token, user.id)
                                                 _loginEvent.emit(LoginEvent.LoginSuccess)
                                             }
 

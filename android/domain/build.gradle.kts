@@ -38,5 +38,6 @@ dependencies {
     implementation(libs.bundles.coroutines)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.gson)
+    implementation(libs.v2.all)
     implementation(libs.converter.gson)
 }

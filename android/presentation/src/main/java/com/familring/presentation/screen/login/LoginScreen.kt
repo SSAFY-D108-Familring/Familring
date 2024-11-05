@@ -1,7 +1,6 @@
 package com.familring.presentation.screen.login
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +50,15 @@ fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.loginEvent.collect { event ->
+            when (event) {
+                is LoginEvent.LoginSuccess -> navigateToHome()
+                is LoginEvent.Error -> showSnackBar(event.errorMessage)
+            }
+        }
+    }
 
     LoginScreen(
         modifier = modifier,
