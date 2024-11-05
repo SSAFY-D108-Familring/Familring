@@ -137,20 +137,18 @@ public class FamilyServiceImpl implements FamilyService {
                 .orElseThrow(() -> new FamilyNotFoundException());
         log.info("familyId: {}", family.getFamilyId());
 
-        // 2. 에러 확인
-        // 2-1. 가족에 이미 추가 되어있는 경우 에러 발생
+        // 2. 사용자 정보 찾기
+        List<Long> members = new ArrayList<>();
+        members.add(family.getFamilyId());
+        UserInfoResponse user = userServiceFeignClient.getAllUser(members).getData().get(0);
+
+        // 3. 에러 확인
+        // 3-1. 가족에 이미 추가 되어있는 경우 에러 발생
         if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
             throw new AlreadyInFamilyException();
         }
 
-        // 2-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
-<<<<<<< Updated upstream
-        List<UserInfoResponse> familyMembers = getFamilyMemberList(family.getFamilyId());
-        for (UserInfoResponse member : familyMembers) {
-            if (FamilyRole.M.equals(member.getUserRole()) || FamilyRole.F.equals(member.getUserRole())) {
-                log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
-                throw new AlreadyFamilyRoleException();
-=======
+        // 3-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
         List<UserInfoResponse> familyMembers = new ArrayList<>();
         if(user.getUserRole().equals(FamilyRole.F)) { // 참여자 가족 역할이 F인 경우
             familyMembers = getFamilyMemberList(family.getFamilyId());
@@ -167,20 +165,18 @@ public class FamilyServiceImpl implements FamilyService {
                     log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
                     throw new AlreadyFamilyRoleException();
                 }
->>>>>>> Stashed changes
             }
         }
 
-        // 3-1. 가족에 추가
+        // 4-1. 가족에 추가
         familyDao.insetFamily_User(family.getFamilyId(), userId);
         log.info("가족 추가 완료");
 
-        // 3-2. 가족 구성원 수 + 1
+        // 4-2. 가족 구성원 수 + 1
         log.info("before 가족 구성원 수: {}", family.getFamilyCount());
         familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
-        log.info("after 가족 구성원 수: {}", family.getFamilyCount());
 
-        // 4. 응답
+        // 5. 응답
         return "가죽 구성원 추가 완료";
     }
 
