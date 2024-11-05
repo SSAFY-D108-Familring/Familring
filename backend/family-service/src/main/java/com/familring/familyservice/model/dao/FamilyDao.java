@@ -23,6 +23,9 @@ public interface FamilyDao {
     // userId로 family_user 모두 찾기
     List<Long> findFamilyUserByUserId(@Param("userId") Long userId);
 
+    // familyId로 family_user 모두 찾기
+    List<Long> findFamilyUserByFamilyId(@Param("familyId") Long familyId);
+
     // 가장 마지막에 입력한 familyId 찾기
     Long findLastInsertedFamilyId();
 
@@ -44,6 +47,7 @@ public interface FamilyDao {
     // family 생성
     void insertFamily(FamilyCreateRequest familyCreateRequest);
 
+    void updateFamilyCommunicationStatusByFamilyId(@Param("familyId") Long familyId, @Param("amount") int amount);
     // family_user 구성원 추가
     void insetFamily_User(@Param("familyId") Long familyId, @Param("userId") Long userId);
 
@@ -54,5 +58,5 @@ public interface FamilyDao {
     void deleteFamily_UserByFamilyIdAndUserId(@Param("familyId") Long familyId, @Param("userId") Long userId);
 
     // familyI에 해당하는 family의 familyCommuniStatus + mount
-    void updateFamilyCommunicationStatusByFamilyId(@Param("familyId") Long familyId, @Param("amount") int amount);
+
 }
