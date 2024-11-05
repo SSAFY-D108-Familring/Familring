@@ -12,6 +12,7 @@ import com.familring.questionservice.repository.QuestionFamilyRepository;
 import com.familring.questionservice.repository.QuestionRepository;
 import com.familring.questionservice.service.client.FamilyServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionService {
 
     private final QuestionRepository questionRepository;
@@ -39,14 +41,14 @@ public class QuestionService {
     }
 
     // 매일 9시에 자동으로 질문 생성
-    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 16 21 * * ?")
     public void scheduledCreateQuestion() {
         // 모든 가족 조회
-//        List<Long> allFamilyIds = familyServiceFeignClient.getAllFamilyIds().getData();
-//
-//        for (Long familyId : allFamilyIds) {
-//            createQuestion(familyId);
-//        }
+        List<Long> allFamilyIds = familyServiceFeignClient.getAllFamilyId().getData();
+
+        for (Long familyId : allFamilyIds) {
+            createQuestion(familyId);
+        }
     }
 
     private void createQuestion(Long familyId) {
@@ -59,6 +61,7 @@ public class QuestionService {
 
         // 현재 질문에 가족 구성원이 모두 답변했는지 확인
         if (check(familyId, currentQuestionId)) {
+            log.info("familyId : " + familyId + "currentQuestionId : " + currentQuestionId);
             // 모두 답변했다면 다음 질문 설정
             Long nextQuestionId = currentQuestionId + 1;
             Question nextQuestion = questionRepository.findById(nextQuestionId)
@@ -72,7 +75,7 @@ public class QuestionService {
 
     // 가족 구성원이 답장을 했는 지 확인
     private boolean check(Long familyId, Long questionFamilyId) {
-        // 1. 가족 구성원 조회
+        // 1. 가족 구성원 조회 (familyId로 찾는 함수로 변경)
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(familyId).getData();
 
         // 2. 가족 구성원들이 모두 답변을 했는지 확인
