@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuestionCreateResponse {
+public class QuestionInfoResponse {
 
     private Long questionId;
     private String questionContent; // 질문 내용

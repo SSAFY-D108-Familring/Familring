@@ -1,4 +1,4 @@
-package com.familring.questionservice.dto.request;
+package com.familring.questionservice.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,5 +16,6 @@ public class QuestionAnswerItem {
     private String userZodiacSign;
     private String userColor;
     private String answerContent;
+    private Boolean answerStatus; // 답변 여부
 
 }
