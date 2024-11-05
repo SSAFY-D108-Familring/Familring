@@ -37,12 +37,12 @@ object ApiModule {
     @Provides
     @Singleton
     fun provideTimeCapsuleApi(
-        @NetworkModule.AuthClient retrofit: Retrofit,
+        @NetworkModule.BaseClient retrofit: Retrofit,
     ): TimeCapsuleApi = retrofit.create()
 
     @Provides
     @Singleton
     fun provideCalendarApi(
-        @NetworkModule.AuthClient retrofit: Retrofit,
+        @NetworkModule.BaseClient retrofit: Retrofit,
     ): CalendarApi = retrofit.create()
 }
