@@ -3,8 +3,8 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.TimeCapsuleApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.TimeCapsule
-import com.familring.domain.model.TimeCapsuleStatus
+import com.familring.domain.model.timecapsule.TimeCapsule
+import com.familring.domain.model.timecapsule.TimeCapsuleStatus
 import com.familring.domain.repository.TimeCapsuleRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

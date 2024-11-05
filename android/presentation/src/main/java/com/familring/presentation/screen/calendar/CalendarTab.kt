@@ -42,9 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.mapper.toProfile
-import com.familring.domain.model.DailyLife
+import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.Profile
-import com.familring.domain.model.Schedule
+import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.IconCustomDropBoxStyles

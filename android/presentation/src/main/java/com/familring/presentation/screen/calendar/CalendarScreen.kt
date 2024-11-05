@@ -36,8 +36,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.familring.domain.model.DaySchedule
-import com.familring.domain.model.PreviewSchedule
+import com.familring.domain.model.calendar.DaySchedule
+import com.familring.domain.model.calendar.PreviewSchedule
 import com.familring.presentation.R
 import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
@@ -49,7 +49,6 @@ import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import com.familring.presentation.util.toLocalDate
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch

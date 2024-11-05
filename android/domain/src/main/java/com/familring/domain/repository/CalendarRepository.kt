@@ -1,8 +1,8 @@
 package com.familring.domain.repository
 
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.MonthSchedulesDailies
-import com.familring.domain.model.Schedule
+import com.familring.domain.model.calendar.MonthSchedulesDailies
+import com.familring.domain.model.calendar.Schedule
 import kotlinx.coroutines.flow.Flow
 
 interface CalendarRepository {

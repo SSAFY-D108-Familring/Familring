@@ -3,8 +3,8 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.CalendarApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.MonthSchedulesDailies
-import com.familring.domain.model.Schedule
+import com.familring.domain.model.calendar.MonthSchedulesDailies
+import com.familring.domain.model.calendar.Schedule
 import com.familring.domain.repository.CalendarRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
