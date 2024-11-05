@@ -21,9 +21,6 @@ class HomeViewModel
         private val _homeState = MutableStateFlow<HomeState>(HomeState.Loading)
         val homeState = _homeState.asStateFlow()
 
-        private val _familyState = MutableStateFlow<FamilyState>(FamilyState.Loading)
-        val familyState = _familyState.asStateFlow()
-
         private val _refreshTrigger = MutableStateFlow(0) // 실시간으로 받아오기 위해 필요하고
 
         init {
@@ -32,7 +29,6 @@ class HomeViewModel
                     getFamilyMembers()
                 }
             }
-
         }
 
         fun refresh() {

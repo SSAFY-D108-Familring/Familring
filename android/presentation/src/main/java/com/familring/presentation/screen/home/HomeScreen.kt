@@ -172,7 +172,7 @@ fun HomeScreen(
                             Modifier
                                 .size(24.dp)
                                 .noRippleClickable {
-                                    // 프로필 이벤트
+                                    navigateToMyPage()
                                 },
                         painter = painterResource(id = R.drawable.img_profile_circle),
                         contentDescription = "profile circle img",
