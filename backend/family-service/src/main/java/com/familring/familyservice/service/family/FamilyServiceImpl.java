@@ -129,7 +129,17 @@ public class FamilyServiceImpl implements FamilyService {
                 .familyCommunicationStatus(family.getFamilyCommunicationStatus())
                 .build();
 
-        // 5. 응답
+
+        // 6. 채팅방 입장 시간 추가
+        ChatRoomEntry entry = ChatRoomEntry.builder()
+                .familyId(family.getFamilyId().toString())
+                .userId(userId.toString())
+                .entryTime(LocalDateTime.now()) // 현재 시간을 입장 시간으로 설정
+                .build();
+        chatRoomEntryRepository.save(entry);
+        log.info("채팅 입장 시간 추가 완료");
+
+        // 7. 응답
         return response;
     }
 
@@ -186,6 +196,7 @@ public class FamilyServiceImpl implements FamilyService {
                 .entryTime(LocalDateTime.now()) // 현재 시간을 입장 시간으로 설정
                 .build();
         chatRoomEntryRepository.save(entry);
+        log.info("채팅 입장 시간 추가 완료");
 
         // 6. 응답
         return "가죽 구성원 추가 완료";
