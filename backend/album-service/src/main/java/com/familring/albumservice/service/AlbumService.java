@@ -150,11 +150,11 @@ public class AlbumService {
     }
 
     @Transactional
-    public void deletePhotos(List<Long> photoIds, Long userId) {
+    public void deletePhotos(List<Long> photoIds, Long albumId, Long userId) {
         List<Photo> photos = photoRepository.findAllByIdWithAlbum(photoIds);
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
         photos.forEach(photo -> {
-            if (!photo.getAlbum().getFamilyId().equals(familyId)) {
+            if (!photo.getAlbum().getFamilyId().equals(familyId) || !photo.getAlbum().getId().equals(albumId)) {
                 throw new InvalidAlbumRequestException();
             }
         });
