@@ -5,7 +5,7 @@ import com.familring.domain.model.User
 
 fun User.toProfile(): Profile =
     Profile(
-        nickName = userNickname,
+        nickname = userNickname,
         zodiacImgUrl = userZodiacSign,
         backgroundColor = userColor,
     )

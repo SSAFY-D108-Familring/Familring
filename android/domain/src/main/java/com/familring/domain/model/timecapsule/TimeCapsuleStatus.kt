@@ -1,6 +1,6 @@
 package com.familring.domain.model.timecapsule
 
-import com.familring.domain.model.Profile
+import com.familring.domain.model.User
 import com.google.gson.annotations.SerializedName
 
 data class TimeCapsuleStatus(

@@ -1,8 +1,6 @@
 package com.familring.data.network.api
 
 import com.familring.data.network.response.BaseResponse
-import com.familring.domain.model.TimeCapsule
-import com.familring.domain.model.TimeCapsuleStatus
 import retrofit2.http.Body
 import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.domain.model.timecapsule.TimeCapsuleStatus
