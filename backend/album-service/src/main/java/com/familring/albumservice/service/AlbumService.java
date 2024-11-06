@@ -56,7 +56,7 @@ public class AlbumService {
                 .albumType(albumRequest.getAlbumType());
 
         if (albumRequest.getAlbumType() == PERSON) {
-            if (userId == null) {
+            if (userId == null || albumRequest.getScheduleId() != null) {
                 throw new InvalidAlbumParameterException();
             }
             albumBuilder.userId(userId);
@@ -65,6 +65,10 @@ public class AlbumService {
                 throw new InvalidAlbumParameterException();
             }
             albumBuilder.scheduleId(albumRequest.getScheduleId());
+        } else if (albumRequest.getAlbumType() == NORMAL) {
+            if (albumRequest.getScheduleId() != null) {
+                throw new InvalidAlbumParameterException();
+            }
         }
 
         Album album = albumBuilder.build();
