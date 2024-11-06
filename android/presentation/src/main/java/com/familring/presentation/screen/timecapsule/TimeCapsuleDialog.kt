@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.familring.domain.model.Profile
+import com.familring.domain.model.timecapsule.TimeCapsuleMessage
 import com.familring.domain.model.TimeCapsuleMessage
 import com.familring.presentation.component.OneButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile

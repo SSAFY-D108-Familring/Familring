@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
@@ -31,10 +32,12 @@ import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
+import com.familring.presentation.screen.mypage.EditNameRoute
 import com.familring.presentation.screen.mypage.MyPageRoute
+import com.familring.presentation.screen.mypage.MyPageViewModel
 import com.familring.presentation.screen.notification.NotificationRoute
-import com.familring.presentation.screen.question.QuestionListScreen
-import com.familring.presentation.screen.question.QuestionScreen
+import com.familring.presentation.screen.question.QuestionListRoute
+import com.familring.presentation.screen.question.QuestionRoute
 import com.familring.presentation.screen.signup.BirthRoute
 import com.familring.presentation.screen.signup.DoneRoute
 import com.familring.presentation.screen.signup.FamilyInfoRoute
@@ -85,6 +88,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 )
             }
         },
+        containerColor = White,
     ) { innerPadding ->
         MainNavHost(
             modifier =
@@ -251,7 +255,7 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Question.route,
         ) {
-            QuestionScreen(
+            QuestionRoute(
                 navigateToQuestionList = {
                     navController.navigate(ScreenDestinations.QuestionList.route)
                 },
@@ -261,7 +265,7 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.QuestionList.route,
         ) {
-            QuestionListScreen(
+            QuestionListRoute(
                 onNavigateBack = navController::popBackStack,
             )
         }
@@ -320,22 +324,39 @@ fun MainNavHost(
         ) {
             CalendarRoute(
                 modifier = modifier,
-                navigateToCreateSchedule = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
+                navigateToCreateSchedule = {
+                    navController.navigate(
+                        ScreenDestinations.ScheduleCreate.createRoute(Schedule()),
+                    )
+                },
+                navigateToModifySchedule = { schedule ->
+                    navController.navigate(
+                        ScreenDestinations.ScheduleCreate.createRoute(schedule, true),
+                    )
+                },
                 navigateToCreateDaily = { navController.navigate(ScreenDestinations.DailyUpload.route) },
                 navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
                 navigateToAlbum = {},
-                navigateToModifySchedule = { },
                 showSnackBar = showSnackBar,
             )
         }
 
         composable(
             route = ScreenDestinations.ScheduleCreate.route,
-        ) {
-            ScheduleCreateRoute(
-                modifier = modifier,
-                popUpBackStack = navController::popBackStack,
-            )
+            arguments = ScreenDestinations.ScheduleCreate.arguments,
+        ) { backStackEntry ->
+            val schedule = backStackEntry.arguments?.getParcelable<Schedule>("targetSchedule")
+            val isModify = backStackEntry.arguments?.getBoolean("isModify") ?: false
+
+            if (schedule != null) {
+                ScheduleCreateRoute(
+                    modifier = modifier,
+                    targetSchedule = schedule,
+                    isModify = isModify,
+                    popUpBackStack = navController::popBackStack,
+                    showSnackBar = showSnackBar,
+                )
+            }
         }
 
         composable(
@@ -419,6 +440,25 @@ fun MainNavHost(
                 navigateToLogin = {
                     navController.navigate(ScreenDestinations.Login.route)
                 },
+                navigateToEditName = {
+                    navController.navigate(ScreenDestinations.EditName.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.EditName.route,
+        ) {
+            val viewModel =
+                hiltViewModel<MyPageViewModel>(
+                    navController.getBackStackEntry("MyPage"),
+                )
+
+            EditNameRoute(
+                modifier = modifier,
+                viewModel = viewModel,
+                popUpBackStack = navController::popBackStack,
+                showSnackBar = showSnackBar,
             )
         }
     }

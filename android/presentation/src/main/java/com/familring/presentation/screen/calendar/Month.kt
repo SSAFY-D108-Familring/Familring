@@ -10,8 +10,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.familring.domain.model.DaySchedule
-import com.familring.domain.model.PreviewSchedule
+import com.familring.domain.model.calendar.DaySchedule
+import com.familring.domain.model.calendar.PreviewSchedule
 import com.familring.presentation.util.toLocalDate
 import java.time.LocalDate
 import java.time.LocalDateTime

@@ -1,7 +1,6 @@
 package com.familring.presentation.screen.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +28,8 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,9 +44,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
+import com.familring.domain.model.calendar.Schedule
+import com.familring.domain.request.ScheduleCreateRequest
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomCheckBox
+import com.familring.presentation.component.LoadingDialog
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.ZodiacBackgroundProfile
@@ -63,34 +69,68 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow03
 import com.familring.presentation.util.noRippleClickable
+import com.familring.presentation.util.toColor
+import com.familring.presentation.util.toColorLongString
+import timber.log.Timber
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun ScheduleCreateRoute(
     modifier: Modifier = Modifier,
+    targetSchedule: Schedule,
+    isModify: Boolean,
+    scheduleViewModel: ScheduleViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
+    showSnackBar: (String) -> Unit,
 ) {
-    ScheduleCreateScreen(
-        modifier = modifier,
-        popUpBackStack = popUpBackStack,
-        profiles = profiles,
-    )
+    val uiState by scheduleViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        scheduleViewModel.event.collect { event ->
+            when (event) {
+                is ScheduleUiEvent.Success -> {
+                    popUpBackStack()
+                }
+
+                is ScheduleUiEvent.Error -> {
+                    showSnackBar(event.message)
+                }
+            }
+        }
+    }
+
+    if (!uiState.isLoading) {
+        ScheduleCreateScreen(
+            modifier = modifier,
+            targetSchedule = targetSchedule,
+            isModify = isModify,
+            state = uiState,
+            createSchedule = scheduleViewModel::createSchedule,
+            updateSchedule = scheduleViewModel::updateSchedule,
+            popUpBackStack = popUpBackStack,
+            showSnackBar = showSnackBar,
+        )
+    } else {
+        LoadingDialog()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleCreateScreen(
     modifier: Modifier = Modifier,
-    startSchedule: LocalDateTime = LocalDateTime.now().withHour(9).withMinute(0),
-    endSchedule: LocalDateTime = LocalDateTime.now().withHour(12).withMinute(0),
+    targetSchedule: Schedule,
+    isModify: Boolean = false,
+    state: ScheduleUiState,
+    createSchedule: (ScheduleCreateRequest) -> Unit = {},
+    updateSchedule: (Long, ScheduleCreateRequest) -> Unit = { _, _ -> },
     popUpBackStack: () -> Unit = {},
-    profiles: List<Profile> = listOf(),
+    showSnackBar: (String) -> Unit = {},
 ) {
     var title by remember { mutableStateOf("") }
 
-    var startSchedule by remember { mutableStateOf(startSchedule) }
-    var endSchedule by remember { mutableStateOf(endSchedule) }
+    var startSchedule by remember { mutableStateOf(LocalDateTime.now().withHour(9).withMinute(0)) }
+    var endSchedule by remember { mutableStateOf(LocalDateTime.now().withHour(12).withMinute(0)) }
 
     var isTimeChecked by remember { mutableStateOf(false) }
     var isNotiChecked by remember { mutableStateOf(false) }
@@ -108,9 +148,10 @@ fun ScheduleCreateScreen(
         )
     var selectedColorIdx by remember { mutableIntStateOf(0) }
 
-    var isProfileCheckedList by remember {
-        mutableStateOf(profiles.map { false }.toMutableStateList())
+    val isProfileCheckedList by remember {
+        derivedStateOf { state.familyProfiles.map { false }.toMutableStateList() }
     }
+
     var isAllChecked by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
@@ -121,7 +162,30 @@ fun ScheduleCreateScreen(
     val endSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showEndBottomSheet by remember { mutableStateOf(false) }
 
-    val isButtonEnabled = startSchedule.isBefore(endSchedule)
+    val isButtonEnabled by remember {
+        derivedStateOf {
+            startSchedule.isBefore(endSchedule) &&
+                title.isNotBlank() &&
+                isProfileCheckedList.any { it } &&
+                selectedColorIdx in colors.indices
+        }
+    }
+
+    LaunchedEffect(targetSchedule) {
+        if (isModify) {
+            title = targetSchedule.title
+            startSchedule = targetSchedule.startTime
+            endSchedule = targetSchedule.endTime
+            isTimeChecked = targetSchedule.hasTime
+            isNotiChecked = targetSchedule.hasNotification
+            selectedColorIdx = colors.indexOf(targetSchedule.backgroundColor.toColor())
+
+            isProfileCheckedList.clear()
+            isProfileCheckedList.addAll(targetSchedule.familyMembers.map { it.attendanceStatus })
+
+            isAllChecked = isProfileCheckedList.all { it }
+        }
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -134,7 +198,7 @@ fun ScheduleCreateScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "일정 추가",
+                        text = if (!isModify) "일정 추가" else "일정 수정",
                         color = Black,
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
@@ -183,7 +247,10 @@ fun ScheduleCreateScreen(
                     },
                 )
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     SelectedTime(
@@ -208,7 +275,7 @@ fun ScheduleCreateScreen(
                     style =
                         Typography.labelMedium.copy(
                             fontSize = 12.sp,
-                            color = if (isButtonEnabled) White else Red01,
+                            color = if (startSchedule.isBefore(endSchedule)) White else Red01,
                         ),
                 )
                 Spacer(modifier = Modifier.fillMaxHeight(0.05f))
@@ -324,7 +391,9 @@ fun ScheduleCreateScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     columns = GridCells.Fixed(2),
                 ) {
-                    itemsIndexed(profiles) { index, profile ->
+                    Timber.d("lazy state.familyMembers : ${state.familyProfiles}")
+                    Timber.d("lazy isProfileCheckedList : $isProfileCheckedList")
+                    itemsIndexed(state.familyProfiles) { index, profile ->
                         ZodiacProfileWithNameAndCheckedBox(
                             profile = profile,
                             isChecked = isProfileCheckedList[index],
@@ -352,8 +421,30 @@ fun ScheduleCreateScreen(
             Spacer(modifier = Modifier.weight(1f))
             RoundLongButton(
                 modifier = Modifier.padding(bottom = 20.dp),
-                text = "일정 추가하기",
-                onClick = {},
+                text = if (!isModify) "일정 추가하기" else "일정 수정하기",
+                onClick = {
+                    val newSchedule =
+                        ScheduleCreateRequest(
+                            title = title,
+                            color = colors[selectedColorIdx].toColorLongString(),
+                            hasTime = isTimeChecked,
+                            hasNotification = isNotiChecked,
+                            startTime = startSchedule,
+                            endTime = endSchedule,
+                            attendances =
+                                isProfileCheckedList.mapIndexed { index, isChecked ->
+                                    ScheduleCreateRequest.Attendance(
+                                        userId = state.familyMembers[index].userId,
+                                        attendanceStatus = isChecked,
+                                    )
+                                },
+                        )
+                    if (isModify) {
+                        updateSchedule(targetSchedule.scheduleId, newSchedule)
+                    } else {
+                        createSchedule(newSchedule)
+                    }
+                },
                 enabled = isButtonEnabled,
             )
         }
@@ -439,7 +530,7 @@ fun AllCheckBox(
         modifier =
             modifier
                 .padding(vertical = 10.dp)
-                .clickable { onChecked(!isChecked) },
+                .noRippleClickable { onChecked(!isChecked) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CustomCheckBox(
@@ -480,12 +571,12 @@ fun ZodiacProfileWithNameAndCheckedBox(
         )
         Spacer(modifier = Modifier.width(10.dp))
         ZodiacBackgroundProfile(
-            modifier = Modifier.size(30.dp),
             profile = profile,
+            size = 35,
         )
         Text(
             modifier = Modifier.padding(start = 10.dp),
-            text = profile.nickname,
+            text = profile.nickName,
             style =
                 Typography.headlineSmall.copy(
                     fontSize = 20.sp,
@@ -503,7 +594,7 @@ private fun ZodiacProfileWithNamePreview() {
         profile =
             Profile(
                 zodiacImgUrl = "",
-                nickname = "홍길동",
+                nickName = "홍길동",
                 backgroundColor = "0xFFC9D0FF",
             ),
     )
@@ -513,30 +604,7 @@ private fun ZodiacProfileWithNamePreview() {
 @Composable
 private fun ScheduleCreateScreenPreview() {
     ScheduleCreateScreen(
-        profiles = profiles,
+        state = ScheduleUiState(),
+        targetSchedule = Schedule(),
     )
 }
-
-val profiles =
-    listOf(
-        Profile(
-            zodiacImgUrl = "",
-            nickname = "홍길동",
-            backgroundColor = "0xFFC9D0FF",
-        ),
-        Profile(
-            zodiacImgUrl = "",
-            nickname = "홍길동",
-            backgroundColor = "0xFFC9D0FF",
-        ),
-        Profile(
-            zodiacImgUrl = "",
-            nickname = "홍길동",
-            backgroundColor = "0xFFC9D0FF",
-        ),
-        Profile(
-            zodiacImgUrl = "",
-            nickname = "홍길동",
-            backgroundColor = "0xFFC9D0FF",
-        ),
-    )

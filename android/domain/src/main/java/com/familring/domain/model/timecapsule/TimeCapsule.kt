@@ -1,4 +1,4 @@
-package com.familring.domain.model
+package com.familring.domain.model.timecapsule
 
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate

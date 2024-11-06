@@ -10,11 +10,9 @@ import timber.log.Timber
 class FarmilringApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-
         if (BuildConfig.DEBUG) {
             Timber.plant(TimberDebugTree())
         }
-
         KakaoSdk.init(this, BuildConfig.KAKAO_API_KEY)
     }
 }

@@ -21,8 +21,18 @@ class HomeViewModel
         private val _homeState = MutableStateFlow<HomeState>(HomeState.Loading)
         val homeState = _homeState.asStateFlow()
 
+        private val _refreshTrigger = MutableStateFlow(0) // 실시간으로 받아오기 위해 필요하고
+
         init {
-            getFamilyMembers()
+            viewModelScope.launch {
+                _refreshTrigger.collectLatest {
+                    getFamilyMembers()
+                }
+            }
+        }
+
+        fun refresh() {
+            _refreshTrigger.value += 1 // 트리거가 필요함
         }
 
         private fun getFamilyMembers() {

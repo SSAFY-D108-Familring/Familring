@@ -42,9 +42,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.mapper.toProfile
-import com.familring.domain.model.DailyLife
 import com.familring.domain.model.Profile
-import com.familring.domain.model.Schedule
+import com.familring.domain.model.calendar.DailyLife
+import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.IconCustomDropBoxStyles
@@ -67,9 +67,8 @@ fun CalendarTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
-    deleteSchedule: (Long) -> Unit,
     showDeleteDialog: (Long) -> Unit,
-    navigateToModifySchedule: (Long) -> Unit,
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
 ) {
@@ -95,7 +94,6 @@ fun CalendarTab(
                 0 ->
                     ScheduleTab(
                         schedules = schedules,
-                        deleteSchedule = deleteSchedule,
                         showDeleteDialog = showDeleteDialog,
                         navigateToModifySchedule = navigateToModifySchedule,
                         navigateToCreateAlbum = navigateToCreateAlbum,
@@ -215,9 +213,8 @@ fun DailyItem(
 fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
-    deleteSchedule: (Long) -> Unit = {},
     showDeleteDialog: (Long) -> Unit = {},
-    navigateToModifySchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
@@ -243,7 +240,6 @@ fun ScheduleTab(
             items(schedules) { schedule ->
                 ScheduleItem(
                     schedule = schedule,
-                    deleteSchedule = deleteSchedule,
                     showDeleteDialog = showDeleteDialog,
                     navigateToModifySchedule = navigateToModifySchedule,
                     navigateToCreateAlbum = navigateToCreateAlbum,
@@ -259,8 +255,7 @@ fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
     showDeleteDialog: (Long) -> Unit = {},
-    deleteSchedule: (Long) -> Unit = {},
-    navigateToModifySchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
@@ -282,7 +277,11 @@ fun ScheduleItem(
                         .background(color = schedule.backgroundColor.toColor()),
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Column {
+            Column(
+                modifier =
+                    Modifier
+                        .weight(1f),
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = schedule.title,
@@ -326,7 +325,7 @@ fun ScheduleItem(
                 profileSize = 32,
                 profiles =
                     schedule.familyMembers
-                        .filter { it.isAttendance }
+                        .filter { it.attendanceStatus }
                         .map { it.toProfile() },
             )
             IconCustomDropdownMenu(
@@ -334,11 +333,18 @@ fun ScheduleItem(
                     Modifier
                         .padding(3.dp),
                 menuItems =
-                    listOf(
-                        "수정" to { navigateToModifySchedule(schedule.scheduleId) },
-                        "삭제" to { showDeleteDialog(schedule.scheduleId) },
-                        "앨범 생성" to { navigateToCreateAlbum() },
-                    ),
+                    if (schedule.albumId == null) {
+                        listOf(
+                            "수정" to { navigateToModifySchedule(schedule) },
+                            "삭제" to { showDeleteDialog(schedule.scheduleId) },
+                            "앨범 생성" to { navigateToCreateAlbum() },
+                        )
+                    } else {
+                        listOf(
+                            "수정" to { navigateToModifySchedule(schedule) },
+                            "삭제" to { showDeleteDialog(schedule.scheduleId) },
+                        )
+                    },
                 styles = IconCustomDropBoxStyles(),
             )
         }
@@ -381,7 +387,6 @@ private fun CalendarTabPreview() {
     CalendarTab(
         dailyLifes = dailyLifes,
         schedules = schedules,
-        deleteSchedule = {},
         navigateToModifySchedule = {},
         navigateToCreateAlbum = {},
         navigateToAlbum = {},

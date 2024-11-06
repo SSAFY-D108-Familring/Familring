@@ -44,16 +44,16 @@ fun FamilyInfoRoute(
     navigateToDone: () -> Unit,
     navigateToHome: () -> Unit,
 ) {
-    val uiState = viewModel.state.collectAsStateWithLifecycle()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.event) {
         viewModel.event.collect { event ->
             when (event) {
                 is SignUpUiEvent.Success -> {
-                    if (uiState.value.make) {
+                    if (uiState.make) {
                         navigateToDone()
                     } else {
-                        viewModel.joinFamily(uiState.value.familyCode)
+                        viewModel.joinFamily(uiState.familyCode)
                     }
                 }
 
@@ -77,7 +77,7 @@ fun FamilyInfoRoute(
         join = viewModel::join,
     )
 
-    if (uiState.value.isLoading) {
+    if (uiState.isLoading) {
         LoadingDialog()
     }
 }

@@ -1,5 +1,16 @@
 package com.familring.presentation.navigation
 
+import android.net.Uri
+import android.os.Bundle
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.familring.domain.model.calendar.Schedule
+import com.familring.presentation.LocalDateTimeAdapter
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.kakao.sdk.common.KakaoSdk.type
+import java.time.LocalDateTime
+
 /*
  받는 변수가 있는 스크린 추가
     data object sample : ScreenDestination(route = "화면이름"){
@@ -17,6 +28,11 @@ package com.familring.presentation.navigation
 sealed class ScreenDestinations(
     open val route: String,
 ) {
+    val gson =
+        GsonBuilder()
+            .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeAdapter())
+            .create()
+
     // 첫 번째 화면 (초대코드 입력)
     data object First : ScreenDestinations(route = "First")
 
@@ -63,7 +79,21 @@ sealed class ScreenDestinations(
     data object Calendar : ScreenDestinations(route = "Calendar")
 
     // 일정 생성
-    data object ScheduleCreate : ScreenDestinations(route = "ScheduleCreate")
+    data object ScheduleCreate : ScreenDestinations(route = "ScheduleCreate") {
+        override val route: String
+            get() = "ScheduleCreate/{targetSchedule}/{isModify}"
+
+        val arguments =
+            listOf(
+                navArgument(name = "targetSchedule") { type = ScheduleNavType(gson) },
+                navArgument(name = "isModify") { type = NavType.BoolType },
+            )
+
+        fun createRoute(
+            targetSchedule: Schedule,
+            isModify: Boolean = false,
+        ) = "ScheduleCreate/${Uri.encode(gson.toJson(targetSchedule))}/$isModify"
+    }
 
     // 일상 업로드
     data object DailyUpload : ScreenDestinations(route = "DailyUpload")
@@ -88,4 +118,27 @@ sealed class ScreenDestinations(
 
     // 마이페이지
     data object MyPage : ScreenDestinations(route = "MyPage")
+
+    // 닉네임 변경
+    data object EditName : ScreenDestinations(route = "EditName")
+}
+
+// Schedule 전달 위한 NavType 정의
+class ScheduleNavType(
+    private val gson: Gson,
+) : NavType<Schedule>(isNullableAllowed = false) {
+    override fun get(
+        bundle: Bundle,
+        key: String,
+    ): Schedule? = bundle.getParcelable(key)
+
+    override fun parseValue(value: String): Schedule = gson.fromJson(value, Schedule::class.java)
+
+    override fun put(
+        bundle: Bundle,
+        key: String,
+        value: Schedule,
+    ) {
+        bundle.putParcelable(key, value)
+    }
 }

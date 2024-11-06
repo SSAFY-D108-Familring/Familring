@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.bundles.network)
     implementation(libs.datastore.preferences)
     implementation(libs.junit)
+    implementation(libs.v2.all)
     implementation(project(":domain"))
 
     // Timber

@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.model.TimeCapsule
+import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01

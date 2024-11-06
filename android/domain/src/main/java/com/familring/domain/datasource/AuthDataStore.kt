@@ -1,5 +1,6 @@
 package com.familring.domain.datasource
 
+import java.time.LocalDate
 import java.util.Date
 
 interface AuthDataStore {
@@ -13,7 +14,7 @@ interface AuthDataStore {
 
     suspend fun getNickname(): String?
 
-    suspend fun saveBirthDate(birthDateString: Date)
+    suspend fun saveBirthDate(birthDateString: LocalDate)
 
     suspend fun getBirthDate(): String?
 

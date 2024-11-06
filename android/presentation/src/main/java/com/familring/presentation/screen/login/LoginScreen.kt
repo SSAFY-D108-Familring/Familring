@@ -51,6 +51,15 @@ fun LoginRoute(
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.loginEvent.collect { event ->
+            when (event) {
+                is LoginEvent.LoginSuccess -> navigateToHome()
+                is LoginEvent.Error -> showSnackBar(event.errorMessage)
+            }
+        }
+    }
+
     LoginScreen(
         modifier = modifier,
         navigateToFirst = navigateToFirst,

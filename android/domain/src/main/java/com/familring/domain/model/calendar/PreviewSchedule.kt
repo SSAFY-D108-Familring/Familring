@@ -1,4 +1,4 @@
-package com.familring.domain.model
+package com.familring.domain.model.calendar
 
 import java.time.LocalDateTime
 
