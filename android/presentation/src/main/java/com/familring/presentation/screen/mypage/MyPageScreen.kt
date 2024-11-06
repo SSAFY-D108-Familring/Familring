@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,6 +42,7 @@ import com.familring.presentation.component.LoadingDialog
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TwoButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.screen.signup.shareCode
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Red01
@@ -134,6 +136,7 @@ fun MyPageScreen(
     var showEmotionDialog by remember { mutableStateOf(false) }
 
     val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -308,6 +311,7 @@ fun MyPageScreen(
                 confirmText = "카톡으로 공유",
                 dismissText = "복사하기",
                 onConfirmClick = {
+                    shareCode(code, context, showSnackBar)
                     showCodeDialog = false
                 },
                 onDismissClick = {
