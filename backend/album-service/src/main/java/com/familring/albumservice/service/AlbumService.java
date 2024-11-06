@@ -43,7 +43,6 @@ public class AlbumService {
     @Value("${aws.s3.album-photo-path}")
     private String albumPhotoPath;
 
-
     /**
      * 일반 앨범 - UserId, ScheduleId가 null
      * 인물 앨범 - UserId만 있음
@@ -137,7 +136,7 @@ public class AlbumService {
             throw new InvalidAlbumRequestException();
         }
 
-        List<String> photoUrls = fileServiceFeignClient.uploadFiles(photos, albumPhotoPath + "/" + familyId).getData();
+        List<String> photoUrls = fileServiceFeignClient.uploadFiles(photos, getAlbumPhotoPath(familyId)).getData();
         List<Photo> newPhotos = photoUrls.stream().map(url -> Photo.builder().photoUrl(url).build()).toList();
         album.addPhotos(newPhotos);
     }
@@ -151,10 +150,13 @@ public class AlbumService {
                 throw new InvalidAlbumRequestException();
             }
         });
-
         // DB에서 삭제
         photoRepository.deleteAll(photos);
         // AWS S3에서 삭제
         fileServiceFeignClient.deleteFiles(photos.stream().map(Photo::getPhotoUrl).toList());
+    }
+
+    private String getAlbumPhotoPath(Long familyId) {
+        return albumPhotoPath + "/" + familyId;
     }
 }
