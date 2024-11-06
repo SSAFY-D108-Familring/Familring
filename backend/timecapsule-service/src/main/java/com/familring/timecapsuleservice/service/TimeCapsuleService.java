@@ -223,6 +223,5 @@ public class TimeCapsuleService {
                 .items(timeCapsuleItems)
                 .build();
     }
-
 }
 
