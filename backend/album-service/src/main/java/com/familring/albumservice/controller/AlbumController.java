@@ -1,9 +1,10 @@
 package com.familring.albumservice.controller;
 
 import com.familring.albumservice.domain.AlbumType;
-import com.familring.albumservice.dto.AlbumResponse;
+import com.familring.albumservice.dto.response.AlbumResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
+import com.familring.albumservice.dto.response.PhotoResponse;
 import com.familring.albumservice.service.AlbumService;
 import com.familring.common_module.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +32,6 @@ public class AlbumController {
             @RequestParam("album_type") List<AlbumType> albumTypes,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         Map<AlbumType, List<AlbumResponse>> albums = albumService.getAlbums(albumTypes, userId);
-
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 목록을 조회했습니다.", albums));
     }
 
@@ -61,5 +61,14 @@ public class AlbumController {
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         albumService.deleteAlbum(albumId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범이 삭제되었습니다."));
+    }
+
+    @GetMapping("/{album_id}")
+    @Operation(summary = "앨범 사진 조회", description = "앨범 사진들을 조회합니다.")
+    public ResponseEntity<BaseResponse<List<PhotoResponse>>> getPhotos(
+            @PathVariable("album_id") Long albumId,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        List<PhotoResponse> photos = albumService.getPhotos(albumId, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 조회했습니다.", photos));
     }
 }

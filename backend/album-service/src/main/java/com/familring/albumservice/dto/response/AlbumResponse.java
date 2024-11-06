@@ -1,15 +1,9 @@
-package com.familring.albumservice.dto;
+package com.familring.albumservice.dto.response;
 
-import com.familring.albumservice.domain.AlbumType;
-import com.familring.albumservice.domain.Photo;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
