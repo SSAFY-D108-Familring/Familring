@@ -9,7 +9,7 @@ import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
 import com.familring.questionservice.dto.response.QuestionAnswerItem;
 import com.familring.questionservice.dto.response.QuestionItem;
-import com.familring.questionservice.dto.response.QuestionTodayResponse;
+import com.familring.questionservice.dto.response.QuestionResponse;
 import com.familring.questionservice.dto.response.QuestionListResponse;
 import com.familring.questionservice.exception.*;
 import com.familring.questionservice.repository.QuestionAnswerRepository;
@@ -145,8 +145,8 @@ public class QuestionService {
 
     }
 
-    // 랜덤 질문 조회
-    public QuestionTodayResponse getQuestionToday(Long userId) {
+    // 오늘의 랜덤 질문 조회
+    public QuestionResponse getQuestionToday(Long userId) {
 
         // 가족 정보 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -163,7 +163,7 @@ public class QuestionService {
 
         // 질문 답변 누구했는지
         // familyId 로 가족 구성원 조회
-        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(familyId).getData();
+        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberListByFamilyId(familyId).getData();
 
         // question_answer 에 question_family_id 랑 user_id 로 확인해서
         // 있으면 true, 없으면 false
@@ -200,7 +200,7 @@ public class QuestionService {
             questionAnswerItemList.add(questionAnswerItem);
         }
 
-        return QuestionTodayResponse.builder()
+        return QuestionResponse.builder()
                 .questionId(questionId)
                 .questionContent(questionContent)
                 .items(questionAnswerItemList)
