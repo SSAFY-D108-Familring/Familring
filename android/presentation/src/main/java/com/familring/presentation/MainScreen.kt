@@ -323,6 +323,9 @@ fun MainNavHost(
                 navigateToCreateSchedule = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
                 navigateToCreateDaily = { navController.navigate(ScreenDestinations.DailyUpload.route) },
                 navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
+                navigateToAlbum = {},
+                navigateToModifySchedule = { },
+                showSnackBar = showSnackBar,
             )
         }
 

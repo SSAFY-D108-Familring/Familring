@@ -22,7 +22,7 @@ fun MonthGrid(
     modifier: Modifier = Modifier,
     date: LocalDate,
     daySchedules: List<DaySchedule> = listOf(),
-    onDayClick: (LocalDate) -> Unit = {},
+    onDayClick: (DaySchedule) -> Unit = { },
 ) {
     val yearMonth = YearMonth.of(date.year, date.month)
     val daysInMonth = yearMonth.lengthOfMonth()
@@ -53,8 +53,8 @@ fun MonthGrid(
                             .height(cellHeight),
                     daySchedule = day,
                     onDayClick = {
-                        day?.date?.let {
-                            onDayClick(it.toLocalDate())
+                        if (day != null) {
+                            onDayClick(day)
                         }
                     },
                 )
@@ -93,7 +93,7 @@ val samplePreviewSchedules =
 val daySchedules =
     (1..31).map { day ->
         DaySchedule(
-            date = "2024-10-${day.toString().padStart(2, '0')}",
+            date = "2024-10-${day.toString().padStart(2, '0')}".toLocalDate(),
             schedules = if (day % 3 == 0) samplePreviewSchedules else emptyList(),
         )
     }

@@ -398,36 +398,6 @@ fun ScheduleCreateScreen(
     }
 }
 
-private fun scheduleText(
-    startSchedule: LocalDateTime,
-    endSchedule: LocalDateTime,
-    isTimeChecked: Boolean,
-): String {
-    val formatWithTime = DateTimeFormatter.ofPattern("MM월 dd일 E a hh:mm")
-    val formatWithoutTime = DateTimeFormatter.ofPattern("MM월 dd일 E")
-    val formatWithOnlyTime = DateTimeFormatter.ofPattern("a hh:mm")
-
-    val text =
-        if (isTimeChecked) {
-            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
-                startSchedule.format(formatWithTime) +
-                    " - " + endSchedule.format(formatWithOnlyTime)
-            } else {
-                startSchedule.format(formatWithTime) +
-                    " - " + endSchedule.format(formatWithTime)
-            }
-        } else {
-            if (startSchedule.toLocalDate() == endSchedule.toLocalDate()) {
-                startSchedule.format(formatWithoutTime)
-            } else {
-                startSchedule.format(formatWithoutTime) +
-                    " - " + endSchedule.format(formatWithoutTime)
-            }
-        }
-
-    return text
-}
-
 @Composable
 fun ColorBox(
     modifier: Modifier = Modifier,

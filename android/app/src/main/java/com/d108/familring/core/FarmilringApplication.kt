@@ -16,6 +16,5 @@ class FarmilringApplication : Application() {
         }
 
         KakaoSdk.init(this, BuildConfig.KAKAO_API_KEY)
-        Timber.plant(Timber.DebugTree())
     }
 }
