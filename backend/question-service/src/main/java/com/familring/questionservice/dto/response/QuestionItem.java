@@ -5,11 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
 @Builder
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class QuestionItem {
+
     private Long questionId;
     private String questionContent; // 질문 내용
+
 }
