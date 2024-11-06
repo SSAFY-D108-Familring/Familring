@@ -71,9 +71,6 @@ public class FileService {
      * @throws S3Exception 파일 삭제 중 오류 발생 시
      */
     public void deleteFiles(List<String> fileUrls) {
-        if (CollectionUtils.isEmpty(fileUrls)) {
-            throw S3Exception.noUrlsToDelete();
-        }
 
         for (String fileUrl : fileUrls) {
             if (fileUrl == null || fileUrl.trim().isEmpty()) {
