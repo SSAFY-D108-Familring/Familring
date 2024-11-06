@@ -42,8 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.mapper.toProfile
-import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.Profile
+import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomTextTab
@@ -334,11 +334,18 @@ fun ScheduleItem(
                     Modifier
                         .padding(3.dp),
                 menuItems =
-                    listOf(
-                        "수정" to { navigateToModifySchedule(schedule) },
-                        "삭제" to { showDeleteDialog(schedule.scheduleId) },
-                        "앨범 생성" to { navigateToCreateAlbum() },
-                    ),
+                    if (schedule.albumId == null) {
+                        listOf(
+                            "수정" to { navigateToModifySchedule(schedule) },
+                            "삭제" to { showDeleteDialog(schedule.scheduleId) },
+                            "앨범 생성" to { navigateToCreateAlbum() },
+                        )
+                    } else {
+                        listOf(
+                            "수정" to { navigateToModifySchedule(schedule) },
+                            "삭제" to { showDeleteDialog(schedule.scheduleId) },
+                        )
+                    },
                 styles = IconCustomDropBoxStyles(),
             )
         }
