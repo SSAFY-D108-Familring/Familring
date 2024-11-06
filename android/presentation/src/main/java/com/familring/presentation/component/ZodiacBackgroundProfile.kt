@@ -23,6 +23,7 @@ fun ZodiacBackgroundProfile(
     profile: Profile,
     modifier: Modifier = Modifier,
     size: Int = 55,
+    paddingValue: Int = 8,
 ) {
     Box(
         modifier =
@@ -34,7 +35,7 @@ fun ZodiacBackgroundProfile(
             modifier =
                 Modifier
                     .size(size.dp)
-                    .padding(8.dp)
+                    .padding(paddingValue.dp)
                     .fillMaxSize(),
             model = profile.zodiacImgUrl,
             contentDescription = "zodiac_profile",

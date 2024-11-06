@@ -65,7 +65,7 @@ class QuestionViewModel
             }
         }
 
-        private fun postAnswer(content: String) {
+        fun postAnswer(content: String) {
             viewModelScope.launch {
                 questionRepository.postAnswer(content).collectLatest { response ->
                     when (response) {
@@ -87,7 +87,7 @@ class QuestionViewModel
             }
         }
 
-        private fun patchAnswer(
+        fun patchAnswer(
             answerId: Long,
             content: String,
         ) {

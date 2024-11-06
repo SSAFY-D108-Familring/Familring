@@ -71,6 +71,7 @@ import timber.log.Timber
 fun QuestionRoute(
     modifier: Modifier,
     navigateToQuestionList: () -> Unit,
+    navigateToAnswerWrite: () -> Unit,
     showSnackBar: (String) -> Unit,
     viewModel: QuestionViewModel = hiltViewModel(),
 ) {
@@ -89,6 +90,7 @@ fun QuestionRoute(
             QuestionScreen(
                 modifier = modifier,
                 navigateToQuestionList = navigateToQuestionList,
+                navigateToAnswerWrite = navigateToAnswerWrite,
                 showSnackBar = showSnackBar,
                 questionId = state.questionId,
                 questionContent = state.questionContent,
@@ -100,6 +102,7 @@ fun QuestionRoute(
             QuestionScreen(
                 modifier = modifier,
                 navigateToQuestionList = navigateToQuestionList,
+                navigateToAnswerWrite = navigateToAnswerWrite,
                 showSnackBar = showSnackBar,
             )
         }
@@ -110,6 +113,7 @@ fun QuestionRoute(
 fun QuestionScreen(
     modifier: Modifier = Modifier,
     navigateToQuestionList: () -> Unit,
+    navigateToAnswerWrite: () -> Unit,
     showSnackBar: (String) -> Unit = {},
     questionId: Long = 0,
     questionContent: String = "",
@@ -197,7 +201,7 @@ fun QuestionScreen(
                                     )
                                 }
                                 FloatingActionButton(
-                                    onClick = { /*수정하기*/ },
+                                    onClick = { navigateToAnswerWrite() },
                                     shape = RoundedCornerShape(50.dp),
                                     modifier =
                                         Modifier
@@ -362,7 +366,7 @@ fun QuestionScreen(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         items(answerContents.size) { answer ->
-                            FamilyListItem(answerContents[answer])
+                            FamilyListItem(answerContents[answer], showSnackBar)
                         }
                     }
                 }
@@ -372,7 +376,10 @@ fun QuestionScreen(
 }
 
 @Composable
-fun FamilyListItem(questionAnswer: QuestionAnswer) {
+fun FamilyListItem(
+    questionAnswer: QuestionAnswer,
+    showSnackBar: (String) -> Unit,
+) {
     Column(
         modifier =
             Modifier
@@ -381,7 +388,12 @@ fun FamilyListItem(questionAnswer: QuestionAnswer) {
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             ZodiacBackgroundProfile(
-                profile = Profile(zodiacImgUrl = questionAnswer.userZodiacSign, backgroundColor = questionAnswer.userColor),
+                profile =
+                    Profile(
+                        zodiacImgUrl = questionAnswer.userZodiacSign,
+                        backgroundColor = questionAnswer.userColor,
+                    ),
+                paddingValue = 4,
                 modifier =
                     Modifier
                         .size(35.dp)
@@ -423,6 +435,7 @@ fun FamilyListItem(questionAnswer: QuestionAnswer) {
                     modifier =
                         Modifier.noRippleClickable {
                             Timber.d("똑똑 누름 " + questionAnswer.userId)
+                            showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
                         },
                 )
             }
@@ -435,6 +448,7 @@ fun FamilyListItem(questionAnswer: QuestionAnswer) {
 fun QuestionScreenPreview() {
     QuestionScreen(
         navigateToQuestionList = {},
+        navigateToAnswerWrite = {},
         showSnackBar = {},
     )
 }

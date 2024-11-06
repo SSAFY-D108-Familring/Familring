@@ -13,7 +13,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +35,7 @@ import com.familring.presentation.screen.mypage.EditNameRoute
 import com.familring.presentation.screen.mypage.MyPageRoute
 import com.familring.presentation.screen.mypage.MyPageViewModel
 import com.familring.presentation.screen.notification.NotificationRoute
+import com.familring.presentation.screen.question.AnswerWriteRoute
 import com.familring.presentation.screen.question.QuestionListRoute
 import com.familring.presentation.screen.question.QuestionRoute
 import com.familring.presentation.screen.signup.BirthRoute
@@ -259,7 +259,20 @@ fun MainNavHost(
                 navigateToQuestionList = {
                     navController.navigate(ScreenDestinations.QuestionList.route)
                 },
+                navigateToAnswerWrite = {
+                    navController.navigate(ScreenDestinations.AnswerWrite.route)
+                },
                 showSnackBar = showSnackBar,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.AnswerWrite.route,
+        ) {
+            AnswerWriteRoute(
+                modifier = modifier,
+                onNavigateBack = navController::popBackStack,
+                showSnackBar = showSnackBar
             )
         }
 

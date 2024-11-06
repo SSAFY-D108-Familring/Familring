@@ -91,4 +91,7 @@ sealed class ScreenDestinations(
 
     // 닉네임 변경
     data object EditName : ScreenDestinations(route = "EditName")
+
+    // 답변 작성
+    data object AnswerWrite : ScreenDestinations(route = "AnswerWrite")
 }
