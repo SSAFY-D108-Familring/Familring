@@ -1,8 +1,5 @@
 package com.familring.presentation.navigation
 
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-
 import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.NavType
@@ -11,7 +8,6 @@ import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.LocalDateTimeAdapter
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.kakao.sdk.common.KakaoSdk.type
 import java.time.LocalDateTime
 
 /*
