@@ -161,6 +161,6 @@ public class AlbumService {
     }
 
     public Album getAlbumByScheduleId(Long scheduleId) {
-        return albumRepository.findByScheduleId(scheduleId).orElseThrow(AlbumNotFoundException::new);
+        return albumRepository.findByScheduleId(scheduleId).orElse(null);
     }
 }

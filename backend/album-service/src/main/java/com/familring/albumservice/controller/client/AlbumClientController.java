@@ -1,5 +1,6 @@
 package com.familring.albumservice.controller.client;
 
+import com.familring.albumservice.domain.Album;
 import com.familring.albumservice.service.AlbumService;
 import com.familring.common_module.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -23,7 +24,8 @@ public class AlbumClientController {
 
     @GetMapping
     public ResponseEntity<BaseResponse<Long>> getAlbumIdByScheduleId(@RequestParam Long scheduleId) {
-        Long albumId = albumService.getAlbumByScheduleId(scheduleId).getId();
+        Album album = albumService.getAlbumByScheduleId(scheduleId);
+        Long albumId = album == null ? null : album.getId();
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정 ID로 앨범 ID를 조회했습니다.", albumId));
     }
 }
