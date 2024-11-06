@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -70,5 +71,15 @@ public class AlbumController {
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         List<PhotoResponse> photos = albumService.getPhotos(albumId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 조회했습니다.", photos));
+    }
+
+    @PostMapping("/{album_id}/photos")
+    @Operation(summary = "앨범 사진 추가", description = "앨범에 사진들을 추가합니다.")
+    public ResponseEntity<BaseResponse<Void>> addPhotos(
+            @PathVariable("album_id") Long albumId,
+            @RequestParam("photos") List<MultipartFile> photos,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        albumService.addPhotos(albumId, photos, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범에 사진들을 추가했습니다."));
     }
 }

@@ -46,4 +46,9 @@ public class Album {
     public void updateAlbumName(String newName) {
         this.albumName = newName;
     }
+
+    public void addPhotos(List<Photo> newPhotos) {
+        newPhotos.forEach(photo -> photo.setAlbum(this));
+        this.photos.addAll(newPhotos);
+    }
 }

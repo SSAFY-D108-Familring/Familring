@@ -3,6 +3,7 @@ package com.familring.albumservice.service;
 import com.familring.albumservice.domain.Album;
 import com.familring.albumservice.domain.Album.AlbumBuilder;
 import com.familring.albumservice.domain.AlbumType;
+import com.familring.albumservice.domain.Photo;
 import com.familring.albumservice.dto.response.AlbumResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
@@ -13,9 +14,12 @@ import com.familring.albumservice.exception.album.InvalidAlbumRequestException;
 import com.familring.albumservice.repository.AlbumQueryRepository;
 import com.familring.albumservice.repository.AlbumRepository;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
+import com.familring.albumservice.service.client.FileServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +34,13 @@ import static com.familring.albumservice.domain.AlbumType.*;
 public class AlbumService {
 
     private final FamilyServiceFeignClient familyServiceFeignClient;
+    private final FileServiceFeignClient fileServiceFeignClient;
     private final AlbumRepository albumRepository;
     private final AlbumQueryRepository albumQueryRepository;
+
+    @Value("${aws.s3.album-photo-path}")
+    private String albumPhotoPath;
+
 
     /**
      * 일반 앨범 - UserId, ScheduleId가 null
@@ -114,5 +123,19 @@ public class AlbumService {
         return album.getPhotos().stream().map(
                 photo -> PhotoResponse.builder().id(photo.getId())
                         .photoUrl(photo.getPhotoUrl()).build()).toList();
+    }
+
+    @Transactional
+    public void addPhotos(Long albumId, List<MultipartFile> photos, Long userId) {
+        Album album = albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+
+        if (!album.getFamilyId().equals(familyId)) {
+            throw new InvalidAlbumRequestException();
+        }
+
+        List<String> photoUrls = fileServiceFeignClient.uploadFiles(photos, albumPhotoPath + "/" + familyId).getData();
+        List<Photo> newPhotos = photoUrls.stream().map(url -> Photo.builder().photoUrl(url).build()).toList();
+        album.addPhotos(newPhotos);
     }
 }
