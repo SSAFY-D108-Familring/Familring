@@ -42,7 +42,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.mapper.toProfile
-import com.familring.domain.model.Profile
 import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
@@ -415,51 +414,22 @@ val dailyLifes =
         DailyLife(
             dailyImgUrl = "",
             content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
-            profile =
-                Profile(
-                    nickName = "엄마미",
-                    zodiacImgUrl = "url",
-                    backgroundColor = "0xFFFEE222",
-                ),
-        ),
-        DailyLife(
-            dailyImgUrl = "",
-            content =
-                "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요" +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요" +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요" +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 ",
-            profile =
-                Profile(
-                    nickName = "엄마미",
-                    zodiacImgUrl = "url",
-                    backgroundColor = "0xFFFEE222",
-                ),
+            userZodiacSign = "",
+            userNickName = "",
+            userColor = "0xFFFEE222",
         ),
         DailyLife(
             dailyImgUrl = "",
             content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
-            profile =
-                Profile(
-                    nickName = "엄마미",
-                    zodiacImgUrl = "url",
-                    backgroundColor = "0xFFFEE222",
-                ),
+            userZodiacSign = "",
+            userNickName = "",
+            userColor = "0xFFFEE222",
+        ),
+        DailyLife(
+            dailyImgUrl = "",
+            content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
+            userZodiacSign = "",
+            userNickName = "",
+            userColor = "0xFFFEE222",
         ),
     )
