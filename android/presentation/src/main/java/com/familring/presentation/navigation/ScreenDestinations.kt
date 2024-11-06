@@ -88,4 +88,7 @@ sealed class ScreenDestinations(
 
     // 마이페이지
     data object MyPage : ScreenDestinations(route = "MyPage")
+
+    // 닉네임 변경
+    data object EditName : ScreenDestinations(route = "EditName")
 }
