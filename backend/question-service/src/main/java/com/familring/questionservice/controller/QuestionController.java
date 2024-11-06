@@ -29,16 +29,16 @@ public class QuestionController {
 
     @PatchMapping("/answers/{answer-id}")
     @Operation(summary = "랜덤 질문 답변 수정", description = "랜덤 질문 답변 수정 (질문 ID 값 전달)")
-    public ResponseEntity<BaseResponse<Void>> createTimeCapsule(@PathVariable("answer-id") Long answerId, @RequestBody QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
+    public ResponseEntity<BaseResponse<Void>> updateQuestionAnswer(@PathVariable("answer-id") Long answerId, @RequestBody QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
         questionService.updateQuestionAnswer(answerId, questionAnswerUpdateRequest);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "랜덤 질문 답변 수정에 성공했습니다."));
     }
 
     @GetMapping()
-    @Operation(summary = "오늘의 랜덤 질문 조회", description = "랜덤 질문 작성자 목록까지 같이 가요")
-    public ResponseEntity<BaseResponse<QuestionResponse>> getQuestionAnswers(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        QuestionResponse response = questionService.getQuestionToday(userId);
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "오늘의 랜덤 질문 조회에 성공했습니다.", response));
+    @Operation(summary = "랜덤 질문 조회", description = "랜덤 질문 작성자 목록까지 같이 가요")
+    public ResponseEntity<BaseResponse<QuestionResponse>> getQuestion(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestParam(required = false) Long questionId) {
+        QuestionResponse response = questionService.getQuestion(userId, questionId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "랜덤 질문 조회에 성공했습니다.", response));
     }
 
     @GetMapping("/all")

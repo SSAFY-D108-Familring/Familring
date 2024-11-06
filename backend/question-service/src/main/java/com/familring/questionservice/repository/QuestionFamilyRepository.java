@@ -12,4 +12,6 @@ public interface QuestionFamilyRepository extends JpaRepository<QuestionFamily, 
 
     Optional<QuestionFamily> findByFamilyId(Long familyId);
 
+    Optional<QuestionFamily> findByQuestionIdAndFamilyId(Long questionId, Long familyId);
+
 }

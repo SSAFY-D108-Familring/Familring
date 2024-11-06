@@ -146,20 +146,22 @@ public class QuestionService {
     }
 
     // 오늘의 랜덤 질문 조회
-    public QuestionResponse getQuestionToday(Long userId) {
+    public QuestionResponse getQuestion(Long userId, Long questionId) {
 
         // 가족 정보 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
 
-        // 몇 번째 질문인지 (가족에 대한 질문 정보 가져오기)
-        QuestionFamily questionFamily = questionFamilyRepository.findByFamilyId(familyId).orElseThrow(QuestionFamilyNotFoundException::new);
-        Question question = questionRepository.findById(questionFamily.getQuestion().getId()).orElseThrow(QuestionNotFoundException::new);
-
-        // 몇 번째 질문인지
-        Long questionId = question.getId();
-        // 질문 내용 뭔지
-        String questionContent = question.getContent();
+        Question question;
+        QuestionFamily questionFamily;
+        if (questionId!=null) {
+            questionFamily = questionFamilyRepository.findByQuestionIdAndFamilyId(questionId, familyId).orElseThrow(QuestionFamilyNotFoundException::new);
+            question = questionRepository.findById(questionId).orElseThrow(QuestionNotFoundException::new);
+        } else {
+            // 몇 번째 질문인지 (가족에 대한 질문 정보 가져오기)
+            questionFamily = questionFamilyRepository.findByFamilyId(familyId).orElseThrow(QuestionFamilyNotFoundException::new);
+            question = questionRepository.findById(questionFamily.getQuestion().getId()).orElseThrow(QuestionNotFoundException::new);
+        }
 
         // 질문 답변 누구했는지
         // familyId 로 가족 구성원 조회
@@ -201,8 +203,8 @@ public class QuestionService {
         }
 
         return QuestionResponse.builder()
-                .questionId(questionId)
-                .questionContent(questionContent)
+                .questionId(question.getId())
+                .questionContent(question.getContent())
                 .items(questionAnswerItemList)
                 .build();
 
