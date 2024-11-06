@@ -81,14 +81,18 @@ sealed class ScreenDestinations(
     // 일정 생성
     data object ScheduleCreate : ScreenDestinations(route = "ScheduleCreate") {
         override val route: String
-            get() = "ScheduleCreate/{targetSchedule}"
+            get() = "ScheduleCreate/{targetSchedule}/{isModify}"
 
         val arguments =
             listOf(
                 navArgument(name = "targetSchedule") { type = ScheduleNavType(gson) },
+                navArgument(name = "isModify") { type = NavType.BoolType },
             )
 
-        fun createRoute(targetSchedule: Schedule) = "ScheduleCreate/${Uri.encode(gson.toJson(targetSchedule))}"
+        fun createRoute(
+            targetSchedule: Schedule,
+            isModify: Boolean = false,
+        ) = "ScheduleCreate/${Uri.encode(gson.toJson(targetSchedule))}/$isModify"
     }
 
     // 일상 업로드

@@ -59,7 +59,6 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toColor
-import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -69,7 +68,7 @@ fun CalendarTab(
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
     showDeleteDialog: (Long) -> Unit,
-    navigateToModifySchedule: (Schedule) -> Unit,
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
 ) {
@@ -328,15 +327,6 @@ fun ScheduleItem(
                     schedule.familyMembers
                         .filter { it.attendanceStatus }
                         .map { it.toProfile() },
-            )
-
-            Timber.d("조디악 ${schedule.familyMembers}")
-            Timber.d(
-                "조디악 ${
-                    schedule.familyMembers
-                        .filter { it.attendanceStatus }
-                        .map { it.toProfile() }
-                }",
             )
             IconCustomDropdownMenu(
                 modifier =

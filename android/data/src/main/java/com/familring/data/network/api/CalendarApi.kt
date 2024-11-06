@@ -7,6 +7,7 @@ import com.familring.domain.request.ScheduleCreateRequest
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -28,7 +29,7 @@ interface CalendarApi {
         @Body schedule: ScheduleCreateRequest,
     ): BaseResponse<Unit>
 
-    @POST("calendars/schedules/{schedule_id}")
+    @PATCH("calendars/schedules/{schedule_id}")
     suspend fun updateSchedule(
         @Path("schedule_id") id: Long,
         @Body schedule: ScheduleCreateRequest,

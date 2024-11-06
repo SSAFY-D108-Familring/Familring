@@ -1,7 +1,6 @@
 package com.familring.presentation.screen.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,6 +78,7 @@ import java.time.LocalDateTime
 fun ScheduleCreateRoute(
     modifier: Modifier = Modifier,
     targetSchedule: Schedule,
+    isModify: Boolean,
     scheduleViewModel: ScheduleViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
@@ -103,8 +103,10 @@ fun ScheduleCreateRoute(
         ScheduleCreateScreen(
             modifier = modifier,
             targetSchedule = targetSchedule,
+            isModify = isModify,
             state = uiState,
             createSchedule = scheduleViewModel::createSchedule,
+            updateSchedule = scheduleViewModel::updateSchedule,
             popUpBackStack = popUpBackStack,
             showSnackBar = showSnackBar,
         )
@@ -118,8 +120,10 @@ fun ScheduleCreateRoute(
 fun ScheduleCreateScreen(
     modifier: Modifier = Modifier,
     targetSchedule: Schedule,
+    isModify: Boolean = false,
     state: ScheduleUiState,
     createSchedule: (ScheduleCreateRequest) -> Unit = {},
+    updateSchedule: (Long, ScheduleCreateRequest) -> Unit = { _, _ -> },
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
 ) {
@@ -167,17 +171,20 @@ fun ScheduleCreateScreen(
         }
     }
 
-    if (targetSchedule == Schedule()) {
-        title = targetSchedule.title
-        startSchedule = targetSchedule.startTime
-        endSchedule = targetSchedule.endTime
-        isTimeChecked = targetSchedule.hasTime
-        isNotiChecked = targetSchedule.hasNotification
-        selectedColorIdx = colors.indexOf(targetSchedule.backgroundColor.toColor())
-        isProfileCheckedList.forEachIndexed { index, _ ->
-            isProfileCheckedList[index] = targetSchedule.familyMembers[index].attendanceStatus
+    LaunchedEffect(targetSchedule) {
+        if (isModify) {
+            title = targetSchedule.title
+            startSchedule = targetSchedule.startTime
+            endSchedule = targetSchedule.endTime
+            isTimeChecked = targetSchedule.hasTime
+            isNotiChecked = targetSchedule.hasNotification
+            selectedColorIdx = colors.indexOf(targetSchedule.backgroundColor.toColor())
+
+            isProfileCheckedList.clear()
+            isProfileCheckedList.addAll(targetSchedule.familyMembers.map { it.attendanceStatus })
+
+            isAllChecked = isProfileCheckedList.all { it }
         }
-        isAllChecked = isProfileCheckedList.all { it }
     }
 
     Surface(
@@ -191,7 +198,7 @@ fun ScheduleCreateScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "일정 추가",
+                        text = if (!isModify) "일정 추가" else "일정 수정",
                         color = Black,
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
@@ -414,9 +421,9 @@ fun ScheduleCreateScreen(
             Spacer(modifier = Modifier.weight(1f))
             RoundLongButton(
                 modifier = Modifier.padding(bottom = 20.dp),
-                text = "일정 추가하기",
+                text = if (!isModify) "일정 추가하기" else "일정 수정하기",
                 onClick = {
-                    createSchedule(
+                    val newSchedule =
                         ScheduleCreateRequest(
                             title = title,
                             color = colors[selectedColorIdx].toColorLongString(),
@@ -431,8 +438,12 @@ fun ScheduleCreateScreen(
                                         attendanceStatus = isChecked,
                                     )
                                 },
-                        ),
-                    )
+                        )
+                    if (isModify) {
+                        updateSchedule(targetSchedule.scheduleId, newSchedule)
+                    } else {
+                        createSchedule(newSchedule)
+                    }
                 },
                 enabled = isButtonEnabled,
             )
@@ -519,7 +530,7 @@ fun AllCheckBox(
         modifier =
             modifier
                 .padding(vertical = 10.dp)
-                .clickable { onChecked(!isChecked) },
+                .noRippleClickable { onChecked(!isChecked) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CustomCheckBox(

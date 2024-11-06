@@ -51,7 +51,6 @@ import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -332,7 +331,7 @@ fun MainNavHost(
                 },
                 navigateToModifySchedule = { schedule ->
                     navController.navigate(
-                        ScreenDestinations.ScheduleCreate.createRoute(schedule),
+                        ScreenDestinations.ScheduleCreate.createRoute(schedule, true),
                     )
                 },
                 navigateToCreateDaily = { navController.navigate(ScreenDestinations.DailyUpload.route) },
@@ -347,10 +346,13 @@ fun MainNavHost(
             arguments = ScreenDestinations.ScheduleCreate.arguments,
         ) { backStackEntry ->
             val schedule = backStackEntry.arguments?.getParcelable<Schedule>("targetSchedule")
+            val isModify = backStackEntry.arguments?.getBoolean("isModify") ?: false
+
             if (schedule != null) {
                 ScheduleCreateRoute(
                     modifier = modifier,
                     targetSchedule = schedule,
+                    isModify = isModify,
                     popUpBackStack = navController::popBackStack,
                     showSnackBar = showSnackBar,
                 )
