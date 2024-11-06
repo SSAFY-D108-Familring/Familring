@@ -3,7 +3,7 @@ package com.familring.questionservice.controller;
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
-import com.familring.questionservice.dto.response.QuestionTodayResponse;
+import com.familring.questionservice.dto.response.QuestionResponse;
 import com.familring.questionservice.dto.response.QuestionListResponse;
 import com.familring.questionservice.service.QuestionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,8 +36,8 @@ public class QuestionController {
 
     @GetMapping()
     @Operation(summary = "오늘의 랜덤 질문 조회", description = "랜덤 질문 작성자 목록까지 같이 가요")
-    public ResponseEntity<BaseResponse<QuestionTodayResponse>> getQuestionAnswers(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        QuestionTodayResponse response = questionService.getQuestionToday(userId);
+    public ResponseEntity<BaseResponse<QuestionResponse>> getQuestionAnswers(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        QuestionResponse response = questionService.getQuestionToday(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "오늘의 랜덤 질문 조회에 성공했습니다.", response));
     }
 
