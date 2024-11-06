@@ -6,9 +6,6 @@ import androidx.compose.runtime.Stable
 @Stable
 sealed interface SignUpUiEvent {
     @Immutable
-    data object Loading : SignUpUiEvent
-
-    @Immutable
     data object Success : SignUpUiEvent
 
     @Immutable
