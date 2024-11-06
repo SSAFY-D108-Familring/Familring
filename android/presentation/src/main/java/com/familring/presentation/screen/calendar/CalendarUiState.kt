@@ -1,9 +1,9 @@
 package com.familring.presentation.screen.calendar
 
-import com.familring.domain.model.DailyLife
-import com.familring.domain.model.PreviewDaily
-import com.familring.domain.model.PreviewSchedule
-import com.familring.domain.model.Schedule
+import com.familring.domain.model.calendar.DailyLife
+import com.familring.domain.model.calendar.PreviewDaily
+import com.familring.domain.model.calendar.PreviewSchedule
+import com.familring.domain.model.calendar.Schedule
 
 data class CalendarUiState(
     val previewSchedules: List<PreviewSchedule> = listOf(),

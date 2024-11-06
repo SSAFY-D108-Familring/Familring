@@ -34,7 +34,7 @@ fun ZodiacBackgroundProfile(
             modifier =
                 Modifier
                     .size(size.dp)
-                    .padding(8.dp)
+                    .padding(5.dp)
                     .fillMaxSize(),
             model = profile.zodiacImgUrl,
             contentDescription = "zodiac_profile",
@@ -49,7 +49,7 @@ private fun ZodiacBackgroundProfilePreview() {
     ZodiacBackgroundProfile(
         profile =
             Profile(
-                zodiacImgUrl = "url1",
+                zodiacImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/호랑이.png",
                 backgroundColor = "0xFFFEE222",
             ),
     )

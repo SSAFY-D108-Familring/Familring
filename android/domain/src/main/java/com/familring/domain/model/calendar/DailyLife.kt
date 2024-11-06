@@ -1,4 +1,6 @@
-package com.familring.domain.model
+package com.familring.domain.model.calendar
+
+import com.familring.domain.model.Profile
 
 data class DailyLife(
     val dailyImgUrl: String,

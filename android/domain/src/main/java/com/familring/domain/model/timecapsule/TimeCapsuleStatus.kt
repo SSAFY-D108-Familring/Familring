@@ -1,4 +1,6 @@
-package com.familring.domain.model
+package com.familring.domain.model.timecapsule
+
+import com.familring.domain.model.Profile
 
 data class TimeCapsuleStatus(
     val status: Int = 0,

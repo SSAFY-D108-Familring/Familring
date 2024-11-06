@@ -22,8 +22,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.model.DaySchedule
-import com.familring.domain.model.PreviewSchedule
+import com.familring.domain.model.calendar.DaySchedule
+import com.familring.domain.model.calendar.PreviewSchedule
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
