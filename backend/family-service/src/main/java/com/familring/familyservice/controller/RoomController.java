@@ -30,7 +30,6 @@ public class RoomController {
     public ResponseEntity<?> joinRoom(@PathVariable Long roomId, @RequestHeader("X-User-ID") Long userId) {
         try {
             log.info("[채팅방 입장] 요청 roomId={}, userId={}", roomId, userId);
-
             List<ChatDTO> chatList = chatService.findAllChatByRoomId(roomId, userId);
 
             if (chatList.isEmpty()) {

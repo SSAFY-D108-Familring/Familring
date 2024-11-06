@@ -6,52 +6,35 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "chats")
 @ToString
 public class ChatEntity {
 
     @Id
     private ObjectId id;
+    private Long roomId; // 채팅 방의 id == familyId
 
-    private Long roomId;
+    private Long senderId; // 발신자 id
+    private String senderNickname; // 발신자 nickname
+    private String senderZodiacSignImageUrl; // 발신자 프로필 배경색
+    private String senderColor; // 발신자 프로필 배경색
 
-    private Long senderId;
-    private String senderNickname;
-    private String senderProfileImage;
-
-    private String content;
-    private Boolean messageChecked;
-    private String sendTime;
+    private String content; // 채팅 내용
+    private String createdAt; // 채팅 발신 시간
 
 
-    @Builder
-    public ChatEntity(Long roomId, Long senderId, String senderNickname, String senderProfileImage, String content, Boolean messageChecked, String sendTime) {
-        this.roomId = roomId;
-        this.senderId = senderId;
-        this.senderNickname = senderNickname;
-        this.senderProfileImage = senderProfileImage;
-        this.content = content;
-        this.messageChecked = messageChecked;
-        this.sendTime = sendTime;
-    }
-
-    @Builder
-    public static ChatEntity createChat(Long roomId, Long senderId, String senderNickname, String senderProfileImage, String content, Boolean messageChecked, String sendTime) {
+    public static ChatEntity createChat(Long roomId, Long senderId, String senderNickname, String senderZodiacSignImageUrl, String senderColor, String content, String createdAt) {
         return ChatEntity.builder()
                 .roomId(roomId)
                 .senderId(senderId)
                 .senderNickname(senderNickname)
-                .senderProfileImage(senderProfileImage)
+                .senderZodiacSignImageUrl(senderZodiacSignImageUrl)
+                .senderColor(senderColor)
                 .content(content)
-                .messageChecked(messageChecked)
-                .sendTime(sendTime)
+                .createdAt(createdAt)
                 .build();
     }
-
-
-    public void markAsRead() {
-        this.messageChecked = true;
-    }
-
 }
