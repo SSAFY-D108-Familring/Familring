@@ -121,12 +121,11 @@ fun QuestionScreen(
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize().background(Color.White)) {
+    Surface(modifier = modifier.fillMaxSize().background(Color.White)) {
         Scaffold(
             floatingActionButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(bottom = 60.dp),
                 ) {
                     AnimatedVisibility(
                         visible = isExpanded,

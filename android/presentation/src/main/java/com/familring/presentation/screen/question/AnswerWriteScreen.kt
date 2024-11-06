@@ -28,6 +28,7 @@ import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun AnswerWriteRoute(
@@ -74,7 +75,8 @@ fun AnswerWriteScreen(
 ) {
     var content by remember { mutableStateOf("") }
 
-    Surface(modifier = modifier.fillMaxSize().background(color = Color.White)) {
+    Surface(modifier = modifier.fillMaxSize(),
+        color = White) {
         Column(
             modifier =
                 Modifier

@@ -1,7 +1,13 @@
 package com.familring.presentation.screen.calendar
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,13 +15,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -28,6 +41,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,17 +54,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.DaySchedule
 import com.familring.domain.model.PreviewSchedule
 import com.familring.presentation.R
-import com.familring.presentation.component.IconCustomDropBoxStyles
-import com.familring.presentation.component.IconCustomDropdownMenu
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.TwoButtonTextDialog
 import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import com.familring.presentation.util.toLocalDate
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -124,6 +137,8 @@ fun CalendarScreen(
     var showDialog by remember { mutableStateOf(false) }
     var deleteTargetScheduleId = -1L
 
+    var isExpanded by remember { mutableStateOf(false) }
+
     LaunchedEffect(selectedMonth) {
         getMonthData(selectedMonth.year, selectedMonth.monthValue)
     }
@@ -147,30 +162,121 @@ fun CalendarScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
-        containerColor = White,
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { navigateToCreateSchedule() },
-                containerColor = Green01,
-                contentColor = White,
-                shape = CircleShape,
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier.padding(bottom = 60.dp),
             ) {
-                IconCustomDropdownMenu(
-                    modifier = Modifier,
-                    menuItems =
-                        listOf(
-                            "일정 생성" to { navigateToCreateSchedule() },
-                            "일상 공유" to { navigateToCreateDaily() },
-                        ),
-                    styles =
-                        IconCustomDropBoxStyles(
-                            iconSize = 30.dp,
-                            iconDrawableId = R.drawable.ic_add,
-                            expandedIconDrawableId = R.drawable.ic_add,
-                            iconColor = White,
-                        ),
-                )
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Surface(
+                                color = Gray01.copy(alpha = 0.9f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.padding(end = 8.dp),
+                            ) {
+                                Text(
+                                    text = "일상 공유",
+                                    style = Typography.labelSmall,
+                                    color = White,
+                                    modifier = Modifier.padding(
+                                        horizontal = 16.dp,
+                                        vertical = 8.dp,
+                                    ),
+                                )
+                            }
+                            FloatingActionButton(
+                                onClick = { navigateToCreateDaily() },
+                                shape = RoundedCornerShape(50.dp),
+                                modifier = Modifier
+                                    .padding(end = 7.dp)
+                                    .size(40.dp),
+                                containerColor = Green01,
+                                elevation = FloatingActionButtonDefaults.elevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp,
+                                    hoveredElevation = 0.dp,
+                                    focusedElevation = 0.dp,
+                                ),
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_add),
+                                    contentDescription = "ic_add",
+                                    tint = White,
+                                )
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Surface(
+                                color = Gray01.copy(alpha = 0.8f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.padding(end = 8.dp),
+                            ) {
+                                Text(
+                                    "일정 생성",
+                                    style = Typography.labelSmall,
+                                    color = White,
+                                    modifier = Modifier.padding(
+                                        vertical = 8.dp,
+                                        horizontal = 16.dp,
+                                    ),
+                                )
+                            }
+                            FloatingActionButton(
+                                onClick = { navigateToCreateSchedule() },
+                                shape = RoundedCornerShape(50.dp),
+                                modifier = Modifier
+                                    .padding(end = 7.dp)
+                                    .size(40.dp),
+                                containerColor = Green01,
+                                elevation = FloatingActionButtonDefaults.elevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp,
+                                    hoveredElevation = 0.dp,
+                                    focusedElevation = 0.dp,
+                                ),
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_add),
+                                    contentDescription = "ic_add",
+                                    tint = White,
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.fillMaxSize(0.02f))
+                FloatingActionButton(
+                    onClick = { isExpanded = !isExpanded },
+                    shape = RoundedCornerShape(50.dp),
+                    containerColor = Green01,
+                    modifier = Modifier.size(56.dp),
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp,
+                        hoveredElevation = 0.dp,
+                        focusedElevation = 0.dp,
+                    ),
+                ) {
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.Close else Icons.Default.Add,
+                        contentDescription = "fab_img",
+                        tint = White,
+                    )
+                }
             }
         },
     ) { innerPadding ->
@@ -178,7 +284,7 @@ fun CalendarScreen(
             modifier =
                 Modifier
                     .padding(innerPadding)
-                    .fillMaxSize(),
+                    .fillMaxSize().background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TopAppBar(
