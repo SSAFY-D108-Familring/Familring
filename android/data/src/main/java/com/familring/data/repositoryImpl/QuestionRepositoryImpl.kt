@@ -3,6 +3,7 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.QuestionApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.QuestionList
 import com.familring.domain.model.QuestionResponse
 import com.familring.domain.repository.QuestionRepository
 import com.familring.domain.request.QuestionAnswerRequest
@@ -16,7 +17,7 @@ class QuestionRepositoryImpl
     constructor(
         private val api: QuestionApi,
     ) : QuestionRepository {
-        override suspend fun getQuestion(): Flow<ApiResponse<QuestionResponse>> =
+        override suspend fun getQuestion(questionId: Long?): Flow<ApiResponse<QuestionResponse>> =
             flow {
                 val response =
                     emitApiResponse(
@@ -45,6 +46,19 @@ class QuestionRepositoryImpl
                     emitApiResponse(
                         apiResponse = { api.patchAnswer(answerId, QuestionPatchRequest(content)) },
                         default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun getAllQuestion(
+            pageNo: Int,
+            order: String,
+        ): Flow<ApiResponse<QuestionList>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.getAllQuestion(pageNo, order) },
+                        default = QuestionList(),
                     )
                 emit(response)
             }

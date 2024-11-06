@@ -36,6 +36,7 @@ import com.familring.presentation.screen.mypage.MyPageRoute
 import com.familring.presentation.screen.mypage.MyPageViewModel
 import com.familring.presentation.screen.notification.NotificationRoute
 import com.familring.presentation.screen.question.AnswerWriteRoute
+import com.familring.presentation.screen.question.PastQuestionRoute
 import com.familring.presentation.screen.question.QuestionListRoute
 import com.familring.presentation.screen.question.QuestionRoute
 import com.familring.presentation.screen.signup.BirthRoute
@@ -272,15 +273,16 @@ fun MainNavHost(
             AnswerWriteRoute(
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
-                showSnackBar = showSnackBar
+                showSnackBar = showSnackBar,
             )
         }
 
-        composable(
-            route = ScreenDestinations.QuestionList.route,
-        ) {
+        composable(route = ScreenDestinations.QuestionList.route) {
             QuestionListRoute(
                 onNavigateBack = navController::popBackStack,
+                navigateToPastQuestion = { questionId ->
+                    navController.navigate(ScreenDestinations.PastQuestion.createRoute(questionId))
+                },
             )
         }
 
@@ -456,6 +458,17 @@ fun MainNavHost(
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
                 showSnackBar = showSnackBar,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.PastQuestion.route,
+            arguments = ScreenDestinations.PastQuestion.arguments,
+        ) { backStackEntry ->
+            val questionId = backStackEntry.arguments?.getLong("questionId") ?: 0L
+            PastQuestionRoute(
+                questionId = questionId,
+                popUpBackStack = navController::popBackStack,
             )
         }
     }

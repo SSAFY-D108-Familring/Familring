@@ -157,7 +157,7 @@ fun QuestionScreen(
                                     )
                                 }
                                 FloatingActionButton(
-                                    onClick = { /*수정하기*/ },
+                                    onClick = { navigateToAnswerWrite() },
                                     shape = RoundedCornerShape(50.dp),
                                     modifier =
                                         Modifier

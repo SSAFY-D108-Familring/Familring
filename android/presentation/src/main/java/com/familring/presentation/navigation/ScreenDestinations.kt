@@ -1,5 +1,8 @@
 package com.familring.presentation.navigation
 
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+
 /*
  받는 변수가 있는 스크린 추가
     data object sample : ScreenDestination(route = "화면이름"){
@@ -94,4 +97,13 @@ sealed class ScreenDestinations(
 
     // 답변 작성
     data object AnswerWrite : ScreenDestinations(route = "AnswerWrite")
+
+    data object PastQuestion : ScreenDestinations(route = "pastQuestion") {
+        override val route: String
+            get() = "pastQuestion/{questionId}"
+        val arguments = listOf(
+            navArgument("questionId") { type = NavType.LongType }
+        )
+        fun createRoute(questionId: Long) = "pastQuestion/$questionId"
+    }
 }

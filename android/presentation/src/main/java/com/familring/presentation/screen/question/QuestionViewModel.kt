@@ -3,6 +3,7 @@ package com.familring.presentation.screen.question
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.QuestionList
 import com.familring.domain.repository.QuestionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,6 +27,12 @@ class QuestionViewModel
         private val _questionEvent = MutableSharedFlow<QuestionEvent>()
         val questionEvent = _questionEvent.asSharedFlow()
 
+        private val _questionListState = MutableStateFlow<QuestionListState>(QuestionListState.Loading)
+        val questionListState = _questionListState.asStateFlow()
+
+        private var currentOrder = "desc"
+        private var currentPage = 0
+
         private val _refreshTrigger = MutableStateFlow(0)
 
         init {
@@ -40,9 +47,9 @@ class QuestionViewModel
             _refreshTrigger.value += 1
         }
 
-        private fun getQuestion() {
+        fun getQuestion(questionId: Long? = null) {
             viewModelScope.launch {
-                questionRepository.getQuestion().collectLatest { response ->
+                questionRepository.getQuestion(questionId).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
                             _questionState.value =
@@ -58,7 +65,6 @@ class QuestionViewModel
                                 QuestionState.Error(
                                     errorMessage = response.message,
                                 )
-                            Timber.d("code: ${response.code}, message: ${response.message}")
                         }
                     }
                 }
@@ -108,6 +114,67 @@ class QuestionViewModel
                             Timber.d("code: ${response.code}, message: ${response.message}")
                         }
                     }
+                }
+            }
+        }
+
+        fun getAllQuestion(order: String = currentOrder) {
+            currentOrder = order
+            currentPage = 0
+
+            viewModelScope.launch {
+                _questionListState.value = QuestionListState.Loading
+                questionRepository.getAllQuestion(currentPage, currentOrder).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _questionListState.value =
+                                QuestionListState.Success(
+                                    questionList = response.data,
+                                )
+                        }
+
+                        is ApiResponse.Error -> {
+                            _questionListState.value =
+                                QuestionListState.Error(
+                                    errorMessage = response.message,
+                                )
+                            Timber.d("code: ${response.code}, message: ${response.message}")
+                        }
+                    }
+                }
+            }
+        }
+
+        fun loadNextPage() {
+            val currentState = _questionListState.value
+            if (currentState is QuestionListState.Success && !currentState.questionList.last) {
+                currentPage++
+                viewModelScope.launch {
+                    questionRepository
+                        .getAllQuestion(currentPage, currentOrder)
+                        .collectLatest { response ->
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    val currentItems = currentState.questionList.items
+                                    _questionListState.value =
+                                        QuestionListState.Success(
+                                            QuestionList(
+                                                pageNo = response.data.pageNo,
+                                                hasNext = response.data.hasNext,
+                                                items = currentItems + response.data.items,
+                                                last = response.data.last,
+                                            ),
+                                        )
+                                }
+
+                                is ApiResponse.Error -> {
+                                    _questionListState.value =
+                                        QuestionListState.Error(
+                                            errorMessage = response.message,
+                                        )
+                                }
+                            }
+                        }
                 }
             }
         }
