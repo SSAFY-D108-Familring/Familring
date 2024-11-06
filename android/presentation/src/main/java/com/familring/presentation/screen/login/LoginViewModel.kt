@@ -1,7 +1,6 @@
 package com.familring.presentation.screen.login
 
 import android.app.Activity
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.datasource.AuthDataStore
@@ -40,6 +39,10 @@ class LoginViewModel
         val loginEvent = _loginEvent.asSharedFlow()
 
         init {
+            autoLogin()
+        }
+
+        fun autoLogin() {
             viewModelScope.launch {
                 authDataStore.getKakaoId()?.let {
                     try {
