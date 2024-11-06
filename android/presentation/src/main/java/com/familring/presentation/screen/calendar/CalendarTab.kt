@@ -69,7 +69,7 @@ fun CalendarTab(
     dailyLifes: List<DailyLife>,
     deleteSchedule: (Long) -> Unit,
     showDeleteDialog: (Long) -> Unit,
-    navigateToModifySchedule: (Long) -> Unit,
+    navigateToModifySchedule: (Schedule) -> Unit,
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
 ) {
@@ -217,7 +217,7 @@ fun ScheduleTab(
     schedules: List<Schedule> = listOf(),
     deleteSchedule: (Long) -> Unit = {},
     showDeleteDialog: (Long) -> Unit = {},
-    navigateToModifySchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
@@ -260,7 +260,7 @@ fun ScheduleItem(
     schedule: Schedule,
     showDeleteDialog: (Long) -> Unit = {},
     deleteSchedule: (Long) -> Unit = {},
-    navigateToModifySchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
@@ -335,7 +335,7 @@ fun ScheduleItem(
                         .padding(3.dp),
                 menuItems =
                     listOf(
-                        "수정" to { navigateToModifySchedule(schedule.scheduleId) },
+                        "수정" to { navigateToModifySchedule(schedule) },
                         "삭제" to { showDeleteDialog(schedule.scheduleId) },
                         "앨범 생성" to { navigateToCreateAlbum() },
                     ),

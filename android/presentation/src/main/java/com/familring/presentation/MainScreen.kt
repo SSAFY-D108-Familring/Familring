@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
@@ -48,6 +49,7 @@ import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -85,6 +87,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 )
             }
         },
+        containerColor = White,
     ) { innerPadding ->
         MainNavHost(
             modifier =
@@ -320,22 +323,36 @@ fun MainNavHost(
         ) {
             CalendarRoute(
                 modifier = modifier,
-                navigateToCreateSchedule = { navController.navigate(ScreenDestinations.ScheduleCreate.route) },
+                navigateToCreateSchedule = {
+                    navController.navigate(
+                        ScreenDestinations.ScheduleCreate.createRoute(Schedule()),
+                    )
+                },
+                navigateToModifySchedule = { schedule ->
+                    navController.navigate(
+                        ScreenDestinations.ScheduleCreate.createRoute(schedule),
+                    )
+                },
                 navigateToCreateDaily = { navController.navigate(ScreenDestinations.DailyUpload.route) },
                 navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
                 navigateToAlbum = {},
-                navigateToModifySchedule = { },
                 showSnackBar = showSnackBar,
             )
         }
 
         composable(
             route = ScreenDestinations.ScheduleCreate.route,
-        ) {
-            ScheduleCreateRoute(
-                modifier = modifier,
-                popUpBackStack = navController::popBackStack,
-            )
+            arguments = ScreenDestinations.ScheduleCreate.arguments,
+        ) { backStackEntry ->
+            val schedule = backStackEntry.arguments?.getParcelable<Schedule>("targetSchedule")
+            if (schedule != null) {
+                ScheduleCreateRoute(
+                    modifier = modifier,
+                    targetSchedule = schedule,
+                    popUpBackStack = navController::popBackStack,
+                    showSnackBar = showSnackBar,
+                )
+            }
         }
 
         composable(

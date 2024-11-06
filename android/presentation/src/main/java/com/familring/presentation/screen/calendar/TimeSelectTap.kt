@@ -157,7 +157,7 @@ fun TimeSelectTap(
                     ),
             )
             RoundLongButton(
-                text = "시간 선택 완료하기",
+                text = "일정 선택 완료하기",
                 onClick = {
                     onButtonClicked(
                         LocalDateTime.of(

@@ -30,14 +30,20 @@ class ScheduleViewModel
         private val _event = MutableSharedFlow<ScheduleUiEvent>()
         val event = _event.asSharedFlow()
 
-        fun getFamilyMembers() {
+        init {
+            getFamilyMembers()
+        }
+
+        private fun getFamilyMembers() {
             viewModelScope.launch {
                 familyRepository.getFamilyMembers().collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _uiState.update {
                                 it.copy(
-                                    familyMembers = result.data.map { user -> user.toProfile() },
+                                    isLoading = false,
+                                    familyProfiles = result.data.map { user -> user.toProfile() },
+                                    familyMembers = result.data,
                                 )
                             }
                         }

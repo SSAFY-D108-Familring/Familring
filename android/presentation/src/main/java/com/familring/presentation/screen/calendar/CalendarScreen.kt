@@ -38,6 +38,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.calendar.DaySchedule
 import com.familring.domain.model.calendar.PreviewSchedule
+import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
@@ -58,10 +59,10 @@ import java.time.LocalDate
 fun CalendarRoute(
     modifier: Modifier,
     navigateToCreateSchedule: () -> Unit,
+    navigateToModifySchedule: (Schedule) -> Unit,
     navigateToCreateDaily: () -> Unit,
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
-    navigateToModifySchedule: (Long) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
@@ -96,7 +97,7 @@ fun CalendarScreen(
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
-    navigateToModifySchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     showSnackBar: (String) -> Unit = {},
 ) {
     // pager
