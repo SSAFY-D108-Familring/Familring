@@ -8,19 +8,19 @@ import com.familring.questionservice.dto.client.UserInfoResponse;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
 import com.familring.questionservice.dto.response.QuestionAnswerItem;
-import com.familring.questionservice.dto.response.QuestionInfoResponse;
 import com.familring.questionservice.dto.response.QuestionItem;
+import com.familring.questionservice.dto.response.QuestionTodayResponse;
 import com.familring.questionservice.dto.response.QuestionListResponse;
-import com.familring.questionservice.exception.AlreadyExistQuestionAnswerException;
-import com.familring.questionservice.exception.QuestionAnswerNotFoundException;
-import com.familring.questionservice.exception.QuestionFamilyNotFoundException;
-import com.familring.questionservice.exception.QuestionNotFoundException;
+import com.familring.questionservice.exception.*;
 import com.familring.questionservice.repository.QuestionAnswerRepository;
 import com.familring.questionservice.repository.QuestionFamilyRepository;
 import com.familring.questionservice.repository.QuestionRepository;
 import com.familring.questionservice.service.client.FamilyServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -146,7 +146,7 @@ public class QuestionService {
     }
 
     // 랜덤 질문 조회
-    public QuestionInfoResponse getQuestionInfo(Long userId) {
+    public QuestionTodayResponse getQuestionToday(Long userId) {
 
         // 가족 정보 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -200,30 +200,54 @@ public class QuestionService {
             questionAnswerItemList.add(questionAnswerItem);
         }
 
-        return QuestionInfoResponse.builder()
+        return QuestionTodayResponse.builder()
                 .questionId(questionId)
                 .questionContent(questionContent)
                 .items(questionAnswerItemList)
                 .build();
+
     }
 
     // 랜덤 질문 목록 전체 조회
-    public QuestionListResponse getAllQuestions(Long userId) {
+    public QuestionListResponse getAllQuestions(Long userId, int pageNo, String order) {
+
         // 가족이 몇 번째 질문까지 했는지 확인해서
         // 가족 정보 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
 
         // 몇 번째 질문인지 (가족에 대한 질문 정보 가져오기)
-        QuestionFamily questionFamily = questionFamilyRepository.findByFamilyId(familyId).orElseThrow(QuestionFamilyNotFoundException::new);
-        Question question = questionRepository.findById(questionFamily.getQuestion().getId()).orElseThrow(QuestionNotFoundException::new);
+        QuestionFamily questionFamily = questionFamilyRepository.findByFamilyId(familyId)
+                .orElseThrow(QuestionFamilyNotFoundException::new);
+        Question question = questionRepository.findById(questionFamily.getQuestion().getId())
+                .orElseThrow(QuestionNotFoundException::new);
 
-        QuestionItem questionItem = QuestionItem.builder()
-                .questionId(question.getId())
-                .questionContent(question.getContent())
+        // 페이징 설정
+        PageRequest pageRequest = PageRequest.of(pageNo, 20); // 20개씩
+        Slice<Question> questionSlice;
+
+        // 최신순(내림차순) 또는 오래된순(오름차순) 정렬
+        if (StringUtils.equals(order, "desc")) {
+            questionSlice = questionRepository.findAllByIdLessThanEqualOrderByIdDesc(question.getId(), pageRequest);
+        } else if (StringUtils.equals(order, "asc")){
+            questionSlice = questionRepository.findAllByIdLessThanEqualOrderByIdAsc(question.getId(), pageRequest);
+        } else {
+            throw new InvalidQueryParamException();
+        }
+
+        List<QuestionItem> questionItems = questionSlice.getContent().stream()
+                .map(q -> QuestionItem.builder()
+                        .questionId(q.getId())
+                        .questionContent(q.getContent())
+                        .build())
+                .toList();
+
+        // QuestionListResponse 생성
+        return QuestionListResponse.builder()
+                .hasNext(questionSlice.hasNext())
+                .isLast(questionSlice.isLast())
+                .items(questionItems)
                 .build();
-
-        return QuestionListResponse.builder().build();
     }
 
 }
