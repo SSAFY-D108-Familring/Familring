@@ -11,6 +11,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class QuestionResponse {
+public class QuestionListResponse {
+    int pageNo;
+    boolean isLast; // 현재 슬라이스가 마지막인지 여부
+    boolean hasNext; // 다음 슬라이스가 있는지 여부
     List<QuestionItem> items;
 }
