@@ -82,4 +82,13 @@ public class AlbumController {
         albumService.addPhotos(albumId, photos, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범에 사진들을 추가했습니다."));
     }
+
+    @DeleteMapping("/{album_id}/photos")
+    @Operation(summary = "앨범 사진 삭제", description = "앨범 사진들을 삭제합니다.")
+    public ResponseEntity<BaseResponse<Void>> deletePhotos(
+            @RequestBody List<Long> photoIds,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        albumService.deletePhotos(photoIds, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 성공적으로 삭제했습니다."));
+    }
 }

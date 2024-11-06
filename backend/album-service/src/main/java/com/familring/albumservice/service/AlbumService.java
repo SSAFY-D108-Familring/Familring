@@ -13,6 +13,7 @@ import com.familring.albumservice.exception.album.InvalidAlbumParameterException
 import com.familring.albumservice.exception.album.InvalidAlbumRequestException;
 import com.familring.albumservice.repository.AlbumQueryRepository;
 import com.familring.albumservice.repository.AlbumRepository;
+import com.familring.albumservice.repository.PhotoRepository;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
 import com.familring.albumservice.service.client.FileServiceFeignClient;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +38,7 @@ public class AlbumService {
     private final FileServiceFeignClient fileServiceFeignClient;
     private final AlbumRepository albumRepository;
     private final AlbumQueryRepository albumQueryRepository;
+    private final PhotoRepository photoRepository;
 
     @Value("${aws.s3.album-photo-path}")
     private String albumPhotoPath;
@@ -137,5 +139,21 @@ public class AlbumService {
         List<String> photoUrls = fileServiceFeignClient.uploadFiles(photos, albumPhotoPath + "/" + familyId).getData();
         List<Photo> newPhotos = photoUrls.stream().map(url -> Photo.builder().photoUrl(url).build()).toList();
         album.addPhotos(newPhotos);
+    }
+
+    @Transactional
+    public void deletePhotos(List<Long> photoIds, Long userId) {
+        List<Photo> photos = photoRepository.findAllByIdWithAlbum(photoIds);
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+        photos.forEach(photo -> {
+            if (!photo.getAlbum().getFamilyId().equals(familyId)) {
+                throw new InvalidAlbumRequestException();
+            }
+        });
+
+        // DB에서 삭제
+        photoRepository.deleteAll(photos);
+        // AWS S3에서 삭제
+        fileServiceFeignClient.deleteFiles(photos.stream().map(Photo::getPhotoUrl).toList());
     }
 }
