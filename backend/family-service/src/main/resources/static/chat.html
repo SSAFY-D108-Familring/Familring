@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<h2>WebSocket Chat</h2>
+<div>
+    <input type="text" id="roomId" placeholder="Room ID">
+    <input type="text" id="message" placeholder="Message">
+    <button onclick="connect()">Connect</button>
+    <button onclick="sendMessage()">Send</button>
+</div>
+<div id="chat-log"></div>
+
+<script>
+    let stompClient = null;
+
+    async function fetchChatHistory(roomId) {
+        const response = await fetch(`/rooms/enter/${roomId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-User-ID': '1' // 사용자 ID 설정 필요
+            }
+        });
+        const result = await response.json();
+        const chatLog = document.getElementById("chat-log");
+        chatLog.innerHTML = "";
+        result.data.forEach(message => {
+            showMessage(message);
+        });
+    }
+
+    function connect() {
+        const roomId = document.getElementById("roomId").value;
+        if (!roomId) {
+            alert("Please enter Room ID.");
+            return;
+        }
+
+        fetchChatHistory(roomId); // 기존 채팅 기록 조회
+
+        const socket = new SockJS('/ws-stomp'); // 경로 수정
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, () => {
+            stompClient.subscribe(`/room/${roomId}`, (message) => {
+                showMessage(JSON.parse(message.body));
+            });
+        });
+    }
+
+    function sendMessage() {
+        const roomId = document.getElementById("roomId").value;
+        const messageContent = document.getElementById("message").value;
+
+        if (stompClient && stompClient.connected) {
+            stompClient.send(`/send/${roomId}`, {}, JSON.stringify({
+                senderId: 1,
+                senderNickname: "TEST1",
+                senderProfileImage: "profile.jpg",
+                content: messageContent,
+                sendTime: new Date().toISOString()
+            }));
+            document.getElementById("message").value = "";
+        } else {
+            alert("Not connected to WebSocket server.");
+        }
+    }
+
+    function showMessage(message) {
+        const chatLog = document.getElementById("chat-log");
+        chatLog.innerHTML += `<p><strong>${message.senderNickname}:</strong> ${message.content}</p>`;
+    }
+</script>
+</body>
+</html>
