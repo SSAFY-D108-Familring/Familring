@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +29,9 @@ import com.familring.presentation.theme.White
 fun TwoButtonTextDialog(
     modifier: Modifier = Modifier,
     text: String,
+    titleStyle: TextStyle = Typography.bodyMedium.copy(fontSize = 18.sp),
+    confirmText: String = "확인",
+    dismissText: String = "취소",
     onConfirmClick: () -> Unit,
     onDismissClick: () -> Unit,
 ) {
@@ -47,7 +51,7 @@ fun TwoButtonTextDialog(
         ) {
             Text(
                 text = text,
-                style = Typography.bodyMedium.copy(fontSize = 18.sp),
+                style = titleStyle,
                 textAlign = TextAlign.Center,
                 modifier =
                     Modifier
@@ -78,7 +82,7 @@ fun TwoButtonTextDialog(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "취소",
+                        text = dismissText,
                         color = White,
                         style = Typography.headlineMedium.copy(fontSize = 18.sp),
                         textAlign = TextAlign.Center,
@@ -97,7 +101,7 @@ fun TwoButtonTextDialog(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "확인",
+                        text = confirmText,
                         color = White,
                         style = Typography.headlineMedium.copy(fontSize = 18.sp),
                         textAlign = TextAlign.Center,
