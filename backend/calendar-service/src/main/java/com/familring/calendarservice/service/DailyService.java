@@ -67,6 +67,9 @@ public class DailyService {
         }
 
         dailyRepository.delete(daily);
+        List<String> deleteUrls = new ArrayList<>();
+        deleteUrls.add(daily.getPhotoUrl());
+        fileServiceFeignClient.deleteFiles(deleteUrls);
     }
 
     @Transactional
