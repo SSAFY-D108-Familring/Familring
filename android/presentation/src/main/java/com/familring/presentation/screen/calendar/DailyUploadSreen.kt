@@ -30,12 +30,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.familring.domain.util.toMultiPart
 import com.familring.presentation.R
 import com.familring.presentation.component.GrayBackgroundTextField
 import com.familring.presentation.component.RoundLongButton
@@ -45,14 +49,21 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.toFile
+import okhttp3.MultipartBody
 
 @Composable
 fun DailyUploadRoute(
     modifier: Modifier = Modifier,
+    dailyViewModel: DailyViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
 ) {
+    val uiState by dailyViewModel.uiState.collectAsStateWithLifecycle()
+
     DailyUploadScreen(
         modifier = modifier,
+        state = uiState,
+        createDaily = dailyViewModel::createDaily,
         popUpBackStack = popUpBackStack,
     )
 }
@@ -61,8 +72,12 @@ fun DailyUploadRoute(
 @Composable
 fun DailyUploadScreen(
     modifier: Modifier = Modifier,
+    state: DailyUiState = DailyUiState(),
+    createDaily: (String, MultipartBody.Part?) -> Unit = { _, _ -> },
     popUpBackStack: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     var imgUri by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher =
         rememberLauncherForActivityResult(
@@ -147,7 +162,7 @@ fun DailyUploadScreen(
             RoundLongButton(
                 modifier = Modifier.padding(vertical = 20.dp),
                 text = "일상 등록하기",
-                onClick = popUpBackStack,
+                onClick = { createDaily(content, imgUri?.toFile(context).toMultiPart()) },
                 enabled = imgUri != null,
             )
         }

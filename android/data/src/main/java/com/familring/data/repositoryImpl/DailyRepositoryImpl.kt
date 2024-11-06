@@ -2,7 +2,7 @@ package com.familring.data.repositoryImpl
 
 import com.familring.data.network.api.DailyApi
 import com.familring.data.network.response.emitApiResponse
-import com.familring.data.util.toRequestBody
+import com.familring.domain.util.toRequestBody
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.repository.DailyRepository

@@ -2,7 +2,7 @@ package com.familring.data.repositoryImpl
 
 import com.familring.data.network.api.UserApi
 import com.familring.data.network.response.emitApiResponse
-import com.familring.data.util.toMultiPart
+import com.familring.domain.util.toMultiPart
 import com.familring.domain.datasource.AuthDataStore
 import com.familring.domain.datasource.TokenDataStore
 import com.familring.domain.model.ApiResponse
