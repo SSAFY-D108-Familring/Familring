@@ -159,4 +159,8 @@ public class AlbumService {
     private String getAlbumPhotoPath(Long familyId) {
         return albumPhotoPath + "/" + familyId;
     }
+
+    public Album getAlbumByScheduleId(Long scheduleId) {
+        return albumRepository.findByScheduleId(scheduleId).orElseThrow(AlbumNotFoundException::new);
+    }
 }
