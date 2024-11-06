@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -73,7 +74,7 @@ public class AlbumController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 조회했습니다.", photos));
     }
 
-    @PostMapping("/{album_id}/photos")
+    @PostMapping(path = "/{album_id}/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "앨범 사진 추가", description = "앨범에 사진들을 추가합니다.")
     public ResponseEntity<BaseResponse<Void>> addPhotos(
             @PathVariable("album_id") Long albumId,
