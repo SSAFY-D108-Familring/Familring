@@ -90,6 +90,11 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    public boolean validateFamilyCode(String familyCode) {
+        return familyDao.existsFamilyByFamilyCode(familyCode);
+    }
+
+    @Override
     public List<Long> getAllFamilyId() {
         List<Long> response = familyDao.findFamilyId();
         return response;

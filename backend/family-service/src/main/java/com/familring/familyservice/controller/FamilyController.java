@@ -49,6 +49,14 @@ public class FamilyController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 구성원들을 성공적으로 조회 했습니다.", responseList));
     }
 
+    @GetMapping("/code/{familyCode}")
+    @Operation(summary = "가족 코드 유효성 검사", description = "familyCode가 family의 존재하는지 유무 확인")
+    public ResponseEntity<BaseResponse<Boolean>> validateFamilyCode(@PathVariable("familyCode") String familyCode) {
+        boolean response = familyService.validateFamilyCode(familyCode);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 코드 유효성 검사를 완료했습니다.", response));
+    }
+
     @PostMapping
     @Operation(summary = "가족 생성", description = "가족 테이블을 생성")
     public ResponseEntity<BaseResponse<FamilyInfoResponse>> createFamily

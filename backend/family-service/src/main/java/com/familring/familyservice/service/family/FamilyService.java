@@ -20,6 +20,9 @@ public interface FamilyService {
     // 가족 구성원 전체 조회 - familyId
     List<UserInfoResponse> getFamilyMemberListByFamilyId(Long familyId);
 
+    // 가족 코드 유효성 검사
+    boolean validateFamilyCode(String familyCode);
+
     // 모든 가족 조회
     List<Long> getAllFamilyId();
 

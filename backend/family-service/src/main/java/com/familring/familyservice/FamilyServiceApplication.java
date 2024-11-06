@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-@EnableMongoRepositories(basePackages = "com.familring.familyservice.model.dao")
+@EnableMongoRepositories(basePackages = "com.familring.familyservice.model.repository")
 @MapperScan("com.familring.familyservice.model.dao")
 public class FamilyServiceApplication {
 
