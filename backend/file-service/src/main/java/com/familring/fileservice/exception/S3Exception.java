@@ -29,10 +29,6 @@ public class S3Exception extends ApplicationException {
         return new S3Exception(ErrorDetail.S3_NO_FILES_UPLOADED);
     }
 
-    public static S3Exception noUrlsToDelete() {
-        return new S3Exception(ErrorDetail.S3_NO_URLS_TO_DELETE);
-    }
-
     public static S3Exception invalidFileUrl() {
         return new S3Exception(ErrorDetail.S3_INVALID_FILE_URL);
     }
