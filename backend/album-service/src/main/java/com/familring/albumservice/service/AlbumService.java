@@ -17,6 +17,7 @@ import com.familring.albumservice.repository.PhotoRepository;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
 import com.familring.albumservice.service.client.FileServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +33,7 @@ import static com.familring.albumservice.domain.AlbumType.*;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Log4j2
 public class AlbumService {
 
     private final FamilyServiceFeignClient familyServiceFeignClient;
@@ -56,6 +58,7 @@ public class AlbumService {
                 .albumType(albumRequest.getAlbumType());
 
         if (albumRequest.getAlbumType() == PERSON) {
+            log.error(albumRequest.getScheduleId());
             if (userId == null || albumRequest.getScheduleId() != null) {
                 throw new InvalidAlbumParameterException();
             }
@@ -110,7 +113,8 @@ public class AlbumService {
             responseList.add(AlbumResponse.builder()
                     .id(album.getId())
                     .albumName(album.getAlbumName())
-                    .thumbnailUrl(album.getPhotos().get(album.getPhotos().size() - 1).getPhotoUrl())
+                    .thumbnailUrl(album.getPhotos().isEmpty() ?
+                            null : album.getPhotos().get(album.getPhotos().size() - 1).getPhotoUrl())
                     .photoCount(album.getPhotos().size())
                     .build());
         });
