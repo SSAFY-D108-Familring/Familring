@@ -1,2 +1,10 @@
-package com.familring.questionservice.exception;public class InvalidQueryParam {
+package com.familring.questionservice.exception;
+
+import com.familring.questionservice.exception.base.ApplicationException;
+import com.familring.questionservice.exception.constant.ErrorDetail;
+
+public class InvalidQueryParamException extends ApplicationException {
+    public InvalidQueryParamException() {
+        super(ErrorDetail.INVALID_QUERY_PARAM);
+    }
 }
