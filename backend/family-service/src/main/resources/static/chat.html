@@ -10,6 +10,7 @@
 <body>
 <h2>WebSocket Chat</h2>
 <div>
+    <input type="text" id="userId" placeholder="User ID">
     <input type="text" id="roomId" placeholder="Room ID">
     <input type="text" id="message" placeholder="Message">
     <button onclick="connect()">Connect</button>
@@ -19,56 +20,71 @@
 
 <script>
     let stompClient = null;
+    let isConnected = false;
 
-    async function fetchChatHistory(roomId) {
-        const response = await fetch(`/rooms/enter/${roomId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-User-ID': '1' // 사용자 ID 설정 필요
-            }
-        });
-        const result = await response.json();
-        const chatLog = document.getElementById("chat-log");
-        chatLog.innerHTML = "";
-        result.data.forEach(message => {
-            showMessage(message);
-        });
+    async function fetchChatHistory(roomId, userId) {
+        try {
+            const response = await fetch(`/rooms/enter/${roomId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': userId
+                }
+            });
+            const result = await response.json();
+            const chatLog = document.getElementById("chat-log");
+            chatLog.innerHTML = "";
+            result.data.forEach(message => {
+                showMessage(message);
+            });
+        } catch (error) {
+            console.error("채팅 기록을 불러오는 중 오류 발생:", error);
+        }
     }
 
     function connect() {
+        if (isConnected) {
+            alert("이미 연결되어 있습니다.");
+            return;
+        }
+        const userId = document.getElementById("userId").value;
         const roomId = document.getElementById("roomId").value;
-        if (!roomId) {
-            alert("Please enter Room ID.");
+
+        if (!userId || !roomId) {
+            alert("User ID와 Room ID를 입력해주세요.");
             return;
         }
 
-        fetchChatHistory(roomId); // 기존 채팅 기록 조회
+        fetchChatHistory(roomId, userId); // 기존 채팅 기록 조회
 
-        const socket = new SockJS('/ws-stomp'); // 경로 수정
+        const socket = new SockJS('/ws-stomp');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, () => {
             stompClient.subscribe(`/room/${roomId}`, (message) => {
                 showMessage(JSON.parse(message.body));
             });
+            isConnected = true; // 연결 플래그 설정
         });
     }
 
     function sendMessage() {
         const roomId = document.getElementById("roomId").value;
+        const userId = document.getElementById("userId").value;
         const messageContent = document.getElementById("message").value;
 
         if (stompClient && stompClient.connected) {
             stompClient.send(`/send/${roomId}`, {}, JSON.stringify({
-                senderId: 1,
-                senderNickname: "TEST1",
+                roomId: roomId,
+                senderId: userId,
+                senderNickname: `User${userId}`,
                 senderProfileImage: "profile.jpg",
                 content: messageContent,
+                messageChecked: false,
                 sendTime: new Date().toISOString()
             }));
             document.getElementById("message").value = "";
         } else {
-            alert("Not connected to WebSocket server.");
+            alert("WebSocket 서버에 연결되어 있지 않습니다.");
         }
     }
 

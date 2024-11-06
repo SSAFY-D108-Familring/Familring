@@ -29,19 +29,23 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public ChatEntity createChat(Long roomId, Long senderId, String senderNickname, String senderProfileImage, String content, boolean messageChecked, String sendTime) {
+    public ChatEntity createChat(ChatDTO chatDto) {
+        log.info("[ChatService - createChat] 채팅 메시지 수신: roomId={}, senderId={}, content={}", chatDto.getRoomId(), chatDto.getSenderId(), chatDto.getContent());
+
         ChatEntity chatEntity = chatRepository.save(ChatEntity.createChat(
-                roomId,
-                senderId,
-                senderNickname,
-                senderProfileImage,
-                content,
+                chatDto.getRoomId(),
+                chatDto.getSenderId(),
+                chatDto.getSenderNickname(),
+                chatDto.getSenderProfileImage(),
+                chatDto.getContent(),
                 true,
-                sendTime
+                chatDto.getSendTime()
         ));
+        log.info("[ChatService - createChat] chatRepository 저장 완료");
 
         // ChatCreatedEvent 이벤트를 발행하여 다른 서비스나 컴포넌트에서 이 이벤트를 처리할 수 있게 함
-        eventPublisher.publishEvent(new ChatCreatedEvent(roomId, content, sendTime));
+        eventPublisher.publishEvent(new ChatCreatedEvent(chatDto.getRoomId(), chatDto.getContent(), chatDto.getSendTime()));
+        log.info("[ChatService - createChat] 이벤트 발행 완료");
 
         return chatEntity;
     }
@@ -49,38 +53,19 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<ChatDTO> findAllChatByRoomId(Long roomId, Long userId) {
         UserInfoResponse user = userServiceFeignClient.getUser(userId).getData();
+        log.info("[ChatService - findAllChatByRoomId] 회원 찾기: userId={}, userNickname={}", userId, user.getUserNickname());
 
         return chatRepository.findAllByRoomId(roomId).stream()
-                .map(chatEntity -> {
-
-
-                    if(user.getUserId() != chatEntity.getSenderId()){
-                        chatEntity.markAsRead();
-                    }
-
-                    chatRepository.save(chatEntity);
-
-                    return ChatDTO.builder()
-                            .id(chatEntity.getId().toHexString())
-                            .roomId(chatEntity.getRoomId())
-                            .senderId(chatEntity.getSenderId())
-                            .senderNickname(chatEntity.getSenderNickname())
-                            .senderProfileImage(chatEntity.getSenderProfileImage())
-                            .content(chatEntity.getContent())
-                            .messageChecked(chatEntity.getMessageChecked())
-                            .sendTime(chatEntity.getSendTime())
-                            .build();
-                })
+                .map(chatEntity -> ChatDTO.builder()
+                        .id(chatEntity.getId().toHexString())
+                        .roomId(chatEntity.getRoomId())
+                        .senderId(chatEntity.getSenderId())
+                        .senderNickname(chatEntity.getSenderNickname())
+                        .senderProfileImage(chatEntity.getSenderProfileImage())
+                        .content(chatEntity.getContent())
+                        .messageChecked(chatEntity.getMessageChecked())
+                        .sendTime(chatEntity.getSendTime())
+                        .build())
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional
-    public void markChatAsRead(String chatId) {
-        ChatEntity chatEntity = chatRepository.findById(Long.valueOf(new ObjectId(chatId).getTimestamp()))
-                .orElseThrow(() -> new NoSuchElementException("Chat not found with id: " + chatId));
-        chatEntity.markAsRead();
-
-        chatRepository.save(chatEntity);
     }
 }

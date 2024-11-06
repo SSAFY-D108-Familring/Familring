@@ -7,9 +7,7 @@ import java.util.List;
 
 public interface ChatService {
 
-    ChatEntity createChat(Long roomId, Long senderId, String senderNickname, String senderProfileImage, String content, boolean messageChecked, String sendTime);
+    ChatEntity createChat(ChatDTO chatDto);
 
     List<ChatDTO> findAllChatByRoomId(Long roomId, Long userId);
-
-    void markChatAsRead(String chatId);
 }
