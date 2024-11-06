@@ -13,10 +13,10 @@ import com.familring.albumservice.repository.AlbumQueryRepository;
 import com.familring.albumservice.repository.AlbumRepository;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +83,20 @@ public class AlbumService {
     }
 
     public Map<AlbumType, List<AlbumResponse>> getAlbums(List<AlbumType> albumTypes, Long userId) {
-//        albumQueryRepository.fin
-        return new HashMap<>();
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
+        List<Album> albums = albumQueryRepository.findByAlbumType(albumTypes, familyId);
+        Map<AlbumType, List<AlbumResponse>> classifiedAlbums = new HashMap<>();
+
+        albums.forEach(album -> {
+            List<AlbumResponse> responseList = classifiedAlbums.computeIfAbsent(album.getAlbumType(), key -> new ArrayList<AlbumResponse>());
+            responseList.add(AlbumResponse.builder()
+                    .id(album.getId())
+                    .albumName(album.getAlbumName())
+                    .thumbnailUrl(album.getPhotos().get(album.getPhotos().size() - 1).getPhotoUrl())
+                    .photoCount(album.getPhotos().size())
+                    .build());
+        });
+
+        return classifiedAlbums;
     }
 }

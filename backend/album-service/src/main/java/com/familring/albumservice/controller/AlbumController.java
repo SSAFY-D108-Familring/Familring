@@ -24,6 +24,7 @@ import java.util.Map;
 public class AlbumController {
 
     private final AlbumService albumService;
+
     @GetMapping
     @Operation(summary = "앨범 목록 조회", description = "일반 앨범, 일정 앨범, 인물 앨범 모두 조회 가능합니다.")
     public ResponseEntity<BaseResponse<Map<AlbumType, List<AlbumResponse>>>> getAlbums(
