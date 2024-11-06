@@ -33,8 +33,8 @@ import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
 import com.familring.presentation.screen.mypage.MyPageRoute
 import com.familring.presentation.screen.notification.NotificationRoute
-import com.familring.presentation.screen.question.QuestionListScreen
-import com.familring.presentation.screen.question.QuestionScreen
+import com.familring.presentation.screen.question.QuestionListRoute
+import com.familring.presentation.screen.question.QuestionRoute
 import com.familring.presentation.screen.signup.BirthRoute
 import com.familring.presentation.screen.signup.DoneRoute
 import com.familring.presentation.screen.signup.FamilyInfoRoute
@@ -251,7 +251,7 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Question.route,
         ) {
-            QuestionScreen(
+            QuestionRoute(
                 navigateToQuestionList = {
                     navController.navigate(ScreenDestinations.QuestionList.route)
                 },
@@ -261,7 +261,7 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.QuestionList.route,
         ) {
-            QuestionListScreen(
+            QuestionListRoute(
                 onNavigateBack = navController::popBackStack,
             )
         }
