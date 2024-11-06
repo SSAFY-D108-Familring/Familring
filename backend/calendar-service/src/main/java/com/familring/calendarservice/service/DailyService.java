@@ -50,7 +50,7 @@ public class DailyService {
 
         List<MultipartFile> files = new ArrayList<>();
         files.add(image);
-        String photoUrl = fileServiceFeignClient.uploadFiles(files, dailyPhotoPath).getData().get(0);
+        String photoUrl = fileServiceFeignClient.uploadFiles(files, getDailyPhotoPath(familyId)).getData().get(0);
 
         Daily newDaily = Daily.builder().familyId(familyId).authorId(userId)
                 .content(content).photoUrl(photoUrl).build();
@@ -67,6 +67,9 @@ public class DailyService {
         }
 
         dailyRepository.delete(daily);
+        List<String> deleteUrls = new ArrayList<>();
+        deleteUrls.add(daily.getPhotoUrl());
+        fileServiceFeignClient.deleteFiles(deleteUrls);
     }
 
     @Transactional
@@ -87,7 +90,7 @@ public class DailyService {
 
             // 비동기 요청을 위한 Future 생성
             CompletableFuture<BaseResponse<List<String>>> uploadFuture = CompletableFuture
-                    .completedFuture(fileServiceFeignClient.uploadFiles(uploadFileList, dailyPhotoPath));
+                    .completedFuture(fileServiceFeignClient.uploadFiles(uploadFileList, getDailyPhotoPath(daily.getFamilyId())));
             CompletableFuture<BaseResponse<Void>> deleteFuture = CompletableFuture
                     .completedFuture(fileServiceFeignClient.deleteFiles(deleteFileList));
 
@@ -97,6 +100,10 @@ public class DailyService {
 
             daily.updatePhotoUrl(uploadFuture.join().getData().get(0));
         }
+    }
+
+    private String getDailyPhotoPath(Long familyId) {
+        return dailyPhotoPath + "/" + familyId;
     }
 
     public List<DailyResponse> getDailies(List<Long> dailyIds, Long userId) {

@@ -33,6 +33,12 @@
         WHERE f.user_id = #{userId}
     </select>
 
+    <select id="findFamilyUserByFamilyId" resultType="java.lang.Long">
+        SELECT user_id
+        FROM family_user
+        WHERE family_id = #{familyId}
+    </select>
+
     <select id ="findFamilyByFamilyCode" resultMap="familyInfo">
         SELECT family_id, family_code, family_count, family_communication_status
         FROM family
