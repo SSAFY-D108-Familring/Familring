@@ -172,7 +172,7 @@ public class FamilyServiceImpl implements FamilyService {
         if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
             throw new AlreadyInFamilyException();
         }
-
+        
         // 3-2. 가족에 엄마, 아빠 역할이 이미 있는 경우 에러 발생
         List<UserInfoResponse> familyMembers = new ArrayList<>();
         if(user.getUserRole().equals(FamilyRole.F)) { // 참여자 가족 역할이 F인 경우

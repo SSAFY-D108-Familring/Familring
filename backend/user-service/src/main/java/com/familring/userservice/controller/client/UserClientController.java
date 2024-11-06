@@ -28,4 +28,12 @@ public class UserClientController {
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 모두 성공적으로 조회 했습니다.", response));
     }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(@PathVariable Long userId) {
+        log.info("userId: {}", userId);
+        UserInfoResponse response = userService.getUser(userId);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 성공적으로 조회 했습니다.", response));
+    }
 }

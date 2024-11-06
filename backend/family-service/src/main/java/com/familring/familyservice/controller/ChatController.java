@@ -1,43 +1,43 @@
 package com.familring.familyservice.controller;
 
-import com.familring.common_module.dto.BaseResponse;
-import com.familring.familyservice.model.dto.Chat;
-import com.familring.familyservice.model.dto.response.UserInfoResponse;
+import com.familring.familyservice.model.dto.ChatDTO;
+import com.familring.familyservice.model.dto.ChatEntity;
 import com.familring.familyservice.service.chat.ChatService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/chat")
+@RequestMapping("/chats")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 @Log4j2
-@Tag(name = "채팅 컨트롤러", description = "채팅관련 기능 수행")
 public class ChatController {
 
     private final ChatService chatService;
 
-    @GetMapping
-    @Operation(summary = "채팅 내용 조회", description = "가족 내 채팅 내용 조회")
-    public ResponseEntity<BaseResponse<Page<Chat>>> getChatRoomMessages(
-            @RequestParam String familyId, @RequestParam int page) {
-        Page<Chat> chatPage = chatService.getMessagesByFamilyId(familyId, page);
+    @MessageMapping("/{roomId}")
+    @SendTo("/room/{roomId}")
+    public ChatDTO chatting(@DestinationVariable Long roomId, ChatDTO chatDTO) {
+        log.info("채팅 메시지 수신: roomId={}, senderId={}, content={}", roomId, chatDTO.getSenderId(), chatDTO.getContent());
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "채팅 메시지 조회 성공", chatPage));
-    }
+        ChatEntity chatEntity = chatService.createChat(
+                roomId, // 채팅방 ID
+                chatDTO.getSenderId(), // 발신자 ID
+                chatDTO.getSenderNickname(), // 발신자 닉네임
+                chatDTO.getSenderProfileImage(), // 발신자 프로필 이미지 URL
+                chatDTO.getContent(), // 채팅 메시지 내용
+                false, // 읽음 여부
+                chatDTO.getSendTime() // 메시지 전송 시간
+        );
 
-    @GetMapping("/{voteId}")
-    @Operation(summary = "투표 참여자 조회", description = "voteId에 해당하는 투표의 참여자 조회")
-    public ResponseEntity<BaseResponse<List<UserInfoResponse>>> getVoteParticipants(@PathVariable String voteId) {
-        List<UserInfoResponse> response = chatService.getVoteParticipants(voteId).block();
+        log.info("채팅 메시지 저장 완료: chatId={}, roomId={}", chatEntity.getId(), roomId);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "채팅 내 투표 참가자 조회 성공", response));
+        return ChatDTO.toChatDTO(chatEntity);
     }
 }
