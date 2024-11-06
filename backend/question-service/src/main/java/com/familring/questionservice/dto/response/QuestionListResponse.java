@@ -1,5 +1,6 @@
 package com.familring.questionservice.dto.response;
 
+import com.familring.questionservice.domain.Question;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
