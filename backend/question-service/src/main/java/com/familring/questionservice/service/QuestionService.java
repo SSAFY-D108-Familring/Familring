@@ -132,9 +132,17 @@ public class QuestionService {
     }
 
     // 랜덤 질문 수정
-    public void updateQuestionAnswer(Long answerId, QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
+    public void updateQuestionAnswer(Long userId, QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
 
-        Optional<QuestionAnswer> questionAnswer = questionAnswerRepository.findById(answerId);
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가족의 현재 질문 조회
+        QuestionFamily questionFamily = questionFamilyRepository.findByFamilyId(familyId)
+                .orElseThrow(QuestionFamilyNotFoundException::new);
+
+        Optional<QuestionAnswer> questionAnswer = questionAnswerRepository.findByQuestionFamilyAndUserId(questionFamily, userId);
 
         if (questionAnswer.isPresent()) {
             questionAnswer.get().updateQuestionAnswer(questionAnswerUpdateRequest);
