@@ -174,17 +174,8 @@ def buildAndRunContainer(serviceName, port, exposeToHost) {
     }
 }
 
-// 변경 사항 확인 함수 (병합 후 변경 및 현재 브랜치 변경 모두 감지)
+// 변경 사항 확인 함수
 def hasChanges(String path) {
-    // `develop/backend`과 현재 브랜치의 공통 조상 커밋 찾기
-    def baseCommit = sh(script: "git merge-base origin/develop/backend HEAD", returnStdout: true).trim()
-
-    // 병합 이후 변경된 파일 확인
-    def mergeChanges = sh(script: "git diff --name-only ${baseCommit}...HEAD | grep '^${path}'", returnStatus: true)
-
-    // 현재 브랜치의 가장 최근 커밋 변경 사항 확인
-    def branchChanges = sh(script: "git log -1 --name-only --pretty=format: | grep '^${path}'", returnStatus: true)
-
-    // 병합된 변경 사항 또는 현재 브랜치 변경 사항 중 하나라도 있으면 true 반환
-    return mergeChanges == 0 || branchChanges == 0
+    def changes = sh(script: "git log -1 --name-only --pretty=format: | grep '^${path}'", returnStatus: true)
+    return changes == 0
 }
