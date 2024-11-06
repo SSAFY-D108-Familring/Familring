@@ -53,7 +53,7 @@ public class ScheduleService {
 
             // 스케줄 DTO로 변환
             ScheduleResponse response = ScheduleResponse.builder().id(s.getId()).title(s.getTitle()).startTime(s.getStartTime())
-                    .endTime(s.getEndTime()).albumId(albumId).hasNotification(s.getHasNotification())
+                    .endTime(s.getEndTime()).albumId(albumId).hasNotification(s.getHasNotification()).hasTime(s.getHasTime())
                     .color(s.getColor()).build();
 
             // 해당 스케줄에 참여하는 가족 정보 조회
