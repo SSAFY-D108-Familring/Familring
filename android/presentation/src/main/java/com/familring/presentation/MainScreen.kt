@@ -13,6 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -252,9 +253,11 @@ fun MainNavHost(
             route = ScreenDestinations.Question.route,
         ) {
             QuestionRoute(
+                modifier = modifier,
                 navigateToQuestionList = {
                     navController.navigate(ScreenDestinations.QuestionList.route)
                 },
+                showSnackBar = showSnackBar,
             )
         }
 
