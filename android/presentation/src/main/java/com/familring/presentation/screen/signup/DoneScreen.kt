@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -30,8 +31,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
-import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.LoadingDialog
 import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green03
@@ -55,17 +57,11 @@ fun DoneRoute(
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectLatest { event ->
             when (event) {
-                is SignUpUiEvent.Loading -> {
-                    // 로딩창 띄우기
+                is SignUpUiEvent.Error -> {
+                    showSnackBar(event.message)
                 }
 
-                is SignUpUiEvent.MakeSuccess -> {
-                    showSnackBar("코드를 이용해 가족을 초대해 보세요!")
-                }
-
-                else -> {
-                    // 에러 스낵바 띄우기
-                }
+                else -> {}
             }
         }
     }
@@ -75,6 +71,10 @@ fun DoneRoute(
         navigateToHome = navigateToHome,
         code = uiState.familyCode,
     )
+
+    if (uiState.isLoading) {
+        LoadingDialog()
+    }
 }
 
 @Composable
@@ -157,10 +157,12 @@ fun DoneScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.35f))
-            RoundLongButton(
-                text = "홈으로 이동하기",
-                onClick = navigateToHome,
+            Spacer(modifier = Modifier.fillMaxHeight(0.15f))
+            Text(
+                text = "홈으로 이동할게요 😉",
+                style = Typography.displayLarge.copy(fontSize = 18.sp),
+                color = Gray01,
+                textDecoration = TextDecoration.Underline,
             )
         }
     }
