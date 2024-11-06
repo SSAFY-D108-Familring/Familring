@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -32,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.BrownRoundButton
 import com.familring.presentation.component.LoadingDialog
+import com.familring.presentation.screen.mypage.shareCode
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
@@ -39,6 +41,7 @@ import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -70,6 +73,7 @@ fun DoneRoute(
         modifier = modifier,
         navigateToHome = navigateToHome,
         code = uiState.familyCode,
+        showSnackBar = showSnackBar,
     )
 
     if (uiState.isLoading) {
@@ -82,7 +86,10 @@ fun DoneScreen(
     modifier: Modifier = Modifier,
     navigateToHome: () -> Unit = {},
     code: String = "",
+    showSnackBar: (String) -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -153,13 +160,16 @@ fun DoneScreen(
                         textAlign = TextAlign.Center,
                     )
                     Spacer(modifier = Modifier.height(20.dp))
-                    BrownRoundButton(onClick = { /*TODO*/ }, text = "카카오톡으로 공유하기")
+                    BrownRoundButton(onClick = {
+                        shareCode(code, context, showSnackBar)
+                    }, text = "카카오톡으로 공유하기")
                     Spacer(modifier = Modifier.height(10.dp))
                 }
             }
             Spacer(modifier = Modifier.fillMaxHeight(0.15f))
             Text(
-                text = "홈으로 이동할게요 😉",
+                modifier = Modifier.noRippleClickable { navigateToHome() },
+                text = "홈으로 이동할게요",
                 style = Typography.displayLarge.copy(fontSize = 18.sp),
                 color = Gray01,
                 textDecoration = TextDecoration.Underline,

@@ -361,7 +361,7 @@ private fun roleToWord(role: String): String =
         else -> "아들"
     }
 
-private fun shareCode(
+fun shareCode(
     code: String,
     context: Context,
     showSnackBar: (String) -> Unit,
