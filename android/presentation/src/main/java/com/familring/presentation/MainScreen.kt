@@ -31,7 +31,9 @@ import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
+import com.familring.presentation.screen.mypage.EditNameRoute
 import com.familring.presentation.screen.mypage.MyPageRoute
+import com.familring.presentation.screen.mypage.MyPageViewModel
 import com.familring.presentation.screen.notification.NotificationRoute
 import com.familring.presentation.screen.question.QuestionListRoute
 import com.familring.presentation.screen.question.QuestionRoute
@@ -419,6 +421,25 @@ fun MainNavHost(
                 navigateToLogin = {
                     navController.navigate(ScreenDestinations.Login.route)
                 },
+                navigateToEditName = {
+                    navController.navigate(ScreenDestinations.EditName.route)
+                },
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.EditName.route,
+        ) {
+            val viewModel =
+                hiltViewModel<MyPageViewModel>(
+                    navController.getBackStackEntry("MyPage"),
+                )
+
+            EditNameRoute(
+                modifier = modifier,
+                viewModel = viewModel,
+                popUpBackStack = navController::popBackStack,
+                showSnackBar = showSnackBar,
             )
         }
     }
