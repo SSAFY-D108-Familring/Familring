@@ -7,7 +7,6 @@ import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface UserService {
@@ -30,6 +29,9 @@ public interface UserService {
 
     // 회원 기분 설정
     void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
+
+    // 회원 닉네임 변경
+    void updateUserNickname(Long userId, String userNickname);
 
     // 회원 탈퇴
     void deleteUser(Long userId);

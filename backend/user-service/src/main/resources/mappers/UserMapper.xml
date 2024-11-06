@@ -66,6 +66,12 @@
         WHERE user_id = #{userId}
     </update>
 
+    <update id="updateUserNicknameByUserId">
+        UPDATE user
+        SET user_nickname = #{userNickname}
+        WHERE user_id = #{userId}
+    </update>
+
     <update id="deleteUser" parameterType="com.familring.userservice.model.dto.request.UserDeleteRequest">
         UPDATE user
         SET user_kakao_id = #{afterUserKakaoId}, user_password = #{userPassword}, user_nickname = #{userNickname}, user_role = #{userRole}, user_face = #{userFace},

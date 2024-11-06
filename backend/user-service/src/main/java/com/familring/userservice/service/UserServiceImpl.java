@@ -193,8 +193,21 @@ public class UserServiceImpl implements UserService {
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
 
-        // 2. 사용자의 기분 설정 변경
+        // 2. 사용자의 기분 변경
         userDao.updateUserEmotionByUserId(user.getUserId(), userEmotionRequest.getUserEmotion());
+    }
+
+    @Override
+    public void updateUserNickname(Long userId, String userNickname) {
+        // 1. 사용자 정보 찾기
+        UserDto user = userDao.findUserByUserId(userId)
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+
+        // 2. 사용자의 닉네임 변경
+        userDao.updateUserNicknameByUserId(user.getUserId(), userNickname);
     }
 
     @Override

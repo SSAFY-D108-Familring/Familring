@@ -22,6 +22,9 @@ public interface UserDao {
 
     // 회원 기분 변경
     void updateUserEmotionByUserId(@Param("userId") Long userId, @Param("userEmotion") String userEmotion);
+
+    // 회원 닉네임 변경
+    void updateUserNicknameByUserId(@Param("userId") Long userId,@Param("userNickname")  String userNickname);
     
     // 회원 탈퇴
     void deleteUser(UserDeleteRequest deleteRequest);
