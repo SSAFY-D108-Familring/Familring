@@ -1,4 +1,4 @@
-package com.familring.domain.model
+package com.familring.domain.model.timecapsule
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter

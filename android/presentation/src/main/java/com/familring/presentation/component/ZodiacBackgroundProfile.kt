@@ -50,7 +50,7 @@ private fun ZodiacBackgroundProfilePreview() {
     ZodiacBackgroundProfile(
         profile =
             Profile(
-                zodiacImgUrl = "url1",
+                zodiacImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/호랑이.png",
                 backgroundColor = "0xFFFEE222",
             ),
     )

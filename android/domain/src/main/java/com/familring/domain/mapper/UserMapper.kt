@@ -1,9 +1,9 @@
 package com.familring.domain.mapper
 
 import com.familring.domain.model.Profile
-import com.familring.domain.model.calendar.ScheduleAttendance
+import com.familring.domain.model.User
 
-fun ScheduleAttendance.toProfile(): Profile =
+fun User.toProfile(): Profile =
     Profile(
         nickName = userNickname,
         zodiacImgUrl = userZodiacSign,

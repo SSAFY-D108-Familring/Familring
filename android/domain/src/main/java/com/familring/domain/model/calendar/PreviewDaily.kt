@@ -1,4 +1,4 @@
-package com.familring.domain.model
+package com.familring.domain.model.calendar
 
 data class PreviewDaily(
     val id: Long,

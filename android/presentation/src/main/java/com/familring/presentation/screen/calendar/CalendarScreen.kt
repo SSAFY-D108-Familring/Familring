@@ -51,8 +51,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.familring.domain.model.DaySchedule
-import com.familring.domain.model.PreviewSchedule
+import com.familring.domain.model.calendar.DaySchedule
+import com.familring.domain.model.calendar.PreviewSchedule
+import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
@@ -72,10 +73,10 @@ import java.time.LocalDate
 fun CalendarRoute(
     modifier: Modifier,
     navigateToCreateSchedule: () -> Unit,
+    navigateToModifySchedule: (Schedule) -> Unit,
     navigateToCreateDaily: () -> Unit,
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
-    navigateToModifySchedule: (Long) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
@@ -110,7 +111,7 @@ fun CalendarScreen(
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
-    navigateToModifySchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     showSnackBar: (String) -> Unit = {},
 ) {
     // pager
@@ -386,7 +387,6 @@ fun CalendarScreen(
                 CalendarTab(
                     schedules = state.detailedSchedule,
                     dailyLifes = dailyLifes, // 수정 필요
-                    deleteSchedule = deleteSchedule,
                     showDeleteDialog = {
                         deleteTargetScheduleId = it
                         showDialog = true

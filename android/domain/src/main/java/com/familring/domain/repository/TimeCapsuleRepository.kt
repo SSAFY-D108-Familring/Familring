@@ -1,8 +1,8 @@
 package com.familring.domain.repository
 
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.TimeCapsule
-import com.familring.domain.model.TimeCapsuleStatus
+import com.familring.domain.model.timecapsule.TimeCapsule
+import com.familring.domain.model.timecapsule.TimeCapsuleStatus
 import kotlinx.coroutines.flow.Flow
 
 interface TimeCapsuleRepository {
