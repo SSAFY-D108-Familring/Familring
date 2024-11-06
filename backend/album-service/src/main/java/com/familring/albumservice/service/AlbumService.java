@@ -94,6 +94,7 @@ public class AlbumService {
         }
 
         albumRepository.delete(album);
+        fileServiceFeignClient.deleteFiles(album.getPhotos().stream().map(Photo::getPhotoUrl).toList());
     }
 
     public Map<AlbumType, List<AlbumResponse>> getAlbums(List<AlbumType> albumTypes, Long userId) {
