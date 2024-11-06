@@ -560,8 +560,8 @@ fun ZodiacProfileWithNameAndCheckedBox(
         )
         Spacer(modifier = Modifier.width(10.dp))
         ZodiacBackgroundProfile(
-            modifier = Modifier.size(30.dp),
             profile = profile,
+            size = 35,
         )
         Text(
             modifier = Modifier.padding(start = 10.dp),
