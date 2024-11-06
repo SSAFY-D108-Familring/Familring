@@ -36,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
 import com.familring.presentation.R
+import com.familring.presentation.component.EmotionGrid
 import com.familring.presentation.component.LoadingDialog
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TwoButtonTextDialog
@@ -55,6 +56,7 @@ fun MyPageRoute(
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
     navigateToLogin: () -> Unit,
+    navigateToEditName: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -77,6 +79,8 @@ fun MyPageRoute(
         signOut = viewModel::signOut,
         popUpBackStack = popUpBackStack,
         showSnackBar = showSnackBar,
+        updateEmotion = viewModel::updateEmotion,
+        navigateToEditName = navigateToEditName,
     )
 }
 
@@ -87,6 +91,8 @@ fun HandleMyPageUi(
     signOut: () -> Unit = {},
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    updateEmotion: (String) -> Unit = {},
+    navigateToEditName: () -> Unit = {},
 ) {
     when (uiState) {
         MyPageUiState.Loading -> LoadingDialog()
@@ -94,6 +100,7 @@ fun HandleMyPageUi(
             MyPageScreen(
                 modifier = modifier,
                 popUpBackStack = popUpBackStack,
+                navigateToEditName = navigateToEditName,
                 signOut = signOut,
                 showSnackBar = showSnackBar,
                 nickname = uiState.userNickname,
@@ -102,6 +109,7 @@ fun HandleMyPageUi(
                 profileImage = uiState.profileImage,
                 userColor = uiState.userColor,
                 code = uiState.code,
+                updateEmotion = updateEmotion,
             )
     }
 }
@@ -110,8 +118,10 @@ fun HandleMyPageUi(
 fun MyPageScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
+    navigateToEditName: () -> Unit = {},
     signOut: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    updateEmotion: (String) -> Unit = {},
     nickname: String = "",
     birthDate: String = "",
     role: String = "",
@@ -232,6 +242,7 @@ fun MyPageScreen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
+                        .noRippleClickable { navigateToEditName() }
                         .padding(horizontal = 15.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -303,6 +314,25 @@ fun MyPageScreen(
                     clipboardManager.setText(AnnotatedString(code))
                     showSnackBar("클립보드에 복사되었습니다!")
                     showCodeDialog = false
+                },
+            )
+        }
+    }
+
+    if (showEmotionDialog) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(color = Black.copy(alpha = 0.5f))
+                    .noRippleClickable { showEmotionDialog = false },
+            contentAlignment = Alignment.Center,
+        ) {
+            EmotionGrid(
+                clickEmotion = { emotion ->
+                    // 서버에 기분 수정 보내기
+                    updateEmotion(emotion)
+                    showEmotionDialog = false
                 },
             )
         }

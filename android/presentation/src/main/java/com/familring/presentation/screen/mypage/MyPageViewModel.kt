@@ -48,6 +48,16 @@ class MyPageViewModel
             }
         }
 
+        fun updateEmotion(emotion: String) {
+            viewModelScope.launch {
+            }
+        }
+
+        fun updateName(name: String) {
+            viewModelScope.launch {
+            }
+        }
+
         private fun getMyInfo() {
             viewModelScope.launch {
                 combine(
