@@ -280,7 +280,6 @@ fun CalendarScreen(
                 CalendarTab(
                     schedules = state.detailedSchedule,
                     dailyLifes = dailyLifes, // 수정 필요
-                    deleteSchedule = deleteSchedule,
                     showDeleteDialog = {
                         deleteTargetScheduleId = it
                         showDialog = true

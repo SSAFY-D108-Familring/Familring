@@ -67,7 +67,6 @@ fun CalendarTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
-    deleteSchedule: (Long) -> Unit,
     showDeleteDialog: (Long) -> Unit,
     navigateToModifySchedule: (Schedule) -> Unit,
     navigateToCreateAlbum: () -> Unit,
@@ -95,7 +94,6 @@ fun CalendarTab(
                 0 ->
                     ScheduleTab(
                         schedules = schedules,
-                        deleteSchedule = deleteSchedule,
                         showDeleteDialog = showDeleteDialog,
                         navigateToModifySchedule = navigateToModifySchedule,
                         navigateToCreateAlbum = navigateToCreateAlbum,
@@ -215,7 +213,6 @@ fun DailyItem(
 fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
-    deleteSchedule: (Long) -> Unit = {},
     showDeleteDialog: (Long) -> Unit = {},
     navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
@@ -243,7 +240,6 @@ fun ScheduleTab(
             items(schedules) { schedule ->
                 ScheduleItem(
                     schedule = schedule,
-                    deleteSchedule = deleteSchedule,
                     showDeleteDialog = showDeleteDialog,
                     navigateToModifySchedule = navigateToModifySchedule,
                     navigateToCreateAlbum = navigateToCreateAlbum,
@@ -259,7 +255,6 @@ fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
     showDeleteDialog: (Long) -> Unit = {},
-    deleteSchedule: (Long) -> Unit = {},
     navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
@@ -388,7 +383,6 @@ private fun CalendarTabPreview() {
     CalendarTab(
         dailyLifes = dailyLifes,
         schedules = schedules,
-        deleteSchedule = {},
         navigateToModifySchedule = {},
         navigateToCreateAlbum = {},
         navigateToAlbum = {},
