@@ -59,6 +59,7 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toColor
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -277,7 +278,11 @@ fun ScheduleItem(
                         .background(color = schedule.backgroundColor.toColor()),
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Column {
+            Column(
+                modifier =
+                    Modifier
+                        .weight(1f),
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = schedule.title,
@@ -321,8 +326,17 @@ fun ScheduleItem(
                 profileSize = 32,
                 profiles =
                     schedule.familyMembers
-                        .filter { it.isAttendance }
+                        .filter { it.attendanceStatus }
                         .map { it.toProfile() },
+            )
+
+            Timber.d("조디악 ${schedule.familyMembers}")
+            Timber.d(
+                "조디악 ${
+                    schedule.familyMembers
+                        .filter { it.attendanceStatus }
+                        .map { it.toProfile() }
+                }",
             )
             IconCustomDropdownMenu(
                 modifier =

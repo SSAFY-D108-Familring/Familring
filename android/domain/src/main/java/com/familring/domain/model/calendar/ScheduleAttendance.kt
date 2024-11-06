@@ -9,6 +9,6 @@ data class ScheduleAttendance(
     val userNickname: String = "",
     val userZodiacSign: String = "",
     val userColor: String = "",
-    val isAttendance: Boolean = false,
+    val attendanceStatus: Boolean = false,
 ) : Parcelable
 

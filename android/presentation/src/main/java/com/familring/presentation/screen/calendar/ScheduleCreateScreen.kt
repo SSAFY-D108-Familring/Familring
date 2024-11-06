@@ -175,7 +175,7 @@ fun ScheduleCreateScreen(
         isNotiChecked = targetSchedule.hasNotification
         selectedColorIdx = colors.indexOf(targetSchedule.backgroundColor.toColor())
         isProfileCheckedList.forEachIndexed { index, _ ->
-            isProfileCheckedList[index] = targetSchedule.familyMembers[index].isAttendance
+            isProfileCheckedList[index] = targetSchedule.familyMembers[index].attendanceStatus
         }
         isAllChecked = isProfileCheckedList.all { it }
     }
