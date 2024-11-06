@@ -1,6 +1,7 @@
 package com.familring.presentation.screen.mypage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,6 +76,7 @@ fun MyPageRoute(
         uiState = uiState,
         signOut = viewModel::signOut,
         popUpBackStack = popUpBackStack,
+        showSnackBar = showSnackBar,
     )
 }
 
@@ -82,6 +86,7 @@ fun HandleMyPageUi(
     uiState: MyPageUiState,
     signOut: () -> Unit = {},
     popUpBackStack: () -> Unit = {},
+    showSnackBar: (String) -> Unit = {},
 ) {
     when (uiState) {
         MyPageUiState.Loading -> LoadingDialog()
@@ -90,6 +95,7 @@ fun HandleMyPageUi(
                 modifier = modifier,
                 popUpBackStack = popUpBackStack,
                 signOut = signOut,
+                showSnackBar = showSnackBar,
                 nickname = uiState.userNickname,
                 birthDate = uiState.userBirthDate,
                 role = uiState.userRole,
@@ -105,6 +111,7 @@ fun MyPageScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     signOut: () -> Unit = {},
+    showSnackBar: (String) -> Unit = {},
     nickname: String = "",
     birthDate: String = "",
     role: String = "",
@@ -112,7 +119,11 @@ fun MyPageScreen(
     userColor: String = "",
     code: String = "",
 ) {
-    var showDialog by remember { mutableStateOf(false) }
+    var showSignOutDialog by remember { mutableStateOf(false) }
+    var showCodeDialog by remember { mutableStateOf(false) }
+    var showEmotionDialog by remember { mutableStateOf(false) }
+
+    val clipboardManager = LocalClipboardManager.current
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -131,7 +142,7 @@ fun MyPageScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
@@ -179,7 +190,29 @@ fun MyPageScreen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 15.dp),
+                        .padding(horizontal = 15.dp)
+                        .noRippleClickable { showEmotionDialog = true },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "내 기분 설정하기",
+                    style = Typography.bodyLarge.copy(fontSize = 20.sp),
+                    color = Black,
+                )
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(id = R.drawable.ic_navigate),
+                    contentDescription = "family_code",
+                )
+            }
+            Spacer(modifier = Modifier.height(30.dp))
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp)
+                        .noRippleClickable { showCodeDialog = true },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -219,7 +252,7 @@ fun MyPageScreen(
                 modifier =
                     Modifier
                         .padding(start = 15.dp)
-                        .noRippleClickable { showDialog = true },
+                        .noRippleClickable { showSignOutDialog = true },
                 text = "회원탈퇴",
                 style = Typography.bodyMedium,
                 color = Red01,
@@ -227,7 +260,7 @@ fun MyPageScreen(
         }
     }
 
-    if (showDialog) {
+    if (showSignOutDialog) {
         Box(
             modifier =
                 Modifier
@@ -238,11 +271,38 @@ fun MyPageScreen(
             TwoButtonTextDialog(
                 text = "정말 패밀링을 탈퇴하시겠어요?",
                 onConfirmClick = {
-                    showDialog = false
+                    showSignOutDialog = false
                     signOut()
                 },
                 onDismissClick = {
-                    showDialog = false
+                    showSignOutDialog = false
+                },
+            )
+        }
+    }
+
+    if (showCodeDialog) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(color = Black.copy(alpha = 0.5f))
+                    .noRippleClickable { showCodeDialog = false },
+            contentAlignment = Alignment.Center,
+        ) {
+            TwoButtonTextDialog(
+                modifier = Modifier.clickable(enabled = false) {},
+                text = code,
+                titleStyle = Typography.titleMedium,
+                confirmText = "카톡으로 공유",
+                dismissText = "복사하기",
+                onConfirmClick = {
+                    showCodeDialog = false
+                },
+                onDismissClick = {
+                    clipboardManager.setText(AnnotatedString(code))
+                    showSnackBar("클립보드에 복사되었습니다!")
+                    showCodeDialog = false
                 },
             )
         }
