@@ -11,6 +11,7 @@ import com.familring.calendarservice.dto.response.ScheduleUserResponse;
 import com.familring.calendarservice.exception.schedule.InvalidScheduleRequestException;
 import com.familring.calendarservice.exception.schedule.ScheduleNotFoundException;
 import com.familring.calendarservice.repository.ScheduleUserRepository;
+import com.familring.calendarservice.service.client.AlbumServiceFeignClient;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class ScheduleService {
 
     private final FamilyServiceFeignClient familyServiceFeignClient;
+    private final AlbumServiceFeignClient albumServiceFeignClient;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleUserRepository scheduleUserRepository;
 
@@ -47,7 +49,7 @@ public class ScheduleService {
 
         return schedules.stream().map(s -> {
             // 해당 일정으로 생성된 앨범이 있는지 확인
-            Long albumId = null; // 일단은 미구현이므로 false
+            Long albumId = albumServiceFeignClient.getAlbumIdByScheduleId(s.getId()).getData(); // 일단은 미구현이므로 false
 
             // 스케줄 DTO로 변환
             ScheduleResponse response = ScheduleResponse.builder().id(s.getId()).title(s.getTitle()).startTime(s.getStartTime())
