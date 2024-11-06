@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class QuestionAnswerItem {
 
     private Long answerId;
+    private Long userId;
     private String userNickname;
     private String userZodiacSign;
     private String userColor;

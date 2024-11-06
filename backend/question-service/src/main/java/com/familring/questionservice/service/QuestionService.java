@@ -9,6 +9,8 @@ import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
 import com.familring.questionservice.dto.response.QuestionAnswerItem;
 import com.familring.questionservice.dto.response.QuestionInfoResponse;
+import com.familring.questionservice.dto.response.QuestionItem;
+import com.familring.questionservice.dto.response.QuestionListResponse;
 import com.familring.questionservice.exception.AlreadyExistQuestionAnswerException;
 import com.familring.questionservice.exception.QuestionAnswerNotFoundException;
 import com.familring.questionservice.exception.QuestionFamilyNotFoundException;
@@ -187,6 +189,7 @@ public class QuestionService {
 
             questionAnswerItem = QuestionAnswerItem.builder()
                     .answerId(answerId)
+                    .userId(member.getUserId())
                     .userNickname(member.getUserNickname())
                     .userZodiacSign(member.getUserZodiacSign())
                     .userColor(member.getUserColor())
@@ -202,6 +205,25 @@ public class QuestionService {
                 .questionContent(questionContent)
                 .items(questionAnswerItemList)
                 .build();
+    }
+
+    // 랜덤 질문 목록 전체 조회
+    public QuestionListResponse getAllQuestions(Long userId) {
+        // 가족이 몇 번째 질문까지 했는지 확인해서
+        // 가족 정보 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 몇 번째 질문인지 (가족에 대한 질문 정보 가져오기)
+        QuestionFamily questionFamily = questionFamilyRepository.findByFamilyId(familyId).orElseThrow(QuestionFamilyNotFoundException::new);
+        Question question = questionRepository.findById(questionFamily.getQuestion().getId()).orElseThrow(QuestionNotFoundException::new);
+
+        QuestionItem questionItem = QuestionItem.builder()
+                .questionId(question.getId())
+                .questionContent(question.getContent())
+                .build();
+
+        return QuestionListResponse.builder().build();
     }
 
 }
