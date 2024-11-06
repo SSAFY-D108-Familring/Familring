@@ -1,12 +1,12 @@
 package com.familring.data.di
 
 import com.familring.data.repositoryImpl.AuthRepositoryImpl
-import com.familring.data.repositoryImpl.CalendarRepositoryImpl
+import com.familring.data.repositoryImpl.ScheduleRepositoryImpl
 import com.familring.data.repositoryImpl.TimeCapsuleRepositoryImpl
 import com.familring.data.repositoryImpl.FamilyRepositoryImpl
 import com.familring.data.repositoryImpl.UserRepositoryImpl
 import com.familring.domain.repository.AuthRepository
-import com.familring.domain.repository.CalendarRepository
+import com.familring.domain.repository.ScheduleRepository
 import com.familring.domain.repository.TimeCapsuleRepository
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
@@ -33,7 +33,7 @@ interface RepositoryModule {
 
     @Binds
     @Singleton
-    fun bindCalendarRepository(calendarRepositoryImpl: CalendarRepositoryImpl): CalendarRepository
+    fun bindScheduleRepository(scheduleRepositoryImpl: ScheduleRepositoryImpl): ScheduleRepository
 
     @Binds
     @Singleton

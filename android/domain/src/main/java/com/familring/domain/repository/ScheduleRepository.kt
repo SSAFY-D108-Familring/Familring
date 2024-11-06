@@ -6,7 +6,7 @@ import com.familring.domain.model.calendar.Schedule
 import com.familring.domain.request.ScheduleCreateRequest
 import kotlinx.coroutines.flow.Flow
 
-interface CalendarRepository {
+interface ScheduleRepository {
     suspend fun getMonthData(
         year: Int,
         month: Int,

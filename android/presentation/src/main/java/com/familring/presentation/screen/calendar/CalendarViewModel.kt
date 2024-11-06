@@ -3,7 +3,7 @@ package com.familring.presentation.screen.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.repository.CalendarRepository
+import com.familring.domain.repository.ScheduleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class CalendarViewModel
     @Inject
     constructor(
-        private val calendarRepository: CalendarRepository,
+        private val scheduleRepository: ScheduleRepository,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(CalendarUiState())
         val uiState = _uiState.asStateFlow()
@@ -31,7 +31,7 @@ class CalendarViewModel
             month: Int,
         ) {
             viewModelScope.launch {
-                calendarRepository.getMonthData(year, month).collect { result ->
+                scheduleRepository.getMonthData(year, month).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _uiState.update {
@@ -66,7 +66,7 @@ class CalendarViewModel
                 return
             }
             viewModelScope.launch {
-                calendarRepository.getDaySchedules(scheduleIds).collect { result ->
+                scheduleRepository.getDaySchedules(scheduleIds).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _uiState.update {
@@ -92,7 +92,7 @@ class CalendarViewModel
 
         fun deleteSchedule(id: Long) {
             viewModelScope.launch {
-                calendarRepository.deleteSchedule(id).collect { result ->
+                scheduleRepository.deleteSchedule(id).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _event.emit(CalendarUiEvent.DeleteSuccess)
