@@ -8,4 +8,5 @@ data class UserJoinRequest(
     val userBirthDate: LocalDate,
     val userRole: String,
     val userColor: String,
+    val userIsLunar: Boolean,
 )
