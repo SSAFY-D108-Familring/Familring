@@ -68,4 +68,10 @@ public class ChatServiceImpl implements ChatService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void connectChatRoom(Long roomId, Long userId) {
+        log.info("[Service - connectChatRoom] 읽음 처리 roomId={}", roomId);
+        // 나중에 읽음 처리
+    }
 }

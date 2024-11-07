@@ -29,7 +29,7 @@ public class RoomController {
     @Operation(summary = "채팅방 입장", description = "roomId에 해당하는 채팅방의 채팅 List를 조회")
     public ResponseEntity<?> joinRoom(@PathVariable Long roomId, @RequestHeader("X-User-ID") Long userId) {
         try {
-            log.info("[채팅방 입장] 요청 roomId={}, userId={}", roomId, userId);
+            log.info("[Controller - joinRoom] 채팅방 입장 요청 roomId={}, userId={}", roomId, userId);
             List<ChatDTO> chatList = chatService.findAllChatByRoomId(roomId, userId);
 
             if (chatList.isEmpty()) {
@@ -37,7 +37,7 @@ public class RoomController {
                         .body(BaseResponse.create(HttpStatus.NOT_FOUND.value(), "채팅 기록이 없습니다.", Collections.emptyList()));
             }
 
-            log.info("[채팅방 입장] 성공 roomId={}, {}개의 메시지가 조회됨", roomId, chatList.size());
+            log.info("[Controller - joinRoom] 채팅방 입장 성공 roomId={}, {}개의 메시지가 조회됨", roomId, chatList.size());
             return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "채팅방을 성공적으로 가져와 조회했습니다.", chatList));
 
         } catch (Exception e) {

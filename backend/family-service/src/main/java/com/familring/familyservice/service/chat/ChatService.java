@@ -11,4 +11,6 @@ public interface ChatService {
     ChatEntity createChat(Long roomId, ChatRequest chatRequest);
 
     List<ChatDTO> findAllChatByRoomId(Long roomId, Long userId);
+
+    void connectChatRoom(Long roomId, Long userId);
 }
