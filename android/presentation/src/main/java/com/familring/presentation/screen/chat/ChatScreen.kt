@@ -36,8 +36,14 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
 @Composable
-fun ChatRoute(modifier: Modifier) {
-    ChatScreen(modifier = modifier)
+fun ChatRoute(
+    modifier: Modifier,
+    popUpBackStack: () -> Unit,
+) {
+    ChatScreen(
+        modifier = modifier,
+        popUpBackStack = popUpBackStack,
+    )
 }
 
 @Composable
