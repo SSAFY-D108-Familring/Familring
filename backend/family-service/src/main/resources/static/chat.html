@@ -48,7 +48,9 @@
             return;
         }
         const userId = document.getElementById("userId").value;
+        console.log("userId: ", userId);
         const roomId = document.getElementById("roomId").value;
+        console.log("roomId: ", roomId);
 
         if (!userId || !roomId) {
             alert("User ID와 Room ID를 입력해주세요.");
@@ -59,13 +61,21 @@
 
         const socket = new SockJS('/ws-stomp');
         stompClient = Stomp.over(socket);
-        stompClient.connect({}, () => {
-            stompClient.subscribe(`/room/${roomId}`, (message) => {
-                showMessage(JSON.parse(message.body));
-            });
-            isConnected = true;
-        });
+
+        // 헤더가 잘 들어가는지 확인하기 위한 로그 출력
+        console.log("WebSocket 연결 시 X-User-ID 헤더:", userId);
+
+        stompClient.connect(
+            { "X-User-ID": userId },  // 헤더에 X-User-ID 추가
+            () => {
+                stompClient.subscribe(`/room/${roomId}`, (message) => {
+                    showMessage(JSON.parse(message.body));
+                });
+                isConnected = true;
+            }
+        );
     }
+
 
     function sendMessage() {
         const roomId = document.getElementById("roomId").value;
