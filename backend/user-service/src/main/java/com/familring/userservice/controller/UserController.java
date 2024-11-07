@@ -92,6 +92,16 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 닉네임 변경에 성공했습니다."));
     }
 
+    @PatchMapping("/color")
+    @Operation(summary = "회원 프로필 배경색 수정", description = "userId에 해당하는 회원 프로필 배경색 수정")
+    public ResponseEntity<BaseResponse<Void>> updateUserColor
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @RequestParam("userColor")String userColor) {
+        userService.updateUserColor(userId, userColor);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 프로필 배경색 변경에 성공했습니다."));
+    }
+
     @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "Header의 토큰을 사용해 회원을 탈퇴 처리")
     public ResponseEntity<BaseResponse<Void>> deleteUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
