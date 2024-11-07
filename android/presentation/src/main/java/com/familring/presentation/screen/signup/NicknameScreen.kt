@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,9 +23,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.presentation.component.textfield.CustomTextField
-import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
@@ -54,13 +55,16 @@ fun NicknameScreen(
 ) {
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-    
+
     LaunchedEffect(nickname) {
         updateNickname(nickname)
     }
 
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .statusBarsPadding(),
         color = White,
     ) {
         Column(
