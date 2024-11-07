@@ -71,6 +71,7 @@ class MyPageViewModel
                     when (response) {
                         is ApiResponse.Success -> {
                             _event.emit(MyPageUiEvent.NameUpdateSuccess)
+                            getMyInfo()
                         }
 
                         is ApiResponse.Error -> {
@@ -87,6 +88,7 @@ class MyPageViewModel
                     when (response) {
                         is ApiResponse.Success -> {
                             _event.emit(MyPageUiEvent.ColorUpdateSuccess)
+                            getMyInfo()
                         }
 
                         is ApiResponse.Error -> {
@@ -97,7 +99,7 @@ class MyPageViewModel
             }
         }
 
-        fun getMyInfo() {
+        private fun getMyInfo() {
             viewModelScope.launch {
                 combine(
                     familyRepository.getFamilyCode(),

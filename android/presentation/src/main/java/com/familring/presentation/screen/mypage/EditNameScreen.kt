@@ -42,7 +42,7 @@ fun EditNameRoute(
         viewModel.event.collectLatest { event ->
             when (event) {
                 is MyPageUiEvent.NameUpdateSuccess -> {
-                    showSnackBar("닉네임이 변경되었어요.")
+                    showSnackBar("닉네임이 변경되었어요")
                     popUpBackStack()
                 }
 

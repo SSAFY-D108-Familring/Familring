@@ -348,6 +348,9 @@ fun MainNavHost(
                 navigateToEditName = {
                     navController.navigate(ScreenDestinations.EditName.route)
                 },
+                navigateToEditColor = {
+                    navController.navigate(ScreenDestinations.EditColor.route)
+                },
             )
         }
 
