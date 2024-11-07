@@ -22,6 +22,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,7 +57,7 @@ fun LoginRoute(
         viewModel.loginEvent.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> navigateToHome()
-                is LoginEvent.Error -> showSnackBar(event.errorMessage)
+                is LoginEvent.Error -> showSnackBar("패밀링에 오신걸 환영합니다")
             }
         }
     }
@@ -85,7 +87,7 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is LoginState.Success -> navigateToHome()
-            is LoginState.NoRegistered -> navigateToFirst()
+            is LoginState.NoRegistered -> {}
             is LoginState.Error -> showSnackBar(loginState.errorMessage)
             is LoginState.Loading -> Timber.tag("login").d("로그인 로딩중")
         }
@@ -152,7 +154,12 @@ fun LoginScreen(
                     Modifier
                         .padding(bottom = 50.dp)
                         .noRippleClickable {
-                            activity?.let { handleKakaoLogin(it) }
+                            activity?.let {
+                                handleKakaoLogin(it)
+                                if (loginState is LoginState.NoRegistered) {
+                                    navigateToFirst()
+                                }
+                            }
                         },
             )
         }

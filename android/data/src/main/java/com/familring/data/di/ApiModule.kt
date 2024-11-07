@@ -52,4 +52,11 @@ object ApiModule {
     fun provideDailyApi(
         @NetworkModule.BaseClient retrofit: Retrofit,
     ): DailyApi = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideQuestionApi(
+        @NetworkModule.BaseClient retrofit: Retrofit,
+    ): QuestionApi = retrofit.create()
+
 }
