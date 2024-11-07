@@ -51,25 +51,20 @@ class LoginViewModel
                             .collectLatest { response ->
                                 when (response) {
                                     is ApiResponse.Success -> {
-                                        Timber.d("서버 로그인 성공: ${response.data}")
+                                        Timber.d("서버 로그인 성공: " + response.data)
                                         _loginEvent.emit(LoginEvent.LoginSuccess)
                                     }
 
                                     is ApiResponse.Error -> {
-                                        // 자동 로그인 실패 시 NoRegistered 상태로 변경
-                                        Timber.e("서버 로그인 실패: ${response.message}")
-                                        _loginState.value = LoginState.NoRegistered(response.message)
+                                        Timber.e("서버 로그인 실패: " + response.message)
                                         _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${response.message}"))
                                     }
                                 }
                             }
                     } catch (e: Exception) {
                         Timber.e(e, "서버 통신 중 오류 발생")
-                        _loginState.value = LoginState.Error(e.message ?: "서버 통신 실패")
+                        _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${e.message}"))
                     }
-                } ?: run {
-                    // 저장된 카카오 ID가 없으면 NoRegistered 상태로 변경
-                    _loginState.value = LoginState.NoRegistered("카카오 로그인이 필요합니다")
                 }
             }
         }
@@ -86,7 +81,11 @@ class LoginViewModel
                 } catch (e: Exception) {
                     Timber.tag(TAG).e(e, "카카오 로그인 실패")
                     _loginState.value = LoginState.Error("로그인 실패: ${e.message}")
-                    _loginEvent.emit(LoginEvent.Error(errorMessage = e.message ?: "알 수 없는 오류 발생"))
+                    _loginEvent.emit(
+                        LoginEvent.Error(
+                            errorMessage = e.message ?: "알 수 없는 오류 발생",
+                        ),
+                    )
                 }
             }
         }
@@ -156,7 +155,7 @@ class LoginViewModel
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "카카오 계정 로그인 실패")
                 _loginState.value = LoginState.Error("카카오계정 로그인 실패: ${e.message}")
-//                _loginEvent.emit(LoginEvent.Error(errorMessage = "카카오계정 로그인 실패 ${e.message}"))
+                _loginEvent.emit(LoginEvent.Error(errorMessage = "카카오계정 로그인 실패 ${e.message}"))
             }
         }
 
@@ -169,7 +168,7 @@ class LoginViewModel
                         viewModelScope.launch {
                             _loginState.value =
                                 LoginState.Error("사용자 정보 요청 실패: ${error.message}")
-//                            _loginEvent.emit(LoginEvent.Error(errorMessage = "사용자 정보 요청 실패 ${error.message}"))
+                            _loginEvent.emit(LoginEvent.Error(errorMessage = "사용자 정보 요청 실패 ${error.message}"))
                         }
                     } else if (user != null) {
                         Timber
@@ -195,30 +194,30 @@ class LoginViewModel
 
                                                 _loginState.value =
                                                     LoginState.Success(token, user.id)
-//                                                _loginEvent.emit(LoginEvent.LoginSuccess)
+                                                _loginEvent.emit(LoginEvent.LoginSuccess)
                                             }
 
                                             is ApiResponse.Error -> {
                                                 Timber.tag(TAG).e("서버 로그인 실패: " + response.message)
                                                 _loginState.value =
                                                     LoginState.NoRegistered("로그인 실패: ${response.message}")
-//                                                _loginEvent.emit(
-//                                                    LoginEvent.Error(
-//                                                        errorCode = response.code,
-//                                                        errorMessage = "로그인 실패 ${response.message}",
-//                                                    ),
-                                                //   )
+                                                _loginEvent.emit(
+                                                    LoginEvent.Error(
+                                                        errorCode = response.code,
+                                                        errorMessage = "로그인 실패 ${response.message}",
+                                                    ),
+                                                )
                                             }
                                         }
                                     }
                             } catch (e: Exception) {
                                 Timber.tag(TAG).e(e, "서버 통신 중 오류 발생")
                                 _loginState.value = LoginState.Error(e.message ?: "서버 통신 실패")
-//                                _loginEvent.emit(
-//                                    LoginEvent.Error(
-//                                        errorMessage = e.message ?: "서버 통신 실패",
-//                                    ),
-                                // )
+                                _loginEvent.emit(
+                                    LoginEvent.Error(
+                                        errorMessage = e.message ?: "서버 통신 실패",
+                                    ),
+                                )
                             }
                         }
                     }
@@ -226,5 +225,9 @@ class LoginViewModel
             } else {
                 Timber.tag(TAG).e("카카오 토큰이 null입니다.")
             }
+        }
+
+        fun resetState() {
+            _loginState.value = LoginState.Loading
         }
     }

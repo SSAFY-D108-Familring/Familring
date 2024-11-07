@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.component.ColorPalette
-import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Blue01

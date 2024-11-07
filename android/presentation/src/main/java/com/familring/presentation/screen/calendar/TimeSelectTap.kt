@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.component.DateInputRow
-import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TimeInputRow
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray04

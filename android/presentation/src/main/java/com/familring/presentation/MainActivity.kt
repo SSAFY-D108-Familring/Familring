@@ -7,6 +7,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import com.familring.presentation.theme.FamilringTheme
 import com.kakao.sdk.common.util.Utility
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,12 +22,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
+
         // 앱 처음 시작될 때 들어온 인텐트 처리
         handleDeepLink(intent)
 
         setContent {
             FamilringTheme {
-                MainScreen()
+                MainScreen(
+                    modifier =
+                        Modifier
+                            .statusBarsPadding()
+                            .navigationBarsPadding(),
+                )
             }
         }
         Timber.tag("keyhash :").d(Utility.getKeyHash(this))

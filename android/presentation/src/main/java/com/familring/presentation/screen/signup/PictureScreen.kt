@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.familring.presentation.R
-import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01

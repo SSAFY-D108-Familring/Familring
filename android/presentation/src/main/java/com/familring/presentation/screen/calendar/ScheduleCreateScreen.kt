@@ -51,8 +51,8 @@ import com.familring.domain.model.calendar.Schedule
 import com.familring.domain.request.ScheduleCreateRequest
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomCheckBox
-import com.familring.presentation.component.LoadingDialog
-import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Black

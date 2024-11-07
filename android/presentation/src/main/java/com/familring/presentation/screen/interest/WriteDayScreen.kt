@@ -29,7 +29,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
-import com.familring.presentation.component.GrayBigTextField
+import com.familring.presentation.component.textfield.GrayBigTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green03

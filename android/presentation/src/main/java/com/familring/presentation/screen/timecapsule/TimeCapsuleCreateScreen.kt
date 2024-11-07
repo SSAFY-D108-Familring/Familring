@@ -27,9 +27,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.DateInputRow
-import com.familring.presentation.component.LoadingDialog
-import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Red01

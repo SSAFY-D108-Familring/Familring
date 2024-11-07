@@ -22,9 +22,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.presentation.component.CustomTextField
-import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
@@ -54,7 +54,7 @@ fun NicknameScreen(
 ) {
     var nickname by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
-    
+
     LaunchedEffect(nickname) {
         updateNickname(nickname)
     }

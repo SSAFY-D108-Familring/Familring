@@ -1,4 +1,4 @@
-package com.familring.presentation.component
+package com.familring.presentation.component.dialog
 
 import androidx.annotation.RawRes
 import androidx.compose.foundation.layout.Arrangement

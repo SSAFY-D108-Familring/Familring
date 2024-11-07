@@ -1,6 +1,5 @@
 package com.familring.presentation
 
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -70,7 +69,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     val (visible, setVisible) = remember { mutableStateOf(false) }
     when (currentRoute) {
-        "Home", "Chat", "Question", "Calendar", "Gallery" -> setVisible(true)
+        "Home", "Question", "Calendar", "Gallery" -> setVisible(true)
         else -> setVisible(false)
     }
 
@@ -85,6 +84,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         bottomBar = {
             if (visible) {
                 BottomNavigationBar(
+//                    modifier = Modifier.navigationBarsPadding(),
                     navController = navController,
                     currentRoute = currentRoute,
                 )
@@ -95,8 +95,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         MainNavHost(
             modifier =
                 modifier
-                    .padding(innerPadding)
-                    .navigationBarsPadding(),
+                    .padding(innerPadding),
             navController = navController,
             startDestination = ScreenDestinations.Login.route,
             showSnackBar = onShowSnackBar,
@@ -121,7 +120,10 @@ fun MainNavHost(
             LoginRoute(
                 modifier = modifier,
                 navigateToHome = {
-                    navController.navigate(ScreenDestinations.Home.route)
+                    navController.navigate(ScreenDestinations.Home.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 navigateToFirst = {
                     navController.navigate(ScreenDestinations.First.route)
@@ -231,7 +233,10 @@ fun MainNavHost(
                     navController.navigate(ScreenDestinations.Done.route)
                 },
                 navigateToHome = {
-                    navController.navigate(ScreenDestinations.Home.route)
+                    navController.navigate(ScreenDestinations.Home.route) {
+                        popUpTo(ScreenDestinations.Home.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
             )
         }
@@ -248,7 +253,10 @@ fun MainNavHost(
                 modifier = modifier,
                 viewModel = viewModel,
                 navigateToHome = {
-                    navController.navigate(ScreenDestinations.Home.route)
+                    navController.navigate(ScreenDestinations.Home.route) {
+                        popUpTo(ScreenDestinations.Home.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 showSnackBar = showSnackBar,
             )
@@ -458,7 +466,10 @@ fun MainNavHost(
                 popUpBackStack = navController::popBackStack,
                 showSnackBar = showSnackBar,
                 navigateToLogin = {
-                    navController.navigate(ScreenDestinations.Login.route)
+                    navController.navigate(ScreenDestinations.Login.route) {
+                        popUpTo(0) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 },
                 navigateToEditName = {
                     navController.navigate(ScreenDestinations.EditName.route)

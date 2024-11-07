@@ -1,4 +1,4 @@
-package com.familring.presentation.component
+package com.familring.presentation.component.textfield
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background

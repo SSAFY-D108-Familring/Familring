@@ -41,8 +41,8 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.familring.domain.util.toMultiPart
 import com.familring.presentation.R
-import com.familring.presentation.component.GrayBackgroundTextField
-import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.textfield.GrayBackgroundTextField
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01

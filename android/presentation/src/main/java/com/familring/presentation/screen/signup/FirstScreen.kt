@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.familring.presentation.R
-import com.familring.presentation.component.BrownRoundButton
-import com.familring.presentation.component.GrayBigTextField
+import com.familring.presentation.component.button.BrownRoundButton
+import com.familring.presentation.component.textfield.GrayBigTextField
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
