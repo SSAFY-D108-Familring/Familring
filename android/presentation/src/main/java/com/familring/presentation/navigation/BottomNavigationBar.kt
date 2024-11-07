@@ -3,7 +3,6 @@ package com.familring.presentation.navigation
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
@@ -44,7 +43,6 @@ fun BottomNavigationBar(
         modifier =
             modifier
                 .fillMaxHeight(0.075f)
-                .navigationBarsPadding()
                 .shadow(elevation = 20.dp),
         containerColor = White,
     ) {

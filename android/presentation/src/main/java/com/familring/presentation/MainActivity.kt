@@ -8,6 +8,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import com.familring.presentation.theme.FamilringTheme
 import com.kakao.sdk.common.util.Utility
@@ -27,7 +30,12 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FamilringTheme {
-                MainScreen()
+                MainScreen(
+                    modifier =
+                        Modifier
+                            .statusBarsPadding()
+                            .navigationBarsPadding(),
+                )
             }
         }
         Timber.tag("keyhash :").d(Utility.getKeyHash(this))

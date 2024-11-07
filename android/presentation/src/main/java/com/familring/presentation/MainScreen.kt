@@ -1,6 +1,5 @@
 package com.familring.presentation
 
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -85,7 +84,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         bottomBar = {
             if (visible) {
                 BottomNavigationBar(
-                    modifier = Modifier.navigationBarsPadding(),
+//                    modifier = Modifier.navigationBarsPadding(),
                     navController = navController,
                     currentRoute = currentRoute,
                 )
@@ -235,7 +234,7 @@ fun MainNavHost(
                 },
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route) {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(ScreenDestinations.Home.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
@@ -255,7 +254,7 @@ fun MainNavHost(
                 viewModel = viewModel,
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route) {
-                        popUpTo(0) { inclusive = true }
+                        popUpTo(ScreenDestinations.Home.route) { inclusive = true }
                         launchSingleTop = true
                     }
                 },
