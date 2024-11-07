@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
+import com.familring.domain.request.UserEmotionRequest
 import com.familring.presentation.R
 import com.familring.presentation.component.EmotionGrid
 import com.familring.presentation.component.TopAppBar
@@ -70,6 +71,10 @@ fun MyPageRoute(
                     navigateToLogin()
                 }
 
+                is MyPageUiEvent.EmotionUpdateSuccess -> {
+                    showSnackBar("기분이 변경되었습니다!")
+                }
+
                 is MyPageUiEvent.Error -> showSnackBar(event.message)
             }
         }
@@ -93,7 +98,7 @@ fun HandleMyPageUi(
     signOut: () -> Unit = {},
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    updateEmotion: (String) -> Unit = {},
+    updateEmotion: (UserEmotionRequest) -> Unit = {},
     navigateToEditName: () -> Unit = {},
 ) {
     when (uiState) {
@@ -123,7 +128,7 @@ fun MyPageScreen(
     navigateToEditName: () -> Unit = {},
     signOut: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    updateEmotion: (String) -> Unit = {},
+    updateEmotion: (UserEmotionRequest) -> Unit = {},
     nickname: String = "",
     birthDate: String = "",
     role: String = "",
@@ -336,7 +341,7 @@ fun MyPageScreen(
             EmotionGrid(
                 clickEmotion = { emotion ->
                     // 서버에 기분 수정 보내기
-                    updateEmotion(emotion)
+                    updateEmotion(UserEmotionRequest(emotion))
                     showEmotionDialog = false
                 },
             )

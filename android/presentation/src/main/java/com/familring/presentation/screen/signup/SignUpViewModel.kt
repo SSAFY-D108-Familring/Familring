@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -70,22 +69,8 @@ class SignUpViewModel
             _state.update { it.copy(familyCode = code) }
         }
 
-        fun updateMakeThenNavigate(
-            make: Boolean,
-            onNavigate: () -> Unit,
-        ) {
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(
-                        make = make,
-                    )
-                }
-                // 상태 업데이트가 완료될 때까지 대기
-                state.first {
-                    it.make == make
-                }
-                onNavigate()
-            }
+        fun updateMake(make: Boolean) {
+            _state.update { it.copy(make = make) }
         }
 
         fun join() {

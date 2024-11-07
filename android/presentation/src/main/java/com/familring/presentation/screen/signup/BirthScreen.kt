@@ -20,6 +20,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.component.DateInputRow
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
@@ -28,6 +30,7 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.isDateFormValid
+import timber.log.Timber
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -38,6 +41,9 @@ fun BirthRoute(
     popUpBackStack: () -> Unit,
     navigateToColor: () -> Unit,
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    Timber.d("birthScreen : $state")
     BirthScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
@@ -93,9 +99,9 @@ fun BirthScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.25f))
             DateInputRow(
                 modifier =
-                    Modifier
-                        .fillMaxWidth(0.9f)
-                        .align(Alignment.CenterHorizontally),
+                Modifier
+                    .fillMaxWidth(0.9f)
+                    .align(Alignment.CenterHorizontally),
                 year = year,
                 month = month,
                 date = date,

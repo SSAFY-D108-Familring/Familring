@@ -38,11 +38,11 @@ fun EmotionGrid(
 ) {
     val emotionList =
         listOf(
-            EmotionText("😆", "기뻐요"),
-            EmotionText("🙂", "평범해요"),
-            EmotionText("😎", "즐거워요"),
-            EmotionText("🤬", "화났어요"),
-            EmotionText("😥", "슬퍼요"),
+            EmotionText("😆", "기뻐요 \uD83D\uDE06"),
+            EmotionText("🙂", "평범해요 \uD83D\uDE42"),
+            EmotionText("😎", "즐거워요 \uD83D\uDE0E"),
+            EmotionText("🤬", "화났어요 \uD83E\uDD2C"),
+            EmotionText("😥", "슬퍼요 \uD83D\uDE25"),
         )
     Column(
         modifier =

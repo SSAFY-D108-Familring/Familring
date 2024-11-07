@@ -53,11 +53,10 @@ fun FirstRoute(
         viewModel.event.collectLatest { event ->
             when (event) {
                 is SignUpUiEvent.NotAvailable -> showSnackBar("존재하지 않는 코드입니다")
-                is SignUpUiEvent.Available ->
-                    viewModel.updateMakeThenNavigate(
-                        false,
-                        navigateToBirth,
-                    )
+                is SignUpUiEvent.Available -> {
+                    viewModel.updateMake(false)
+                    navigateToBirth()
+                }
 
                 else -> {}
             }
@@ -68,7 +67,7 @@ fun FirstRoute(
         modifier = modifier,
         navigateToBirth = navigateToBirth,
         updateCode = viewModel::updateCode,
-        updateAndNavigate = viewModel::updateMakeThenNavigate,
+        updateMake = viewModel::updateMake,
         checkAvailable = viewModel::isAvailableCode,
     )
 }
@@ -78,7 +77,7 @@ fun FirstScreen(
     modifier: Modifier = Modifier,
     navigateToBirth: () -> Unit = {},
     updateCode: (String) -> Unit = {},
-    updateAndNavigate: (Boolean, () -> Unit) -> Unit = { _, _ -> },
+    updateMake: (Boolean) -> Unit = {},
     checkAvailable: (String) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
@@ -115,11 +114,11 @@ fun FirstScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.08f))
             Box(
                 modifier =
-                    Modifier
-                        .fillMaxWidth(0.82f)
-                        .wrapContentSize()
-                        .background(color = White)
-                        .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp)),
+                Modifier
+                    .fillMaxWidth(0.82f)
+                    .wrapContentSize()
+                    .background(color = White)
+                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp)),
             ) {
                 Column(
                     modifier =
@@ -157,7 +156,8 @@ fun FirstScreen(
             Text(
                 modifier =
                     Modifier.noRippleClickable {
-                        updateAndNavigate(true, navigateToBirth)
+                        updateMake(true)
+                        navigateToBirth()
                     },
                 text = "없어요, 새로 개설할래요!",
                 style = Typography.headlineSmall,
