@@ -22,8 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,7 +51,7 @@ fun LoginRoute(
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(viewModel.loginEvent) {
         viewModel.loginEvent.collect { event ->
             when (event) {
                 is LoginEvent.LoginSuccess -> navigateToHome()
@@ -68,6 +66,7 @@ fun LoginRoute(
         navigateToHome = navigateToHome,
         showSnackBar = showSnackBar,
         loginState = loginState,
+        resetState = viewModel::resetState,
         handleKakaoLogin = { activity -> viewModel.handleKakaoLogin(activity) },
     )
 }
@@ -76,6 +75,7 @@ fun LoginRoute(
 fun LoginScreen(
     modifier: Modifier = Modifier,
     loginState: LoginState,
+    resetState: () -> Unit = {},
     navigateToFirst: () -> Unit = {},
     navigateToHome: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
@@ -87,7 +87,10 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is LoginState.Success -> navigateToHome()
-            is LoginState.NoRegistered -> {}
+            is LoginState.NoRegistered -> {
+                navigateToFirst()
+                resetState()
+            }
             is LoginState.Error -> showSnackBar(loginState.errorMessage)
             is LoginState.Loading -> Timber.tag("login").d("로그인 로딩중")
         }
@@ -156,9 +159,6 @@ fun LoginScreen(
                         .noRippleClickable {
                             activity?.let {
                                 handleKakaoLogin(it)
-                                if (loginState is LoginState.NoRegistered) {
-                                    navigateToFirst()
-                                }
                             }
                         },
             )
