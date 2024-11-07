@@ -1,10 +1,10 @@
 package com.familring.presentation.screen.calendar
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -36,19 +37,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.familring.domain.mapper.toProfile
-import com.familring.domain.model.Profile
 import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
+import com.familring.presentation.component.ImageLoadingProgress
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Black
@@ -143,7 +149,6 @@ fun DailyTab(
                 state = pagerState,
                 pageSpacing = 14.dp,
                 contentPadding = PaddingValues(horizontal = 28.dp),
-//                verticalAlignment = Alignment.Top,
             ) { page ->
                 DailyItem(
                     dailyLife = dailyLifes[page],
@@ -153,6 +158,7 @@ fun DailyTab(
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun DailyItem(
     modifier: Modifier = Modifier,
@@ -175,8 +181,9 @@ fun DailyItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ZodiacBackgroundProfile(
-                modifier = Modifier.size(35.dp),
                 profile = dailyLife.profile,
+                size = 35,
+                paddingValue = 5
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -201,10 +208,28 @@ fun DailyItem(
                     ),
             )
             Spacer(modifier = Modifier.height(15.dp))
-            Image(
-                painter = painterResource(id = R.drawable.tuna),
-                contentDescription = "img_daily",
-            )
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                val parentWidth = with(LocalDensity.current) { maxWidth.toPx() }
+
+                GlideImage(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .clip(RoundedCornerShape(12.dp)),
+                    loading =
+                        placeholder {
+                            ImageLoadingProgress()
+                        },
+                    model = dailyLife.dailyImgUrl,
+                    contentDescription = "img_daily",
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.FillWidth,
+                )
+            }
         }
     }
 }
@@ -415,51 +440,22 @@ val dailyLifes =
         DailyLife(
             dailyImgUrl = "",
             content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
-            profile =
-                Profile(
-                    nickName = "엄마미",
-                    zodiacImgUrl = "url",
-                    backgroundColor = "0xFFFEE222",
-                ),
-        ),
-        DailyLife(
-            dailyImgUrl = "",
-            content =
-                "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요" +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요" +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요" +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 " +
-                    "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 ",
-            profile =
-                Profile(
-                    nickName = "엄마미",
-                    zodiacImgUrl = "url",
-                    backgroundColor = "0xFFFEE222",
-                ),
+            userZodiacSign = "",
+            userNickname = "",
+            userColor = "0xFFFEE222",
         ),
         DailyLife(
             dailyImgUrl = "",
             content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
-            profile =
-                Profile(
-                    nickName = "엄마미",
-                    zodiacImgUrl = "url",
-                    backgroundColor = "0xFFFEE222",
-                ),
+            userZodiacSign = "",
+            userNickname = "",
+            userColor = "0xFFFEE222",
+        ),
+        DailyLife(
+            dailyImgUrl = "",
+            content = "현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요 현진이 생일이었어요",
+            userZodiacSign = "",
+            userNickname = "",
+            userColor = "0xFFFEE222",
         ),
     )

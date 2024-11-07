@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,18 +14,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.model.calendar.DaySchedule
+import com.familring.domain.model.calendar.PreviewDaily
 import com.familring.domain.model.calendar.PreviewSchedule
+import com.familring.presentation.R
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
@@ -68,13 +75,30 @@ fun Day(
                 Modifier.padding(top = 3.dp, bottom = 5.dp)
             }
 
-        Text(
-            modifier =
-                dateBackground
-                    .padding(4.dp),
-            text = date.dayOfMonth.toString(),
-            style = dateStyle,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
+            Text(
+                modifier =
+                    dateBackground
+                        .padding(4.dp),
+                text = date.dayOfMonth.toString(),
+                style = dateStyle,
+                textAlign = TextAlign.Center,
+            )
+            if (daySchedule.dailies.isNotEmpty()) {
+                Icon(
+                    modifier =
+                        Modifier
+                            .padding(top = 3.dp, end = 3.dp)
+                            .weight(1f),
+                    painter = painterResource(id = R.drawable.img_star),
+                    contentDescription = "img_star",
+                    tint = Color.Unspecified,
+                )
+            }
+        }
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -155,7 +179,7 @@ private fun DayPreview() {
         modifier = Modifier.size(50.dp, 90.dp),
         daySchedule =
             DaySchedule(
-                date = "2024-10-31".toLocalDate(),
+                date = "2024-11-07".toLocalDate(),
                 schedules =
                     listOf(
                         PreviewSchedule(
@@ -171,6 +195,13 @@ private fun DayPreview() {
                             startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
                             endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
                             color = "0xFFFEE6C9",
+                        ),
+                    ),
+                dailies =
+                    listOf(
+                        PreviewDaily(
+                            id = 0,
+                            createdAt = LocalDateTime.now(),
                         ),
                     ),
             ),

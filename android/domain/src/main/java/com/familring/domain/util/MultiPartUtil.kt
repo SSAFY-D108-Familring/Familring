@@ -1,4 +1,4 @@
-package com.familring.data.util
+package com.familring.domain.util
 
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
