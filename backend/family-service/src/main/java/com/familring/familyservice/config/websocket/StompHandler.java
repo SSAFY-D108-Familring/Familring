@@ -28,47 +28,39 @@ public class StompHandler implements ChannelInterceptor {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         StompCommand command = accessor.getCommand();
 
-        // CONNECT 요청일 때, 헤더에서 X-User-ID를 추출해 세션에 저장
-        if (StompCommand.CONNECT.equals(command)) {
-            String userIdHeader = accessor.getFirstNativeHeader("X-User-ID");
-            log.info("WebSocket 연결 시 X-User-ID 헤더: {}", userIdHeader);
-
-            if (userIdHeader == null) {
-                log.error("X-User-ID 헤더가 누락되었습니다.");
-                throw new IllegalArgumentException("X-User-ID 헤더가 필요합니다.");
-            }
-
-            Long userId = Long.valueOf(userIdHeader);
-            accessor.getSessionAttributes().put("userId", userId); // 세션에 저장
-        }
-
-        // CONNECT 외의 다른 요청일 때 세션에서 userId를 가져옴
-        else {
-            Long userId = (Long) accessor.getSessionAttributes().get("userId");
-            if (userId == null) {
-                log.error("X-User-ID 세션 정보가 누락되었습니다.");
-                throw new IllegalArgumentException("X-User-ID 세션 정보가 필요합니다.");
-            }
-            log.info("세션에서 가져온 X-User-ID: {}", userId);
-        }
+        handleMessage(command, accessor, message.getHeaders());
 
         return message;
     }
 
-    private void handleMessage(StompCommand command, StompHeaderAccessor accessor, MessageHeaders headers, Long userId) {
+    private void handleMessage(StompCommand command, StompHeaderAccessor accessor, MessageHeaders headers) {
         switch (command) {
             case CONNECT:
-                log.info("[Handler - handleMessage] CONNECT, userId: {}", userId);
+                log.info("[Handler - handleMessage] CONNECT");
+                String userIdHeader = accessor.getFirstNativeHeader("X-User-ID");
+                log.info("[Handler - handleMessage] WebSocket 연결 시 X-User-ID 헤더: {}", userIdHeader);
+
+                if (userIdHeader == null) {
+                    log.error("X-User-ID 헤더가 누락되었습니다.");
+                    throw new IllegalArgumentException("X-User-ID 헤더가 필요합니다.");
+                }
+
+                Long userId = Long.valueOf(userIdHeader);
+                accessor.getSessionAttributes().put("userId", userId); // 세션에 저장
                 break;
+
             case SUBSCRIBE:
                 log.info("[Handler - handleMessage] SUBSCRIBE");
+                userId = (Long) accessor.getSessionAttributes().get("userId");
                 Long roomId = connectToChatRoom(headers, userId);
                 log.info("[Handler - handleMessage] 채팅방 구독한 채팅 방 = {}", roomId);
                 break;
+
             case SEND:
                 log.info("[Handler - handleMessage] SEND");
                 log.info("[Handler - handleMessage] 메세지 맵핑 주소 = {}", accessor.getDestination());
                 break;
+
             case DISCONNECT:
                 log.info("[Handler - handleMessage] DISCONNECT");
                 break;

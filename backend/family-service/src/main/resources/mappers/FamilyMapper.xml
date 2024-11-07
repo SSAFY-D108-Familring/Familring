@@ -54,7 +54,7 @@
         FROM family
     </select>
 
-    <select id="countFamilyMembersByUserId" resultType="int">
+    <select id="countFamily_UserByUserId" resultType="int">
         SELECT COUNT(*)
         FROM family_user
         WHERE family_id = (

@@ -33,7 +33,7 @@ public interface FamilyDao {
     List<Long> findFamilyId();
 
     // 가족 구성원 수 조회
-    int countFamilyUserByUserId(@Param("userId") Long userId);
+    int countFamily_UserByUserId(@Param("userId") Long userId);
 
     // familyCode로 family 유무 확인
     boolean existsFamilyByFamilyCode(@Param("code") String code);
@@ -47,7 +47,9 @@ public interface FamilyDao {
     // family 생성
     void insertFamily(FamilyCreateRequest familyCreateRequest);
 
+    // familyI에 해당하는 family의 familyCommuniStatus + mount
     void updateFamilyCommunicationStatusByFamilyId(@Param("familyId") Long familyId, @Param("amount") int amount);
+
     // family_user 구성원 추가
     void insetFamily_User(@Param("familyId") Long familyId, @Param("userId") Long userId);
 
@@ -56,7 +58,4 @@ public interface FamilyDao {
 
     // family_user 구성원 제거
     void deleteFamily_UserByFamilyIdAndUserId(@Param("familyId") Long familyId, @Param("userId") Long userId);
-
-    // familyI에 해당하는 family의 familyCommuniStatus + mount
-
 }

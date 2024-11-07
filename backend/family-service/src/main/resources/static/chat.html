@@ -13,6 +13,15 @@
     <input type="text" id="userId" placeholder="User ID">
     <input type="text" id="roomId" placeholder="Room ID">
     <input type="text" id="message" placeholder="Message">
+    <div>
+        <label>
+            <input type="radio" name="messageType" value="message" checked onclick="toggleVoteTitle()"> 일반 메시지
+        </label>
+        <label>
+            <input type="radio" name="messageType" value="vote" onclick="toggleVoteTitle()"> 투표 메시지
+        </label>
+    </div>
+    <input type="text" id="voteTitle" placeholder="투표 제목" style="display: none;">
     <button onclick="connect()">Connect</button>
     <button onclick="sendMessage()">Send</button>
 </div>
@@ -21,6 +30,12 @@
 <script>
     let stompClient = null;
     let isConnected = false;
+
+    function toggleVoteTitle() {
+        const voteTitleInput = document.getElementById("voteTitle");
+        const messageType = document.querySelector('input[name="messageType"]:checked').value;
+        voteTitleInput.style.display = messageType === "vote" ? "block" : "none";
+    }
 
     async function fetchChatHistory(roomId, userId) {
         try {
@@ -34,9 +49,14 @@
             const result = await response.json();
             const chatLog = document.getElementById("chat-log");
             chatLog.innerHTML = "";
-            result.data.forEach(message => {
-                showMessage(message);
-            });
+
+            if (result.data && Array.isArray(result.data)) {
+                result.data.forEach(message => {
+                    showMessage(message);
+                });
+            } else {
+                console.warn("No chat data available.");
+            }
         } catch (error) {
             console.error("채팅 기록을 불러오는 중 오류 발생:", error);
         }
@@ -48,9 +68,7 @@
             return;
         }
         const userId = document.getElementById("userId").value;
-        console.log("userId: ", userId);
         const roomId = document.getElementById("roomId").value;
-        console.log("roomId: ", roomId);
 
         if (!userId || !roomId) {
             alert("User ID와 Room ID를 입력해주세요.");
@@ -62,11 +80,8 @@
         const socket = new SockJS('/ws-stomp');
         stompClient = Stomp.over(socket);
 
-        // 헤더가 잘 들어가는지 확인하기 위한 로그 출력
-        console.log("WebSocket 연결 시 X-User-ID 헤더:", userId);
-
         stompClient.connect(
-            { "X-User-ID": userId },  // 헤더에 X-User-ID 추가
+            { "X-User-ID": userId },
             () => {
                 stompClient.subscribe(`/room/${roomId}`, (message) => {
                     showMessage(JSON.parse(message.body));
@@ -76,23 +91,32 @@
         );
     }
 
-
     function sendMessage() {
         const roomId = document.getElementById("roomId").value;
         const userId = document.getElementById("userId").value;
         const messageContent = document.getElementById("message").value;
+        const isVote = document.querySelector('input[name="messageType"]:checked').value === 'vote';
+        const voteTitle = isVote ? document.getElementById("voteTitle").value : null;
+
+        if (isVote && !voteTitle) {
+            alert("투표 제목을 입력하세요.");
+            return;
+        }
+
+        // 로그로 확인
+        console.log("isVote:", isVote, "voteTitle:", voteTitle);
 
         if (stompClient && stompClient.connected) {
             stompClient.send(`/send/${roomId}`, {}, JSON.stringify({
                 roomId: roomId,
                 senderId: userId,
-                senderNickname: `User${userId}`,
-                senderProfileImage: "profile.jpg",
                 content: messageContent,
-                messageChecked: false,
-                sendTime: new Date().toISOString()
+                createdAt: new Date().toISOString(),
+                isVote: isVote,
+                voteTitle: voteTitle
             }));
             document.getElementById("message").value = "";
+            if (isVote) document.getElementById("voteTitle").value = "";
         } else {
             alert("WebSocket 서버에 연결되어 있지 않습니다.");
         }
@@ -100,14 +124,33 @@
 
     function showMessage(message) {
         const chatLog = document.getElementById("chat-log");
+
+        // 채팅 ID와 기타 정보에 대한 예외 처리
+        const chatId = message.chatId && message.chatId.timestamp ? message.chatId.timestamp : "N/A";
+
+        // 투표 메시지와 일반 메시지에 따른 정보 표시
+        let voteInfo = "<p>일반 메시지</p>";
+        if (message.isVote && message.vote) {
+            voteInfo = `
+            <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
+            <p><strong>투표 옵션:</strong> ${message.vote.voteResult ? Object.keys(message.vote.voteResult).join(', ') : "없음"}</p>
+            <p><strong>투표 참여자 수:</strong> ${message.vote.familyCount}</p>
+            <p><strong>투표 완료 여부:</strong> ${message.vote.completed ? "완료" : "진행 중"}</p>
+        `;
+        }
+
         chatLog.innerHTML += `
-            <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-                <p><strong>${message.senderNickname}:</strong> ${message.content}</p>
-                <p><img src="${message.senderZodiacSignImageUrl}" alt="Zodiac Sign" style="width: 20px; height: 20px;"> |
-                색상: <span style="color:${message.senderColor}">${message.senderColor}</span> |
-                전송 시간: ${new Date(message.createdAt).toLocaleString()}</p>
-            </div>`;
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
+            <p><strong>채팅 ID:</strong> ${chatId}</p>
+            <p><strong>방 ID:</strong> ${message.roomId}</p>
+            <p><strong>발신자 ID:</strong> ${message.senderId}</p>
+            <p><strong>발신자 닉네임:</strong> ${message.sender.userNickname}</p>
+            <p><strong>내용:</strong> ${message.content}</p>
+            <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>
+            ${voteInfo}
+        </div>`;
     }
+
 </script>
 </body>
 </html>
