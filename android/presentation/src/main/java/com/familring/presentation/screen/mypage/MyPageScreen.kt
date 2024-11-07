@@ -38,10 +38,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
 import com.familring.presentation.R
 import com.familring.presentation.component.EmotionGrid
-import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.TopAppBar
-import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.component.dialog.LoadingDialog
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.screen.signup.shareCode
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -127,7 +127,7 @@ fun MyPageScreen(
     nickname: String = "",
     birthDate: String = "",
     role: String = "",
-    profileImage: String = "",
+    profileImage: String = "0xFFFFFFFF",
     userColor: String = "",
     code: String = "",
 ) {
@@ -279,7 +279,8 @@ fun MyPageScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .background(color = Black.copy(alpha = 0.5f)),
+                    .background(color = Black.copy(alpha = 0.5f))
+                    .noRippleClickable { showSignOutDialog = false },
             contentAlignment = Alignment.Center,
         ) {
             TwoButtonTextDialog(
