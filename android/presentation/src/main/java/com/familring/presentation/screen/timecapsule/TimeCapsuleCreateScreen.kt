@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,6 +31,7 @@ import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.isDateFormValid
@@ -74,11 +77,13 @@ fun TimeCapsuleCreateScreen(
     createTimeCapsule: (LocalDate) -> Unit = {},
     popUpBackStack: () -> Unit = {},
 ) {
-    var year by remember { mutableStateOf("") }
-    var month by remember { mutableStateOf("") }
-    var date by remember { mutableStateOf("") }
+    val today = LocalDate.now()
+    var year by remember { mutableStateOf(today.year.toString()) }
+    var month by remember { mutableStateOf(String.format("%02d", today.monthValue)) }
+    var date by remember { mutableStateOf(String.format("%02d", today.plusDays(3).dayOfMonth)) }
 
     val isButtonEnabled = isDateFormValid(year, month, date)
+    var isAfter3Days by remember { mutableStateOf(true) }
 
     val focusManager = LocalFocusManager.current
 
@@ -121,6 +126,18 @@ fun TimeCapsuleCreateScreen(
                     ),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
+            Text(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(start = 5.dp, bottom = 5.dp),
+                text = "타임캡슐은 최소 3일 이후부터 열 수 있어요",
+                style =
+                    Typography.bodySmall.copy(
+                        color = if (isAfter3Days) Gray01 else Red01,
+                        fontSize = 14.sp,
+                    ),
+            )
             DateInputRow(
                 modifier =
                     Modifier
@@ -139,13 +156,25 @@ fun TimeCapsuleCreateScreen(
                 text = "타임캡슐 작성하러 가기",
                 onClick = {
                     val openDate = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
-                    createTimeCapsule(openDate)
+                    if (isAfter3Days(openDate)) {
+                        isAfter3Days = true
+                        createTimeCapsule(openDate)
+                    } else {
+                        isAfter3Days = false
+                    }
                 },
                 enabled = isButtonEnabled,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
         }
     }
+}
+
+private fun isAfter3Days(date: LocalDate): Boolean {
+    val today = LocalDate.now()
+    val threeDaysLater = today.plusDays(3)
+
+    return date.isAfter(threeDaysLater) || date.isEqual(threeDaysLater)
 }
 
 @Preview

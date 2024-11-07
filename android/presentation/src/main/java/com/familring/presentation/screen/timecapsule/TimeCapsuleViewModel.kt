@@ -56,10 +56,11 @@ class TimeCapsuleViewModel
                 timeCapsuleRepository.createTimeCapsuleAnswer(content).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
-                            // 이벤트 필요
+                            _event.emit(TimeCapsuleUiEvent.Success)
                         }
 
                         is ApiResponse.Error -> {
+                            _event.emit(TimeCapsuleUiEvent.Error(result.code, result.message))
                             Timber.d("code: ${result.code}, message: ${result.message}")
                         }
                     }
