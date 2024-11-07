@@ -187,7 +187,7 @@ fun DailyItem(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = dailyLife.profile.nickName,
+                text = dailyLife.profile.nickname,
                 style =
                     Typography.titleMedium.copy(
                         fontSize = 16.sp,

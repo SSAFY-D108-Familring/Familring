@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.familring.domain.model.Profile
 import com.familring.domain.model.timecapsule.TimeCapsuleMessage
 import com.familring.presentation.component.OneButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
@@ -38,7 +37,6 @@ import com.familring.presentation.theme.White
 @Composable
 fun TimeCapsuleDialog(
     modifier: Modifier = Modifier,
-    timeCapsuleId: Int,
     timeCapsuleMessages: List<TimeCapsuleMessage> = listOf(),
     onDismiss: () -> Unit = {},
 ) {
@@ -121,7 +119,7 @@ fun TimeCapsule(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = timeCapsuleMessage.profile.nickName,
+                text = timeCapsuleMessage.profile.nickname,
                 style =
                     Typography.titleMedium.copy(
                         fontSize = 22.sp,
@@ -152,13 +150,9 @@ private fun TimeCapsulePagerPreview() {
         timeCapsuleMessages =
             listOf(
                 TimeCapsuleMessage(
-                    id = 1,
-                    profile =
-                        Profile(
-                            nickName = "엄마미",
-                            zodiacImgUrl = "url",
-                            backgroundColor = "0xFFFEE222",
-                        ),
+                    userNickname = "엄마미",
+                    userZodiacSign = "url",
+                    userColor = "0xFFFEE222",
                     message =
                         "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
                             "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
@@ -167,13 +161,9 @@ private fun TimeCapsulePagerPreview() {
                     createdAt = "2024-10-05",
                 ),
                 TimeCapsuleMessage(
-                    id = 1,
-                    profile =
-                        Profile(
-                            nickName = "아빠미",
-                            zodiacImgUrl = "url",
-                            backgroundColor = "0xFFFFEAB0",
-                        ),
+                    userNickname = "엄마미",
+                    userZodiacSign = "url",
+                    userColor = "0xFFFEE222",
                     message =
                         "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
                             "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +

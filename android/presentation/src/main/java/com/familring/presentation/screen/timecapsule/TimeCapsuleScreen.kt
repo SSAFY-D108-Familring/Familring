@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +34,20 @@ fun TimeCapsuleRoute(
 ) {
     val uiState by timeCapsuleViewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        timeCapsuleViewModel.event.collect { event ->
+            when (event) {
+                is TimeCapsuleUiEvent.Success -> {
+                    timeCapsuleViewModel.getTimeCapsuleStatus()
+                }
+
+                is TimeCapsuleUiEvent.Error -> {
+                    onShowSnackBar(event.message)
+                }
+            }
+        }
+    }
+
     TimeCapsuleScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
@@ -41,6 +56,7 @@ fun TimeCapsuleRoute(
         getTimeCapsuleStatus = timeCapsuleViewModel::getTimeCapsuleStatus,
         createTimeCapsuleAnswer = timeCapsuleViewModel::createTimeCapsuleAnswer,
         getTimeCapsules = timeCapsuleViewModel::getTimeCapsules,
+        onShowSnackBar = onShowSnackBar,
     )
 }
 

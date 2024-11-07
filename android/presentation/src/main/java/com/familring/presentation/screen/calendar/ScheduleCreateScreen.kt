@@ -574,7 +574,7 @@ fun ZodiacProfileWithNameAndCheckedBox(
         )
         Text(
             modifier = Modifier.padding(start = 10.dp),
-            text = profile.nickName,
+            text = profile.nickname,
             style =
                 Typography.headlineSmall.copy(
                     fontSize = 20.sp,
@@ -592,7 +592,7 @@ private fun ZodiacProfileWithNamePreview() {
         profile =
             Profile(
                 zodiacImgUrl = "",
-                nickName = "홍길동",
+                nickname = "홍길동",
                 backgroundColor = "0xFFC9D0FF",
             ),
     )
