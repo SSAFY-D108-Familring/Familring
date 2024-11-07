@@ -3,7 +3,7 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.TimeCapsuleApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.timecapsule.TimeCapsule
+import com.familring.domain.model.timecapsule.TimeCapsulePage
 import com.familring.domain.model.timecapsule.TimeCapsuleStatus
 import com.familring.domain.repository.TimeCapsuleRepository
 import com.familring.domain.request.AnswerRequest
@@ -59,12 +59,12 @@ class TimeCapsuleRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun getTimeCapsules(): Flow<ApiResponse<List<TimeCapsule>>> =
+        override suspend fun getTimeCapsules(pageNo: Int): Flow<ApiResponse<TimeCapsulePage>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { timeCapsuleApi.getTimeCapsules() },
-                        default = listOf(),
+                        apiResponse = { timeCapsuleApi.getTimeCapsules(pageNo) },
+                        default = TimeCapsulePage(),
                     )
                 emit(apiResponse)
             }

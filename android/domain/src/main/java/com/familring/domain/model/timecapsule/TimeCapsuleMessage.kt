@@ -1,8 +1,8 @@
 package com.familring.domain.model.timecapsule
 
 import com.familring.domain.model.Profile
-
 import com.google.gson.annotations.SerializedName
+import java.time.LocalDate
 
 data class TimeCapsuleMessage(
     val userNickname: String = "",
@@ -11,12 +11,13 @@ data class TimeCapsuleMessage(
     @SerializedName("content")
     val message: String = "",
     @SerializedName("date")
-    val createdAt: String = "",
+    val createdAt: LocalDate = LocalDate.now(),
 ) {
-    val profile =
-        Profile(
-            nickname = userNickname,
-            zodiacImgUrl = userZodiacSign,
-            backgroundColor = userColor,
-        )
+    val profile: Profile
+        get() =
+            Profile(
+                nickname = userNickname,
+                zodiacImgUrl = userZodiacSign,
+                backgroundColor = userColor,
+            )
 }
