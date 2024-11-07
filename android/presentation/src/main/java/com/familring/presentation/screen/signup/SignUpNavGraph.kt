@@ -2,15 +2,15 @@ package com.familring.presentation.screen.signup
 
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.familring.presentation.navigation.ScreenDestinations
 
 fun NavGraphBuilder.SignUpNavGraph(
-    modifier: Modifier = Modifier,
-    navController: NavHostController,
+    modifier: Modifier,
+    navController: NavController,
     showSnackBar: (String) -> Unit,
     graphRoute: String,
 ) {
@@ -21,7 +21,9 @@ fun NavGraphBuilder.SignUpNavGraph(
             FirstRoute(
                 modifier = modifier,
                 navigateToBirth = {
-                    navController.navigate(ScreenDestinations.Birth.route)
+                    navController.navigate(ScreenDestinations.Birth.route) {
+                        popUpTo("First")
+                    }
                 },
                 showSnackBar = showSnackBar,
             )
@@ -32,14 +34,16 @@ fun NavGraphBuilder.SignUpNavGraph(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry(graphRoute),
+                    navController.getBackStackEntry("First"),
                 )
 
             BirthRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
                 navigateToColor = {
-                    navController.navigate(ScreenDestinations.ProfileColor.route)
+                    navController.navigate(ScreenDestinations.ProfileColor.route) {
+                        popUpTo("First")
+                    }
                 },
                 viewModel = viewModel,
             )
@@ -50,7 +54,7 @@ fun NavGraphBuilder.SignUpNavGraph(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry(graphRoute),
+                    navController.getBackStackEntry("First"),
                 )
 
             ProfileColorRoute(
@@ -58,7 +62,9 @@ fun NavGraphBuilder.SignUpNavGraph(
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
                 navigateToNickname = {
-                    navController.navigate(ScreenDestinations.Nickname.route)
+                    navController.navigate(ScreenDestinations.Nickname.route) {
+                        popUpTo("First")
+                    }
                 },
             )
         }
@@ -68,7 +74,7 @@ fun NavGraphBuilder.SignUpNavGraph(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry(graphRoute),
+                    navController.getBackStackEntry("First"),
                 )
 
             NicknameRoute(
@@ -76,7 +82,9 @@ fun NavGraphBuilder.SignUpNavGraph(
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
                 navigateToPicture = {
-                    navController.navigate(ScreenDestinations.Picture.route)
+                    navController.navigate(ScreenDestinations.Picture.route) {
+                        popUpTo("First")
+                    }
                 },
             )
         }
@@ -86,7 +94,7 @@ fun NavGraphBuilder.SignUpNavGraph(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry(graphRoute),
+                    navController.getBackStackEntry("First"),
                 )
 
             PictureRoute(
@@ -95,7 +103,9 @@ fun NavGraphBuilder.SignUpNavGraph(
                 popUpBackStack = navController::popBackStack,
                 showSnackBar = showSnackBar,
                 navigateToCount = {
-                    navController.navigate(ScreenDestinations.FamilyInfo.route)
+                    navController.navigate(ScreenDestinations.FamilyInfo.route) {
+                        popUpTo("First")
+                    }
                 },
             )
         }
@@ -105,7 +115,7 @@ fun NavGraphBuilder.SignUpNavGraph(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry(graphRoute),
+                    navController.getBackStackEntry("First"),
                 )
 
             FamilyInfoRoute(
@@ -118,6 +128,7 @@ fun NavGraphBuilder.SignUpNavGraph(
                 },
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route) {
+                        popUpTo("First")
                         launchSingleTop = true
                     }
                 },
@@ -129,7 +140,7 @@ fun NavGraphBuilder.SignUpNavGraph(
         ) {
             val viewModel =
                 hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry(graphRoute),
+                    navController.getBackStackEntry("First"),
                 )
 
             DoneRoute(
@@ -137,6 +148,7 @@ fun NavGraphBuilder.SignUpNavGraph(
                 viewModel = viewModel,
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route) {
+                        popUpTo("First")
                         launchSingleTop = true
                     }
                 },

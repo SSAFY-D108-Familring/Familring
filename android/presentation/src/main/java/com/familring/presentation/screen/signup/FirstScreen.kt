@@ -114,11 +114,11 @@ fun FirstScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.08f))
             Box(
                 modifier =
-                    Modifier
-                        .fillMaxWidth(0.82f)
-                        .wrapContentSize()
-                        .background(color = White)
-                        .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp)),
+                Modifier
+                    .fillMaxWidth(0.82f)
+                    .wrapContentSize()
+                    .background(color = White)
+                    .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(15.dp)),
             ) {
                 Column(
                     modifier =
