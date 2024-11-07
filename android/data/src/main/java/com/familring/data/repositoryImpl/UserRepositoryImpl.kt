@@ -110,4 +110,24 @@ class UserRepositoryImpl
                     )
                 emit(response)
             }
+
+        override suspend fun updateNickname(nickname: String): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateNickname(nickname) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun updateColor(color: String): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateColor(color) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
     }

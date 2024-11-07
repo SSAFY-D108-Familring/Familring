@@ -14,6 +14,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Query
 
 interface UserApi {
     @POST("users/login")
@@ -37,5 +38,15 @@ interface UserApi {
     @PATCH("users/emotion")
     suspend fun updateEmotion(
         @Body userEmotion: UserEmotionRequest,
+    ): BaseResponse<Unit>
+
+    @PATCH("users/nickname")
+    suspend fun updateNickname(
+        @Query("userNickname") nickname: String,
+    ): BaseResponse<Unit>
+
+    @PATCH("users/color")
+    suspend fun updateColor(
+        @Query("userColor") color: String,
     ): BaseResponse<Unit>
 }
