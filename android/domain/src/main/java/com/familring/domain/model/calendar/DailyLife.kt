@@ -9,14 +9,15 @@ data class DailyLife(
     val content: String = "",
     @SerializedName("photoUrl")
     val dailyImgUrl: String = "",
-    val userNickName: String = "",
+    val userNickname: String = "",
     val userZodiacSign: String = "",
     val userColor: String = "",
 ) {
-    val profile =
-        Profile(
-            nickName = userNickName,
-            zodiacImgUrl = userZodiacSign,
-            backgroundColor = userColor,
-        )
+    val profile: Profile
+        get() =
+            Profile(
+                nickName = userNickname,
+                zodiacImgUrl = userZodiacSign,
+                backgroundColor = userColor,
+            )
 }

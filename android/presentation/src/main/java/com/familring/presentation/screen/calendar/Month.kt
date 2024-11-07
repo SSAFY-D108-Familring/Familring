@@ -95,5 +95,6 @@ val daySchedules =
         DaySchedule(
             date = "2024-10-${day.toString().padStart(2, '0')}".toLocalDate(),
             schedules = if (day % 3 == 0) samplePreviewSchedules else emptyList(),
+            dailies = listOf(),
         )
     }
