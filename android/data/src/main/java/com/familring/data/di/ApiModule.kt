@@ -3,6 +3,7 @@ package com.familring.data.di
 import com.familring.data.network.api.AuthApi
 import com.familring.data.network.api.DailyApi
 import com.familring.data.network.api.FamilyApi
+import com.familring.data.network.api.QuestionApi
 import com.familring.data.network.api.ScheduleApi
 import com.familring.data.network.api.TimeCapsuleApi
 import com.familring.data.network.api.UserApi
