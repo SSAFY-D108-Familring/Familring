@@ -49,7 +49,7 @@ fun OtherMessage(
                 modifier = Modifier.padding(top = 5.dp),
                 profile =
                     Profile(
-                        nickName = nickname,
+                        nickname = nickname,
                         zodiacImgUrl = profileImg,
                         backgroundColor = color,
                     ),

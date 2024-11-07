@@ -406,7 +406,11 @@ fun EmptyCard() {
                 Image(
                     painter = painterResource(id = R.drawable.img_chicken),
                     contentDescription = "chicken_img",
-                    modifier = Modifier.alpha(0.3f),
+                    modifier =
+                        Modifier
+                            .size(75.dp)
+                            .aspectRatio(1f)
+                            .alpha (0.3f),
                 )
                 Spacer(
                     modifier = Modifier.height(15.dp),
