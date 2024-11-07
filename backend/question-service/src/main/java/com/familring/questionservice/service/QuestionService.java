@@ -210,6 +210,20 @@ public class QuestionService {
             questionAnswerItemList.add(questionAnswerItem);
         }
 
+        // 사용자 본인의 답변을 첫 번째로 이동
+        int userIndex = -1;
+        for (int i = 0; i < questionAnswerItemList.size(); i++) {
+            if (questionAnswerItemList.get(i).getUserId().equals(userId)) {
+                userIndex = i;
+                break;
+            }
+        }
+
+        if (userIndex > 0) { // 첫 번째가 아닐 경우에만 이동
+            QuestionAnswerItem userAnswer = questionAnswerItemList.remove(userIndex);
+            questionAnswerItemList.add(0, userAnswer);
+        }
+
         return QuestionResponse.builder()
                 .questionId(question.getId())
                 .questionContent(question.getContent())
