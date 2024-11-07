@@ -181,8 +181,9 @@ fun DailyItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             ZodiacBackgroundProfile(
-                modifier = Modifier.size(35.dp),
                 profile = dailyLife.profile,
+                size = 35,
+                paddingValue = 5
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
