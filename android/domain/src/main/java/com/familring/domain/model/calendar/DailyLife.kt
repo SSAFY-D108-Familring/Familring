@@ -16,7 +16,7 @@ data class DailyLife(
     val profile: Profile
         get() =
             Profile(
-                nickName = userNickname,
+                nickname = userNickname,
                 zodiacImgUrl = userZodiacSign,
                 backgroundColor = userColor,
             )
