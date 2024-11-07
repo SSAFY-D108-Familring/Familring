@@ -4,6 +4,7 @@ import com.familring.data.network.api.GalleryApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.gallery.AlbumResponse
+import com.familring.domain.model.gallery.Photo
 import com.familring.domain.repository.GalleryRepository
 import com.familring.domain.request.CreateAlbumRequest
 import kotlinx.coroutines.flow.Flow
@@ -43,6 +44,16 @@ class GalleryRepositoryImpl
                             )
                         },
                         default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun getOneAlbum(albumId: Long): Flow<ApiResponse<List<Photo>>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.getOneAlbum(albumId) },
+                        default = emptyList(),
                     )
                 emit(response)
             }

@@ -59,7 +59,7 @@ import com.familring.presentation.util.noRippleClickable
 @Composable
 fun GalleryRoute(
     modifier: Modifier,
-    navigateToAlbum: () -> Unit,
+    navigateToAlbum: (Long) -> Unit,
     viewModel: GalleryViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
@@ -102,7 +102,7 @@ fun GalleryRoute(
 @Composable
 fun GalleryScreen(
     modifier: Modifier,
-    navigateToAlbum: () -> Unit,
+    navigateToAlbum: (Long) -> Unit,
     galleryUiState: GalleryUiState,
     onGalleryChange: (Boolean) -> Unit,
     onGalleryCreate: (String, AlbumType) -> Unit = { _, _ -> },
@@ -204,7 +204,7 @@ fun GalleryScreen(
                             }
 
                         items(albums.size) { index ->
-                            GalleryItem(albums[index], navigateToAlbum)
+                            GalleryItem(albums[index], navigateToAlbum = navigateToAlbum)
                         }
                         item {
                             AddAlbumButton(onClick = {
@@ -289,7 +289,7 @@ fun GalleryScreen(
 @Composable
 fun GalleryItem(
     album: Album,
-    navigateToAlbum: () -> Unit,
+    navigateToAlbum: (Long) -> Unit,
 ) {
     Column(
         modifier =
@@ -298,7 +298,7 @@ fun GalleryItem(
                 .padding(bottom = 8.dp),
     ) {
         Card(
-            onClick = { navigateToAlbum() },
+            onClick = { navigateToAlbum(album.id) },
             shape = RoundedCornerShape(18.dp),
             modifier =
                 Modifier

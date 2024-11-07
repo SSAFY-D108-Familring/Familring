@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,6 +25,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Typography
@@ -31,17 +34,31 @@ import com.familring.presentation.theme.White
 
 @Composable
 fun AlbumRoute(
+    albumId: Long,
     modifier: Modifier,
     onNavigateBack: () -> Unit,
+    viewModel: GalleryViewModel = hiltViewModel(),
 ) {
-    AlbumScreen(modifier = modifier, onNavigateBack = onNavigateBack)
+    AlbumScreen(
+        albumId = albumId,
+        modifier = modifier,
+        onNavigateBack = onNavigateBack,
+        viewModel = viewModel
+    )
 }
 
 @Composable
 fun AlbumScreen(
+    albumId: Long,
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {},
+    viewModel: GalleryViewModel,
 ) {
+    val photoUiState by viewModel.photoUiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(albumId) {
+        viewModel.getOneAlbum(albumId)
+    }
     var photoCount by remember {
         mutableStateOf(11)
     }
@@ -84,5 +101,10 @@ fun PhotoItem() {
 @Preview
 @Composable
 fun AlbumScreenPreview() {
-    AlbumScreen()
+    AlbumScreen(
+        albumId = 1L,
+        modifier = Modifier,
+        onNavigateBack = {},
+        viewModel = hiltViewModel()
+    )
 }

@@ -1,7 +1,9 @@
 package com.familring.domain.repository
 
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.gallery.Album
 import com.familring.domain.model.gallery.AlbumResponse
+import com.familring.domain.model.gallery.Photo
 import kotlinx.coroutines.flow.Flow
 
 interface GalleryRepository {
@@ -12,4 +14,6 @@ interface GalleryRepository {
         albumName: String,
         albumType: String,
     ): Flow<ApiResponse<Unit>>
+
+    suspend fun getOneAlbum(albumId: Long): Flow<ApiResponse<List<Photo>>>
 }

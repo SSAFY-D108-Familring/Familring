@@ -27,6 +27,9 @@ class GalleryViewModel
         private val _galleryUiEvent = MutableSharedFlow<GalleryUiEvent>()
         val galleryUiEvent = _galleryUiEvent.asSharedFlow()
 
+        private val _photoUiState = MutableStateFlow<PhotoUiState>(PhotoUiState.Loading)
+        val photoUiState = _photoUiState.asStateFlow()
+
         private var currentAlbumTypes: List<AlbumType> = listOf(AlbumType.NORMAL, AlbumType.PERSON)
 
         fun getAlbums(albumTypes: List<AlbumType>) {
@@ -92,6 +95,30 @@ class GalleryViewModel
                             }
                         }
                     }
+            }
+        }
+
+        fun getOneAlbum(albumId: Long) {
+            viewModelScope.launch {
+                galleryRepository.getOneAlbum(albumId).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _photoUiState.value =
+                                PhotoUiState.Success(
+                                    photoList = response.data,
+                                )
+                        }
+
+                        is ApiResponse.Error -> {
+                            _galleryUiEvent.emit(
+                                GalleryUiEvent.Error(
+                                    response.code,
+                                    response.message,
+                                ),
+                            )
+                        }
+                    }
+                }
             }
         }
     }
