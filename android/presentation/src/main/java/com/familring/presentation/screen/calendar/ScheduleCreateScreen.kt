@@ -391,8 +391,6 @@ fun ScheduleCreateScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     columns = GridCells.Fixed(2),
                 ) {
-                    Timber.d("lazy state.familyMembers : ${state.familyProfiles}")
-                    Timber.d("lazy isProfileCheckedList : $isProfileCheckedList")
                     itemsIndexed(state.familyProfiles) { index, profile ->
                         ZodiacProfileWithNameAndCheckedBox(
                             profile = profile,

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.mapper.toProfile
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.repository.CalendarRepository
+import com.familring.domain.repository.ScheduleRepository
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.request.ScheduleCreateRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +22,7 @@ class ScheduleViewModel
     @Inject
     constructor(
         private val familyRepository: FamilyRepository,
-        private val calendarRepository: CalendarRepository,
+        private val scheduleRepository: ScheduleRepository,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(ScheduleUiState())
         val uiState = _uiState.asStateFlow()
@@ -59,7 +59,7 @@ class ScheduleViewModel
 
         fun createSchedule(schedule: ScheduleCreateRequest) {
             viewModelScope.launch {
-                calendarRepository.createSchedule(schedule).collect { result ->
+                scheduleRepository.createSchedule(schedule).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _event.emit(ScheduleUiEvent.Success)
@@ -79,7 +79,7 @@ class ScheduleViewModel
             schedule: ScheduleCreateRequest,
         ) {
             viewModelScope.launch {
-                calendarRepository.updateSchedule(id, schedule).collect { result ->
+                scheduleRepository.updateSchedule(id, schedule).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _event.emit(ScheduleUiEvent.Success)

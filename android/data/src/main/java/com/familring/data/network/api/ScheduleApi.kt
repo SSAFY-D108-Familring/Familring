@@ -12,7 +12,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-interface CalendarApi {
+interface ScheduleApi {
     @GET("calendars")
     suspend fun getMonthData(
         @Query("year") year: Int,
