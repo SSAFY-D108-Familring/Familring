@@ -8,7 +8,6 @@ import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.LocalDateTimeAdapter
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.kakao.sdk.common.KakaoSdk.type
 import java.time.LocalDateTime
 
 /*
@@ -121,6 +120,18 @@ sealed class ScreenDestinations(
 
     // 닉네임 변경
     data object EditName : ScreenDestinations(route = "EditName")
+
+    // 답변 작성
+    data object AnswerWrite : ScreenDestinations(route = "AnswerWrite")
+
+    data object PastQuestion : ScreenDestinations(route = "pastQuestion") {
+        override val route: String
+            get() = "pastQuestion/{questionId}"
+        val arguments = listOf(
+            navArgument("questionId") { type = NavType.LongType }
+        )
+        fun createRoute(questionId: Long) = "pastQuestion/$questionId"
+    }
 }
 
 // Schedule 전달 위한 NavType 정의

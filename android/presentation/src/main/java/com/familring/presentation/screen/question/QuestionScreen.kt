@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.question
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,9 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -33,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,181 +51,98 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
-import com.familring.domain.model.UserQuestion
+import com.familring.domain.model.QuestionAnswer
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.ZodiacBackgroundProfile
-import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
-import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
-fun QuestionRoute(navigateToQuestionList: () -> Unit) {
-    QuestionScreen(navigateToQuestionList = navigateToQuestionList)
+fun QuestionRoute(
+    modifier: Modifier,
+    navigateToQuestionList: () -> Unit,
+    navigateToAnswerWrite: () -> Unit,
+    showSnackBar: (String) -> Unit,
+    viewModel: QuestionViewModel = hiltViewModel(),
+) {
+    val questionState by viewModel.questionState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.refresh()
+    }
+
+    when (val state = questionState) {
+        is QuestionState.Loading -> {
+            Timber.tag("nakyung").d("질문화면 로딩중")
+        }
+
+        is QuestionState.Success -> {
+            QuestionScreen(
+                modifier = modifier,
+                navigateToQuestionList = navigateToQuestionList,
+                navigateToAnswerWrite = navigateToAnswerWrite,
+                showSnackBar = showSnackBar,
+                questionId = state.questionId,
+                questionContent = state.questionContent,
+                answerContents = state.answerContents,
+            )
+        }
+
+        is QuestionState.Error -> {
+            QuestionScreen(
+                modifier = modifier,
+                navigateToQuestionList = navigateToQuestionList,
+                navigateToAnswerWrite = navigateToAnswerWrite,
+                showSnackBar = showSnackBar,
+            )
+        }
+    }
 }
 
 @Composable
-fun QuestionScreen(navigateToQuestionList: () -> Unit) {
-    var family = remember { mutableListOf<String>() }
-
-    var isExpanded by remember { mutableStateOf(false) }
-
-    val userQuestion =
-        UserQuestion(
-            profile = Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-            question = null,
-        )
-
-    val questionList =
-        listOf(
-            UserQuestion(
-                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
-                question = null,
-            ),
-            UserQuestion(
-                profile = Profile(zodiacImgUrl = "url2", backgroundColor = "0xFFFEE222"),
-                question = "답변1",
-            ),
-            UserQuestion(
-                profile = Profile(zodiacImgUrl = "url3", backgroundColor = "0xFFFEE222"),
-                question = null,
-            ),
-            UserQuestion(
-                profile = Profile(zodiacImgUrl = "url4", backgroundColor = "0xFFFEE222"),
-                question = "답변2",
-            ),
-            UserQuestion(
-                profile = Profile(zodiacImgUrl = "url5", backgroundColor = "0xFFFEE222"),
-                question = null,
-            ),
-        )
-    Surface(modifier = Modifier.fillMaxSize().background(Color.White)) {
+fun QuestionScreen(
+    modifier: Modifier = Modifier,
+    navigateToQuestionList: () -> Unit,
+    navigateToAnswerWrite: () -> Unit,
+    showSnackBar: (String) -> Unit = {},
+    questionId: Long = 0,
+    questionContent: String = "",
+    answerContents: List<QuestionAnswer> = listOf(),
+) {
+    Surface(modifier = modifier.fillMaxSize().background(Color.White)) {
         Scaffold(
             floatingActionButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
-                    modifier = Modifier.padding(bottom = 60.dp),
                 ) {
-                    AnimatedVisibility(
-                        visible = isExpanded,
-                        enter = slideInVertically(initialOffsetY = { it/2}) + fadeIn(),
-                        exit = slideOutVertically(targetOffsetY = { it/2}) + fadeOut(),
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.End,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Surface(
-                                    color = Gray01.copy(alpha = 0.9f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.padding(end = 8.dp),
-                                ) {
-                                    Text(
-                                        text = "답변 수정하기",
-                                        style = Typography.labelSmall,
-                                        color = White,
-                                        modifier =
-                                            Modifier.padding(
-                                                horizontal = 16.dp,
-                                                vertical = 8.dp,
-                                            ),
-                                    )
-                                }
-                                FloatingActionButton(
-                                    onClick = { /*수정하기*/ },
-                                    shape = RoundedCornerShape(50.dp),
-                                    modifier = Modifier
-                                        .padding(end = 7.dp)
-                                        .size(40.dp),
-                                    containerColor = Green01,
-                                    elevation = FloatingActionButtonDefaults.elevation(
-                                        defaultElevation = 0.dp,
-                                        pressedElevation = 0.dp,
-                                        hoveredElevation = 0.dp,
-                                        focusedElevation = 0.dp,
-
-                                        )
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_add),
-                                        contentDescription = "ic_add",
-                                        tint = White,
-                                    )
-                                }
-                            }
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Surface(
-                                    color = Gray01.copy(alpha = 0.8f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.padding(end = 8.dp),
-                                ) {
-                                    Text(
-                                        "답변 작성하기",
-                                        style = Typography.labelSmall,
-                                        color = Color.White,
-                                        modifier =
-                                            Modifier.padding(
-                                                vertical = 8.dp,
-                                                horizontal = 16.dp,
-                                            ),
-                                    )
-                                }
-                                FloatingActionButton(
-                                    onClick = { /*수정하기*/ },
-                                    shape = RoundedCornerShape(50.dp),
-                                    modifier = Modifier
-                                        .padding(end = 7.dp)
-                                        .size(40.dp),
-                                    containerColor = Green01,
-                                    elevation = FloatingActionButtonDefaults.elevation(
-                                        defaultElevation = 0.dp,
-                                        pressedElevation = 0.dp,
-                                        hoveredElevation = 0.dp,
-                                        focusedElevation = 0.dp,
-
-                                    )
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_add),
-                                        contentDescription = "ic_add",
-                                        tint = White,
-                                    )
-                                }
-                            }
-                        }
-                    }
                     Spacer(modifier = Modifier.fillMaxSize(0.02f))
                     FloatingActionButton(
                         onClick = {
-                            isExpanded = !isExpanded
+                            navigateToAnswerWrite()
                         },
                         shape = RoundedCornerShape(50.dp),
                         containerColor = Green01,
                         modifier = Modifier.size(56.dp),
-                        elevation = FloatingActionButtonDefaults.elevation(
-                            defaultElevation = 0.dp,
-                            pressedElevation = 0.dp,
-                            hoveredElevation = 0.dp,
-                            focusedElevation = 0.dp,
-
-                            )
+                        elevation =
+                            FloatingActionButtonDefaults.elevation(
+                                defaultElevation = 0.dp,
+                                pressedElevation = 0.dp,
+                                hoveredElevation = 0.dp,
+                                focusedElevation = 0.dp,
+                            ),
                     ) {
                         Icon(
-                            imageVector = if (isExpanded) Icons.Default.Close else Icons.Default.Add,
+                            imageVector = Icons.Default.Add,
                             contentDescription = "fab_img",
                             tint = White,
                         )
@@ -301,7 +216,7 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
                                 ) {
                                     Spacer(modifier = Modifier.fillMaxSize(0.03f))
                                     Text(
-                                        text = "99번째 질문",
+                                        text = "${questionId}번째 질문",
                                         textAlign = TextAlign.Center,
                                         style = Typography.bodySmall,
                                         modifier =
@@ -313,7 +228,7 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
                                     )
                                     Spacer(modifier = Modifier.fillMaxSize(0.03f))
                                     Text(
-                                        text = "그동안 미안했지만 사과하지 못했던 일이 있나요? 있다면 여기에 적어보세요",
+                                        text = questionContent,
                                         textAlign = TextAlign.Center,
                                         softWrap = true,
                                         modifier = Modifier.padding(horizontal = 26.dp),
@@ -350,8 +265,8 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
                                 .padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
-                        items(questionList) { question ->
-                            FamilyListItem(userQuestion = question)
+                        items(answerContents.size) { answer ->
+                            FamilyListItem(answerContents[answer], showSnackBar)
                         }
                     }
                 }
@@ -361,7 +276,10 @@ fun QuestionScreen(navigateToQuestionList: () -> Unit) {
 }
 
 @Composable
-fun FamilyListItem(userQuestion: UserQuestion) {
+fun FamilyListItem(
+    questionAnswer: QuestionAnswer,
+    showSnackBar: (String) -> Unit,
+) {
     Column(
         modifier =
             Modifier
@@ -370,7 +288,12 @@ fun FamilyListItem(userQuestion: UserQuestion) {
     ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             ZodiacBackgroundProfile(
-                profile = Profile(zodiacImgUrl = "url1", backgroundColor = "0xFFFEE222"),
+                profile =
+                    Profile(
+                        zodiacImgUrl = questionAnswer.userZodiacSign,
+                        backgroundColor = questionAnswer.userColor,
+                    ),
+                paddingValue = 4,
                 modifier =
                     Modifier
                         .size(35.dp)
@@ -378,15 +301,15 @@ fun FamilyListItem(userQuestion: UserQuestion) {
             )
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
             Text(
-                text = "엄마미의 답변",
+                text = "${questionAnswer.userNickname}의 답변",
                 style = Typography.headlineSmall.copy(fontSize = 17.sp),
                 color = Gray01,
             )
         }
         Spacer(modifier = Modifier.height(4.dp))
-        if (userQuestion.question != null) {
+        if (questionAnswer.answerStatus) {
             Text(
-                text = "나경아 나경아 나경아 나경아 나경아 나경아 나경아 나경아 나경아 나경아 나경아 나경아 나경아",
+                text = questionAnswer.answerContent,
                 style = Typography.displaySmall.copy(fontSize = 18.sp),
             )
         } else {
@@ -411,10 +334,8 @@ fun FamilyListItem(userQuestion: UserQuestion) {
                     style = Typography.headlineSmall.copy(fontSize = 18.sp),
                     modifier =
                         Modifier.noRippleClickable {
-                            Log.d(
-                                "question",
-                                "똑똑 누름 $userQuestion",
-                            )
+                            Timber.d("똑똑 누름 " + questionAnswer.userId)
+                            showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
                         },
                 )
             }
@@ -425,5 +346,9 @@ fun FamilyListItem(userQuestion: UserQuestion) {
 @Preview(showBackground = true)
 @Composable
 fun QuestionScreenPreview() {
-    QuestionScreen(navigateToQuestionList = {})
+    QuestionScreen(
+        navigateToQuestionList = {},
+        navigateToAnswerWrite = {},
+        showSnackBar = {},
+    )
 }
