@@ -1,8 +1,11 @@
-package com.familring.domain.model
+package com.familring.domain.model.calendar
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDateTime
 
+@Parcelize
 data class Schedule(
     @SerializedName("id")
     val scheduleId: Long = 0,
@@ -22,4 +25,4 @@ data class Schedule(
     val backgroundColor: String = "",
     @SerializedName("userInfoResponses")
     val familyMembers: List<ScheduleAttendance> = listOf(),
-)
+) : Parcelable

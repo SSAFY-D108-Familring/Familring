@@ -36,8 +36,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.familring.domain.model.DaySchedule
-import com.familring.domain.model.PreviewSchedule
+import com.familring.domain.model.calendar.DaySchedule
+import com.familring.domain.model.calendar.PreviewSchedule
+import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
@@ -49,7 +50,6 @@ import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import com.familring.presentation.util.toLocalDate
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
@@ -59,10 +59,10 @@ import java.time.LocalDate
 fun CalendarRoute(
     modifier: Modifier,
     navigateToCreateSchedule: () -> Unit,
+    navigateToModifySchedule: (Schedule) -> Unit,
     navigateToCreateDaily: () -> Unit,
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
-    navigateToModifySchedule: (Long) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
@@ -97,7 +97,7 @@ fun CalendarScreen(
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
-    navigateToModifySchedule: (Long) -> Unit = {},
+    navigateToModifySchedule: (Schedule) -> Unit = {},
     showSnackBar: (String) -> Unit = {},
 ) {
     // pager
@@ -280,7 +280,6 @@ fun CalendarScreen(
                 CalendarTab(
                     schedules = state.detailedSchedule,
                     dailyLifes = dailyLifes, // 수정 필요
-                    deleteSchedule = deleteSchedule,
                     showDeleteDialog = {
                         deleteTargetScheduleId = it
                         showDialog = true
