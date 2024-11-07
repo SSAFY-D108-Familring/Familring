@@ -3,8 +3,8 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.QuestionApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.QuestionList
-import com.familring.domain.model.QuestionResponse
+import com.familring.domain.model.question.QuestionList
+import com.familring.domain.model.question.QuestionResponse
 import com.familring.domain.repository.QuestionRepository
 import com.familring.domain.request.AnswerRequest
 import com.familring.domain.request.QuestionPatchRequest

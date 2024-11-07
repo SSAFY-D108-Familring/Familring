@@ -2,7 +2,7 @@ package com.familring.presentation.screen.question
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import com.familring.domain.model.QuestionAnswer
+import com.familring.domain.model.question.QuestionAnswer
 
 @Stable
 sealed interface QuestionState {

@@ -1,8 +1,8 @@
 package com.familring.data.network.api
 
 import com.familring.data.network.response.BaseResponse
-import com.familring.domain.model.QuestionList
-import com.familring.domain.model.QuestionResponse
+import com.familring.domain.model.question.QuestionList
+import com.familring.domain.model.question.QuestionResponse
 import com.familring.domain.request.AnswerRequest
 import com.familring.domain.request.QuestionPatchRequest
 import retrofit2.http.Body

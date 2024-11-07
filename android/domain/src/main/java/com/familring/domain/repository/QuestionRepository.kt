@@ -1,8 +1,8 @@
 package com.familring.domain.repository
 
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.QuestionList
-import com.familring.domain.model.QuestionResponse
+import com.familring.domain.model.question.QuestionList
+import com.familring.domain.model.question.QuestionResponse
 import kotlinx.coroutines.flow.Flow
 
 interface QuestionRepository {

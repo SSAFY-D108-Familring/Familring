@@ -2,17 +2,19 @@ package com.familring.data.di
 
 import com.familring.data.repositoryImpl.AuthRepositoryImpl
 import com.familring.data.repositoryImpl.DailyRepositoryImpl
+import com.familring.data.repositoryImpl.FamilyRepositoryImpl
+import com.familring.data.repositoryImpl.GalleryRepositoryImpl
+import com.familring.data.repositoryImpl.QuestionRepositoryImpl
 import com.familring.data.repositoryImpl.ScheduleRepositoryImpl
 import com.familring.data.repositoryImpl.TimeCapsuleRepositoryImpl
-import com.familring.data.repositoryImpl.FamilyRepositoryImpl
-import com.familring.data.repositoryImpl.QuestionRepositoryImpl
 import com.familring.data.repositoryImpl.UserRepositoryImpl
 import com.familring.domain.repository.AuthRepository
 import com.familring.domain.repository.DailyRepository
+import com.familring.domain.repository.FamilyRepository
+import com.familring.domain.repository.GalleryRepository
+import com.familring.domain.repository.QuestionRepository
 import com.familring.domain.repository.ScheduleRepository
 import com.familring.domain.repository.TimeCapsuleRepository
-import com.familring.domain.repository.FamilyRepository
-import com.familring.domain.repository.QuestionRepository
 import com.familring.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -50,4 +52,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindQuestionRepository(questionRepositoryImpl: QuestionRepositoryImpl): QuestionRepository
+
+    @Binds
+    @Singleton
+    fun bindGalleryRepository(galleryRepositoryImpl: GalleryRepositoryImpl): GalleryRepository
 }

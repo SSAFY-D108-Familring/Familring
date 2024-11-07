@@ -3,7 +3,7 @@ package com.familring.presentation.screen.question
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.QuestionList
+import com.familring.domain.model.question.QuestionList
 import com.familring.domain.repository.QuestionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
