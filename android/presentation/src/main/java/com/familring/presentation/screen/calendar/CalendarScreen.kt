@@ -169,7 +169,7 @@ fun CalendarScreen(
         floatingActionButton = {
             Column(
                 horizontalAlignment = Alignment.End,
-                modifier = Modifier.padding(bottom = 60.dp),
+                modifier = Modifier.padding(bottom = 0.dp),
             ) {
                 AnimatedVisibility(
                     visible = isExpanded,

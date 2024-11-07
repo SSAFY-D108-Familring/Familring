@@ -2,7 +2,10 @@ package com.familring.data.network.api
 
 import com.familring.data.network.response.BaseResponse
 import com.familring.domain.model.gallery.AlbumResponse
+import com.familring.domain.request.CreateAlbumRequest
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface GalleryApi {
@@ -10,4 +13,9 @@ interface GalleryApi {
     suspend fun getAlbums(
         @Query("album_type") albumTypes: String,
     ): BaseResponse<AlbumResponse>
+
+    @POST("albums")
+    suspend fun createAlbum(
+        @Body request: CreateAlbumRequest,
+    ): BaseResponse<Unit>
 }

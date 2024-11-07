@@ -61,9 +61,10 @@ fun GalleryRoute(
     modifier: Modifier,
     navigateToAlbum: () -> Unit,
     viewModel: GalleryViewModel = hiltViewModel(),
+    showSnackBar: (String) -> Unit,
 ) {
     val galleryUiState by viewModel.galleryUiState.collectAsStateWithLifecycle()
-
+    val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Loading)
     LaunchedEffect(Unit) {
         viewModel.getAlbums(listOf(AlbumType.NORMAL, AlbumType.PERSON))
     }
@@ -75,7 +76,26 @@ fun GalleryRoute(
         onGalleryChange = { isNormal ->
             viewModel.getAlbums(listOf(if (isNormal) AlbumType.NORMAL else AlbumType.PERSON))
         },
+        onGalleryCreate = { albumName, albumType ->
+            viewModel.createAlbum(null, albumName, albumType)
+        },
     )
+
+    LaunchedEffect(Unit) {
+        when (galleryUiEvent) {
+            is GalleryUiEvent.Loading -> {
+                // 로딩중
+            }
+
+            is GalleryUiEvent.Success -> {
+                showSnackBar("앨범이 생성되었습니다")
+            }
+
+            is GalleryUiEvent.Error -> {
+                showSnackBar("에러가 발생했습니다")
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +105,7 @@ fun GalleryScreen(
     navigateToAlbum: () -> Unit,
     galleryUiState: GalleryUiState,
     onGalleryChange: (Boolean) -> Unit,
+    onGalleryCreate: (String, AlbumType) -> Unit = { _, _ -> },
 ) {
     var privateGallerySelected by remember { mutableStateOf(true) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -175,21 +196,20 @@ fun GalleryScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        val albums = if(privateGallerySelected){
-                            galleryUiState.normalAlbums
-                        }else{
-                            galleryUiState.personAlbums
-                        }
+                        val albums =
+                            if (privateGallerySelected) {
+                                galleryUiState.normalAlbums
+                            } else {
+                                galleryUiState.personAlbums
+                            }
 
                         items(albums.size) { index ->
                             GalleryItem(albums[index], navigateToAlbum)
                         }
-                        if (privateGallerySelected) {
-                            item {
-                                AddAlbumButton(onClick = {
-                                    showBottomSheet = true
-                                })
-                            }
+                        item {
+                            AddAlbumButton(onClick = {
+                                showBottomSheet = true
+                            })
                         }
                     }
                 }
@@ -250,6 +270,11 @@ fun GalleryScreen(
                             text = "생성하기",
                             onClick = {
                                 Log.d("Gallery", "생성하기")
+                                if (privateGallerySelected) {
+                                    onGalleryCreate(albumname, AlbumType.NORMAL)
+                                } else {
+                                    onGalleryCreate(albumname, AlbumType.PERSON)
+                                }
                                 showBottomSheet = false
                             },
                         )

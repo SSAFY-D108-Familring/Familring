@@ -404,6 +404,7 @@ fun MainNavHost(
                 navigateToAlbum = {
                     navController.navigate(ScreenDestinations.Album.route)
                 },
+                showSnackBar = showSnackBar,
             )
         }
 
