@@ -38,9 +38,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
 import com.familring.presentation.R
 import com.familring.presentation.component.EmotionGrid
-import com.familring.presentation.component.LoadingDialog
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.TopAppBar
-import com.familring.presentation.component.TwoButtonTextDialog
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.screen.signup.shareCode
 import com.familring.presentation.theme.Black

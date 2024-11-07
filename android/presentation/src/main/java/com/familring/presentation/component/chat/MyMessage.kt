@@ -1,4 +1,4 @@
-package com.familring.presentation.component
+package com.familring.presentation.component.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

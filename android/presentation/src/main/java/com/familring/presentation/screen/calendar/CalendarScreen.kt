@@ -44,7 +44,7 @@ import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
-import com.familring.presentation.component.TwoButtonTextDialog
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Red01

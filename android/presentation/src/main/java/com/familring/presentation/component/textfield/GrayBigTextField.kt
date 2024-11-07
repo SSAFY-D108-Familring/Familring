@@ -1,4 +1,4 @@
-package com.familring.presentation.component
+package com.familring.presentation.component.textfield
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth

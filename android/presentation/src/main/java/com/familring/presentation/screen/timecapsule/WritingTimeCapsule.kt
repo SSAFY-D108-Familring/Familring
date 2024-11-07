@@ -23,9 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
-import com.familring.presentation.component.GrayBackgroundTextField
+import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.component.OverlappingProfileLazyRow
-import com.familring.presentation.component.RoundLongButton
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.screen.timecapsule.WritingState.FINISHED_TIME_CAPSULE
 import com.familring.presentation.screen.timecapsule.WritingState.NO_TIME_CAPSULE
 import com.familring.presentation.screen.timecapsule.WritingState.WRITING_TIME_CAPSULE

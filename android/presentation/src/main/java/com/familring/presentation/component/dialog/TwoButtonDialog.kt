@@ -1,4 +1,4 @@
-package com.familring.presentation.component
+package com.familring.presentation.component.dialog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

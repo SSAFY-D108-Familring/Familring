@@ -1,4 +1,4 @@
-package com.familring.presentation.component
+package com.familring.presentation.component.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.model.Profile
+import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
