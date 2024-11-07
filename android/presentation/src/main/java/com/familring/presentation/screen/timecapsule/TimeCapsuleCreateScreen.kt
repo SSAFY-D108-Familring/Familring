@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,8 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.DateInputRow
+import com.familring.presentation.component.LoadingDialog
 import com.familring.presentation.component.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
@@ -35,12 +38,33 @@ fun TimeCapsuleCreateRoute(
     modifier: Modifier = Modifier,
     timeCapsuleCreateViewModel: TimeCapsuleCreateViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
+    showSnackbar: (String) -> Unit,
 ) {
+    val uiState by timeCapsuleCreateViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        timeCapsuleCreateViewModel.event.collect { event ->
+            when (event) {
+                is TimeCapsuleCreateUiEvent.Success -> {
+                    popUpBackStack()
+                }
+
+                is TimeCapsuleCreateUiEvent.Error -> {
+                    showSnackbar(event.message)
+                }
+            }
+        }
+    }
+
     TimeCapsuleCreateScreen(
         modifier = modifier,
         createTimeCapsule = timeCapsuleCreateViewModel::createTimeCapsule,
         popUpBackStack = popUpBackStack,
     )
+
+    if (uiState.loading) {
+        LoadingDialog()
+    }
 }
 
 @Composable
