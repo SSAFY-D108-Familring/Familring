@@ -365,6 +365,7 @@ fun MainNavHost(
             DailyUploadRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
+                showSnackbar = showSnackBar
             )
         }
 

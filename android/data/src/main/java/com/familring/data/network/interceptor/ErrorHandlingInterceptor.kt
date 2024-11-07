@@ -1,6 +1,5 @@
 package com.familring.data.network.interceptor
 
-import android.util.Log
 import com.familring.data.exception.ApiException
 import com.familring.data.exception.RefreshTokenExpiredException
 import com.familring.domain.model.ErrorResponse

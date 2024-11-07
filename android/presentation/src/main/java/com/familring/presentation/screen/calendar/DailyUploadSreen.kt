@@ -57,8 +57,23 @@ fun DailyUploadRoute(
     modifier: Modifier = Modifier,
     dailyViewModel: DailyViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
+    showSnackbar: (String) -> Unit,
 ) {
     val uiState by dailyViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        dailyViewModel.event.collect { event ->
+            when (event) {
+                is DailyUiEvent.Success -> {
+                    popUpBackStack()
+                }
+
+                is DailyUiEvent.Error -> {
+                    showSnackbar(event.message)
+                }
+            }
+        }
+    }
 
     DailyUploadScreen(
         modifier = modifier,
