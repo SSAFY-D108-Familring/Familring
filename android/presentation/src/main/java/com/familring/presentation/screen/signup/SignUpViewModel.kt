@@ -95,6 +95,7 @@ class SignUpViewModel
                     userBirthDate = state.value.userBirthDate,
                     userRole = state.value.userRole,
                     userColor = state.value.userColor,
+                    userIsLunar = false,
                 )
             val file = state.value.userFace!!
 
