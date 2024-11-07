@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun EditNameRoute(
@@ -36,6 +38,19 @@ fun EditNameRoute(
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
+    LaunchedEffect(viewModel.event) {
+        viewModel.event.collectLatest { event ->
+            when (event) {
+                is MyPageUiEvent.NameUpdateSuccess -> {
+                    showSnackBar("닉네임이 변경되었어요")
+                    popUpBackStack()
+                }
+
+                else -> {}
+            }
+        }
+    }
+
     EditNameScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,

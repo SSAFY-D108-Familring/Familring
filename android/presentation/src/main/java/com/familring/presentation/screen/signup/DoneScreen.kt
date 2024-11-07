@@ -199,7 +199,7 @@ fun shareCode(
                 Content(
                     title = "가족에게서 코드가 도착했어요! $code",
                     description = "패밀링에서 코드를 입력하고, 가족과 소통해 보세요.",
-                    imageUrl = "https://contents.creators.mypetlife.co.kr/content/uploads/2020/03/19135734/thumb-20200319125759_851795890399d09add3c23661fc38b19_pocq_700x524.png",
+                    imageUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/logo/FamilRing+LOGO.png",
                     link = Link(),
                 ),
             buttons =

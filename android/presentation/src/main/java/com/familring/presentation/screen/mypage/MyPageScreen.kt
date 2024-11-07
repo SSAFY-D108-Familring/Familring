@@ -60,6 +60,7 @@ fun MyPageRoute(
     showSnackBar: (String) -> Unit,
     navigateToLogin: () -> Unit,
     navigateToEditName: () -> Unit,
+    navigateToEditColor: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -71,11 +72,11 @@ fun MyPageRoute(
                     navigateToLogin()
                 }
 
-                is MyPageUiEvent.EmotionUpdateSuccess -> {
-                    showSnackBar("기분이 변경되었습니다!")
-                }
+                is MyPageUiEvent.EmotionUpdateSuccess -> showSnackBar("나의 현재 기분이 변경되었어요!")
 
                 is MyPageUiEvent.Error -> showSnackBar(event.message)
+
+                else -> {}
             }
         }
     }
@@ -88,6 +89,7 @@ fun MyPageRoute(
         showSnackBar = showSnackBar,
         updateEmotion = viewModel::updateEmotion,
         navigateToEditName = navigateToEditName,
+        navigateToEditColor = navigateToEditColor,
     )
 }
 
@@ -100,6 +102,7 @@ fun HandleMyPageUi(
     showSnackBar: (String) -> Unit = {},
     updateEmotion: (UserEmotionRequest) -> Unit = {},
     navigateToEditName: () -> Unit = {},
+    navigateToEditColor: () -> Unit = {},
 ) {
     when (uiState) {
         MyPageUiState.Loading -> LoadingDialog()
@@ -108,6 +111,7 @@ fun HandleMyPageUi(
                 modifier = modifier,
                 popUpBackStack = popUpBackStack,
                 navigateToEditName = navigateToEditName,
+                navigateToEditColor = navigateToEditColor,
                 signOut = signOut,
                 showSnackBar = showSnackBar,
                 nickname = uiState.userNickname,
@@ -126,6 +130,7 @@ fun MyPageScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToEditName: () -> Unit = {},
+    navigateToEditColor: () -> Unit = {},
     signOut: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
     updateEmotion: (UserEmotionRequest) -> Unit = {},
@@ -203,7 +208,7 @@ fun MyPageScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.25f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.3f))
             Row(
                 modifier =
                     Modifier
@@ -266,7 +271,28 @@ fun MyPageScreen(
                     contentDescription = "family_code",
                 )
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.2f))
+            Spacer(modifier = Modifier.height(30.dp))
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp)
+                        .noRippleClickable { navigateToEditColor() },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "배경색 변경하기",
+                    style = Typography.bodyLarge.copy(fontSize = 20.sp),
+                    color = Black,
+                )
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(id = R.drawable.ic_navigate),
+                    contentDescription = "family_code",
+                )
+            }
+            Spacer(modifier = Modifier.fillMaxHeight(0.4f))
             Text(
                 modifier =
                     Modifier

@@ -22,4 +22,8 @@ interface UserRepository {
     suspend fun signOut(): Flow<ApiResponse<Unit>>
 
     suspend fun updateEmotion(emotion: UserEmotionRequest): Flow<ApiResponse<Unit>>
+
+    suspend fun updateNickname(nickname: String): Flow<ApiResponse<Unit>>
+
+    suspend fun updateColor(color: String): Flow<ApiResponse<Unit>>
 }
