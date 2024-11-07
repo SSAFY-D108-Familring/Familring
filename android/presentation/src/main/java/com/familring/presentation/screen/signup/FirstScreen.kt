@@ -52,7 +52,7 @@ fun FirstRoute(
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectLatest { event ->
             when (event) {
-                is SignUpUiEvent.NotAvailable -> showSnackBar("존재하지 않는 코드입니다")
+                is SignUpUiEvent.NotAvailable -> showSnackBar("존재하지 않는 코드예요. 다시 입력해 주세요.")
                 is SignUpUiEvent.Available -> {
                     viewModel.updateMake(false)
                     navigateToBirth()
