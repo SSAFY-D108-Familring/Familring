@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
+import com.familring.domain.request.UserEmotionRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,8 +49,19 @@ class MyPageViewModel
             }
         }
 
-        fun updateEmotion(emotion: String) {
+        fun updateEmotion(emotion: UserEmotionRequest) {
             viewModelScope.launch {
+                userRepository.updateEmotion(emotion).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _event.emit(MyPageUiEvent.EmotionUpdateSuccess)
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(MyPageUiEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
             }
         }
 
