@@ -29,8 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.component.ColorPalette
-import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Blue01
 import com.familring.presentation.theme.Brown01
@@ -41,6 +41,7 @@ import com.familring.presentation.theme.Pink01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.Yellow01
 import com.familring.presentation.util.toColorLongString
+import timber.log.Timber
 
 @Composable
 fun ProfileColorRoute(
@@ -49,6 +50,7 @@ fun ProfileColorRoute(
     popUpBackStack: () -> Unit,
     navigateToNickname: () -> Unit,
 ) {
+    Timber.d("viewModel: ${viewModel.state.value}")
     ProfileColorScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,

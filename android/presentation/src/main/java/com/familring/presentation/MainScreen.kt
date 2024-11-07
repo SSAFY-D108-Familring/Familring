@@ -39,14 +39,7 @@ import com.familring.presentation.screen.question.AnswerWriteRoute
 import com.familring.presentation.screen.question.PastQuestionRoute
 import com.familring.presentation.screen.question.QuestionListRoute
 import com.familring.presentation.screen.question.QuestionRoute
-import com.familring.presentation.screen.signup.BirthRoute
-import com.familring.presentation.screen.signup.DoneRoute
-import com.familring.presentation.screen.signup.FamilyInfoRoute
-import com.familring.presentation.screen.signup.FirstRoute
-import com.familring.presentation.screen.signup.NicknameRoute
-import com.familring.presentation.screen.signup.PictureRoute
-import com.familring.presentation.screen.signup.ProfileColorRoute
-import com.familring.presentation.screen.signup.SignUpViewModel
+import com.familring.presentation.screen.signup.SignUpNavGraph
 import com.familring.presentation.screen.timecapsule.TimeCapsuleCreateRoute
 import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.theme.White
@@ -84,7 +77,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
         bottomBar = {
             if (visible) {
                 BottomNavigationBar(
-//                    modifier = Modifier.navigationBarsPadding(),
                     navController = navController,
                     currentRoute = currentRoute,
                 )
@@ -121,8 +113,9 @@ fun MainNavHost(
                 modifier = modifier,
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route) {
-                        popUpTo(0) { inclusive = true }
-                        launchSingleTop = true
+                        popUpTo(startDestination) {
+                            inclusive = true
+                        }
                     }
                 },
                 navigateToFirst = {
@@ -132,136 +125,12 @@ fun MainNavHost(
             )
         }
 
-        composable(
-            route = ScreenDestinations.First.route,
-        ) {
-            FirstRoute(
-                modifier = modifier,
-                navigateToBirth = {
-                    navController.navigate(ScreenDestinations.Birth.route)
-                },
-                showSnackBar = showSnackBar,
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.Birth.route,
-        ) {
-            val viewModel =
-                hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("First"),
-                )
-
-            BirthRoute(
-                modifier = modifier,
-                popUpBackStack = navController::popBackStack,
-                navigateToColor = {
-                    navController.navigate(ScreenDestinations.ProfileColor.route)
-                },
-                viewModel = viewModel,
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.ProfileColor.route,
-        ) {
-            val viewModel =
-                hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("First"),
-                )
-
-            ProfileColorRoute(
-                modifier = modifier,
-                viewModel = viewModel,
-                popUpBackStack = navController::popBackStack,
-                navigateToNickname = {
-                    navController.navigate(ScreenDestinations.Nickname.route)
-                },
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.Nickname.route,
-        ) {
-            val viewModel =
-                hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("First"),
-                )
-
-            NicknameRoute(
-                modifier = modifier,
-                viewModel = viewModel,
-                popUpBackStack = navController::popBackStack,
-                navigateToPicture = {
-                    navController.navigate(ScreenDestinations.Picture.route)
-                },
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.Picture.route,
-        ) {
-            val viewModel =
-                hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("First"),
-                )
-
-            PictureRoute(
-                modifier = modifier,
-                viewModel = viewModel,
-                popUpBackStack = navController::popBackStack,
-                showSnackBar = showSnackBar,
-                navigateToCount = {
-                    navController.navigate(ScreenDestinations.FamilyInfo.route)
-                },
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.FamilyInfo.route,
-        ) {
-            val viewModel =
-                hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("First"),
-                )
-
-            FamilyInfoRoute(
-                modifier = modifier,
-                viewModel = viewModel,
-                popUpBackStack = navController::popBackStack,
-                showSnackBar = showSnackBar,
-                navigateToDone = {
-                    navController.navigate(ScreenDestinations.Done.route)
-                },
-                navigateToHome = {
-                    navController.navigate(ScreenDestinations.Home.route) {
-                        popUpTo(ScreenDestinations.Home.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                },
-            )
-        }
-
-        composable(
-            route = ScreenDestinations.Done.route,
-        ) {
-            val viewModel =
-                hiltViewModel<SignUpViewModel>(
-                    navController.getBackStackEntry("First"),
-                )
-
-            DoneRoute(
-                modifier = modifier,
-                viewModel = viewModel,
-                navigateToHome = {
-                    navController.navigate(ScreenDestinations.Home.route) {
-                        popUpTo(ScreenDestinations.Home.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
-                },
-                showSnackBar = showSnackBar,
-            )
-        }
+        SignUpNavGraph(
+            modifier = modifier,
+            navController = navController,
+            showSnackBar = showSnackBar,
+            graphRoute = "signup_graph",
+        )
 
         composable(
             route = ScreenDestinations.Question.route,
