@@ -97,6 +97,8 @@ fun Day(
                     contentDescription = "img_star",
                     tint = Color.Unspecified,
                 )
+            } else {
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
         LazyColumn(
