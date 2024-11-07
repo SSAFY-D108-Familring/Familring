@@ -25,6 +25,9 @@ public interface UserDao {
 
     // 회원 닉네임 변경
     void updateUserNicknameByUserId(@Param("userId") Long userId,@Param("userNickname")  String userNickname);
+
+    // 회원 프로필 배경색 변경
+    void updateUserColorByUserId(@Param("userId") Long userId,@Param("userColor") String userColor);
     
     // 회원 탈퇴
     void deleteUser(UserDeleteRequest deleteRequest);
