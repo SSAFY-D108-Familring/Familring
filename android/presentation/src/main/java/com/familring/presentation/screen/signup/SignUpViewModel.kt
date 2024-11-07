@@ -107,6 +107,7 @@ class SignUpViewModel
                         }
 
                         is ApiResponse.Error -> {
+                            _state.update { it.copy(isLoading = false) }
                             _event.emit(
                                 SignUpUiEvent.Error(
                                     response.code,
@@ -134,6 +135,7 @@ class SignUpViewModel
                         }
 
                         is ApiResponse.Error -> {
+                            _state.update { it.copy(isLoading = false) }
                             _event.emit(SignUpUiEvent.Error(response.code, response.message))
                         }
                     }
@@ -151,6 +153,7 @@ class SignUpViewModel
                         }
 
                         is ApiResponse.Error -> {
+                            _state.update { it.copy(isLoading = false) }
                             _event.emit(
                                 SignUpUiEvent.Error(
                                     response.code,
