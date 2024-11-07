@@ -140,6 +140,7 @@ fun MainNavHost(
                 navigateToBirth = {
                     navController.navigate(ScreenDestinations.Birth.route)
                 },
+                showSnackBar = showSnackBar,
             )
         }
 
@@ -343,7 +344,10 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.Chat.route,
         ) {
-            ChatRoute(modifier = modifier)
+            ChatRoute(
+                modifier = modifier,
+                popUpBackStack = navController::popBackStack,
+            )
         }
 
         composable(
@@ -392,7 +396,7 @@ fun MainNavHost(
             DailyUploadRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
-                showSnackbar = showSnackBar
+                showSnackbar = showSnackBar,
             )
         }
 

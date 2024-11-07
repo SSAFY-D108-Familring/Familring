@@ -66,22 +66,23 @@ class SignUpViewModel
             _state.update { it.copy(userFace = face) }
         }
 
+        fun updateCode(code: String) {
+            _state.update { it.copy(familyCode = code) }
+        }
+
         fun updateMakeThenNavigate(
             make: Boolean,
-            code: String = "",
             onNavigate: () -> Unit,
         ) {
             viewModelScope.launch {
                 _state.update {
                     it.copy(
                         make = make,
-                        familyCode = code,
                     )
                 }
                 // 상태 업데이트가 완료될 때까지 대기
                 state.first {
-                    it.make == make &&
-                        (code.isEmpty() || it.familyCode == code)
+                    it.make == make
                 }
                 onNavigate()
             }
@@ -161,6 +162,26 @@ class SignUpViewModel
                                     "가족 가입 오류: " + response.message,
                                 ),
                             )
+                        }
+                    }
+                }
+            }
+        }
+
+        fun isAvailableCode(code: String) {
+            viewModelScope.launch {
+                familyRepository.isAvailableCode(code).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            if (response.data) {
+                                _event.emit(SignUpUiEvent.Available)
+                            } else {
+                                _event.emit(SignUpUiEvent.NotAvailable)
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(SignUpUiEvent.Error(response.code, response.message))
                         }
                     }
                 }
