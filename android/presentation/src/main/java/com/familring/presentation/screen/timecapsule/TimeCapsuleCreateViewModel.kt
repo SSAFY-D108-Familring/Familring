@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +27,7 @@ class TimeCapsuleCreateViewModel
         private val _event = MutableSharedFlow<TimeCapsuleCreateUiEvent>()
         val event = _event.asSharedFlow()
 
-        fun createTimeCapsule(openDate: String) {
+        fun createTimeCapsule(openDate: LocalDate) {
             _uiState.update { it.copy(loading = true) }
             viewModelScope.launch {
                 timeCapsuleRepository.createTimeCapsule(openDate).collect { result ->

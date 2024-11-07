@@ -6,7 +6,7 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.QuestionList
 import com.familring.domain.model.QuestionResponse
 import com.familring.domain.repository.QuestionRepository
-import com.familring.domain.request.QuestionAnswerRequest
+import com.familring.domain.request.AnswerRequest
 import com.familring.domain.request.QuestionPatchRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -31,7 +31,7 @@ class QuestionRepositoryImpl
             flow {
                 val response =
                     emitApiResponse(
-                        apiResponse = { api.postAnswer(QuestionAnswerRequest(content)) },
+                        apiResponse = { api.postAnswer(AnswerRequest(content)) },
                         default = Unit,
                     )
                 emit(response)

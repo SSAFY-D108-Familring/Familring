@@ -32,6 +32,7 @@ import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.isDateFormValid
+import java.time.LocalDate
 
 @Composable
 fun TimeCapsuleCreateRoute(
@@ -70,7 +71,7 @@ fun TimeCapsuleCreateRoute(
 @Composable
 fun TimeCapsuleCreateScreen(
     modifier: Modifier = Modifier,
-    createTimeCapsule: (String) -> Unit = {},
+    createTimeCapsule: (LocalDate) -> Unit = {},
     popUpBackStack: () -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
@@ -136,7 +137,10 @@ fun TimeCapsuleCreateScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             RoundLongButton(
                 text = "타임캡슐 작성하러 가기",
-                onClick = { createTimeCapsule("$year-$month-$date") },
+                onClick = {
+                    val openDate = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
+                    createTimeCapsule(openDate)
+                },
                 enabled = isButtonEnabled,
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))

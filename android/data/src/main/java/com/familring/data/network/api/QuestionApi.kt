@@ -3,13 +3,12 @@ package com.familring.data.network.api
 import com.familring.data.network.response.BaseResponse
 import com.familring.domain.model.QuestionList
 import com.familring.domain.model.QuestionResponse
-import com.familring.domain.request.QuestionAnswerRequest
+import com.familring.domain.request.AnswerRequest
 import com.familring.domain.request.QuestionPatchRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.POST
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface QuestionApi {
@@ -20,7 +19,7 @@ interface QuestionApi {
 
     @POST("questions/answers")
     suspend fun postAnswer(
-        @Body request: QuestionAnswerRequest,
+        @Body request: AnswerRequest,
     ): BaseResponse<Unit>
 
     @PATCH("questions/answers")

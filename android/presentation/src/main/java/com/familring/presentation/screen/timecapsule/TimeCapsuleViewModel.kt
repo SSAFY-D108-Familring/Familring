@@ -15,77 +15,75 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
-private const val TAG = "TimeCapsuleViewModel"
-
 @HiltViewModel
 class TimeCapsuleViewModel
-@Inject
-constructor(
-    private val timeCapsuleRepository: TimeCapsuleRepository,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(TimeCapsuleUiState())
-    val uiState = _uiState.asStateFlow()
+    @Inject
+    constructor(
+        private val timeCapsuleRepository: TimeCapsuleRepository,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(TimeCapsuleUiState())
+        val uiState = _uiState.asStateFlow()
 
-    private val _event = MutableSharedFlow<TimeCapsuleUiEvent>()
-    val event = _event.asSharedFlow()
+        private val _event = MutableSharedFlow<TimeCapsuleUiEvent>()
+        val event = _event.asSharedFlow()
 
-    fun getTimeCapsuleStatus() {
-        viewModelScope.launch {
-            timeCapsuleRepository.getTimeCapsuleStatus().collect { result ->
-                when (result) {
-                    is ApiResponse.Success -> {
-                        _uiState.update { it ->
-                            it.copy(
-                                writingStatus = result.data.status,
-                                leftDays = result.data.leftDays ?: 0,
-                                timeCapsuleCount = result.data.timeCapsuleCount ?: 0,
-                                writers = result.data.writers?.map { it.toProfile() } ?: listOf(),
-                            )
+        fun getTimeCapsuleStatus() {
+            viewModelScope.launch {
+                timeCapsuleRepository.getTimeCapsuleStatus().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            _uiState.update { it ->
+                                it.copy(
+                                    writingStatus = result.data.status,
+                                    leftDays = result.data.leftDays ?: 0,
+                                    timeCapsuleCount = result.data.timeCapsuleCount ?: 0,
+                                    writers = result.data.writers?.map { it.toProfile() } ?: listOf(),
+                                )
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(TimeCapsuleUiEvent.Error(result.code, result.message))
+                            Timber.d("code: ${result.code}, message: ${result.message}")
                         }
                     }
-
-                    is ApiResponse.Error -> {
-                        _event.emit(TimeCapsuleUiEvent.Error(result.code, result.message))
-                        Timber.d("code: ${result.code}, message: ${result.message}")
-                    }
                 }
             }
         }
-    }
 
-    fun createTimeCapsuleAnswer(content: String) {
-        viewModelScope.launch {
-            timeCapsuleRepository.createTimeCapsuleAnswer(content).collect { result ->
-                when (result) {
-                    is ApiResponse.Success -> {
-                        // 이벤트 필요
-                    }
+        fun createTimeCapsuleAnswer(content: String) {
+            viewModelScope.launch {
+                timeCapsuleRepository.createTimeCapsuleAnswer(content).collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            // 이벤트 필요
+                        }
 
-                    is ApiResponse.Error -> {
-                        Timber.d("code: ${result.code}, message: ${result.message}")
-                    }
-                }
-            }
-        }
-    }
-
-    fun getTimeCapsules() {
-        viewModelScope.launch {
-            timeCapsuleRepository.getTimeCapsules().collect { result ->
-                when (result) {
-                    is ApiResponse.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                timeCapsules = result.data,
-                            )
+                        is ApiResponse.Error -> {
+                            Timber.d("code: ${result.code}, message: ${result.message}")
                         }
                     }
+                }
+            }
+        }
 
-                    is ApiResponse.Error -> {
-                        Timber.d("code: ${result.code}, message: ${result.message}")
+        fun getTimeCapsules() {
+            viewModelScope.launch {
+                timeCapsuleRepository.getTimeCapsules().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    timeCapsules = result.data,
+                                )
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            Timber.d("code: ${result.code}, message: ${result.message}")
+                        }
                     }
                 }
             }
         }
     }
-}
