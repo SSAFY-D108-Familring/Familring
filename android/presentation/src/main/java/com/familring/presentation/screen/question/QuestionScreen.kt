@@ -119,115 +119,16 @@ fun QuestionScreen(
     questionContent: String = "",
     answerContents: List<QuestionAnswer> = listOf(),
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-
     Surface(modifier = modifier.fillMaxSize().background(Color.White)) {
         Scaffold(
             floatingActionButton = {
                 Column(
                     horizontalAlignment = Alignment.End,
                 ) {
-                    AnimatedVisibility(
-                        visible = isExpanded,
-                        enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
-                        exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.End,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Surface(
-                                    color = Gray01.copy(alpha = 0.9f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.padding(end = 8.dp),
-                                ) {
-                                    Text(
-                                        text = "답변 수정하기",
-                                        style = Typography.labelSmall,
-                                        color = White,
-                                        modifier =
-                                            Modifier.padding(
-                                                horizontal = 16.dp,
-                                                vertical = 8.dp,
-                                            ),
-                                    )
-                                }
-                                FloatingActionButton(
-                                    onClick = { navigateToAnswerWrite() },
-                                    shape = RoundedCornerShape(50.dp),
-                                    modifier =
-                                        Modifier
-                                            .padding(end = 7.dp)
-                                            .size(40.dp),
-                                    containerColor = Green01,
-                                    elevation =
-                                        FloatingActionButtonDefaults.elevation(
-                                            defaultElevation = 0.dp,
-                                            pressedElevation = 0.dp,
-                                            hoveredElevation = 0.dp,
-                                            focusedElevation = 0.dp,
-                                        ),
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_add),
-                                        contentDescription = "ic_add",
-                                        tint = White,
-                                    )
-                                }
-                            }
-                            Row(
-                                horizontalArrangement = Arrangement.End,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Surface(
-                                    color = Gray01.copy(alpha = 0.8f),
-                                    shape = RoundedCornerShape(8.dp),
-                                    modifier = Modifier.padding(end = 8.dp),
-                                ) {
-                                    Text(
-                                        "답변 작성하기",
-                                        style = Typography.labelSmall,
-                                        color = Color.White,
-                                        modifier =
-                                            Modifier.padding(
-                                                vertical = 8.dp,
-                                                horizontal = 16.dp,
-                                            ),
-                                    )
-                                }
-                                FloatingActionButton(
-                                    onClick = { navigateToAnswerWrite() },
-                                    shape = RoundedCornerShape(50.dp),
-                                    modifier =
-                                        Modifier
-                                            .padding(end = 7.dp)
-                                            .size(40.dp),
-                                    containerColor = Green01,
-                                    elevation =
-                                        FloatingActionButtonDefaults.elevation(
-                                            defaultElevation = 0.dp,
-                                            pressedElevation = 0.dp,
-                                            hoveredElevation = 0.dp,
-                                            focusedElevation = 0.dp,
-                                        ),
-                                ) {
-                                    Icon(
-                                        painter = painterResource(R.drawable.ic_add),
-                                        contentDescription = "ic_add",
-                                        tint = White,
-                                    )
-                                }
-                            }
-                        }
-                    }
                     Spacer(modifier = Modifier.fillMaxSize(0.02f))
                     FloatingActionButton(
                         onClick = {
-                            isExpanded = !isExpanded
+                            navigateToAnswerWrite()
                         },
                         shape = RoundedCornerShape(50.dp),
                         containerColor = Green01,
@@ -241,7 +142,7 @@ fun QuestionScreen(
                             ),
                     ) {
                         Icon(
-                            imageVector = if (isExpanded) Icons.Default.Close else Icons.Default.Add,
+                            imageVector = Icons.Default.Add,
                             contentDescription = "fab_img",
                             tint = White,
                         )

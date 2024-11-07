@@ -1,13 +1,14 @@
 package com.familring.presentation.screen.question
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,7 +20,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,8 +27,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import timber.log.Timber
 
 @Composable
 fun AnswerWriteRoute(
@@ -38,6 +40,39 @@ fun AnswerWriteRoute(
     viewModel: QuestionViewModel = hiltViewModel(),
 ) {
     val questionEvent by viewModel.questionEvent.collectAsStateWithLifecycle(initialValue = QuestionEvent.Loading)
+    val questionState by viewModel.questionState.collectAsStateWithLifecycle()
+    when (val state = questionState) {
+        is QuestionState.Loading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator(color = Green02)
+            }
+        }
+
+        is QuestionState.Success -> {
+            if (state.answerContents[0].answerStatus) {
+                Timber.d("답변 잇음")
+                AnswerWriteScreen(
+                    modifier = modifier,
+                    onNavigateBack = onNavigateBack,
+                    onSubmit = { content -> viewModel.patchAnswer(content) },
+                )
+            } else {
+                Timber.d("답변 없음")
+                AnswerWriteScreen(
+                    modifier = modifier,
+                    onNavigateBack = onNavigateBack,
+                    onSubmit = { content -> viewModel.postAnswer(content) },
+                )
+            }
+        }
+
+        is QuestionState.Error -> {
+            showSnackBar("에러가 발생했씁니다..")
+        }
+    }
 
     LaunchedEffect(questionEvent) {
         when (val event = questionEvent) {
@@ -60,11 +95,6 @@ fun AnswerWriteRoute(
         }
     }
 
-    AnswerWriteScreen(
-        modifier = modifier,
-        onNavigateBack = onNavigateBack,
-        onSubmit = { content -> viewModel.postAnswer(content) },
-    )
 }
 
 @Composable
@@ -75,8 +105,10 @@ fun AnswerWriteScreen(
 ) {
     var content by remember { mutableStateOf("") }
 
-    Surface(modifier = modifier.fillMaxSize(),
-        color = White) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = White,
+    ) {
         Column(
             modifier =
                 Modifier

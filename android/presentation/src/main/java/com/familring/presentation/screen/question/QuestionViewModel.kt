@@ -72,6 +72,7 @@ class QuestionViewModel
         }
 
         fun postAnswer(content: String) {
+            Timber.d("작성 요청 들어감")
             viewModelScope.launch {
                 questionRepository.postAnswer(content).collectLatest { response ->
                     when (response) {
@@ -93,12 +94,10 @@ class QuestionViewModel
             }
         }
 
-        fun patchAnswer(
-            answerId: Long,
-            content: String,
-        ) {
+        fun patchAnswer(content: String) {
+            Timber.d("수정 요청 들어감")
             viewModelScope.launch {
-                questionRepository.patchAnswer(answerId, content).collectLatest { response ->
+                questionRepository.patchAnswer(content).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
                             _questionEvent.emit(QuestionEvent.Success)

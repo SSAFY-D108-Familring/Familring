@@ -23,9 +23,8 @@ interface QuestionApi {
         @Body request: QuestionAnswerRequest,
     ): BaseResponse<Unit>
 
-    @PATCH("questions/answers/{answer_id}")
+    @PATCH("questions/answers")
     suspend fun patchAnswer(
-        @Path("answer_id") answerId: Long,
         @Body request: QuestionPatchRequest,
     ): BaseResponse<Unit>
 

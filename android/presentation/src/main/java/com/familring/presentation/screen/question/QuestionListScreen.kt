@@ -65,7 +65,6 @@ fun QuestionListRoute(
         },
         navigateToPastQuestion = navigateToPastQuestion,
         viewModel = viewModel,
-        onQuestionClick = navigateToPastQuestion,
     )
 }
 
@@ -76,7 +75,6 @@ fun QuestionListScreen(
     questionListState: QuestionListState,
     onOrderChange: (Boolean) -> Unit,
     viewModel: QuestionViewModel,
-    onQuestionClick: (Long) -> Unit,
 ) {
     var isLatestSelected by remember { mutableStateOf(true) }
 

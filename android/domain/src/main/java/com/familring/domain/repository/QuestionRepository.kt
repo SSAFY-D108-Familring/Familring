@@ -10,10 +10,7 @@ interface QuestionRepository {
 
     suspend fun postAnswer(content: String): Flow<ApiResponse<Unit>>
 
-    suspend fun patchAnswer(
-        answerId: Long,
-        content: String,
-    ): Flow<ApiResponse<Unit>>
+    suspend fun patchAnswer(content: String): Flow<ApiResponse<Unit>>
 
     suspend fun getAllQuestion(
         pageNo: Int,

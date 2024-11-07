@@ -44,11 +44,10 @@ fun PastQuestionRoute(
     popUpBackStack: () -> Unit,
     viewModel: QuestionViewModel = hiltViewModel(),
 ) {
-    // questionId를 1로 하드코딩하지 말고 파라미터로 받은 값을 사용
     PastQuestionScreen(
-        questionId = questionId, // 여기를 수정
+        questionId = questionId,
         popUpBackStack = popUpBackStack,
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }
 
@@ -75,23 +74,26 @@ fun PastQuestionScreen(
         }
 
         is QuestionState.Success -> {
-            Surface(modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White)) {
+            Surface(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.White),
+            ) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     Box(
                         modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(color = White),
+                            Modifier
+                                .fillMaxSize()
+                                .background(color = White),
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.img_question_back),
                             contentDescription = "background_img",
                             modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .alpha(0.25f),
+                                Modifier
+                                    .fillMaxSize()
+                                    .alpha(0.25f),
                             contentScale = ContentScale.FillBounds,
                         )
                         Column(
@@ -106,19 +108,18 @@ fun PastQuestionScreen(
                                     Spacer(modifier = Modifier.fillMaxSize(0.012f))
                                     Box(
                                         modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(horizontal = 24.dp)
-                                            .shadow(
-                                                elevation = 6.dp,
-                                                spotColor = Color.Black.copy(alpha = 0.6f),
-                                                ambientColor = Color.Black.copy(alpha = 0.6f),
-                                                shape = RoundedCornerShape(10.dp),
-                                            )
-                                            .background(
-                                                Color.White,
-                                                shape = RoundedCornerShape(10.dp),
-                                            ),
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 24.dp)
+                                                .shadow(
+                                                    elevation = 6.dp,
+                                                    spotColor = Color.Black.copy(alpha = 0.6f),
+                                                    ambientColor = Color.Black.copy(alpha = 0.6f),
+                                                    shape = RoundedCornerShape(10.dp),
+                                                ).background(
+                                                    Color.White,
+                                                    shape = RoundedCornerShape(10.dp),
+                                                ),
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         Column(
@@ -131,12 +132,11 @@ fun PastQuestionScreen(
                                                 textAlign = TextAlign.Center,
                                                 style = Typography.bodySmall,
                                                 modifier =
-                                                Modifier
-                                                    .background(
-                                                        color = Green01,
-                                                        shape = RoundedCornerShape(8.dp),
-                                                    )
-                                                    .padding(horizontal = 15.dp, vertical = 8.dp),
+                                                    Modifier
+                                                        .background(
+                                                            color = Green01,
+                                                            shape = RoundedCornerShape(8.dp),
+                                                        ).padding(horizontal = 15.dp, vertical = 8.dp),
                                             )
                                             Spacer(modifier = Modifier.fillMaxSize(0.03f))
                                             Text(
@@ -156,9 +156,9 @@ fun PastQuestionScreen(
                             Spacer(modifier = Modifier.fillMaxSize(0.05f))
                             LazyColumn(
                                 modifier =
-                                Modifier
-                                    .fillMaxHeight()
-                                    .padding(horizontal = 16.dp),
+                                    Modifier
+                                        .fillMaxHeight()
+                                        .padding(horizontal = 16.dp),
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 items(state.answerContents.size) { index ->

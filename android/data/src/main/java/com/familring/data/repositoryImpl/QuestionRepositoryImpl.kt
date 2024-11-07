@@ -37,14 +37,11 @@ class QuestionRepositoryImpl
                 emit(response)
             }
 
-        override suspend fun patchAnswer(
-            answerId: Long,
-            content: String,
-        ): Flow<ApiResponse<Unit>> =
+        override suspend fun patchAnswer(content: String): Flow<ApiResponse<Unit>> =
             flow {
                 val response =
                     emitApiResponse(
-                        apiResponse = { api.patchAnswer(answerId, QuestionPatchRequest(content)) },
+                        apiResponse = { api.patchAnswer(QuestionPatchRequest(content)) },
                         default = Unit,
                     )
                 emit(response)
