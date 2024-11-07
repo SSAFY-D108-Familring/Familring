@@ -9,7 +9,7 @@ import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
-import jakarta.ws.rs.HEAD;
+import com.familring.userservice.service.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.*;
@@ -19,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
-import java.rmi.AlreadyBoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -193,8 +191,21 @@ public class UserServiceImpl implements UserService {
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
 
-        // 2. 사용자의 기분 설정 변경
+        // 2. 사용자의 기분 변경
         userDao.updateUserEmotionByUserId(user.getUserId(), userEmotionRequest.getUserEmotion());
+    }
+
+    @Override
+    public void updateUserNickname(Long userId, String userNickname) {
+        // 1. 사용자 정보 찾기
+        UserDto user = userDao.findUserByUserId(userId)
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+
+        // 2. 사용자의 닉네임 변경
+        userDao.updateUserNicknameByUserId(user.getUserId(), userNickname);
     }
 
     @Override

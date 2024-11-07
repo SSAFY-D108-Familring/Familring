@@ -27,10 +27,10 @@ public class QuestionController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "랜덤 질문 답변 작성에 성공했습니다."));
     }
 
-    @PatchMapping("/answers/{answer-id}")
+    @PatchMapping("/answers")
     @Operation(summary = "랜덤 질문 답변 수정", description = "랜덤 질문 답변 수정 (질문 ID 값 전달)")
-    public ResponseEntity<BaseResponse<Void>> updateQuestionAnswer(@PathVariable("answer-id") Long answerId, @RequestBody QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
-        questionService.updateQuestionAnswer(answerId, questionAnswerUpdateRequest);
+    public ResponseEntity<BaseResponse<Void>> updateQuestionAnswer(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestBody QuestionAnswerUpdateRequest questionAnswerUpdateRequest) {
+        questionService.updateQuestionAnswer(userId, questionAnswerUpdateRequest);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "랜덤 질문 답변 수정에 성공했습니다."));
     }
 

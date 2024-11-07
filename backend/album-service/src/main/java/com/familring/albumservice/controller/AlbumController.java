@@ -88,8 +88,9 @@ public class AlbumController {
     @Operation(summary = "앨범 사진 삭제", description = "앨범 사진들을 삭제합니다.")
     public ResponseEntity<BaseResponse<Void>> deletePhotos(
             @RequestBody List<Long> photoIds,
+            @PathVariable("album_id") Long albumId,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        albumService.deletePhotos(photoIds, userId);
+        albumService.deletePhotos(photoIds, albumId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 성공적으로 삭제했습니다."));
     }
 }

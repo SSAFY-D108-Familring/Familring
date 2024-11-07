@@ -1,4 +1,4 @@
-package com.familring.userservice.service;
+package com.familring.userservice.service.jwt;
 
 import com.familring.userservice.config.jwt.JwtTokenProvider;
 import com.familring.userservice.config.redis.RedisService;

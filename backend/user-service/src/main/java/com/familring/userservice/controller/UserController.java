@@ -33,7 +33,7 @@ public class UserController {
         log.info("userId: {}", userId);
         UserInfoResponse response = userService.getUser(userId);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 성공적으로 조회 했습니다.", response));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 성공적으로 조회했습니다.", response));
     }
 
     @PostMapping("/login")
@@ -41,7 +41,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<JwtTokenResponse>> login(@RequestBody UserLoginRequest userLogInRequest) {
         JwtTokenResponse tokens = userService.login(userLogInRequest);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "정상적으로 로그인 되었습니다.", tokens));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "정상적으로 로그인되었습니다.", tokens));
     }
 
     @PostMapping(value = "/join", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -59,7 +59,7 @@ public class UserController {
     public ResponseEntity<BaseResponse<JwtTokenResponse>> updateJWT(@RequestParam("refreshToken") String refreshToken) {
         JwtTokenResponse tokens = userService.updateJWT(refreshToken);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "토큰이 정상적으로 재발급 되었습니다.", tokens));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "토큰이 정상적으로 재발급되었습니다.", tokens));
     }
 
     @PostMapping("/fcm")
@@ -72,14 +72,24 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "FCM 토큰이 정상적으로 저장되었습니다."));
     }
 
-    @PostMapping("/emotion")
-    @Operation(summary = "회원 기분 설정", description = "회원의 기분 설정")
+    @PatchMapping("/emotion")
+    @Operation(summary = "회원 기분 수정", description = "userId에 해당하는 회원 기분 수정")
     public ResponseEntity<BaseResponse<Void>> updateUserEmotion
             (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
              @RequestBody UserEmotionRequest userEmotionRequest) {
         userService.updateUserEmotion(userId, userEmotionRequest);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 기분 설정 변경에 성공했습니다."));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 기분 변경에 성공했습니다."));
+    }
+
+    @PatchMapping("/nickname")
+    @Operation(summary = "회원 닉네임 수정", description = "userId에 해당하는 회원 닉네임 수정")
+    public ResponseEntity<BaseResponse<Void>> updateUserEmotion
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+            @RequestParam("userNickname")String userNickname) {
+        userService.updateUserNickname(userId, userNickname);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 닉네임 변경에 성공했습니다."));
     }
 
     @DeleteMapping
@@ -87,6 +97,6 @@ public class UserController {
     public ResponseEntity<BaseResponse<Void>> deleteUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         userService.deleteUser(userId);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "정상적으로 회원 탈퇴 되었습니다."));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "정상적으로 회원 탈퇴되었습니다."));
     }
 }

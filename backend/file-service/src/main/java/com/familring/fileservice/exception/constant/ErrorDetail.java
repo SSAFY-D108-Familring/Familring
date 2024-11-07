@@ -12,8 +12,7 @@ public enum ErrorDetail {
     S3_FILE_NOT_FOUND("S3003", HttpStatus.NOT_FOUND, "존재하지 않는 파일입니다."),
     S3_NO_FILES_TO_UPLOAD("S3004", HttpStatus.BAD_REQUEST, "업로드할 파일이 없습니다."),
     S3_NO_FILES_UPLOADED("S3005", HttpStatus.BAD_REQUEST, "업로드된 파일이 없습니다."),
-    S3_NO_URLS_TO_DELETE("S3006", HttpStatus.BAD_REQUEST, "삭제할 파일 URL이 없습니다."),
-    S3_INVALID_FILE_URL("S3007", HttpStatus.BAD_REQUEST, "잘못된 파일 URL 형식입니다.");
+    S3_INVALID_FILE_URL("S3006", HttpStatus.BAD_REQUEST, "잘못된 파일 URL 형식입니다.");
 
     private final String errorCode;
     private final HttpStatus httpStatus;
