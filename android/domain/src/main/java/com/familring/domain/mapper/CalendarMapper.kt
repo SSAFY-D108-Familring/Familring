@@ -5,7 +5,7 @@ import com.familring.domain.model.calendar.ScheduleAttendance
 
 fun ScheduleAttendance.toProfile(): Profile =
     Profile(
-        nickName = userNickname,
+        nickname = userNickname,
         zodiacImgUrl = userZodiacSign,
         backgroundColor = userColor,
     )

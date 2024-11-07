@@ -1,5 +1,5 @@
 package com.familring.domain.request
 
-class QuestionAnswerRequest(
+class AnswerRequest(
     val content: String,
 )

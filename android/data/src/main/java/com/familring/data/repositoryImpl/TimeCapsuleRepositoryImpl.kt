@@ -6,8 +6,11 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.domain.model.timecapsule.TimeCapsuleStatus
 import com.familring.domain.repository.TimeCapsuleRepository
+import com.familring.domain.request.AnswerRequest
+import com.familring.domain.request.CreateTimeCapsuleRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.time.LocalDate
 import javax.inject.Inject
 
 class TimeCapsuleRepositoryImpl
@@ -25,11 +28,18 @@ class TimeCapsuleRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun createTimeCapsule(openDate: String): Flow<ApiResponse<Unit>> =
+        override suspend fun createTimeCapsule(openDate: LocalDate): Flow<ApiResponse<Unit>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { timeCapsuleApi.createTimeCapsule(openDate) },
+                        apiResponse = {
+                            timeCapsuleApi.createTimeCapsule(
+                                date =
+                                    CreateTimeCapsuleRequest(
+                                        date = openDate,
+                                    ),
+                            )
+                        },
                         default = Unit,
                     )
                 emit(apiResponse)
@@ -39,7 +49,11 @@ class TimeCapsuleRepositoryImpl
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { timeCapsuleApi.createTimeCapsuleAnswer(content) },
+                        apiResponse = {
+                            timeCapsuleApi.createTimeCapsuleAnswer(
+                                content = AnswerRequest(content),
+                            )
+                        },
                         default = Unit,
                     )
                 emit(apiResponse)

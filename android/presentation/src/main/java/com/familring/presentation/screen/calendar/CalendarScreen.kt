@@ -52,6 +52,7 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.calendar.DaySchedule
+import com.familring.domain.model.calendar.PreviewDaily
 import com.familring.domain.model.calendar.PreviewSchedule
 import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
@@ -88,6 +89,7 @@ fun CalendarRoute(
         event = calendarViewModel.event,
         getMonthData = calendarViewModel::getMonthData,
         getDaySchedules = calendarViewModel::getDaySchedules,
+        getDayDailies = calendarViewModel::getDayDailies,
         deleteSchedule = calendarViewModel::deleteSchedule,
         navigateToCreateSchedule = navigateToCreateSchedule,
         navigateToCreateDaily = navigateToCreateDaily,
@@ -106,6 +108,7 @@ fun CalendarScreen(
     event: SharedFlow<CalendarUiEvent>,
     getMonthData: (Int, Int) -> Unit = { _, _ -> },
     getDaySchedules: (List<Long>) -> Unit = {},
+    getDayDailies: (List<Long>) -> Unit = {},
     deleteSchedule: (Long) -> Unit = {},
     navigateToCreateSchedule: () -> Unit = {},
     navigateToCreateDaily: () -> Unit = {},
@@ -363,10 +366,14 @@ fun CalendarScreen(
                             createDaySchedules(
                                 month,
                                 state.previewSchedules,
+                                state.previewDailies,
                             ),
                         onDayClick = { daySchedule ->
                             getDaySchedules(
                                 daySchedule.schedules.map { it.id },
+                            )
+                            getDayDailies(
+                                daySchedule.dailies.map { it.id },
                             )
                             selectedDay = daySchedule.date
                             showBottomSheet = true
@@ -386,7 +393,7 @@ fun CalendarScreen(
             ) {
                 CalendarTab(
                     schedules = state.detailedSchedule,
-                    dailyLifes = dailyLifes, // 수정 필요
+                    dailyLifes = state.detailedDailies,
                     showDeleteDialog = {
                         deleteTargetScheduleId = it
                         showDialog = true
@@ -419,6 +426,7 @@ fun CalendarScreen(
 private fun createDaySchedules(
     selectedMonth: LocalDate,
     previewSchedules: List<PreviewSchedule>,
+    previewDaily: List<PreviewDaily>,
 ): List<DaySchedule> =
     (1..selectedMonth.lengthOfMonth()).map { day ->
         val date = selectedMonth.withDayOfMonth(day)
@@ -429,7 +437,11 @@ private fun createDaySchedules(
 
                 date in startDate..endDate
             }
-        DaySchedule(date, schedules)
+        val dailies =
+            previewDaily.filter {
+                date == it.createdAt.toLocalDate()
+            }
+        DaySchedule(date, schedules, dailies)
     }
 
 @Preview
@@ -437,6 +449,6 @@ private fun createDaySchedules(
 private fun CalendarScreenPreview() {
     CalendarScreen(
         state = CalendarUiState(),
-        event = MutableSharedFlow<CalendarUiEvent>(),
+        event = MutableSharedFlow(),
     )
 }

@@ -184,7 +184,6 @@ fun TimeCapsuleItem(
 
     if (showDialog) {
         TimeCapsuleDialog(
-            timeCapsuleId = timeCapsule.id,
             onDismiss = { showDialog = false },
             timeCapsuleMessages = timeCapsule.messages,
         )

@@ -1,21 +1,21 @@
 package com.familring.data.repositoryImpl
 
-import com.familring.data.network.api.CalendarApi
+import com.familring.data.network.api.ScheduleApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.calendar.MonthSchedulesDailies
 import com.familring.domain.model.calendar.Schedule
-import com.familring.domain.repository.CalendarRepository
+import com.familring.domain.repository.ScheduleRepository
 import com.familring.domain.request.ScheduleCreateRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class CalendarRepositoryImpl
+class ScheduleRepositoryImpl
     @Inject
     constructor(
-        private val calendarApi: CalendarApi,
-    ) : CalendarRepository {
+        private val scheduleApi: ScheduleApi,
+    ) : ScheduleRepository {
         override suspend fun getMonthData(
             year: Int,
             month: Int,
@@ -23,7 +23,7 @@ class CalendarRepositoryImpl
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { calendarApi.getMonthData(year, month) },
+                        apiResponse = { scheduleApi.getMonthData(year, month) },
                         default = MonthSchedulesDailies(),
                     )
                 emit(apiResponse)
@@ -33,7 +33,7 @@ class CalendarRepositoryImpl
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { calendarApi.getDaySchedules(scheduleIds) },
+                        apiResponse = { scheduleApi.getDaySchedules(scheduleIds) },
                         default = listOf(),
                     )
                 emit(apiResponse)
@@ -43,7 +43,7 @@ class CalendarRepositoryImpl
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { calendarApi.createSchedule(schedule) },
+                        apiResponse = { scheduleApi.createSchedule(schedule) },
                         default = Unit,
                     )
                 emit(apiResponse)
@@ -56,7 +56,7 @@ class CalendarRepositoryImpl
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { calendarApi.updateSchedule(id, schedule) },
+                        apiResponse = { scheduleApi.updateSchedule(id, schedule) },
                         default = Unit,
                     )
                 emit(apiResponse)
@@ -66,7 +66,7 @@ class CalendarRepositoryImpl
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { calendarApi.deleteSchedule(id) },
+                        apiResponse = { scheduleApi.deleteSchedule(id) },
                         default = Unit,
                     )
                 emit(apiResponse)

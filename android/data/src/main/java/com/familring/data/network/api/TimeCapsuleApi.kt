@@ -3,6 +3,9 @@ package com.familring.data.network.api
 import com.familring.data.network.response.BaseResponse
 import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.domain.model.timecapsule.TimeCapsuleStatus
+import com.familring.domain.request.AnswerRequest
+import com.familring.domain.request.CreateTimeCapsuleRequest
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
@@ -11,10 +14,14 @@ interface TimeCapsuleApi {
     suspend fun getTimeCapsuleStatus(): BaseResponse<TimeCapsuleStatus>
 
     @POST("timecapsules")
-    suspend fun createTimeCapsule(openDate: String): BaseResponse<Unit>
+    suspend fun createTimeCapsule(
+        @Body date: CreateTimeCapsuleRequest,
+    ): BaseResponse<Unit>
 
     @POST("timecapsules/answers")
-    suspend fun createTimeCapsuleAnswer(content: String): BaseResponse<Unit>
+    suspend fun createTimeCapsuleAnswer(
+        @Body content: AnswerRequest,
+    ): BaseResponse<Unit>
 
     @GET("timecapsules")
     suspend fun getTimeCapsules(): BaseResponse<List<TimeCapsule>>

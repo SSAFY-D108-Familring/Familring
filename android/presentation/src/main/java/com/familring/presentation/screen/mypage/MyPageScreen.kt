@@ -167,7 +167,7 @@ fun MyPageScreen(
                     ZodiacBackgroundProfile(
                         profile =
                             Profile(
-                                nickName = nickname,
+                                nickname = nickname,
                                 zodiacImgUrl = profileImage,
                                 backgroundColor = userColor,
                             ),

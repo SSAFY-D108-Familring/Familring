@@ -391,8 +391,6 @@ fun ScheduleCreateScreen(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     columns = GridCells.Fixed(2),
                 ) {
-                    Timber.d("lazy state.familyMembers : ${state.familyProfiles}")
-                    Timber.d("lazy isProfileCheckedList : $isProfileCheckedList")
                     itemsIndexed(state.familyProfiles) { index, profile ->
                         ZodiacProfileWithNameAndCheckedBox(
                             profile = profile,
@@ -576,7 +574,7 @@ fun ZodiacProfileWithNameAndCheckedBox(
         )
         Text(
             modifier = Modifier.padding(start = 10.dp),
-            text = profile.nickName,
+            text = profile.nickname,
             style =
                 Typography.headlineSmall.copy(
                     fontSize = 20.sp,
@@ -594,7 +592,7 @@ private fun ZodiacProfileWithNamePreview() {
         profile =
             Profile(
                 zodiacImgUrl = "",
-                nickName = "홍길동",
+                nickname = "홍길동",
                 backgroundColor = "0xFFC9D0FF",
             ),
     )

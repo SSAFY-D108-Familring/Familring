@@ -315,6 +315,7 @@ fun MainNavHost(
             TimeCapsuleCreateRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
+                showSnackbar = showSnackBar,
             )
         }
 
@@ -391,6 +392,7 @@ fun MainNavHost(
             DailyUploadRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
+                showSnackbar = showSnackBar
             )
         }
 
