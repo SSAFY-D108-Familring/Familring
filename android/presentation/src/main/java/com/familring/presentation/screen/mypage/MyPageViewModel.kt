@@ -67,10 +67,37 @@ class MyPageViewModel
 
         fun updateName(name: String) {
             viewModelScope.launch {
+                userRepository.updateNickname(name).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _event.emit(MyPageUiEvent.NameUpdateSuccess)
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(MyPageUiEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
             }
         }
 
-        private fun getMyInfo() {
+        fun updateColor(color: String) {
+            viewModelScope.launch {
+                userRepository.updateColor(color).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _event.emit(MyPageUiEvent.ColorUpdateSuccess)
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(MyPageUiEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
+            }
+        }
+
+        fun getMyInfo() {
             viewModelScope.launch {
                 combine(
                     familyRepository.getFamilyCode(),
