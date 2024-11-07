@@ -9,7 +9,7 @@
         <result column="user_kakao_id" property="userKakaoId"/>
         <result column="user_password" property="userPassword"/>
         <result column="user_nickname" property="userNickname"/>
-        <result column="user_birth_date" property="userBirthDate"/>
+        <result column="user_birth_date" property="userBirthDate" javaType="java.time.LocalDate"/>
         <result column="user_zodiac_sign" property="userZodiacSign"/>
         <result column="user_role" property="userRole"/>
         <result column="user_face" property="userFace"/>
@@ -18,8 +18,9 @@
         <result column="user_fcm_token" property="userFcmToken"/>
         <result column="user_created_at" property="userCreatedAt"/>
         <result column="user_modified_at" property="userModifiedAt"/>
-        <result column="user_is_deleted" property="userIsDeleted"/>
-        <result column="user_is_admin" property="userIsAdmin"/>
+        <result column="user_is_lunar" property="userIsLunar" javaType="boolean"/>
+        <result column="user_is_deleted" property="userIsDeleted" javaType="boolean"/>
+        <result column="user_is_admin" property="userIsAdmin" javaType="boolean"/>
     </resultMap>
 
     <insert id="insertUser" parameterType="com.familring.userservice.model.dto.UserDto">
@@ -27,13 +28,14 @@
             user_kakao_id, user_password, user_nickname, user_birth_date,
             user_zodiac_sign, user_role, user_face, user_color,
             user_emotion, user_created_at, user_modified_at,
-            user_is_deleted, user_is_admin
-        ) VALUES (
-                     #{userKakaoId}, #{userPassword}, #{userNickname}, #{userBirthDate},
-                     #{userZodiacSign}, #{userRole}, #{userFace}, #{userColor},
-                     #{userEmotion}, NOW(), NOW(),
-                     #{userIsDeleted}, #{userIsAdmin}
-                 )
+            user_is_lunar, user_is_deleted, user_is_admin
+        )
+        VALUES (
+                   #{userKakaoId}, #{userPassword}, #{userNickname}, #{userBirthDate},
+                   #{userZodiacSign}, #{userRole}, #{userFace}, #{userColor},
+                   #{userEmotion}, NOW(), NOW(),
+                   #{userIsLunar}, #{userIsDeleted}, #{userIsAdmin}
+               )
     </insert>
 
     <select id="findUserByUserKakaoId" resultMap="userInfo">
@@ -56,19 +58,19 @@
 
     <update id="updateUserFcmTokenByUserId">
         UPDATE user
-        SET user_fcm_token = #{fcmToken}
+        SET user_fcm_token = #{fcmToken}, user_modified_at = NOW()
         WHERE user_id = #{userId}
     </update>
 
     <update id="updateUserEmotionByUserId">
         UPDATE user
-        SET user_emotion = #{userEmotion}
+        SET user_emotion = #{userEmotion}, user_modified_at = NOW()
         WHERE user_id = #{userId}
     </update>
 
     <update id="updateUserNicknameByUserId">
         UPDATE user
-        SET user_nickname = #{userNickname}
+        SET user_nickname = #{userNickname}, user_modified_at = NOW()
         WHERE user_id = #{userId}
     </update>
 

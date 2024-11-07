@@ -9,6 +9,7 @@ import com.familring.userservice.model.dto.request.UserDeleteRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.service.client.FamilyServiceFeignClient;
 import com.familring.userservice.service.client.FileServiceFeignClient;
+import com.github.usingsky.calendar.KoreanLunarCalendar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.List;
@@ -66,37 +68,40 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
     @Override
     @Transactional
     public void createUser(UserJoinRequest userJoinRequest, MultipartFile image) {
-        String faceImgUrl = "";
-
         // 1. 얼굴 사진 처리
         if (image == null) {
-            // 1-1. 얼굴 사진 없는 경우 에러 처리
+            log.debug("[CustomUserDetailsServiceImpl - createUser] 얼굴 사진이 없는 경우 에러 처리");
             throw new NoContentUserImageException();
         }
 
         // 1-2. 요청에 대한 응답 image url 저장
-        faceImgUrl = uploadFiles(image, "user-face").get(0);
-        log.info("faceImgUrl: {}", faceImgUrl);
+        String faceImgUrl = uploadFiles(image, "user-face").get(0);
+        log.info("[CustomUserDetailsServiceImpl - createUser] faceImgUrl: {}", faceImgUrl);
 
         // 2. 회원 띠 계산
-        // 2-1. 날짜 받기 및 연도 추출
-        int birthYear = userJoinRequest.getUserBirthDate().getYear();
+        // 2-1. 날짜 받기
+        LocalDate birthDate = userJoinRequest.getUserBirthDate();
+        log.info("[CustomUserDetailsServiceImpl - createUser] 입력 생일: year={}, month={}, day={}", birthDate.getYear(), birthDate.getMonthValue(), birthDate.getDayOfMonth());
 
-        // 2-2. 띠 배열 선언
+        // 2-2. 양력 여부에 따라 처리
+        if (!userJoinRequest.isUserIsLunar()) {
+            log.info("[CustomUserDetailsServiceImpl - createUser] 양력 생일: year={}, month={}, day={}", birthDate.getYear(), birthDate.getMonthValue(), birthDate.getDayOfMonth());
+            birthDate = convertSolarToLunar(birthDate); // 양력을 음력으로 변환
+        }
+
+        // 2-3. 띠 계산을 위한 연도 추출
+        int birthYear = birthDate.getYear();
+        log.info("[CustomUserDetailsServiceImpl - createUser] 음력 기준 연도: {}", birthYear);
+
+        // 2-4. 띠 배열 선언 및 계산
         String[] zodiacSign = {"쥐", "소", "호랑이", "토끼", "용", "뱀", "말", "양", "원숭이", "닭", "개", "돼지"};
-
-        // 2-3. 띠 계산
         int zodiacIndex = (birthYear - 4) % 12;
-
-        // 2-4. 음수 인덱스 방지
-        if (zodiacIndex < 0)
-            zodiacIndex += 12;
-        log.info("사용자의 띠: {}", zodiacSign[zodiacIndex]);
+        if (zodiacIndex < 0) zodiacIndex += 12;
+        log.info("[CustomUserDetailsServiceImpl - createUser] 사용자의 띠: {}", zodiacSign[zodiacIndex]);
 
         // 2-5. 띠 이미지 URL 가져오기
         String zodiacSignImgUrl = s3Url + "/zodiac-sign/" + zodiacSign[zodiacIndex] + ".png";
-        log.info("zodiacSignImgUrl: {}", zodiacSignImgUrl);
-
+        log.info("[CustomUserDetailsServiceImpl - createUser] zodiacSignImgUrl: {}", zodiacSignImgUrl);
 
         // 3. 회원 가입 dto 생성
         UserDto user = UserDto.builder()
@@ -111,6 +116,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
                 .userEmotion("")
                 .userCreatedAt(LocalDateTime.now())
                 .userModifiedAt(LocalDateTime.now())
+                .userIsLunar(userJoinRequest.isUserIsLunar())
                 .userIsDeleted(false)
                 .userIsAdmin(false)
                 .build();
@@ -118,7 +124,20 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // 4. 기존 createUser(UserDetails user) 호출
         createUser(user);
     }
+    private LocalDate convertSolarToLunar(LocalDate solarDate) {
+        KoreanLunarCalendar calendar = KoreanLunarCalendar.getInstance();
 
+        // 양력 날짜 설정
+        calendar.setSolarDate(solarDate.getYear(), solarDate.getMonthValue(), solarDate.getDayOfMonth());
+
+        // 음력 날짜 변환
+        int lunarYear = calendar.getLunarYear();
+        int lunarMonth = calendar.getLunarMonth();
+        int lunarDay = calendar.getLunarDay();
+
+        log.info("[CustomUserDetailsServiceImpl - convertSolarToLunar] 음력 변환: lunarYear={}, lunarMonth={}, lunarDay={}", lunarYear, lunarMonth, lunarDay);
+        return LocalDate.of(lunarYear, lunarMonth, lunarDay);
+    }
     public List<String> uploadFiles(MultipartFile image, String folderPath) {
         log.info("folderPath: {}", folderPath);
 
@@ -178,7 +197,6 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         String familyResponse = deleteFamilyMember(user.getUserId());
         log.info(familyResponse);
     }
-
     public void deleteFiles(String imageUrl) {
         // List<MultipartFile>로 파일 리스트 구성
         List<String> faceFiles = List.of(imageUrl);
@@ -186,13 +204,11 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // Feign Client로 파일 삭제 요청
         fileServiceFeignClient.deleteFiles(faceFiles);
     }
-
     public String deleteFamilyMember(Long userId) {
         familyServiceFeignClient.deleteFamilyMember(userId);
 
         return "file-service에서 회원 삭제 완료";
     }
-
 
     @Override
     @Transactional
