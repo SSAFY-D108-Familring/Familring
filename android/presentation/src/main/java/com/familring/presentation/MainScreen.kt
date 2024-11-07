@@ -5,7 +5,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +31,7 @@ import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
+import com.familring.presentation.screen.mypage.EditColorRoute
 import com.familring.presentation.screen.mypage.EditNameRoute
 import com.familring.presentation.screen.mypage.MyPageRoute
 import com.familring.presentation.screen.mypage.MyPageViewModel
@@ -356,10 +356,25 @@ fun MainNavHost(
         ) {
             val viewModel =
                 hiltViewModel<MyPageViewModel>(
-                    navController.getBackStackEntry("MyPage"),
+                    navController.getBackStackEntry(ScreenDestinations.MyPage.route),
                 )
 
             EditNameRoute(
+                modifier = modifier,
+                viewModel = viewModel,
+                popUpBackStack = navController::popBackStack,
+                showSnackBar = showSnackBar,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.EditColor.route,
+        ) {
+            val viewModel =
+                hiltViewModel<MyPageViewModel>(
+                    navController.getBackStackEntry(ScreenDestinations.MyPage.route),
+                )
+            EditColorRoute(
                 modifier = modifier,
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
