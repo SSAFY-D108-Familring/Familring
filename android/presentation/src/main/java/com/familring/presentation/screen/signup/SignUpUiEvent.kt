@@ -15,6 +15,12 @@ sealed interface SignUpUiEvent {
     data object JoinSuccess : SignUpUiEvent
 
     @Immutable
+    data object NotAvailable : SignUpUiEvent
+
+    @Immutable
+    data object Available : SignUpUiEvent
+
+    @Immutable
     data class Error(
         val code: String,
         val message: String,

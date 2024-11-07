@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,17 +40,36 @@ import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun FirstRoute(
     modifier: Modifier,
     viewModel: SignUpViewModel = hiltViewModel(),
     navigateToBirth: () -> Unit,
+    showSnackBar: (String) -> Unit,
 ) {
+    LaunchedEffect(viewModel.event) {
+        viewModel.event.collectLatest { event ->
+            when (event) {
+                is SignUpUiEvent.NotAvailable -> showSnackBar("존재하지 않는 코드입니다")
+                is SignUpUiEvent.Available ->
+                    viewModel.updateMakeThenNavigate(
+                        false,
+                        navigateToBirth,
+                    )
+
+                else -> {}
+            }
+        }
+    }
+
     FirstScreen(
         modifier = modifier,
         navigateToBirth = navigateToBirth,
+        updateCode = viewModel::updateCode,
         updateAndNavigate = viewModel::updateMakeThenNavigate,
+        checkAvailable = viewModel::isAvailableCode,
     )
 }
 
@@ -57,10 +77,16 @@ fun FirstRoute(
 fun FirstScreen(
     modifier: Modifier = Modifier,
     navigateToBirth: () -> Unit = {},
-    updateAndNavigate: (Boolean, String, () -> Unit) -> Unit = { _, _, _ -> },
+    updateCode: (String) -> Unit = {},
+    updateAndNavigate: (Boolean, () -> Unit) -> Unit = { _, _ -> },
+    checkAvailable: (String) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
     var code by remember { mutableStateOf("") }
+
+    LaunchedEffect(code) {
+        updateCode(code)
+    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -119,7 +145,7 @@ fun FirstScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                     BrownRoundButton(
                         onClick = {
-                            updateAndNavigate(false, code, navigateToBirth)
+                            checkAvailable(code)
                         },
                         text = "코드 입력 완료",
                         enabled = code.length == 6,
@@ -131,7 +157,7 @@ fun FirstScreen(
             Text(
                 modifier =
                     Modifier.noRippleClickable {
-                        updateAndNavigate(true, "", navigateToBirth)
+                        updateAndNavigate(true, navigateToBirth)
                     },
                 text = "없어요, 새로 개설할래요!",
                 style = Typography.headlineSmall,
