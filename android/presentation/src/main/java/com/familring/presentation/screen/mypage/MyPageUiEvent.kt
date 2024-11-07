@@ -9,6 +9,15 @@ sealed interface MyPageUiEvent {
     data object SignOutSuccess : MyPageUiEvent
 
     @Immutable
+    data object EmotionUpdateSuccess : MyPageUiEvent
+
+    @Immutable
+    data object NameUpdateSuccess : MyPageUiEvent
+
+    @Immutable
+    data object ColorUpdateSuccess : MyPageUiEvent
+
+    @Immutable
     data class Error(
         val code: String,
         val message: String,

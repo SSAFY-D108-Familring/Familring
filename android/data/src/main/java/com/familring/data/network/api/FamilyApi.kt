@@ -7,6 +7,7 @@ import com.familring.domain.model.User
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface FamilyApi {
     @GET("family/code")
@@ -25,4 +26,9 @@ interface FamilyApi {
 
     @GET("family")
     suspend fun getFamilyInfo(): BaseResponse<FamilyInfo>
+
+    @GET("family/code/{familyCode}")
+    suspend fun isAvailableCode(
+        @Path("familyCode") code: String,
+    ): BaseResponse<Boolean>
 }

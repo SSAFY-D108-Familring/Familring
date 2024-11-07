@@ -36,6 +36,16 @@ class FamilyRepositoryImpl
                 emit(response)
             }
 
+        override suspend fun isAvailableCode(code: String): Flow<ApiResponse<Boolean>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.isAvailableCode(code) },
+                        default = false,
+                    )
+                emit(response)
+            }
+
         override suspend fun joinFamily(familyCode: String): Flow<ApiResponse<String>> =
             flow {
                 val response =

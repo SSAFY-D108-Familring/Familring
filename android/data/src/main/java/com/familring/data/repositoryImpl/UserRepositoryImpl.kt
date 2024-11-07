@@ -2,15 +2,16 @@ package com.familring.data.repositoryImpl
 
 import com.familring.data.network.api.UserApi
 import com.familring.data.network.response.emitApiResponse
-import com.familring.domain.util.toMultiPart
 import com.familring.domain.datasource.AuthDataStore
 import com.familring.domain.datasource.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.JwtToken
 import com.familring.domain.model.User
 import com.familring.domain.repository.UserRepository
+import com.familring.domain.request.UserEmotionRequest
 import com.familring.domain.request.UserJoinRequest
 import com.familring.domain.request.UserLoginRequest
+import com.familring.domain.util.toMultiPart
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -97,6 +98,36 @@ class UserRepositoryImpl
                     tokenDataStore.deleteJwtToken()
                     authDataSource.deleteAuthData()
                 }
+                emit(response)
+            }
+
+        override suspend fun updateEmotion(emotion: UserEmotionRequest): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateEmotion(emotion) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun updateNickname(nickname: String): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateNickname(nickname) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun updateColor(color: String): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateColor(color) },
+                        default = Unit,
+                    )
                 emit(response)
             }
     }

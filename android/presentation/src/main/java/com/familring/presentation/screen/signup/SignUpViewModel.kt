@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -66,25 +65,12 @@ class SignUpViewModel
             _state.update { it.copy(userFace = face) }
         }
 
-        fun updateMakeThenNavigate(
-            make: Boolean,
-            code: String = "",
-            onNavigate: () -> Unit,
-        ) {
-            viewModelScope.launch {
-                _state.update {
-                    it.copy(
-                        make = make,
-                        familyCode = code,
-                    )
-                }
-                // 상태 업데이트가 완료될 때까지 대기
-                state.first {
-                    it.make == make &&
-                        (code.isEmpty() || it.familyCode == code)
-                }
-                onNavigate()
-            }
+        fun updateCode(code: String) {
+            _state.update { it.copy(familyCode = code) }
+        }
+
+        fun updateMake(make: Boolean) {
+            _state.update { it.copy(make = make) }
         }
 
         fun join() {
@@ -161,6 +147,26 @@ class SignUpViewModel
                                     "가족 가입 오류: " + response.message,
                                 ),
                             )
+                        }
+                    }
+                }
+            }
+        }
+
+        fun isAvailableCode(code: String) {
+            viewModelScope.launch {
+                familyRepository.isAvailableCode(code).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            if (response.data) {
+                                _event.emit(SignUpUiEvent.Available)
+                            } else {
+                                _event.emit(SignUpUiEvent.NotAvailable)
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(SignUpUiEvent.Error(response.code, response.message))
                         }
                     }
                 }

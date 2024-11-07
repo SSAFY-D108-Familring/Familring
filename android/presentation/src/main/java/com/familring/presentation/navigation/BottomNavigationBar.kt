@@ -74,11 +74,12 @@ fun BottomNavigationBar(
                 },
                 onClick = {
                     navController.navigate(item.route) {
-                        navController.graph.startDestinationRoute?.let {
-                            popUpTo(it) { saveState = true }
+                        if (item.route == ScreenDestinations.Home.route) {
+                            popUpTo(0) { inclusive = true }
+                        } else {
+                            popUpTo(item.route)
                         }
                         launchSingleTop = true
-                        restoreState = true
                     }
                 },
                 icon = {
