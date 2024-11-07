@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,8 +83,18 @@ fun TimeCapsuleCreateScreen(
     var month by remember { mutableStateOf(String.format("%02d", today.monthValue)) }
     var date by remember { mutableStateOf(String.format("%02d", today.plusDays(3).dayOfMonth)) }
 
-    val isButtonEnabled = isDateFormValid(year, month, date)
-    var isAfter3Days by remember { mutableStateOf(true) }
+    val isDateFormValid by remember { derivedStateOf { isDateFormValid(year, month, date) } }
+    val isAfter3Days by remember { derivedStateOf { isAfter3Days(year, month, date) } }
+    val isButtonEnabled = isDateFormValid && isAfter3Days
+
+    val errorText =
+        if (!isDateFormValid) {
+            "날짜 형식을 확인해 주세요"
+        } else if (!isAfter3Days) {
+            "타임캡슐은 최소 3일 이후부터 열 수 있어요"
+        } else {
+            ""
+        }
 
     val focusManager = LocalFocusManager.current
 
@@ -131,10 +142,10 @@ fun TimeCapsuleCreateScreen(
                     Modifier
                         .fillMaxWidth(0.9f)
                         .padding(start = 5.dp, bottom = 5.dp),
-                text = "타임캡슐은 최소 3일 이후부터 열 수 있어요",
+                text = errorText,
                 style =
                     Typography.bodySmall.copy(
-                        color = if (isAfter3Days) Gray01 else Red01,
+                        color = Red01,
                         fontSize = 14.sp,
                     ),
             )
@@ -156,12 +167,7 @@ fun TimeCapsuleCreateScreen(
                 text = "타임캡슐 작성하러 가기",
                 onClick = {
                     val openDate = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
-                    if (isAfter3Days(openDate)) {
-                        isAfter3Days = true
-                        createTimeCapsule(openDate)
-                    } else {
-                        isAfter3Days = false
-                    }
+                    createTimeCapsule(openDate)
                 },
                 enabled = isButtonEnabled,
             )
@@ -170,11 +176,20 @@ fun TimeCapsuleCreateScreen(
     }
 }
 
-private fun isAfter3Days(date: LocalDate): Boolean {
-    val today = LocalDate.now()
-    val threeDaysLater = today.plusDays(3)
+private fun isAfter3Days(
+    year: String,
+    month: String,
+    date: String,
+): Boolean {
+    try {
+        val today = LocalDate.now()
+        val targetDate = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
+        val threeDaysLater = today.plusDays(3)
 
-    return date.isAfter(threeDaysLater) || date.isEqual(threeDaysLater)
+        return targetDate.isAfter(threeDaysLater) || targetDate.isEqual(threeDaysLater)
+    } catch (e: Exception) {
+        return false
+    }
 }
 
 @Preview
