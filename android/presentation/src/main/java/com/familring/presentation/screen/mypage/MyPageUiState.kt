@@ -15,6 +15,7 @@ sealed interface MyPageUiState {
         val userRole: String = "",
         val userColor: String = "",
         val userBirthDate: String = "",
+        val userEmotion: String = "",
         val code: String = "",
     ) : MyPageUiState
 }

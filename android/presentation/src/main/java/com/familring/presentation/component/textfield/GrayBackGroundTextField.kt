@@ -50,6 +50,7 @@ fun GrayBackgroundTextField(
             decorationBox = { innerTextField ->
                 if (content.isEmpty()) {
                     Text(
+                        modifier = Modifier.fillMaxSize(),
                         text = hint,
                         style =
                             Typography.bodyMedium.copy(
