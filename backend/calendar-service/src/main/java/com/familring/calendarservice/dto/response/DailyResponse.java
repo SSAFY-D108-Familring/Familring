@@ -21,6 +21,7 @@ import java.util.Date;
 @AllArgsConstructor
 public class DailyResponse {
     private Long id;
+    private Boolean myPost;
     private String content;
     private String photoUrl;
     private String userNickname;

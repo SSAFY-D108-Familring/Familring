@@ -118,7 +118,7 @@ public class DailyService {
 
             return DailyResponse.builder().id(daily.getId()).content(daily.getContent()).photoUrl(daily.getPhotoUrl())
                     .userNickname(userInfo.getUserNickname()).userZodiacSign(userInfo.getUserZodiacSign())
-                    .userColor(userInfo.getUserColor()).build();
+                    .userColor(userInfo.getUserColor()).myPost(daily.getAuthorId().equals(userId)).build();
         }).toList();
     }
 }
