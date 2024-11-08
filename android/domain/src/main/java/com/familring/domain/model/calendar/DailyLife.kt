@@ -12,6 +12,7 @@ data class DailyLife(
     val userNickname: String = "",
     val userZodiacSign: String = "",
     val userColor: String = "",
+    val myPost: Boolean = false,
 ) {
     val profile: Profile
         get() =

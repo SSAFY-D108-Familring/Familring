@@ -91,6 +91,7 @@ fun CalendarRoute(
         getDaySchedules = calendarViewModel::getDaySchedules,
         getDayDailies = calendarViewModel::getDayDailies,
         deleteSchedule = calendarViewModel::deleteSchedule,
+        deleteDaily = calendarViewModel::deleteDaily,
         navigateToCreateSchedule = navigateToCreateSchedule,
         navigateToCreateDaily = navigateToCreateDaily,
         navigateToCreateAlbum = navigateToCreateAlbum,
@@ -110,6 +111,7 @@ fun CalendarScreen(
     getDaySchedules: (List<Long>) -> Unit = {},
     getDayDailies: (List<Long>) -> Unit = {},
     deleteSchedule: (Long) -> Unit = {},
+    deleteDaily: (Long) -> Unit = {},
     navigateToCreateSchedule: () -> Unit = {},
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
@@ -138,8 +140,10 @@ fun CalendarScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
 
     // dialog
-    var showDialog by remember { mutableStateOf(false) }
+    var showScheduleDeleteDialog by remember { mutableStateOf(false) }
+    var showDailyDeleteDialog by remember { mutableStateOf(false) }
     var deleteTargetScheduleId = -1L
+    var deleteTargetDailyId = -1L
 
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -402,9 +406,13 @@ fun CalendarScreen(
                 CalendarTab(
                     schedules = state.detailedSchedule,
                     dailyLifes = state.detailedDailies,
-                    showDeleteDialog = {
+                    showDeleteScheduleDialog = {
                         deleteTargetScheduleId = it
-                        showDialog = true
+                        showScheduleDeleteDialog = true
+                    },
+                    showDeleteDailyDialog = {
+                        deleteTargetDailyId = it
+                        showDailyDeleteDialog = true
                     },
                     navigateToModifySchedule = navigateToModifySchedule,
                     navigateToCreateAlbum = navigateToCreateAlbum,
@@ -413,18 +421,34 @@ fun CalendarScreen(
             }
         }
 
-        if (showDialog) {
+        if (showScheduleDeleteDialog) {
             Dialog(
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = { showScheduleDeleteDialog = false },
                 properties = DialogProperties(usePlatformDefaultWidth = false),
             ) {
                 TwoButtonTextDialog(
                     text = "일정을 삭제하시겠어요?",
                     onConfirmClick = {
                         deleteSchedule(deleteTargetScheduleId)
-                        showDialog = false
+                        showScheduleDeleteDialog = false
                     },
-                    onDismissClick = { showDialog = false },
+                    onDismissClick = { showScheduleDeleteDialog = false },
+                )
+            }
+        }
+
+        if (showDailyDeleteDialog) {
+            Dialog(
+                onDismissRequest = { showDailyDeleteDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                TwoButtonTextDialog(
+                    text = "게시글을 삭제하시겠어요?",
+                    onConfirmClick = {
+                        deleteDaily(deleteTargetDailyId)
+                        showDailyDeleteDialog = false
+                    },
+                    onDismissClick = { showDailyDeleteDialog = false },
                 )
             }
         }
