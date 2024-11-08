@@ -46,11 +46,13 @@ import com.familring.presentation.theme.White
 fun TimeCapsuleListScreen(
     modifier: Modifier = Modifier,
     state: TimeCapsuleUiState,
-    getTimeCapsules: () -> Unit = {},
+    getTimeCapsules: (Int) -> Unit = {},
     onShowSnackBar: (message: String) -> Unit = {},
 ) {
     LaunchedEffect(Unit) {
-        getTimeCapsules()
+        if (state.isFirstLoading) {
+            getTimeCapsules(state.currentPageNo + 1)
+        }
     }
 
     if (state.timeCapsules.isEmpty()) {
@@ -122,11 +124,7 @@ fun TimeCapsuleItem(
                     color = Gray03,
                     shape = RoundedCornerShape(12.dp),
                 ).clickable {
-                    if (timeCapsule.leftDays > 0) {
-                        onShowSnackBar("아직 캡슐을 열 수 없어요!")
-                    } else {
-                        showDialog = true
-                    }
+                    showDialog = true
                 },
     ) {
         Column(
@@ -185,6 +183,7 @@ fun TimeCapsuleItem(
     if (showDialog) {
         TimeCapsuleDialog(
             onDismiss = { showDialog = false },
+            leftDays = timeCapsule.leftDays,
             timeCapsuleMessages = timeCapsule.messages,
         )
     }

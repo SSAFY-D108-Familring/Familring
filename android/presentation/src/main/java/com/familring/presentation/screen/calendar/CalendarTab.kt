@@ -342,16 +342,13 @@ fun ScheduleItem(
                 )
             }
             Spacer(modifier = Modifier.width(20.dp))
+            Spacer(modifier = Modifier.weight(1f))
             OverlappingProfileLazyRow(
-                modifier =
-                    Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
+                modifier = Modifier.align(Alignment.CenterVertically),
                 profileSize = 32,
-                profiles =
-                    schedule.familyMembers
-                        .filter { it.attendanceStatus }
-                        .map { it.toProfile() },
+                profiles = schedule.familyMembers
+                    .filter { it.attendanceStatus }
+                    .map { it.toProfile() }
             )
             IconCustomDropdownMenu(
                 modifier =

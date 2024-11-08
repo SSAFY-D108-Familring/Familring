@@ -68,7 +68,7 @@ fun TimeCapsuleScreen(
     state: TimeCapsuleUiState,
     getTimeCapsuleStatus: () -> Unit = {},
     createTimeCapsuleAnswer: (String) -> Unit = {},
-    getTimeCapsules: () -> Unit = {},
+    getTimeCapsules: (Int) -> Unit = {},
     onShowSnackBar: (message: String) -> Unit = {},
 ) {
     val tabs = listOf("작성", "목록")

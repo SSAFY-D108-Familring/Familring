@@ -68,23 +68,35 @@ class TimeCapsuleViewModel
             }
         }
 
-        fun getTimeCapsules() {
+        fun getTimeCapsules(pageNo: Int) {
             viewModelScope.launch {
-                timeCapsuleRepository.getTimeCapsules().collect { result ->
+                timeCapsuleRepository.getTimeCapsules(pageNo).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
-                            _uiState.update {
-                                it.copy(
-                                    timeCapsules = result.data,
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    isFirstLoading = false,
+                                    currentPageNo = currentState.currentPageNo + 1,
+                                    timeCapsules = currentState.timeCapsules + result.data.timeCapsules,
                                 )
                             }
                         }
 
                         is ApiResponse.Error -> {
+                            _event.emit(TimeCapsuleUiEvent.Error(result.code, result.message))
                             Timber.d("code: ${result.code}, message: ${result.message}")
                         }
                     }
                 }
+            }
+        }
+
+        fun clearTimeCapsuleList() {
+            _uiState.update {
+                it.copy(
+                    currentPageNo = -1,
+                    timeCapsules = listOf(),
+                )
             }
         }
     }
