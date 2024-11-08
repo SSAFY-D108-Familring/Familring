@@ -31,7 +31,7 @@ public class UserClientController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<BaseResponse<UserInfoResponse>> getUser(@PathVariable Long userId) {
-        log.info("userId: {}", userId);
+        log.info("[getUser] userId: {}", userId);
         UserInfoResponse response = userService.getUser(userId);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 정보를 성공적으로 조회 했습니다.", response));

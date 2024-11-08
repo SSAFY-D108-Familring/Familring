@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ChatResponse {
     
-    private ObjectId chatId; // 채팅의 id
+    private String chatId; // 채팅의 id
     private Long roomId; // 채팅 방의 id == familyId
     
     private Long senderId; // 발신자 id
@@ -27,6 +27,8 @@ public class ChatResponse {
 
     private boolean isVote; // 투표 여부
     private Vote vote; // 투표
+    private boolean isVoteResponse; // 투표 응답 여부
+    private String responseOfVote; // 투표 응답
 
     public boolean getIsVote() {
         return isVote;
@@ -43,4 +45,10 @@ public class ChatResponse {
     public void setVote(Vote vote) {
         this.vote = vote;
     }
+
+    public boolean getIsVoteResponse() {
+        return isVoteResponse;
+    }
+
+    public void setIsVoteResponse(boolean isVoteResponse) {}
 }

@@ -9,41 +9,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRequest {
+    // 발신자 정보
     private Long senderId; // 발신자 id
     private String content; // 채팅 내용
+
+    // 투표 정보
+    // 투표 생성
     @JsonProperty("isVote")
     private boolean isVote; // 투표 여부
     private String voteTitle; // 투표 제목
 
-    public Long getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(Long senderId) {
-        this.senderId = senderId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
+    // 투표 응답
+    private String voteId; // 투표 Id
+    private boolean isVoteResponse; // 투표 응답 여부
+    private String responseOfVote; // 투표 응답
 
     public boolean isVote() { // 정확히 `isVote()`으로 설정
         return isVote;
     }
 
-    public void setVote(boolean isVote) { // 정확히 `setVote()`으로 설정
-        this.isVote = isVote;
-    }
-
-    public String getVoteTitle() {
-        return voteTitle;
-    }
-
-    public void setVoteTitle(String voteTitle) {
-        this.voteTitle = voteTitle;
+    public boolean getIsVoteResponse() {
+        return isVoteResponse;
     }
 }

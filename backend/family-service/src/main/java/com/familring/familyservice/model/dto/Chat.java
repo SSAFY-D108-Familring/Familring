@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class Chat {
 
     @Id
-    private ObjectId chatId;
+    private String chatId;
     private Long roomId; // 채팅 방의 id == familyId
 
     // 발신자 정보
@@ -28,9 +28,23 @@ public class Chat {
 
     // 투표 정보
     private boolean isVote; // 투표 여부
-    private ObjectId voteId; // 투표 id
+    private String voteId; // 투표 id
+    private boolean isVoteResponse; // 투표 응답 여부
+    private String responseOfVote; // 투표 응답
 
     public boolean getIsVote() {
         return isVote;
+    }
+
+    public void setIsVote(boolean isVote) {
+        this.isVote = isVote;
+    }
+
+    public boolean getIsVoteResponse() {
+        return isVoteResponse;
+    }
+
+    public void setIsVoteResponse(boolean isVoteResponse) {
+        this.isVoteResponse = isVoteResponse;
     }
 }

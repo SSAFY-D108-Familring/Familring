@@ -16,7 +16,7 @@ import java.util.Map;
 @ToString
 public class Vote {
     @Id
-    private ObjectId voteId;
+    private String voteId;
 
     // 투표 정보
     private String voteTitle; // 투표 제목
