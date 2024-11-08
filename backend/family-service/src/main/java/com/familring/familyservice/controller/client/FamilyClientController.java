@@ -1,11 +1,14 @@
 package com.familring.familyservice.controller.client;
 
 import com.familring.common_module.dto.BaseResponse;
+import com.familring.familyservice.model.dto.request.FamilyJoinRequest;
 import com.familring.familyservice.model.dto.request.FamilyStatusRequest;
 import com.familring.familyservice.model.dto.response.FamilyInfoResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.family.FamilyService;
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -49,6 +52,21 @@ public class FamilyClientController {
         List<Long> responseList = familyService.getAllFamilyId();
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "모든 가족을 성공적으로 조회 했습니다.", responseList));
+    }
+
+    @PostMapping
+    public ResponseEntity<BaseResponse<FamilyInfoResponse>> createFamily(Long userId) {
+        FamilyInfoResponse response = familyService.createFamily(userId);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.CREATED.value(), "가족을 성공적으로 생성했습니다.", response));
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<BaseResponse<String>> joinFamilyMember
+            (Long userId, FamilyJoinRequest familyJoinRequest) {
+        String response = familyService.joinFamilyMember(userId, familyJoinRequest);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "해당 회원을 성공적으로 가족 구성원에 추가했습니다.", response));
     }
 
     @PutMapping("/member")
