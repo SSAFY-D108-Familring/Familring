@@ -229,13 +229,14 @@ fun GalleryScreen(
             }
 
             if (showBottomSheet) {
-                ModalBottomSheet(onDismissRequest = {
+                ModalBottomSheet(containerColor = White, onDismissRequest = {
                     showBottomSheet = false
                     albumname = ""
                 }) {
                     Column(
                         modifier =
                             Modifier
+                                .background(color = White)
                                 .padding(top = 16.dp),
                     ) {
                         BasicTextField(
