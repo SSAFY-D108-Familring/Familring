@@ -27,6 +27,11 @@ class TimeCapsuleViewModel
         private val _event = MutableSharedFlow<TimeCapsuleUiEvent>()
         val event = _event.asSharedFlow()
 
+        init {
+            getTimeCapsuleStatus()
+            getTimeCapsules(_uiState.value.currentPageNo)
+        }
+
         fun getTimeCapsuleStatus() {
             viewModelScope.launch {
                 timeCapsuleRepository.getTimeCapsuleStatus().collect { result ->
@@ -75,7 +80,6 @@ class TimeCapsuleViewModel
                         is ApiResponse.Success -> {
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    isFirstLoading = false,
                                     currentPageNo = currentState.currentPageNo + 1,
                                     timeCapsules = currentState.timeCapsules + result.data.timeCapsules,
                                 )
