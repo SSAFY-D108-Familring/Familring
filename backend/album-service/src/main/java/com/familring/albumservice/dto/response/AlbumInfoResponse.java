@@ -5,13 +5,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class AlbumResponse {
-    String albumName;
-    List<PhotoItem> photos;
+@AllArgsConstructor
+public class AlbumInfoResponse {
+    private Long id;
+    private String albumName;
+    private String thumbnailUrl;
+    private int photoCount;
 }
+

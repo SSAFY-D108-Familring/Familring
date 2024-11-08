@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PhotoResponse {
+public class PhotoItem {
     private Long id;
     private String photoUrl;
 }
