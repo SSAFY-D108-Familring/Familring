@@ -2,6 +2,7 @@ package com.familring.presentation.screen.gallery
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -10,14 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -27,8 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import com.familring.domain.model.gallery.Photo
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
@@ -43,7 +47,7 @@ fun AlbumRoute(
         albumId = albumId,
         modifier = modifier,
         onNavigateBack = onNavigateBack,
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }
 
@@ -59,9 +63,6 @@ fun AlbumScreen(
     LaunchedEffect(albumId) {
         viewModel.getOneAlbum(albumId)
     }
-    var photoCount by remember {
-        mutableStateOf(11)
-    }
 
     Surface(modifier = Modifier.fillMaxSize(), color = White) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -75,24 +76,54 @@ fun AlbumScreen(
                 onNavigationClick = onNavigateBack,
             )
             Spacer(modifier = Modifier.fillMaxSize(0.05f))
-            LazyVerticalGrid(
-                modifier = Modifier.padding(2.dp),
-                columns = GridCells.Fixed(4),
-                state = rememberLazyGridState(),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
-                horizontalArrangement = Arrangement.spacedBy(2.dp),
-            ) {
-                items(photoCount) { PhotoItem() }
+            when (val state = photoUiState) {
+                is PhotoUiState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(color = Green02)
+                    }
+                }
+
+                is PhotoUiState.Success -> {
+                    LazyVerticalGrid(
+                        modifier = Modifier.padding(2.dp),
+                        columns = GridCells.Fixed(4),
+                        state = rememberLazyGridState(),
+                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    ) {
+                        items(state.photoList.size) { index ->
+                            PhotoItem(state.photoList[index])
+                        }
+                    }
+                }
+
+                is PhotoUiState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = state.errorMessage,
+                            style = Typography.bodyLarge,
+                            color = Color.Red,
+                        )
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun PhotoItem() {
-    Image(
+fun PhotoItem(
+    photo: Photo,
+) {
+    AsyncImage(
         modifier = Modifier.aspectRatio(1f),
-        painter = painterResource(id = R.drawable.tuna),
+        model = photo.photoUrl,
         contentDescription = "photo_item_img",
         contentScale = ContentScale.Crop,
     )
@@ -105,6 +136,6 @@ fun AlbumScreenPreview() {
         albumId = 1L,
         modifier = Modifier,
         onNavigateBack = {},
-        viewModel = hiltViewModel()
+        viewModel = hiltViewModel(),
     )
 }

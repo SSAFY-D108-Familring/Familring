@@ -392,7 +392,7 @@ fun MainNavHost(
             DailyUploadRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
-                showSnackbar = showSnackBar
+                showSnackbar = showSnackBar,
             )
         }
 
@@ -401,8 +401,8 @@ fun MainNavHost(
         ) {
             GalleryRoute(
                 modifier = modifier,
-                navigateToAlbum = {
-                    navController.navigate(ScreenDestinations.Album.route)
+                navigateToAlbum = { albumId ->
+                    navController.navigate(ScreenDestinations.Album.createRoute(albumId))
                 },
                 showSnackBar = showSnackBar,
             )
@@ -452,8 +452,11 @@ fun MainNavHost(
 
         composable(
             route = ScreenDestinations.Album.route,
-        ) {
+            arguments = ScreenDestinations.Album.arguments,
+        ) { backStackEntry ->
+            val albumId = backStackEntry.arguments?.getLong("albumId") ?: 0L
             AlbumRoute(
+                albumId = albumId,
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
             )
