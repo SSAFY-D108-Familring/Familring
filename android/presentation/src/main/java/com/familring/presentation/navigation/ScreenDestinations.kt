@@ -101,7 +101,16 @@ sealed class ScreenDestinations(
     data object Gallery : ScreenDestinations(route = "Gallery")
 
     // 앨범
-    data object Album : ScreenDestinations(route = "Album")
+    data object Album : ScreenDestinations(route = "Album") {
+        override val route: String
+            get() = "Album/{albumId}"
+        val arguments =
+            listOf(
+                navArgument("albumId") { type = NavType.LongType },
+            )
+
+        fun createRoute(albumId: Long) = "Album/$albumId"
+    }
 
     // 관심사 공유
     data object Interest : ScreenDestinations(route = "Interest")

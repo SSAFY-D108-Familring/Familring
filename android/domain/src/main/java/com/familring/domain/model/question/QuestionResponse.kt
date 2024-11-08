@@ -1,4 +1,4 @@
-package com.familring.domain.model
+package com.familring.domain.model.question
 
 data class QuestionResponse(
     val questionId: Long = 0,
