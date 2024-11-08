@@ -142,24 +142,24 @@
         let voteInfo = "<p>일반 메시지</p>";
         if (message.isVote && message.vote) {
             voteInfo = `
-                <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
-                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId.toString()}', '찬성')">찬성</button>
-                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId.toString()}', '반대')">반대</button>
-            `;
+            <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
+            <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '찬성')">찬성</button>
+            <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '반대')">반대</button>
+        `;
         } else if (message.isVoteResponse) {
             voteInfo = `<p><strong>투표 응답:</strong> ${message.responseOfVote}</p>`;
         }
 
         chatLog.innerHTML += `
-            <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-                <p><strong>채팅 ID:</strong> ${chatId}</p>
-                <p><strong>방 ID:</strong> ${message.roomId}</p>
-                <p><strong>발신자 ID:</strong> ${message.senderId}</p>
-                <p><strong>발신자 닉네임:</strong> ${message.sender.userNickname}</p>
-                <p><strong>내용:</strong> ${message.content}</p>
-                <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>
-                ${voteInfo}
-            </div>`;
+        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
+            <p><strong>채팅 ID:</strong> ${chatId}</p>
+            <p><strong>방 ID:</strong> ${message.roomId}</p>
+            <p><strong>발신자 ID:</strong> ${message.senderId}</p>
+            <p><strong>발신자 닉네임:</strong> ${message.sender.userNickname}</p>
+            <p><strong>내용:</strong> ${message.content}</p>
+            <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>
+            ${voteInfo}
+        </div>`;
     }
 </script>
 </body>
