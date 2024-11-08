@@ -131,7 +131,7 @@ fun WritingTimeCapsule(
             RoundLongButton(
                 text = "작성 완료",
                 onClick = { createTimeCapsuleAnswer(content) },
-                enabled = content.isNotEmpty(),
+                enabled = content.isNotBlank(),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.06f))
             Text(

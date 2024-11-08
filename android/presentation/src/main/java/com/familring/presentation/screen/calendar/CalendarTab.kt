@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -58,10 +59,12 @@ import com.familring.presentation.component.ImageLoadingProgress
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Blue01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toColor
@@ -168,7 +171,7 @@ fun DailyItem(
 
     Column(
         modifier =
-            Modifier
+            modifier
                 .fillMaxSize()
                 .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(12.dp))
                 .background(color = White)
@@ -183,7 +186,7 @@ fun DailyItem(
             ZodiacBackgroundProfile(
                 profile = dailyLife.profile,
                 size = 35,
-                paddingValue = 5
+                paddingValue = 5,
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -209,26 +212,30 @@ fun DailyItem(
             )
             Spacer(modifier = Modifier.height(15.dp))
             BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
                 contentAlignment = Alignment.Center,
             ) {
                 val parentWidth = with(LocalDensity.current) { maxWidth.toPx() }
 
-                GlideImage(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .clip(RoundedCornerShape(12.dp)),
-                    loading =
-                        placeholder {
-                            ImageLoadingProgress()
-                        },
-                    model = dailyLife.dailyImgUrl,
-                    contentDescription = "img_daily",
-                    alignment = Alignment.Center,
-                    contentScale = ContentScale.FillWidth,
-                )
+                Column(
+                    modifier = Modifier.height(IntrinsicSize.Min),
+                ) {
+                    GlideImage(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .clip(RoundedCornerShape(12.dp)),
+                        loading =
+                            placeholder {
+                                ImageLoadingProgress()
+                            },
+                        model = dailyLife.dailyImgUrl,
+                        contentDescription = "img_daily",
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.FillWidth,
+                    )
+                }
             }
         }
     }
@@ -346,9 +353,10 @@ fun ScheduleItem(
             OverlappingProfileLazyRow(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 profileSize = 32,
-                profiles = schedule.familyMembers
-                    .filter { it.attendanceStatus }
-                    .map { it.toProfile() }
+                profiles =
+                    schedule.familyMembers
+                        .filter { it.attendanceStatus }
+                        .map { it.toProfile() },
             )
             IconCustomDropdownMenu(
                 modifier =

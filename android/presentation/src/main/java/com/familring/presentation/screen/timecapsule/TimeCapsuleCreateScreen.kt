@@ -84,13 +84,13 @@ fun TimeCapsuleCreateScreen(
     var date by remember { mutableStateOf(String.format("%02d", today.plusDays(3).dayOfMonth)) }
 
     val isDateFormValid by remember { derivedStateOf { isDateFormValid(year, month, date) } }
-    val isAfter3Days by remember { derivedStateOf { isAfter3Days(year, month, date) } }
-    val isButtonEnabled = isDateFormValid && isAfter3Days
+    val isAfterOneDay by remember { derivedStateOf { isAfterOneDay(year, month, date) } }
+    val isButtonEnabled = isDateFormValid && isAfterOneDay
 
     val errorText =
         if (!isDateFormValid) {
             "날짜 형식을 확인해 주세요"
-        } else if (!isAfter3Days) {
+        } else if (!isAfterOneDay) {
             "타임캡슐은 최소 하루 뒤에 열 수 있어요"
         } else {
             ""
@@ -185,7 +185,7 @@ fun TimeCapsuleCreateScreen(
     }
 }
 
-private fun isAfter3Days(
+private fun isAfterOneDay(
     year: String,
     month: String,
     date: String,
@@ -193,7 +193,7 @@ private fun isAfter3Days(
     try {
         val today = LocalDate.now()
         val targetDate = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
-        val threeDaysLater = today.plusDays(3)
+        val threeDaysLater = today.plusDays(1)
 
         return targetDate.isAfter(threeDaysLater) || targetDate.isEqual(threeDaysLater)
     } catch (e: Exception) {

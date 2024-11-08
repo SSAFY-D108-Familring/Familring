@@ -49,12 +49,6 @@ fun TimeCapsuleListScreen(
     getTimeCapsules: (Int) -> Unit = {},
     onShowSnackBar: (message: String) -> Unit = {},
 ) {
-    LaunchedEffect(Unit) {
-        if (state.isFirstLoading) {
-            getTimeCapsules(state.currentPageNo + 1)
-        }
-    }
-
     if (state.timeCapsules.isEmpty()) {
         NoTimeCapsuleList(modifier = modifier)
     } else {

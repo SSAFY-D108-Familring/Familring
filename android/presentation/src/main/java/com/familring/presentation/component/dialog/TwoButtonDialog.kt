@@ -76,9 +76,9 @@ fun TwoButtonTextDialog(
                 Box(
                     modifier =
                         Modifier
+                            .clickable { onDismissClick() }
                             .padding(vertical = 16.dp)
-                            .weight(1f)
-                            .clickable { onDismissClick() },
+                            .weight(1f),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -95,9 +95,9 @@ fun TwoButtonTextDialog(
                 Box(
                     modifier =
                         Modifier
+                            .clickable { onConfirmClick() }
                             .padding(vertical = 16.dp)
-                            .weight(1f)
-                            .clickable { onConfirmClick() },
+                            .weight(1f),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(

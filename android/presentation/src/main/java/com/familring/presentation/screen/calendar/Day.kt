@@ -3,7 +3,6 @@ package com.familring.presentation.screen.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -104,13 +103,15 @@ fun Day(
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
-            contentPadding = PaddingValues(1.dp),
+//            contentPadding = PaddingValues(1.dp),
         ) {
             val maxVisibleItems = 3
 
             items(daySchedule.schedules.take(maxVisibleItems)) { schedule ->
                 Schedule(
-                    modifier = Modifier.width(50.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    isPrevConnected = schedule.startTime.toLocalDate().isBefore(daySchedule.date),
+                    isNextConnected = schedule.endTime.toLocalDate().isAfter(daySchedule.date),
                     schedule = schedule,
                 )
             }
@@ -139,15 +140,45 @@ fun Day(
 @Composable
 fun Schedule(
     modifier: Modifier = Modifier,
+    isPrevConnected: Boolean = false,
+    isNextConnected: Boolean = false,
     schedule: PreviewSchedule,
 ) {
-    Text(
-        modifier =
-            modifier
+    val background =
+        if (isPrevConnected && isNextConnected) {
+            Modifier
                 .background(
                     color = schedule.color.toColor(),
-                    shape = RoundedCornerShape(2.dp),
-                ).padding(
+                    shape = RoundedCornerShape(0.dp),
+                )
+        } else if (isPrevConnected) {
+            Modifier
+                .padding(end = 2.dp)
+                .background(
+                    color = schedule.color.toColor(),
+                    RoundedCornerShape(topEnd = 3.dp, bottomEnd = 3.dp),
+                )
+        } else if (isNextConnected) {
+            Modifier
+                .padding(start = 1.dp)
+                .background(
+                    color = schedule.color.toColor(),
+                    RoundedCornerShape(topStart = 3.dp, bottomStart = 3.dp),
+                )
+        } else {
+            Modifier
+                .padding(horizontal = 2.dp)
+                .background(
+                    color = schedule.color.toColor(),
+                    RoundedCornerShape(3.dp),
+                )
+        }
+
+    Text(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(background).padding(
                     horizontal = 5.dp,
                     vertical = 3.dp,
                 ),
@@ -189,14 +220,14 @@ private fun DayPreview() {
                             title = "Meeting with Team",
                             startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
                             endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
-                            color = "0xFFFEE6C9",
+                            color = "0xFF000000",
                         ),
                         PreviewSchedule(
                             id = 0,
                             title = "Meeting with Team",
                             startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
                             endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
-                            color = "0xFFFEE6C9",
+                            color = "0xFF000000",
                         ),
                     ),
                 dailies =
