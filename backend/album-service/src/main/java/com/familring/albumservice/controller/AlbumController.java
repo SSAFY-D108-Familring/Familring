@@ -1,10 +1,11 @@
 package com.familring.albumservice.controller;
 
 import com.familring.albumservice.domain.AlbumType;
-import com.familring.albumservice.dto.response.AlbumResponse;
+import com.familring.albumservice.dto.response.AlbumInfoResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
-import com.familring.albumservice.dto.response.PhotoResponse;
+import com.familring.albumservice.dto.response.AlbumResponse;
+import com.familring.albumservice.dto.response.PhotoItem;
 import com.familring.albumservice.service.AlbumService;
 import com.familring.common_module.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,10 +31,10 @@ public class AlbumController {
 
     @GetMapping
     @Operation(summary = "앨범 목록 조회", description = "일반 앨범, 일정 앨범, 인물 앨범 모두 조회 가능합니다.")
-    public ResponseEntity<BaseResponse<Map<AlbumType, List<AlbumResponse>>>> getAlbums(
+    public ResponseEntity<BaseResponse<Map<AlbumType, List<AlbumInfoResponse>>>> getAlbums(
             @RequestParam("album_type") List<AlbumType> albumTypes,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        Map<AlbumType, List<AlbumResponse>> albums = albumService.getAlbums(albumTypes, userId);
+        Map<AlbumType, List<AlbumInfoResponse>> albums = albumService.getAlbums(albumTypes, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 목록을 조회했습니다.", albums));
     }
 
@@ -67,11 +68,11 @@ public class AlbumController {
 
     @GetMapping("/{album_id}")
     @Operation(summary = "앨범 사진 조회", description = "앨범 사진들을 조회합니다.")
-    public ResponseEntity<BaseResponse<List<PhotoResponse>>> getPhotos(
+    public ResponseEntity<BaseResponse<AlbumResponse>> getPhotos(
             @PathVariable("album_id") Long albumId,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        List<PhotoResponse> photos = albumService.getPhotos(albumId, userId);
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 조회했습니다.", photos));
+        AlbumResponse album = albumService.getPhotos(albumId, userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 조회했습니다.", album));
     }
 
     @PostMapping(path = "/{album_id}/photos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

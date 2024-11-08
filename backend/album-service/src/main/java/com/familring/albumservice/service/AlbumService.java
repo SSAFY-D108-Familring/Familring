@@ -4,10 +4,11 @@ import com.familring.albumservice.domain.Album;
 import com.familring.albumservice.domain.Album.AlbumBuilder;
 import com.familring.albumservice.domain.AlbumType;
 import com.familring.albumservice.domain.Photo;
-import com.familring.albumservice.dto.response.AlbumResponse;
+import com.familring.albumservice.dto.response.AlbumInfoResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
-import com.familring.albumservice.dto.response.PhotoResponse;
+import com.familring.albumservice.dto.response.AlbumResponse;
+import com.familring.albumservice.dto.response.PhotoItem;
 import com.familring.albumservice.exception.album.AlbumNotFoundException;
 import com.familring.albumservice.exception.album.InvalidAlbumParameterException;
 import com.familring.albumservice.exception.album.InvalidAlbumRequestException;
@@ -103,14 +104,14 @@ public class AlbumService {
         fileServiceFeignClient.deleteFiles(album.getPhotos().stream().map(Photo::getPhotoUrl).toList());
     }
 
-    public Map<AlbumType, List<AlbumResponse>> getAlbums(List<AlbumType> albumTypes, Long userId) {
+    public Map<AlbumType, List<AlbumInfoResponse>> getAlbums(List<AlbumType> albumTypes, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
         List<Album> albums = albumQueryRepository.findByAlbumType(albumTypes, familyId);
-        Map<AlbumType, List<AlbumResponse>> classifiedAlbums = new HashMap<>();
+        Map<AlbumType, List<AlbumInfoResponse>> classifiedAlbums = new HashMap<>();
 
         albums.forEach(album -> {
-            List<AlbumResponse> responseList = classifiedAlbums.computeIfAbsent(album.getAlbumType(), key -> new ArrayList<>());
-            responseList.add(AlbumResponse.builder()
+            List<AlbumInfoResponse> responseList = classifiedAlbums.computeIfAbsent(album.getAlbumType(), key -> new ArrayList<>());
+            responseList.add(AlbumInfoResponse.builder()
                     .id(album.getId())
                     .albumName(album.getAlbumName())
                     .thumbnailUrl(album.getPhotos().isEmpty() ?
@@ -122,7 +123,7 @@ public class AlbumService {
         return classifiedAlbums;
     }
 
-    public List<PhotoResponse> getPhotos(Long albumId, Long userId) {
+    public AlbumResponse getPhotos(Long albumId, Long userId) {
         Album album = albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
 
@@ -130,9 +131,8 @@ public class AlbumService {
             throw new InvalidAlbumRequestException();
         }
 
-        return album.getPhotos().stream().map(
-                photo -> PhotoResponse.builder().id(photo.getId())
-                        .photoUrl(photo.getPhotoUrl()).build()).toList();
+        return AlbumResponse.builder().albumName(album.getAlbumName()).photos(album.getPhotos().stream().map(
+                photo -> PhotoItem.builder().id(photo.getId()).photoUrl(photo.getPhotoUrl()).build()).toList()).build();
     }
 
     @Transactional
