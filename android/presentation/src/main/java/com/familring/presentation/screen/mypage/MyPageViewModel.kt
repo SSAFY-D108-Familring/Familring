@@ -55,6 +55,10 @@ class MyPageViewModel
                     when (response) {
                         is ApiResponse.Success -> {
                             _event.emit(MyPageUiEvent.EmotionUpdateSuccess)
+                            val currentState = _state.value
+                            if (currentState is MyPageUiState.Success) {
+                                _state.value = currentState.copy(userEmotion = emotion.userEmotion)
+                            }
                         }
 
                         is ApiResponse.Error -> {
@@ -99,7 +103,7 @@ class MyPageViewModel
             }
         }
 
-        private fun getMyInfo() {
+        fun getMyInfo() {
             viewModelScope.launch {
                 combine(
                     familyRepository.getFamilyCode(),
@@ -116,6 +120,7 @@ class MyPageViewModel
                                     userRole = data.userRole,
                                     userBirthDate = data.userBirthDate.toString(),
                                     profileImage = data.userZodiacSign,
+                                    userEmotion = data.userEmotion,
                                 )
                             }
 

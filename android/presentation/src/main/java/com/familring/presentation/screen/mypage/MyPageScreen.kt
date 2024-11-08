@@ -72,7 +72,9 @@ fun MyPageRoute(
                     navigateToLogin()
                 }
 
-                is MyPageUiEvent.EmotionUpdateSuccess -> showSnackBar("나의 현재 기분이 변경되었어요!")
+                is MyPageUiEvent.EmotionUpdateSuccess -> {
+                    showSnackBar("나의 현재 기분이 변경되었어요!")
+                }
 
                 is MyPageUiEvent.Error -> showSnackBar(event.message)
 
@@ -119,6 +121,7 @@ fun HandleMyPageUi(
                 role = uiState.userRole,
                 profileImage = uiState.profileImage,
                 userColor = uiState.userColor,
+                emotion = uiState.userEmotion,
                 code = uiState.code,
                 updateEmotion = updateEmotion,
             )
@@ -137,6 +140,7 @@ fun MyPageScreen(
     nickname: String = "",
     birthDate: String = "",
     role: String = "",
+    emotion: String = "",
     profileImage: String = "0xFFFFFFFF",
     userColor: String = "",
     code: String = "",
@@ -204,6 +208,12 @@ fun MyPageScreen(
                     Text(
                         text = birthDate,
                         style = Typography.bodyMedium,
+                        color = Gray01,
+                    )
+                    Spacer(modifier = Modifier.height(7.dp))
+                    Text(
+                        text = emotion,
+                        style = Typography.displayMedium.copy(fontSize = 16.sp),
                         color = Gray01,
                     )
                 }
@@ -392,5 +402,6 @@ fun MyPagePreview() {
         userColor = "0xFFFFE1E1",
         role = "D",
         birthDate = "2002-01-28",
+        emotion = "평범해요 🙂",
     )
 }
