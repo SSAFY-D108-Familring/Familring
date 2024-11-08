@@ -118,9 +118,9 @@ public class FamilyServiceImpl implements FamilyService {
         String code;
         do {
             String uuid = UUID.randomUUID().toString().toUpperCase();
-            log.info("UUID: {}", uuid);
+            log.info("[createFamily] UUID: {}", uuid);
             code = uuid.substring(0, 6);
-            log.info("code: {}", code);
+            log.info("[createFamily] code: {}", code);
         }
         // 1-2. 중복 확인
         while (familyDao.existsFamilyByFamilyCode(code));
@@ -134,24 +134,25 @@ public class FamilyServiceImpl implements FamilyService {
 
         // 1-4. DB에 가족 생성
         familyDao.insertFamily(familyCreateRequest);
-        log.info("가족 생성 완료");
+        log.info("[createFamily]가족 생성 완료");
 
         // 1-5. 생성된 가족 familyId 찾기
         Long familyId = familyDao.findLastInsertedFamilyId();
-        log.info("familyId: {}", familyId);
+        log.info("[createFamily] familyId: {}", familyId);
 
         // 2. 가족 구성원 추가
         familyDao.insetFamily_User(familyId, userId);
-        log.info("가족 구성원 추가 완료");
+        log.info("[createFamily] 가족 구성원 추가 완료");
 
         // 3. 가족 조회
         Family family = familyDao.findFamilyByFamilyId(familyId)
                         .orElseThrow(() -> new FamilyNotFoundException());
-        log.info("가족 조회 완료");
+        log.info("[createFamily] 가족 조회 완료");
 
+        // 4. 가족의 랜덤 질문 생성
         questionServiceFeignClient.initializeQuestionFamily(familyId);
 
-        // 4. 응답 변환
+        // 5. 응답 변환
         FamilyInfoResponse response = FamilyInfoResponse.builder()
                 .familyId(family.getFamilyId())
                 .familyCode(family.getFamilyCode())
@@ -159,27 +160,30 @@ public class FamilyServiceImpl implements FamilyService {
                 .familyCommunicationStatus(family.getFamilyCommunicationStatus())
                 .build();
 
-        // 5. 응답
+        // 6. 응답
         return response;
     }
 
     @Override
     @Transactional
     public String joinFamilyMember(Long userId, FamilyJoinRequest familyJoinRequest) {
+        log.info("[joinFamilyMember] userId={}, familyCode={}", familyJoinRequest.getUserId(), familyJoinRequest.getFamilyCode());
+
         // 1. 가족 찾기
         Family family = familyDao.findFamilyByFamilyCode(familyJoinRequest.getFamilyCode())
                 .orElseThrow(() -> new FamilyNotFoundException());
-        log.info("familyId: {}", family.getFamilyId());
+        log.info("[joinFamilyMember] familyId: {}", family.getFamilyId());
 
         // 2. 사용자 정보 찾기
         List<Long> members = new ArrayList<>();
-        members.add(userId);
+        members.add(familyJoinRequest.getUserId());
         UserInfoResponse user = userServiceFeignClient.getAllUser(members).getData().get(0);
-        log.info("userRole: {}", user.getUserRole());
+        log.info("[joinFamilyMember] userRole: {}", user.getUserRole());
 
         // 3. 에러 확인
         // 3-1. 가족에 이미 추가 되어있는 경우 에러 발생
-        if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), userId)) {
+        if(familyDao.existsFamilyByFamilyIdAndUserId(family.getFamilyId(), familyJoinRequest.getUserId())) {
+            log.info("[joinFamilyMember] 가족에 이미 추가 되어있습니다.");
             throw new AlreadyInFamilyException();
         }
 
@@ -189,7 +193,7 @@ public class FamilyServiceImpl implements FamilyService {
             familyMembers = getFamilyMemberList(family.getFamilyId());
             for (UserInfoResponse member : familyMembers) {
                 if (FamilyRole.F.equals(member.getUserRole())) {
-                    log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
+                    log.info("[joinFamilyMember] 가족역할 F userId: {}, role: {}", member.getUserId(), member.getUserRole());
                     throw new AlreadyFamilyRoleException();
                 }
             }
@@ -197,19 +201,20 @@ public class FamilyServiceImpl implements FamilyService {
             familyMembers = getFamilyMemberList(family.getFamilyId());
             for (UserInfoResponse member : familyMembers) {
                 if (FamilyRole.M.equals(member.getUserRole())) {
-                    log.info("userId: {}, role: {}", member.getUserId(), member.getUserRole());
+                    log.info("[joinFamilyMember] 가족역할 M userId: {}, role: {}", member.getUserId(), member.getUserRole());
                     throw new AlreadyFamilyRoleException();
                 }
             }
         }
 
         // 4-1. 가족에 추가
-        familyDao.insetFamily_User(family.getFamilyId(), userId);
-        log.info("가족 추가 완료");
+        familyDao.insetFamily_User(family.getFamilyId(), familyJoinRequest.getUserId());
+        log.info("[joinFamilyMember] 가족 추가 완료");
 
         // 4-2. 가족 구성원 수 + 1
-        log.info("before 가족 구성원 수: {}", family.getFamilyCount());
+        log.info("[joinFamilyMember] before 가족 구성원 수: {}", family.getFamilyCount());
         familyDao.updateFamilyCountByFamilyId(family.getFamilyId(), 1);
+        log.info("[joinFamilyMember] before 가족 구성원 수: {}", family.getFamilyCount() + 1);
 
         // 5. 응답
         return "가죽 구성원 추가 완료";

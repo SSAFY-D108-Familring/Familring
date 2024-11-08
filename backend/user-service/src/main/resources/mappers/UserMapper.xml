@@ -23,7 +23,7 @@
         <result column="user_is_admin" property="userIsAdmin" javaType="boolean"/>
     </resultMap>
 
-    <insert id="insertUser" parameterType="com.familring.userservice.model.dto.UserDto">
+    <insert id="insertUser" parameterType="com.familring.userservice.model.dto.UserDto" useGeneratedKeys="true" keyProperty="userId">
         INSERT INTO user (
             user_kakao_id, user_password, user_nickname, user_birth_date,
             user_zodiac_sign, user_role, user_face, user_color,

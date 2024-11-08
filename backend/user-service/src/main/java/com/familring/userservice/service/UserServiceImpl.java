@@ -7,11 +7,14 @@ import com.familring.userservice.exception.user.AlreadyUserException;
 import com.familring.userservice.model.dao.UserDao;
 import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
+import com.familring.userservice.model.dto.response.FamilyInfoResponse;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
+import com.familring.userservice.service.client.FamilyServiceFeignClient;
 import com.familring.userservice.service.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.http.*;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,8 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenService tokenService;
     private final CustomUserDetailsService customUserDetailsService;
     private final RedisService redisService;
+    private final FamilyServiceFeignClient familyServiceFeignClient;
+    private final SqlSessionTemplate sqlSessionTemplate;
 
     @Override
     public UserInfoResponse getUser(String userName) {
@@ -127,9 +132,38 @@ public class UserServiceImpl implements UserService {
         }
 
         // 2. 사용자 회원가입
+        // 2-1. createUser 메소드 실행
         customUserDetailsService.createUser(userJoinRequest, image);
+        log.info("[join] 사용자 생성 완료");
 
-        // 3. 사용자 JWT 발급
+        // 2-2. 사용자 찾기
+        UserDto user = userDao.findUserByUserKakaoId(userJoinRequest.getUserKakaoId())
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId(" + userJoinRequest.getUserKakaoId() + ")로 회원을 찾을 수 없습니다. 회원가입을 진행해주세요!");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+        log.info("[join] 찾은 사용자 user={}", user);
+
+        // 3. 가족 생성 확인
+        // 3-1. 가족 생성인 경우
+        if(userJoinRequest.isFirst()) {
+            log.info("[join] 가족 생성");
+            FamilyInfoResponse response = familyServiceFeignClient.createFamily(user.getUserId()).getData();
+            log.info("[join] 가족 생성 response={}", response);
+        }
+        // 3-2. 가족 참여인 경우
+        else {
+            log.info("[join] 가족 참여");
+            FamilyJoinRequest request = FamilyJoinRequest.builder()
+                    .userId(user.getUserId())
+                    .familyCode(userJoinRequest.getFamilyCode())
+                    .build();
+            log.info("[join] 가족 참여 request={}", request);
+            String response = familyServiceFeignClient.joinFamilyMember(request).getData();
+            log.info("[join] 가족 참여 response={}", response);
+        }
+
+        // 4. 사용자 JWT 발급
         JwtTokenResponse tokens = tokenService.generateToken(userJoinRequest.getUserKakaoId(), "");
 
         return tokens;

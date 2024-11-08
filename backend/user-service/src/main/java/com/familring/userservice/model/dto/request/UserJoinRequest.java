@@ -27,4 +27,8 @@ public class UserJoinRequest {
     private FamilyRole userRole;
     @Schema(description = "회원 프로필 배경색", example = "#FFFFFF")
     private String userColor;
+    @Schema(description = "회원 가족 생성 여부 확인", example = "true")
+    private boolean isFirst;
+    @Schema(description = "가족 코드(새로 생성인 경우 미첨부, 기존 참여인 경우 첨부)", example = "49EE36")
+    private String familyCode;
 }

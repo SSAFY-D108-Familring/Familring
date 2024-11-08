@@ -55,7 +55,7 @@ public class FamilyClientController {
     }
 
     @PostMapping
-    public ResponseEntity<BaseResponse<FamilyInfoResponse>> createFamily(Long userId) {
+    public ResponseEntity<BaseResponse<FamilyInfoResponse>> createFamily(@RequestParam Long userId) {
         FamilyInfoResponse response = familyService.createFamily(userId);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.CREATED.value(), "가족을 성공적으로 생성했습니다.", response));
@@ -63,14 +63,15 @@ public class FamilyClientController {
 
     @PostMapping("/join")
     public ResponseEntity<BaseResponse<String>> joinFamilyMember
-            (Long userId, FamilyJoinRequest familyJoinRequest) {
-        String response = familyService.joinFamilyMember(userId, familyJoinRequest);
+            (@RequestBody FamilyJoinRequest familyJoinRequest) {
+        log.info("[familyJoinRequest] userid={}, familyCode={}", familyJoinRequest.getUserId(), familyJoinRequest.getFamilyCode());
+        String response = familyService.joinFamilyMember(familyJoinRequest.getUserId(), familyJoinRequest);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "해당 회원을 성공적으로 가족 구성원에 추가했습니다.", response));
     }
 
     @PutMapping("/member")
-    public ResponseEntity<BaseResponse<String>> deleteFamilyMember (Long userId) {
+    public ResponseEntity<BaseResponse<String>> deleteFamilyMember (@RequestParam Long userId) {
         String response = familyService.deleteFamilyMember(userId);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "해당 회원을 성공적으로 가족 구성원에 제거했습니다.", response));
