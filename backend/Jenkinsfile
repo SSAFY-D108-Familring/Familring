@@ -176,6 +176,7 @@ def buildAndRunContainer(serviceName, port, exposeToHost) {
 
 // 변경 사항 확인 함수
 def hasChanges(String path) {
-    def changes = sh(script: "git log -1 --name-only --pretty=format: | grep '^${path}'", returnStatus: true)
+    def changes = sh(script: "git diff --name-only HEAD^ HEAD | grep '^${path}'", returnStatus: true)
     return changes == 0
 }
+
