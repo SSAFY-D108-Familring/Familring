@@ -8,11 +8,14 @@ import java.util.List;
 
 public interface ChatService {
 
-    Chat createChat(Long roomId, ChatRequest chatRequest);
+    // 채팅 생성
+    Chat createChatAndVote(Long roomId, ChatRequest chatRequest);
+    Chat createChatVoteResponse(Long roomId, String voteId, ChatRequest chatRequest);
 
+    // 채팅
     List<ChatResponse> findAllChatByRoomId(Long roomId, Long userId);
-
     ChatResponse findChat(Chat chat, Long userId);
 
+    // 채팅방 연결
     void connectChatRoom(Long roomId, Long userId);
 }

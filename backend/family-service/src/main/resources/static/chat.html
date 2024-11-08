@@ -15,10 +15,10 @@
     <input type="text" id="message" placeholder="Message">
     <div>
         <label>
-            <input type="radio" name="messageType" value="message" checked onclick="toggleVoteTitle()"> 일반 메시지
+            <input type="radio" name="messageType" value="message" checked onclick="toggleVoteOptions()"> 일반 메시지
         </label>
         <label>
-            <input type="radio" name="messageType" value="vote" onclick="toggleVoteTitle()"> 투표 메시지
+            <input type="radio" name="messageType" value="vote" onclick="toggleVoteOptions()"> 투표 메시지
         </label>
     </div>
     <input type="text" id="voteTitle" placeholder="투표 제목" style="display: none;">
@@ -31,7 +31,7 @@
     let stompClient = null;
     let isConnected = false;
 
-    function toggleVoteTitle() {
+    function toggleVoteOptions() {
         const voteTitleInput = document.getElementById("voteTitle");
         const messageType = document.querySelector('input[name="messageType"]:checked').value;
         voteTitleInput.style.display = messageType === "vote" ? "block" : "none";
@@ -103,9 +103,6 @@
             return;
         }
 
-        // 로그로 확인
-        console.log("isVote:", isVote, "voteTitle:", voteTitle);
-
         if (stompClient && stompClient.connected) {
             stompClient.send(`/send/${roomId}`, {}, JSON.stringify({
                 roomId: roomId,
@@ -122,35 +119,48 @@
         }
     }
 
+    function sendVoteResponse(roomId, voteId, response) {
+        const userId = document.getElementById("userId").value;
+
+        // 로그로 voteId 확인
+        console.log("voteId (string):", String(voteId));
+
+        // /send 경로로 메시지 전송
+        stompClient.send(`/send/${roomId}/vote`, {}, JSON.stringify({
+            senderId: userId,            // 발신자 ID
+            voteId: String(voteId),      // 투표 ID, 문자열로 변환
+            isVoteResponse: true,        // 투표 응답 여부를 true로 설정
+            responseOfVote: response     // 변경된 필드명 사용
+        }));
+    }
+
     function showMessage(message) {
         const chatLog = document.getElementById("chat-log");
 
-        // 채팅 ID와 기타 정보에 대한 예외 처리
         const chatId = message.chatId && message.chatId.timestamp ? message.chatId.timestamp : "N/A";
 
-        // 투표 메시지와 일반 메시지에 따른 정보 표시
         let voteInfo = "<p>일반 메시지</p>";
         if (message.isVote && message.vote) {
             voteInfo = `
-            <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
-            <p><strong>투표 옵션:</strong> ${message.vote.voteResult ? Object.keys(message.vote.voteResult).join(', ') : "없음"}</p>
-            <p><strong>투표 참여자 수:</strong> ${message.vote.familyCount}</p>
-            <p><strong>투표 완료 여부:</strong> ${message.vote.completed ? "완료" : "진행 중"}</p>
-        `;
+                <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
+                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId.toString()}', '찬성')">찬성</button>
+                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId.toString()}', '반대')">반대</button>
+            `;
+        } else if (message.isVoteResponse) {
+            voteInfo = `<p><strong>투표 응답:</strong> ${message.responseOfVote}</p>`;
         }
 
         chatLog.innerHTML += `
-        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-            <p><strong>채팅 ID:</strong> ${chatId}</p>
-            <p><strong>방 ID:</strong> ${message.roomId}</p>
-            <p><strong>발신자 ID:</strong> ${message.senderId}</p>
-            <p><strong>발신자 닉네임:</strong> ${message.sender.userNickname}</p>
-            <p><strong>내용:</strong> ${message.content}</p>
-            <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>
-            ${voteInfo}
-        </div>`;
+            <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
+                <p><strong>채팅 ID:</strong> ${chatId}</p>
+                <p><strong>방 ID:</strong> ${message.roomId}</p>
+                <p><strong>발신자 ID:</strong> ${message.senderId}</p>
+                <p><strong>발신자 닉네임:</strong> ${message.sender.userNickname}</p>
+                <p><strong>내용:</strong> ${message.content}</p>
+                <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>
+                ${voteInfo}
+            </div>`;
     }
-
 </script>
 </body>
 </html>

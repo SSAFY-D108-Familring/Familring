@@ -36,9 +36,9 @@ public class StompHandler implements ChannelInterceptor {
     private void handleMessage(StompCommand command, StompHeaderAccessor accessor, MessageHeaders headers) {
         switch (command) {
             case CONNECT:
-                log.info("[Handler - handleMessage] CONNECT");
+                log.info("[handleMessage] CONNECT");
                 String userIdHeader = accessor.getFirstNativeHeader("X-User-ID");
-                log.info("[Handler - handleMessage] WebSocket 연결 시 X-User-ID 헤더: {}", userIdHeader);
+                log.info("[handleMessage] WebSocket 연결 시 X-User-ID 헤더: {}", userIdHeader);
 
                 if (userIdHeader == null) {
                     log.error("X-User-ID 헤더가 누락되었습니다.");
@@ -50,32 +50,41 @@ public class StompHandler implements ChannelInterceptor {
                 break;
 
             case SUBSCRIBE:
-                log.info("[Handler - handleMessage] SUBSCRIBE");
+                log.info("[handleMessage] SUBSCRIBE");
                 userId = (Long) accessor.getSessionAttributes().get("userId");
                 Long roomId = connectToChatRoom(headers, userId);
-                log.info("[Handler - handleMessage] 채팅방 구독한 채팅 방 = {}", roomId);
+                log.info("[handleMessage] 채팅방 구독한 채팅 방 = {}", roomId);
                 break;
 
             case SEND:
-                log.info("[Handler - handleMessage] SEND");
-                log.info("[Handler - handleMessage] 메세지 맵핑 주소 = {}", accessor.getDestination());
+                log.info("[handleMessage] SEND");
+                String destination = accessor.getDestination();
+                log.info("[handleMessage] 메세지 맵핑 주소 = {}", destination);
+
+                // 목적지가 /app/{roomId}/vote 패턴과 일치하는지 확인
+                if (destination != null && destination.matches("^/app/\\d+/vote$")) {
+                    log.info("[handleMessage] 유효한 투표 경로로 메시지가 전송되었습니다.");
+                } else {
+                    log.warn("[handleMessage] 유효하지 않은 경로로 메시지가 전송되었습니다: {}", destination);
+                }
+                // 메시지를 차단하지 않고 그대로 통과시킴
                 break;
 
             case DISCONNECT:
-                log.info("[Handler - handleMessage] DISCONNECT");
+                log.info("[handleMessage] DISCONNECT");
                 break;
         }
     }
 
     private Long connectToChatRoom(MessageHeaders headers, Long userId) {
         Long roomId = getChatRoomNo(headers);
-        log.info("[Handler - connectToChatRoom] 채팅방 번호 = {}", roomId);
+        log.info("[connectToChatRoom] 채팅방 번호 = {}", roomId);
 
         UserInfoResponse user = userServiceFeignClient.getUser(userId).getData();
-        log.info("[Handler - connectToChatRoom] 회원 이름 = {}", user.getUserNickname());
+        log.info("[connectToChatRoom] 회원 이름 = {}", user.getUserNickname());
 
         chatService.connectChatRoom(roomId, userId);
-        log.info("[Handler - connectToChatRoom] connectChatRoom() 연결 완료");
+        log.info("[connectToChatRoom] connectChatRoom() 연결 완료");
 
         return roomId;
     }
