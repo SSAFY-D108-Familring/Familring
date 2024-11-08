@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,9 +55,11 @@ import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun GalleryRoute(
@@ -66,6 +70,7 @@ fun GalleryRoute(
 ) {
     val galleryUiState by viewModel.galleryUiState.collectAsStateWithLifecycle()
     val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Loading)
+
     LaunchedEffect(Unit) {
         viewModel.getAlbums(listOf(AlbumType.NORMAL, AlbumType.PERSON))
     }
@@ -79,6 +84,12 @@ fun GalleryRoute(
         },
         onGalleryCreate = { albumName, albumType ->
             viewModel.createAlbum(null, albumName, albumType)
+        },
+        onUpdateAlbum = { albumId, albumName ->
+            viewModel.updateAlbum(albumId, albumName)
+        },
+        deleteAlbum = { albumId ->
+            viewModel.deleteAlbum(albumId)
         },
     )
 
@@ -107,6 +118,8 @@ fun GalleryScreen(
     galleryUiState: GalleryUiState,
     onGalleryChange: (Boolean) -> Unit,
     onGalleryCreate: (String, AlbumType) -> Unit = { _, _ -> },
+    onUpdateAlbum: (Long, String) -> Unit = { _, _ -> },
+    deleteAlbum: (Long) -> Unit = {},
 ) {
     var privateGallerySelected by remember { mutableStateOf(true) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -121,7 +134,13 @@ fun GalleryScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             TopAppBar(
-                title = { Text(text = "앨범", style = Typography.titleLarge, color = Black) },
+                title = {
+                    Text(
+                        text = "앨범",
+                        style = Typography.titleLarge,
+                        color = Black,
+                    )
+                },
                 navigationType = TopAppBarNavigationType.None,
             )
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
@@ -205,7 +224,12 @@ fun GalleryScreen(
                             }
 
                         items(albums.size) { index ->
-                            GalleryItem(albums[index], navigateToAlbum = navigateToAlbum)
+                            GalleryItem(
+                                albums[index],
+                                navigateToAlbum = navigateToAlbum,
+                                onUpdateAlbum = onUpdateAlbum,
+                                deleteAlbum = deleteAlbum,
+                            )
                         }
                         item {
                             AddAlbumButton(onClick = {
@@ -288,11 +312,82 @@ fun GalleryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GalleryItem(
     album: Album,
     navigateToAlbum: (Long) -> Unit,
+    onUpdateAlbum: (Long, String) -> Unit,
+    deleteAlbum: (Long) -> Unit,
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+    var updatedAlbumName by remember { mutableStateOf(album.albumName) }
+
+    if (showDialog) {
+        ModalBottomSheet(
+            containerColor = White,
+            onDismissRequest = {
+                showDialog = false
+                updatedAlbumName = album.albumName // 취소 시 원래 이름으로 초기화
+            },
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .background(color = White)
+                        .padding(top = 16.dp),
+            ) {
+                BasicTextField(
+                    modifier =
+                        Modifier
+                            .background(Color.Transparent)
+                            .padding(horizontal = 26.dp),
+                    value = updatedAlbumName,
+                    onValueChange = { updatedAlbumName = it },
+                    textStyle =
+                        Typography.titleSmall.copy(
+                            color = if (updatedAlbumName.isEmpty()) Gray03 else Color.Black,
+                            fontSize = 24.sp,
+                        ),
+                    decorationBox = { innerTextField ->
+                        Box {
+                            if (updatedAlbumName.isEmpty()) {
+                                Text(
+                                    text = "앨범 이름",
+                                    color = Gray03,
+                                    style = Typography.titleSmall.copy(fontSize = 24.sp),
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
+                )
+
+                Spacer(modifier = Modifier.fillMaxSize(0.05f))
+                RoundLongButton(
+                    backgroundColor = Brown01,
+                    text = "수정하기",
+                    onClick = {
+                        if (updatedAlbumName.isNotEmpty()) {
+                            onUpdateAlbum(album.id, updatedAlbumName)
+                            showDialog = false
+                        }
+                    },
+                )
+                Spacer(modifier = Modifier.fillMaxSize(0.02f))
+                RoundLongButton(
+                    backgroundColor = Red01,
+                    text = "삭제하기",
+                    onClick = {
+                        deleteAlbum(album.id)
+                        showDialog = false
+                    },
+                )
+                Spacer(modifier = Modifier.fillMaxSize(0.3f))
+            }
+        }
+    }
+
     Column(
         modifier =
             Modifier
@@ -300,12 +395,21 @@ fun GalleryItem(
                 .padding(bottom = 8.dp),
     ) {
         Card(
-            onClick = { navigateToAlbum(album.id) },
-            shape = RoundedCornerShape(18.dp),
+            // onClick = { navigateToAlbum(album.id) },
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f),
+                    .aspectRatio(1f)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = { showDialog = true },
+                            onTap = {
+                                navigateToAlbum(album.id)
+                                Timber.d("짧터치")
+                            },
+                        )
+                    },
+            shape = RoundedCornerShape(18.dp),
         ) {
             AsyncImage(
                 modifier = Modifier.aspectRatio(1f),
