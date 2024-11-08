@@ -28,6 +28,7 @@ fun InterestRoute(
     modifier: Modifier,
     navigateToInterestList: () -> Unit,
     navigateToOtherInterest: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
     InterestScreen(
         modifier = modifier,
@@ -37,6 +38,7 @@ fun InterestRoute(
         isShare = true,
         navigateToInterestList = navigateToInterestList,
         navigateToOtherInterest = navigateToOtherInterest,
+        onNavigateBack = onNavigateBack,
     )
 }
 
@@ -45,6 +47,7 @@ fun InterestScreen(
     modifier: Modifier = Modifier,
     navigateToInterestList: () -> Unit = {},
     navigateToOtherInterest: () -> Unit = {},
+    onNavigateBack: () -> Unit = {},
     interest: String = "",
     isWrote: Boolean = false,
     isShare: Boolean = false,
@@ -68,7 +71,7 @@ fun InterestScreen(
                         style = Typography.titleLarge.copy(fontSize = 30.sp),
                     )
                 },
-                navigationType = TopAppBarNavigationType.None,
+                onNavigationClick = onNavigateBack,
                 trailingIcon = {
                     Icon(
                         modifier =

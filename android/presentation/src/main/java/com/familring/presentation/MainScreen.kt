@@ -293,6 +293,7 @@ fun MainNavHost(
                 navigateToOtherInterest = {
                     navController.navigate(ScreenDestinations.OtherInterest.route)
                 },
+                onNavigateBack = navController::popBackStack,
             )
         }
 
