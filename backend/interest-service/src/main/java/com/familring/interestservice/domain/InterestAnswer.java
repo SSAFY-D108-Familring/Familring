@@ -23,7 +23,7 @@ public class InterestAnswer {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "interest_select_id")
-    private InterestSelect interestSelect;
+    private Interest interest;
 
     @Column(name="user_id")
     private Long userId;
