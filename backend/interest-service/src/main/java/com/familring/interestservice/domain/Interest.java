@@ -14,7 +14,7 @@ import org.hibernate.annotations.DynamicInsert;
 @AllArgsConstructor
 @DynamicInsert
 @Table(name = "interest_select")
-public class InterestSelect {
+public class Interest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
