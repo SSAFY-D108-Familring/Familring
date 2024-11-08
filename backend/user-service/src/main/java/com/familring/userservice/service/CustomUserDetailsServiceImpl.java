@@ -124,6 +124,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // 4. 기존 createUser(UserDetails user) 호출
         createUser(user);
     }
+
     private LocalDate convertSolarToLunar(LocalDate solarDate) {
         KoreanLunarCalendar calendar = KoreanLunarCalendar.getInstance();
 
@@ -136,8 +137,15 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         int lunarDay = calendar.getLunarDay();
 
         log.info("[CustomUserDetailsServiceImpl - convertSolarToLunar] 음력 변환: lunarYear={}, lunarMonth={}, lunarDay={}", lunarYear, lunarMonth, lunarDay);
+
+        // 음력에 2월 30일이 존재하지만 LocalDate는 양력 기준이므로 2월 30일이 없어서 예외적으로 처리해 줌
+        if (lunarMonth == 2 && lunarDay == 30) {
+            lunarDay = 29;
+        }
+
         return LocalDate.of(lunarYear, lunarMonth, lunarDay);
     }
+
     public List<String> uploadFiles(MultipartFile image, String folderPath) {
         log.info("folderPath: {}", folderPath);
 
@@ -197,6 +205,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         String familyResponse = deleteFamilyMember(user.getUserId());
         log.info(familyResponse);
     }
+
     public void deleteFiles(String imageUrl) {
         // List<MultipartFile>로 파일 리스트 구성
         List<String> faceFiles = List.of(imageUrl);
@@ -204,6 +213,7 @@ public class CustomUserDetailsServiceImpl implements CustomUserDetailsService {
         // Feign Client로 파일 삭제 요청
         fileServiceFeignClient.deleteFiles(faceFiles);
     }
+
     public String deleteFamilyMember(Long userId) {
         familyServiceFeignClient.deleteFamilyMember(userId);
 
