@@ -36,7 +36,7 @@ public class DailyController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "일상 생성", description = "일상을 생성합니다.")
     public ResponseEntity<BaseResponse<Void>> createDaily(
-            @RequestPart("content") String content,
+            @RequestParam("content") String content,
             @RequestPart("image") MultipartFile image,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
     ) {
@@ -47,7 +47,7 @@ public class DailyController {
     @PatchMapping(path = "/{daily_id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "일상 수정", description = "일상을 수정합니다.")
     public ResponseEntity<BaseResponse<Void>> updateDaily(
-            @RequestPart("content") String content,
+            @RequestParam("content") String content,
             @RequestPart(value = "image", required = false) MultipartFile image,
             @PathVariable("daily_id") Long dailyId,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
