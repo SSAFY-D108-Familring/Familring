@@ -130,6 +130,9 @@ sealed class ScreenDestinations(
     // 닉네임 변경
     data object EditName : ScreenDestinations(route = "EditName")
 
+    // 배경색 변경
+    data object EditColor : ScreenDestinations(route = "EditColor")
+
     // 답변 작성
     data object AnswerWrite : ScreenDestinations(route = "AnswerWrite")
 

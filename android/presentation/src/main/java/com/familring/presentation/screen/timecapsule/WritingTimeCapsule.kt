@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Surface
@@ -23,9 +24,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
-import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.screen.timecapsule.WritingState.FINISHED_TIME_CAPSULE
 import com.familring.presentation.screen.timecapsule.WritingState.NO_TIME_CAPSULE
 import com.familring.presentation.screen.timecapsule.WritingState.WRITING_TIME_CAPSULE
@@ -145,10 +146,25 @@ fun WritingTimeCapsule(
                     ),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.02f))
-            OverlappingProfileLazyRow(
-                modifier = Modifier.fillMaxWidth(0.9f),
-                profiles = state.writers,
-            )
+            if (state.writers.isEmpty()) {
+                Text(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(0.9f)
+                            .padding(start = 5.dp),
+                    text = "아직 작성을 완료한 가족이 없어요!",
+                    style =
+                        Typography.labelSmall.copy(
+                            fontSize = 16.sp,
+                            color = Gray01,
+                        ),
+                )
+            } else {
+                OverlappingProfileLazyRow(
+                    modifier = Modifier.fillMaxWidth(0.9f),
+                    profiles = state.writers,
+                )
+            }
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
         }
     }

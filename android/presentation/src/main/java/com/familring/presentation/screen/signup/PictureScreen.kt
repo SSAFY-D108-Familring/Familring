@@ -2,9 +2,9 @@ package com.familring.presentation.screen.signup
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -29,8 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -38,9 +37,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.familring.presentation.R
-import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray04
@@ -66,6 +68,7 @@ fun PictureRoute(
     )
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PictureScreen(
     modifier: Modifier = Modifier,
@@ -74,18 +77,31 @@ fun PictureScreen(
     navigateToCount: () -> Unit = {},
     updatePicture: (File) -> Unit = {},
 ) {
-    var bitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     val context = LocalContext.current
+    var imgUri by remember { mutableStateOf<Uri?>(null) }
 
-    val cameraLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.TakePicturePreview(),
-            onResult = { bmp ->
-                bmp?.let {
-                    bitmap = it.asImageBitmap()
-                }
-            },
+    LaunchedEffect(imgUri) {
+        val file = imgUri?.toFile(context)
+        if (file != null) {
+            updatePicture(file)
+        }
+    }
+
+    val cameraFile =
+        File.createTempFile("photo_", ".jpg", context.cacheDir).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+    val cameraFileUri =
+        FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            cameraFile,
         )
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            imgUri = cameraFileUri
+        }
 
     // 권한 요청을 위한 launcher
     val permissionLauncher =
@@ -93,16 +109,9 @@ fun PictureScreen(
             ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
             if (isGranted) {
-                cameraLauncher.launch(null)
+                cameraLauncher.launch(cameraFileUri)
             }
         }
-
-    LaunchedEffect(bitmap) {
-        val file = bitmap?.toFile(context)
-        if (file != null) {
-            updatePicture(file)
-        }
-    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -154,19 +163,22 @@ fun PictureScreen(
                                     context,
                                     Manifest.permission.CAMERA,
                                 ),
-                                -> cameraLauncher.launch(null)
+                                -> cameraLauncher.launch(cameraFileUri)
 
                                 else -> permissionLauncher.launch(Manifest.permission.CAMERA)
                             }
                         },
                 contentAlignment = Alignment.Center,
             ) {
-                if (bitmap != null) {
-                    Image(
-                        modifier = Modifier.matchParentSize(),
-                        bitmap = bitmap!!,
+                if (imgUri != null) {
+                    GlideImage(
+                        modifier =
+                            Modifier
+                                .matchParentSize()
+                                .clip(shape = RoundedCornerShape(12.dp)),
+                        model = imgUri,
                         contentScale = ContentScale.Crop,
-                        contentDescription = "profile",
+                        contentDescription = "daily",
                     )
                 } else {
                     Icon(
@@ -181,13 +193,13 @@ fun PictureScreen(
             RoundLongButton(
                 text = "촬영 완료",
                 onClick = {
-                    if (bitmap != null) {
+                    if (imgUri != null) {
                         navigateToCount()
                     } else {
                         showSnackBar("사진을 다시 한 번 촬영해 주세요!")
                     }
                 },
-                enabled = bitmap != null,
+                enabled = imgUri != null,
             )
         }
     }

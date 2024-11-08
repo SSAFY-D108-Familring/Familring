@@ -34,10 +34,17 @@ import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import kotlinx.coroutines.launch
 
 @Composable
-fun ChatRoute(modifier: Modifier) {
-    ChatScreen(modifier = modifier)
+fun ChatRoute(
+    modifier: Modifier,
+    popUpBackStack: () -> Unit,
+) {
+    ChatScreen(
+        modifier = modifier,
+        popUpBackStack = popUpBackStack,
+    )
 }
 
 @Composable
@@ -86,7 +93,7 @@ fun ChatScreen(
 
     LaunchedEffect(chatList.size) {
         if (chatList.isNotEmpty()) {
-            lazyListState.scrollToItem(chatList.size - 1)
+            lazyListState.animateScrollToItem(chatList.size - 1)
         }
     }
 
@@ -139,7 +146,12 @@ fun ChatScreen(
             ) {
                 ChatInputBar(
                     value = inputMessage,
-                    onValueChanged = { inputMessage = it },
+                    onValueChanged = {
+                        inputMessage = it
+                        scope.launch {
+                            lazyListState.animateScrollToItem(chatList.size - 1)
+                        }
+                    },
                     sendMessage = {
                         chatList.add(ChatItem(userId = 1, message = it))
                         inputMessage = ""

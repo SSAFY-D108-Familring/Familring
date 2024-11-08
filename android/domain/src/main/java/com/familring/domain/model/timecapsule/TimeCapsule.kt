@@ -2,22 +2,21 @@ package com.familring.domain.model.timecapsule
 
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 data class TimeCapsule(
     @SerializedName("timeCapsuleId")
     val id: Int = 0,
     @SerializedName("date")
-    val openDate: String = "",
+    val openDate: LocalDate = LocalDate.now(),
     @SerializedName("items")
     val messages: List<TimeCapsuleMessage> = listOf(),
 ) {
-    val leftDays = calcLeftDays(openDate)
+    val leftDays: Int
+        get() =
+            calcLeftDays(openDate)
 }
 
-private fun calcLeftDays(date: String): Int {
-    val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    val openDate = LocalDate.parse(date, dateFormat)
+private fun calcLeftDays(openDate: LocalDate): Int {
     val today = LocalDate.now()
 
     val leftDays = today.until(openDate).days

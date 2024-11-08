@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
+import com.familring.domain.request.UserEmotionRequest
 import com.familring.presentation.R
 import com.familring.presentation.component.EmotionGrid
 import com.familring.presentation.component.TopAppBar
@@ -59,6 +60,7 @@ fun MyPageRoute(
     showSnackBar: (String) -> Unit,
     navigateToLogin: () -> Unit,
     navigateToEditName: () -> Unit,
+    navigateToEditColor: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -70,7 +72,11 @@ fun MyPageRoute(
                     navigateToLogin()
                 }
 
+                is MyPageUiEvent.EmotionUpdateSuccess -> showSnackBar("나의 현재 기분이 변경되었어요!")
+
                 is MyPageUiEvent.Error -> showSnackBar(event.message)
+
+                else -> {}
             }
         }
     }
@@ -83,6 +89,7 @@ fun MyPageRoute(
         showSnackBar = showSnackBar,
         updateEmotion = viewModel::updateEmotion,
         navigateToEditName = navigateToEditName,
+        navigateToEditColor = navigateToEditColor,
     )
 }
 
@@ -93,8 +100,9 @@ fun HandleMyPageUi(
     signOut: () -> Unit = {},
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    updateEmotion: (String) -> Unit = {},
+    updateEmotion: (UserEmotionRequest) -> Unit = {},
     navigateToEditName: () -> Unit = {},
+    navigateToEditColor: () -> Unit = {},
 ) {
     when (uiState) {
         MyPageUiState.Loading -> LoadingDialog()
@@ -103,6 +111,7 @@ fun HandleMyPageUi(
                 modifier = modifier,
                 popUpBackStack = popUpBackStack,
                 navigateToEditName = navigateToEditName,
+                navigateToEditColor = navigateToEditColor,
                 signOut = signOut,
                 showSnackBar = showSnackBar,
                 nickname = uiState.userNickname,
@@ -121,9 +130,10 @@ fun MyPageScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     navigateToEditName: () -> Unit = {},
+    navigateToEditColor: () -> Unit = {},
     signOut: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    updateEmotion: (String) -> Unit = {},
+    updateEmotion: (UserEmotionRequest) -> Unit = {},
     nickname: String = "",
     birthDate: String = "",
     role: String = "",
@@ -198,7 +208,7 @@ fun MyPageScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.25f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.3f))
             Row(
                 modifier =
                     Modifier
@@ -261,7 +271,28 @@ fun MyPageScreen(
                     contentDescription = "family_code",
                 )
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.2f))
+            Spacer(modifier = Modifier.height(30.dp))
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp)
+                        .noRippleClickable { navigateToEditColor() },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "배경색 변경하기",
+                    style = Typography.bodyLarge.copy(fontSize = 20.sp),
+                    color = Black,
+                )
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(id = R.drawable.ic_navigate),
+                    contentDescription = "family_code",
+                )
+            }
+            Spacer(modifier = Modifier.fillMaxHeight(0.4f))
             Text(
                 modifier =
                     Modifier
@@ -336,7 +367,7 @@ fun MyPageScreen(
             EmotionGrid(
                 clickEmotion = { emotion ->
                     // 서버에 기분 수정 보내기
-                    updateEmotion(emotion)
+                    updateEmotion(UserEmotionRequest(emotion))
                     showEmotionDialog = false
                 },
             )

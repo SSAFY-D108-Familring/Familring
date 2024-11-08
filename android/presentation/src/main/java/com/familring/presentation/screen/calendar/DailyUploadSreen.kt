@@ -1,13 +1,17 @@
 package com.familring.presentation.screen.calendar
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,7 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,22 +41,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.familring.domain.util.toMultiPart
 import com.familring.presentation.R
-import com.familring.presentation.component.textfield.GrayBackgroundTextField
-import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toFile
 import okhttp3.MultipartBody
+import java.io.File
 
 @Composable
 fun DailyUploadRoute(
@@ -83,7 +93,7 @@ fun DailyUploadRoute(
     )
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun DailyUploadScreen(
     modifier: Modifier = Modifier,
@@ -92,6 +102,8 @@ fun DailyUploadScreen(
     popUpBackStack: () -> Unit = {},
 ) {
     val context = LocalContext.current
+
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     var imgUri by remember { mutableStateOf<Uri?>(null) }
     val singlePhotoPickerLauncher =
@@ -103,6 +115,32 @@ fun DailyUploadScreen(
                 }
             },
         )
+
+    val cameraFile =
+        File.createTempFile("photo_", ".jpg", context.cacheDir).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+    val cameraFileUri =
+        FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            cameraFile,
+        )
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            imgUri = cameraFileUri
+        }
+
+    // 권한 요청을 위한 launcher
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                cameraLauncher.launch(cameraFileUri)
+            }
+        }
 
     var content by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
@@ -138,9 +176,7 @@ fun DailyUploadScreen(
                         .clip(shape = RoundedCornerShape(12.dp))
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp))
                         .clickable {
-                            singlePhotoPickerLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                            )
+                            showBottomSheet = true
                         },
                 contentAlignment = Alignment.Center,
             ) {
@@ -178,8 +214,76 @@ fun DailyUploadScreen(
                 modifier = Modifier.padding(vertical = 20.dp),
                 text = "일상 등록하기",
                 onClick = { createDaily(content, imgUri?.toFile(context).toMultiPart()) },
-                enabled = imgUri != null,
+                enabled = imgUri != null && content != "",
             )
+        }
+
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                containerColor = White,
+                onDismissRequest = {
+                    showBottomSheet = false
+                },
+            ) {
+                Column(
+                    modifier =
+                        Modifier
+                            .padding(vertical = 20.dp),
+                ) {
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(
+                            modifier =
+                                Modifier.weight(1f).noRippleClickable {
+                                    when (PackageManager.PERMISSION_GRANTED) {
+                                        ContextCompat.checkSelfPermission(
+                                            context,
+                                            Manifest.permission.CAMERA,
+                                        ),
+                                        -> cameraLauncher.launch(cameraFileUri)
+
+                                        else -> permissionLauncher.launch(Manifest.permission.CAMERA)
+                                    }
+                                    showBottomSheet = false
+                                },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Image(
+                                modifier = Modifier.size(40.dp),
+                                painter = painterResource(id = R.drawable.img_camera),
+                                contentDescription = "img_camera",
+                            )
+                            Text(
+                                text = "촬영",
+                                color = Black,
+                                style = Typography.headlineMedium.copy(fontSize = 22.sp),
+                            )
+                        }
+                        Column(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .noRippleClickable {
+                                        singlePhotoPickerLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                        )
+                                        showBottomSheet = false
+                                    },
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Image(
+                                modifier = Modifier.size(30.dp),
+                                painter = painterResource(id = R.drawable.img_album),
+                                contentDescription = "img_album",
+                            )
+                            Text(
+                                text = "갤러리",
+                                color = Black,
+                                style = Typography.headlineMedium.copy(fontSize = 22.sp),
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

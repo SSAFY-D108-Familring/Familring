@@ -91,7 +91,7 @@ fun TimeCapsuleCreateScreen(
         if (!isDateFormValid) {
             "날짜 형식을 확인해 주세요"
         } else if (!isAfter3Days) {
-            "타임캡슐은 최소 3일 이후부터 열 수 있어요"
+            "타임캡슐은 최소 하루 뒤에 열 수 있어요"
         } else {
             ""
         }
@@ -134,6 +134,15 @@ fun TimeCapsuleCreateScreen(
                     Typography.bodySmall.copy(
                         color = Gray01,
                         fontSize = 20.sp,
+                    ),
+            )
+            Spacer(modifier = Modifier.fillMaxHeight(0.01f))
+            Text(
+                text = "* 타임캡슐은 최소 하루 뒤에 열 수 있어요",
+                style =
+                    Typography.bodySmall.copy(
+                        color = Gray01,
+                        fontSize = 16.sp,
                     ),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))

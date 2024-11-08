@@ -41,7 +41,7 @@ fun FinishedTimeCapsule(
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f)) // 비율
             Text(
-                text = "타임캡슐을 이미 작성했어요!",
+                text = "타임캡슐을 작성했어요!",
                 style = Typography.headlineLarge.copy(fontSize = 24.sp),
                 color = Black,
             )

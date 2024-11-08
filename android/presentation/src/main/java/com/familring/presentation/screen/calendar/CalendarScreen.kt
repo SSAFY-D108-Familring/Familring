@@ -166,10 +166,10 @@ fun CalendarScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         floatingActionButton = {
             Column(
                 horizontalAlignment = Alignment.End,
-                modifier = Modifier.padding(bottom = 0.dp),
             ) {
                 AnimatedVisibility(
                     visible = isExpanded,
@@ -193,25 +193,28 @@ fun CalendarScreen(
                                     text = "일상 공유",
                                     style = Typography.labelSmall,
                                     color = White,
-                                    modifier = Modifier.padding(
-                                        horizontal = 16.dp,
-                                        vertical = 8.dp,
-                                    ),
+                                    modifier =
+                                        Modifier.padding(
+                                            horizontal = 16.dp,
+                                            vertical = 8.dp,
+                                        ),
                                 )
                             }
                             FloatingActionButton(
                                 onClick = { navigateToCreateDaily() },
                                 shape = RoundedCornerShape(50.dp),
-                                modifier = Modifier
-                                    .padding(end = 7.dp)
-                                    .size(40.dp),
+                                modifier =
+                                    Modifier
+                                        .padding(end = 7.dp)
+                                        .size(40.dp),
                                 containerColor = Green01,
-                                elevation = FloatingActionButtonDefaults.elevation(
-                                    defaultElevation = 0.dp,
-                                    pressedElevation = 0.dp,
-                                    hoveredElevation = 0.dp,
-                                    focusedElevation = 0.dp,
-                                ),
+                                elevation =
+                                    FloatingActionButtonDefaults.elevation(
+                                        defaultElevation = 0.dp,
+                                        pressedElevation = 0.dp,
+                                        hoveredElevation = 0.dp,
+                                        focusedElevation = 0.dp,
+                                    ),
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_add),
@@ -233,25 +236,28 @@ fun CalendarScreen(
                                     "일정 생성",
                                     style = Typography.labelSmall,
                                     color = White,
-                                    modifier = Modifier.padding(
-                                        vertical = 8.dp,
-                                        horizontal = 16.dp,
-                                    ),
+                                    modifier =
+                                        Modifier.padding(
+                                            vertical = 8.dp,
+                                            horizontal = 16.dp,
+                                        ),
                                 )
                             }
                             FloatingActionButton(
                                 onClick = { navigateToCreateSchedule() },
                                 shape = RoundedCornerShape(50.dp),
-                                modifier = Modifier
-                                    .padding(end = 7.dp)
-                                    .size(40.dp),
+                                modifier =
+                                    Modifier
+                                        .padding(end = 7.dp)
+                                        .size(40.dp),
                                 containerColor = Green01,
-                                elevation = FloatingActionButtonDefaults.elevation(
-                                    defaultElevation = 0.dp,
-                                    pressedElevation = 0.dp,
-                                    hoveredElevation = 0.dp,
-                                    focusedElevation = 0.dp,
-                                ),
+                                elevation =
+                                    FloatingActionButtonDefaults.elevation(
+                                        defaultElevation = 0.dp,
+                                        pressedElevation = 0.dp,
+                                        hoveredElevation = 0.dp,
+                                        focusedElevation = 0.dp,
+                                    ),
                             ) {
                                 Icon(
                                     painter = painterResource(R.drawable.ic_add),
@@ -268,12 +274,13 @@ fun CalendarScreen(
                     shape = RoundedCornerShape(50.dp),
                     containerColor = Green01,
                     modifier = Modifier.size(56.dp),
-                    elevation = FloatingActionButtonDefaults.elevation(
-                        defaultElevation = 0.dp,
-                        pressedElevation = 0.dp,
-                        hoveredElevation = 0.dp,
-                        focusedElevation = 0.dp,
-                    ),
+                    elevation =
+                        FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 0.dp,
+                            pressedElevation = 0.dp,
+                            hoveredElevation = 0.dp,
+                            focusedElevation = 0.dp,
+                        ),
                 ) {
                     Icon(
                         imageVector = if (isExpanded) Icons.Default.Close else Icons.Default.Add,
@@ -288,7 +295,8 @@ fun CalendarScreen(
             modifier =
                 Modifier
                     .padding(innerPadding)
-                    .fillMaxSize().background(Color.White),
+                    .fillMaxSize()
+                    .background(Color.White),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TopAppBar(

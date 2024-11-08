@@ -28,15 +28,17 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.familring.domain.model.timecapsule.TimeCapsuleMessage
-import com.familring.presentation.component.dialog.OneButtonTextDialog
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.component.dialog.OneButtonTextDialog
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.toLocalDate
 
 @Composable
 fun TimeCapsuleDialog(
     modifier: Modifier = Modifier,
+    leftDays: Int = 0,
     timeCapsuleMessages: List<TimeCapsuleMessage> = listOf(),
     onDismiss: () -> Unit = {},
 ) {
@@ -44,7 +46,11 @@ fun TimeCapsuleDialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        if (timeCapsuleMessages.isEmpty()) {
+        if (leftDays > 0) {
+            OneButtonTextDialog(text = "아직 캡슐을 열 수 없어요!", buttonText = "확인") {
+                onDismiss()
+            }
+        } else if (timeCapsuleMessages.isEmpty()) {
             OneButtonTextDialog(text = "작성된 캡슐이 없어요", buttonText = "확인") {
                 onDismiss()
             }
@@ -101,7 +107,6 @@ fun TimeCapsule(
                 .clip(RoundedCornerShape(12.dp))
                 .background(color = White)
                 .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.fillMaxHeight(0.02f))
         Text(
@@ -131,6 +136,7 @@ fun TimeCapsule(
         Text(
             modifier =
                 Modifier
+                    .fillMaxWidth()
                     .weight(1f)
                     .verticalScroll(scrollState),
             text = timeCapsuleMessage.message,
@@ -154,11 +160,8 @@ private fun TimeCapsulePagerPreview() {
                     userZodiacSign = "url",
                     userColor = "0xFFFEE222",
                     message =
-                        "이곳에는 이제 엄마의 타임캡슐이 적혀있을 것이오 " +
-                            "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
-                            "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
-                            "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
-                    createdAt = "2024-10-05",
+                        "적어놓을 것이오!!!!!!",
+                    createdAt = "2024-10-05".toLocalDate(),
                 ),
                 TimeCapsuleMessage(
                     userNickname = "엄마미",
@@ -169,7 +172,7 @@ private fun TimeCapsulePagerPreview() {
                             "뭐라고 적혀 있을진 모르겠지만 어쨌든 적혀 있음 " +
                             "더 길게 적어야 하나? 뭐... 잘 모르겠지만 " +
                             "이 다이얼로그의 길이는 적어놓을 것이오!!!!!!",
-                    createdAt = "2024-10-06",
+                    createdAt = "2024-10-06".toLocalDate(),
                 ),
             ),
     )

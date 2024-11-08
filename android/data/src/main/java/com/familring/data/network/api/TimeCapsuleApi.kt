@@ -1,13 +1,14 @@
 package com.familring.data.network.api
 
 import com.familring.data.network.response.BaseResponse
-import com.familring.domain.model.timecapsule.TimeCapsule
+import com.familring.domain.model.timecapsule.TimeCapsulePage
 import com.familring.domain.model.timecapsule.TimeCapsuleStatus
 import com.familring.domain.request.AnswerRequest
 import com.familring.domain.request.CreateTimeCapsuleRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface TimeCapsuleApi {
     @GET("timecapsules/status")
@@ -24,5 +25,7 @@ interface TimeCapsuleApi {
     ): BaseResponse<Unit>
 
     @GET("timecapsules")
-    suspend fun getTimeCapsules(): BaseResponse<List<TimeCapsule>>
+    suspend fun getTimeCapsules(
+        @Query("pageNo") pageNo: Int,
+    ): BaseResponse<TimeCapsulePage>
 }
