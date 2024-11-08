@@ -214,7 +214,7 @@ fun DailyUploadScreen(
                 modifier = Modifier.padding(vertical = 20.dp),
                 text = "일상 등록하기",
                 onClick = { createDaily(content, imgUri?.toFile(context).toMultiPart()) },
-                enabled = imgUri != null && content != "",
+                enabled = imgUri != null,
             )
         }
 
