@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.textfield.CustomTextField
@@ -38,6 +39,8 @@ fun EditNameRoute(
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectLatest { event ->
             when (event) {
@@ -51,23 +54,29 @@ fun EditNameRoute(
         }
     }
 
-    EditNameScreen(
-        modifier = modifier,
-        popUpBackStack = popUpBackStack,
-        showSnackBar = showSnackBar,
-        updateNickname = viewModel::updateName,
-    )
+    when (val uiState = state) {
+        is MyPageUiState.Success -> {
+            EditNameScreen(
+                modifier = modifier,
+                originNickname = uiState.userNickname,
+                popUpBackStack = popUpBackStack,
+                updateNickname = viewModel::updateName,
+            )
+        }
+
+        else -> {}
+    }
 }
 
 @Composable
 fun EditNameScreen(
     modifier: Modifier = Modifier,
+    originNickname: String = "",
     popUpBackStack: () -> Unit = {},
-    showSnackBar: (String) -> Unit = {},
     updateNickname: (String) -> Unit = {},
 ) {
     val focusManager = LocalFocusManager.current
-    var nickname by remember { mutableStateOf("") }
+    var nickname by remember { mutableStateOf(originNickname) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
