@@ -13,14 +13,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -37,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -145,16 +151,20 @@ fun DailyUploadScreen(
     var content by remember { mutableStateOf("") }
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(content) {
-        scrollState.animateScrollTo(scrollState.maxValue)
-    }
+    // 키보드 높이 감지
+    val imeInsets = WindowInsets.ime.exclude(WindowInsets.navigationBars)
+    val imeHeight = imeInsets.getBottom(LocalDensity.current)
 
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = with(LocalDensity.current) { (imeHeight).toDp() }) // 키보드 높이만큼 padding을 추가
+                    .verticalScroll(state = scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TopAppBar(
@@ -167,7 +177,7 @@ fun DailyUploadScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
+            Spacer(modifier = Modifier.height(30.dp))
             Box(
                 modifier =
                     Modifier
@@ -199,19 +209,21 @@ fun DailyUploadScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+            Spacer(modifier = Modifier.height(15.dp))
             GrayBackgroundTextField(
                 modifier =
                     Modifier
                         .fillMaxWidth(0.9f)
-                        .weight(1f),
+                        .aspectRatio(3f / 2f),
                 content = content,
-                scrollState = scrollState,
+                scrollState = rememberScrollState(),
                 onValueChange = { content = it },
                 hint = "가족과 공유하고 싶은 일상을 작성해 주세요!",
             )
             RoundLongButton(
-                modifier = Modifier.padding(vertical = 20.dp),
+                modifier =
+                    Modifier
+                        .padding(vertical = 20.dp),
                 text = "일상 등록하기",
                 onClick = { createDaily(content, imgUri?.toFile(context).toMultiPart()) },
                 enabled = imgUri != null && content != "",
