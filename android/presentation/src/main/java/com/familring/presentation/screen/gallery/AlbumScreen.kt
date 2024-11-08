@@ -64,7 +64,7 @@ fun AlbumScreen(
         viewModel.getOneAlbum(albumId)
     }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = White) {
+    Surface(modifier = modifier.fillMaxSize(), color = White) {
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 title = {

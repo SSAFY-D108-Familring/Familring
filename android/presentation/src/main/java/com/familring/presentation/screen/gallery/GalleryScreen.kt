@@ -48,6 +48,7 @@ import com.familring.domain.model.gallery.AlbumType
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
@@ -120,7 +121,7 @@ fun GalleryScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             TopAppBar(
-                title = { Text(text = "앨범", style = Typography.titleLarge) },
+                title = { Text(text = "앨범", style = Typography.titleLarge, color = Black) },
                 navigationType = TopAppBarNavigationType.None,
             )
             Spacer(modifier = Modifier.fillMaxSize(0.03f))

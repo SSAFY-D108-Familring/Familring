@@ -50,6 +50,7 @@ import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
@@ -165,6 +166,7 @@ fun QuestionScreen(
                             Text(
                                 text = "오늘의 질문",
                                 style = Typography.titleLarge,
+                                color = Black
                             )
                         },
                         trailingIcon = {
@@ -209,6 +211,7 @@ fun QuestionScreen(
                                         text = "${questionId}번째 질문",
                                         textAlign = TextAlign.Center,
                                         style = Typography.bodySmall,
+                                        color = Black,
                                         modifier =
                                             Modifier
                                                 .background(
@@ -224,6 +227,7 @@ fun QuestionScreen(
                                         modifier = Modifier.padding(horizontal = 26.dp),
                                         overflow = TextOverflow.Visible,
                                         style = Typography.displayMedium.copy(fontSize = 22.sp),
+                                        color = Black
                                     )
                                     Spacer(modifier = Modifier.fillMaxSize(0.05f))
                                 }
@@ -322,6 +326,7 @@ fun FamilyListItem(
                             }
                         },
                     style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                    color = Gray02,
                     modifier =
                         Modifier.noRippleClickable {
                             Timber.d("똑똑 누름 " + questionAnswer.userId)
