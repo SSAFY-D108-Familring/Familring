@@ -282,17 +282,40 @@ async def count_faces(file: UploadFile = File(...)):
 
     return CountResponse(faceCount=face_count)
 
+
 async def register_to_eureka():
     """Eureka 서버에 서비스 등록"""
     global server_port
     try:
+        # eureka_client 설정
+        eureka_config = {
+            "eureka_server": EUREKA_SERVER,
+            "app_name": APP_NAME,
+            "instance_port": server_port,
+            "instance_host": INSTANCE_HOST
+        }
+        
+        # 설정값 로깅
+        logger.info(f"Eureka configuration: {eureka_config}")
+        
+        # 필수 값 검증
+        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, server_port]):
+            missing_values = []
+            if not EUREKA_SERVER: missing_values.append("EUREKA_SERVER")
+            if not APP_NAME: missing_values.append("APP_NAME")
+            if not INSTANCE_HOST: missing_values.append("INSTANCE_HOST")
+            if not server_port: missing_values.append("server_port")
+            raise ValueError(f"Missing required configuration: {', '.join(missing_values)}")
+
+        # Eureka 클라이언트 초기화
         await eureka_client.init_async(
             eureka_server=EUREKA_SERVER,
             app_name=APP_NAME,
             instance_port=server_port,
-            instance_host=INSTANCE_HOST
+            instance_host=INSTANCE_HOST,
+            instance_ip=INSTANCE_HOST
         )
-        logger.info(f"Successfully registered to Eureka server at {EUREKA_SERVER} with port {server_port}")
+        logger.info(f"Successfully registered to Eureka server at {EUREKA_SERVER}")
     except Exception as e:
         logger.error(f"Failed to register to Eureka server: {str(e)}")
         raise
@@ -300,16 +323,23 @@ async def register_to_eureka():
 @app.on_event("startup")
 async def startup_event():
     """애플리케이션 시작 시 Eureka 서버에 등록"""
+    global server_port
+    if server_port is None:
+        server_port = find_free_port()
+    logger.info(f"Using port: {server_port}")
     await register_to_eureka()
 
 @app.on_event("shutdown")
 async def shutdown_event():
     """애플리케이션 종료 시 Eureka 서버에서 등록 해제"""
-    await eureka_client.stop()
+    try:
+        await eureka_client.stop()
+        logger.info("Successfully unregistered from Eureka server")
+    except Exception as e:
+        logger.error(f"Error during Eureka client shutdown: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
-    # 사용 가능한 랜덤 포트 찾기
     server_port = find_free_port()
     logger.info(f"Starting server on port {server_port}")
     uvicorn.run(app, host=SERVER_HOST, port=server_port)
