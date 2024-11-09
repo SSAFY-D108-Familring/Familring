@@ -345,13 +345,11 @@ if __name__ == "__main__":
     import uvicorn
     server_port = find_free_port()
     logger.info(f"Starting server on port {server_port}")
-    uvicorn.run(
-        app, 
-        host=SERVER_HOST, 
+    config = uvicorn.Config(
+        app=app,
+        host=SERVER_HOST,
         port=server_port,
-        log_config=None  # 이 옵션을 추가하여 FastAPI의 기본 로깅을 유지
+        log_config=None
     )
-else:
-    # 다른 방식으로 실행될 때도 포트 설정
-    server_port = find_free_port()
-    logger.info(f"Server initialized on port {server_port}")
+    server = uvicorn.Server(config)
+    server.run()
