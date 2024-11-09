@@ -29,6 +29,9 @@ public interface FamilyService {
     // 가족 코드 유효성 검사
     boolean validateFamilyCode(String familyCode);
 
+    // 가족 구성원 불가능 역할 조회
+    List<String> validFamilyMember(String familyCode);
+
     // 가족 생성
     FamilyInfoResponse createFamily(Long userId);
 
@@ -40,5 +43,4 @@ public interface FamilyService {
 
     // 가족 상태 변경
     void updateFamilyStatus(FamilyStatusRequest familyStatusRequest);
-
 }

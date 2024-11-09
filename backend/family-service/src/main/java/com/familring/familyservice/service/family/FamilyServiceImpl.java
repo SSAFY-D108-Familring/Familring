@@ -69,8 +69,7 @@ public class FamilyServiceImpl implements FamilyService {
         List<Long> members = familyDao.findFamilyUserByUserId(userId);
 
         // 2. 가족 구성원 userId에 대해 user-service에게 사용자 정보 조회(GET "/users/info")  api 요청
-        BaseResponse<List<UserInfoResponse>> response = userServiceFeignClient.getAllUser(members);
-        List<UserInfoResponse> userInfoResponses = response.getData(); // data 필드에 접근
+        List<UserInfoResponse> userInfoResponses = userServiceFeignClient.getAllUser(members).getData();
 
         // 3. 응답
         return userInfoResponses;
@@ -95,6 +94,36 @@ public class FamilyServiceImpl implements FamilyService {
     }
 
     @Override
+    public List<String> validFamilyMember(String familyCode) {
+        List<String> response = new ArrayList<>();
+        
+        // 1. 가족 찾기
+        Family family = familyDao.findFamilyByFamilyCode(familyCode)
+                .orElseThrow(() -> new FamilyNotFoundException());
+        log.info("[validFamilyMember] 찾은 가족 familyId={}", family.getFamilyId());
+        
+        // 2. 가족 구성원 역할 찾기
+        // 2-1. 해당 가족의 구성원 찾기
+        List<Long> members = familyDao.findFamilyUserByFamilyId(family.getFamilyId());
+        log.info("[validFamilyMember] 가족 구성원 userIds={}", members);
+        
+        // 2-2. 가족 구성원의 사용자 정보 조회
+        List<UserInfoResponse> userInfoResponses = userServiceFeignClient.getAllUser(members).getData();
+
+        // 2-3. 사용자 정보 중 userRole이 M이나 F찾기
+        for(UserInfoResponse user: userInfoResponses) {
+            log.info("[validFamilyMember] 가족 구성원 역할 userRole={}", user.getUserRole());
+            if(user.getUserRole().equals(FamilyRole.F))
+                response.add("아빠");
+            else if (user.getUserRole().equals(FamilyRole.M))
+                response.add("엄마");
+        }
+
+        log.info("[validFamilyMember] 응답 response={}", response);
+        return response;
+    }
+
+    @Override
     public List<Long> getAllFamilyId() {
         List<Long> response = familyDao.findFamilyId();
         return response;
@@ -105,10 +134,6 @@ public class FamilyServiceImpl implements FamilyService {
         return familyDao.countFamily_UserByUserId(userId);
     }
 
-    public BaseResponse<List<UserInfoResponse>> getUserInfoFromUserService(List<Long> members) {
-        // Feign Client를 통해 user-service의 getUser 메서드 호출
-        return userServiceFeignClient.getAllUser(members);
-    }
 
     @Override
     @Transactional

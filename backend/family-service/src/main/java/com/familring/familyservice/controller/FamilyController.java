@@ -54,7 +54,15 @@ public class FamilyController {
     public ResponseEntity<BaseResponse<Boolean>> validateFamilyCode(@PathVariable("familyCode") String familyCode) {
         boolean response = familyService.validateFamilyCode(familyCode);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 코드 유효성 검사를 완료했습니다.", response));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 코드 유효성 검사를 성공적으로 완료했습니다.", response));
+    }
+
+    @GetMapping("/member/{familyCode}")
+    @Operation(summary = "가족 구성원 불가능 역할 조회", description = "familyCode에 해당하는 family의 엄마, 아빠 역할 중 불가능한 역할을 확인")
+    public ResponseEntity<BaseResponse<List<String>>> validFamilyMember(@PathVariable("familyCode") String familyCode) {
+        List<String> response = familyService.validFamilyMember(familyCode);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 구성원 중 불가능한 역할 조회를 성공적으로 완료했습니다.", response));
     }
 
     @PostMapping
