@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.familring.interestservice.exception.InterestNotFoundException;
 
+import java.util.Optional;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -69,7 +71,25 @@ public class InterestService {
 
         // 수정
         interestAnswer.updateContent(interestAnswerCreateRequest.getContent());
-//        interestAnswerRepository.save(interestAnswer);
+    }
+
+    // 관심사 답변 작성 유무
+    public boolean getInterestAnswerStatus(Long userId) {
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 그 가족의 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+
+        // 내가 작성한 관심사 답변 찾기
+        Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findByInterest(interest);
+
+        if(interestAnswer.isPresent()) { // 존재하면
+            return true;
+        }
+
+        return false; // 없으면 false
     }
 
 }
