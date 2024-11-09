@@ -25,6 +25,7 @@ pipeline {
 // 공통 함수
 def copyApplicationEnv(env) {
     sh "cp ${env} .env"
+    sh "cat .env"
 }
 
 // 공통 함수: 컨테이너 중지 및 삭제
@@ -41,5 +42,5 @@ def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
 
     sh "docker build -t ${serviceName} ."
-    sh "docker run --name ${serviceName} -d ${serviceName}"
+    sh "docker run --name ${serviceName} --env-file .env -d ${serviceName}"
 }
