@@ -13,7 +13,7 @@ pipeline {
                     script {
                         dir('backend/classification-service') {
                             copyApplicationEnv(ENV_FILE)
-                            buildAndRunContainer('classification-service', 0)
+                            buildAndRunContainer('classification-service')
                         }
                     }
                 }
@@ -37,9 +37,9 @@ def stopAndRemoveContainer(containerName) {
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
-def buildAndRunContainer(serviceName, port) {
+def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
 
     sh "docker build -t ${serviceName} ."
-    sh "docker run --name -d -p ${port}:${port} ${serviceName}"
+    sh "docker run --name ${serviceName} -d ${serviceName}"
 }
