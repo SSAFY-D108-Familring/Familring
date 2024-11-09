@@ -83,13 +83,9 @@ public class InterestService {
         Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 내가 작성한 관심사 답변 찾기
-        Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findByInterest(interest);
+        Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest);
 
-        if(interestAnswer.isPresent()) { // 존재하면
-            return true;
-        }
-
-        return false; // 없으면 false
+        return interestAnswer.isPresent(); // 있으면 true, 없으면 false
     }
 
 }
