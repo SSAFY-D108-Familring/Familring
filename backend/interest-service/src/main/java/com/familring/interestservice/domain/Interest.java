@@ -18,7 +18,7 @@ public class Interest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="interest_select_id")
+    @Column(name="interest_id")
     private Long id;
 
     @Column(name="family_id")
