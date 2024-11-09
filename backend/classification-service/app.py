@@ -39,16 +39,16 @@ def find_free_port():
         port = s.getsockname()[1]
         return port
 
+# 글로벌 변수로 포트 저장
+server_port = None
+
 app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
     version="1.0.0",
-    docs_url=None,  # 기본 /docs 경로 비활성화
-    redoc_url=None  # 기본 /redoc 경로 비활성화
+    docs_url=None,
+    redoc_url=None
 )
-
-# 글로벌 변수로 포트 저장
-server_port = None
 
 app.add_middleware(
     CORSMiddleware,
@@ -291,7 +291,11 @@ async def register_to_eureka():
     """Eureka 서버에 서비스 등록"""
     global server_port
     try:
-        # eureka_client 설정
+        # 랜덤 포트 할당 (이미 할당되지 않은 경우)
+        if server_port is None:
+            server_port = find_free_port()
+            logger.info(f"Assigned random port: {server_port}")
+        
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
             "app_name": APP_NAME,
@@ -299,19 +303,15 @@ async def register_to_eureka():
             "instance_host": INSTANCE_HOST
         }
         
-        # 설정값 로깅
         logger.info(f"Eureka configuration: {eureka_config}")
         
-        # 필수 값 검증
-        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, server_port]):
+        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST]):
             missing_values = []
             if not EUREKA_SERVER: missing_values.append("EUREKA_SERVER")
             if not APP_NAME: missing_values.append("APP_NAME")
             if not INSTANCE_HOST: missing_values.append("INSTANCE_HOST")
-            if not server_port: missing_values.append("server_port")
             raise ValueError(f"Missing required configuration: {', '.join(missing_values)}")
 
-        # Eureka 클라이언트 초기화
         await eureka_client.init_async(
             eureka_server=EUREKA_SERVER,
             app_name=APP_NAME,
@@ -320,6 +320,17 @@ async def register_to_eureka():
             instance_ip=INSTANCE_HOST
         )
         logger.info(f"Successfully registered to Eureka server at {EUREKA_SERVER}")
+        
+        # 여기서 uvicorn 서버 시작
+        config = uvicorn.Config(
+            app=app,
+            host=SERVER_HOST,
+            port=server_port,
+            log_config=None
+        )
+        server = uvicorn.Server(config)
+        await server.serve()
+        
     except Exception as e:
         logger.error(f"Failed to register to Eureka server: {str(e)}")
         raise
@@ -327,11 +338,9 @@ async def register_to_eureka():
 @app.on_event("startup")
 async def startup_event():
     """애플리케이션 시작 시 Eureka 서버에 등록"""
-    global server_port
-    if server_port is None:
-        server_port = find_free_port()
-    logger.info(f"Using port: {server_port}")
-    await register_to_eureka()
+    # startup_event에서는 아무것도 하지 않음
+    # register_to_eureka 함수에서 모든 설정을 처리
+    pass
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -343,14 +352,6 @@ async def shutdown_event():
         logger.error(f"Error during Eureka client shutdown: {str(e)}")
 
 if __name__ == "__main__":
-    import uvicorn
-    server_port = find_free_port()
-    logger.info(f"Starting server on port {server_port}")
-    config = uvicorn.Config(
-        app=app,
-        host=SERVER_HOST,
-        port=server_port,
-        log_config=None
-    )
-    server = uvicorn.Server(config)
-    server.run()
+    import asyncio
+    logger.info("Starting server...")
+    asyncio.run(register_to_eureka())
