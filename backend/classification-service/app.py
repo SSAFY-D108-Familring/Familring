@@ -22,7 +22,7 @@ load_dotenv()
 # 환경변수 설정
 EUREKA_SERVER = os.getenv('EUREKA_SERVER')
 APP_NAME = os.getenv('APP_NAME')
-SERVER_HOST = os.getenv('SERVER_HOST', '0.0.0.0')
+SERVER_HOST = os.getenv('SERVER_HOST')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
 SERVER_PORT = int(os.getenv('SERVER_PORT', '8000'))  # 기본값 8000으로 설정
 
