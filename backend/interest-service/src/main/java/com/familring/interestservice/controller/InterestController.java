@@ -2,6 +2,7 @@ package com.familring.interestservice.controller;
 
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
+import com.familring.interestservice.dto.response.InterestAnswerListResponse;
 import com.familring.interestservice.service.InterestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,6 +39,11 @@ public class InterestController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 답변 작성 유무 조회에 성공했습니다.", response));
     }
 
-
+    @GetMapping("/answers")
+    @Operation(summary = "관심사 답변 목록 조회 (가족)", description = "가족들이 작성한 관심사 답변 목록 조회")
+    public ResponseEntity<BaseResponse<InterestAnswerListResponse>> getInterestAnswerList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        InterestAnswerListResponse response = interestService.getInterestAnswerList(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족들의 관심사 답변 목록 조회에 성공했습니다.", response));
+    }
 
 }
