@@ -5,22 +5,23 @@ import com.familring.interestservice.domain.InterestAnswer;
 import com.familring.interestservice.dto.client.Family;
 import com.familring.interestservice.dto.client.UserInfoResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
+import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequest;
 import com.familring.interestservice.dto.response.InterestAnswerItem;
 import com.familring.interestservice.dto.response.InterestAnswerListResponse;
 import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
 import com.familring.interestservice.dto.response.InterestAnswerSelectedResponse;
-import com.familring.interestservice.exception.InterestAnswerNotFoundException;
-import com.familring.interestservice.exception.AlreadyExistSelectInterestAnswerException;
+import com.familring.interestservice.exception.*;
 import com.familring.interestservice.repository.InterestAnswerRepository;
 import com.familring.interestservice.repository.InterestMissionRepository;
 import com.familring.interestservice.repository.InterestRepository;
 import com.familring.interestservice.service.client.FamilyServiceFeignClient;
 import com.familring.interestservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.familring.interestservice.exception.InterestNotFoundException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -209,6 +210,47 @@ public class InterestService {
 
     }
 
-    //
+    // 관심사 체험 인증 기간 설정
+    public void setInterestMissionPeriod(Long userId, InterestMissionCreatePeriodRequest interestMissionCreatePeriodRequest) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+
+        // 가족 구성원 찾기
+        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
+
+        // 답변한 가족 구성원 리스트 생성 및 모든 답변의 selected 상태 확인
+        List<InterestAnswer> interestAnswers = familyMembers.stream()
+                .map(member -> interestAnswerRepository.findByUserIdAndInterest(member.getUserId(), interest))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+
+        // 해당 관심사에 인증 기간 설정 (selected 하나라도 true 인 상태일 때만 가능함)
+        boolean hasSelectedAnswer = interestAnswers.stream().anyMatch(InterestAnswer::isSelected);
+
+        LocalDate today = LocalDate.now();
+        if (hasSelectedAnswer) {
+            // 인증 기간 설정
+            if (interest.getMissionEndDate() == null) {
+                if (interestMissionCreatePeriodRequest.getEndDate().isAfter(today)) {
+                    interest.updateMissionEndDate(interestMissionCreatePeriodRequest.getEndDate());
+                } else {
+                    throw new InvalidInterestMissionEndDateException();
+                }
+            } else {
+                // 인증 기한이 이미 설정되어 있음
+                throw new AlreadyExistInterestMissionEndDateException();
+            }
+
+        } else {
+            throw new InterestAnswerNotFoundException();
+        }
+
+    }
 
 }

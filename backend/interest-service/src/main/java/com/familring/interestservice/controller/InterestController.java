@@ -2,6 +2,7 @@ package com.familring.interestservice.controller;
 
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
+import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequest;
 import com.familring.interestservice.dto.response.InterestAnswerListResponse;
 import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
 import com.familring.interestservice.dto.response.InterestAnswerSelectedResponse;
@@ -55,11 +56,17 @@ public class InterestController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "내가 작성했던 관심사 조회에 성공했습니다.", response));
     }
 
-    @GetMapping("answers/selected")
+    @GetMapping("/answers/selected")
     @Operation(summary = "선정된 관심사 조회", description = "선정된 관심사 조회 (답변을 작성한 가족 구성원 중에 랜덤으로 돌려서 선정)")
     public ResponseEntity<BaseResponse<InterestAnswerSelectedResponse>> getInterestAnswerSelected (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         InterestAnswerSelectedResponse response = interestService.getInterestAnswerSelected(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "선정된 관심사 조회에 성공했습니다.", response));
     }
 
+    @PostMapping("/missions/period")
+    @Operation(summary = "관심사 체험 인증 기한 설정", description = "관심사 체험하는 기한 설정 (LocalDate 날짜만 입력)")
+    public ResponseEntity<BaseResponse<Void>> setInterestMissionPeriod(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userID, @RequestBody InterestMissionCreatePeriodRequest interestMissionCreatePeriodRequest) {
+        interestService.setInterestMissionPeriod(userID, interestMissionCreatePeriodRequest);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 기한 설정에 성공했습니다."));
+    }
 }
