@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 from typing import List, Dict
+from contextlib import asynccontextmanager
 import face_recognition
 import numpy as np
 import requests
@@ -22,7 +23,7 @@ load_dotenv()
 # 환경변수 설정
 EUREKA_SERVER = os.getenv('EUREKA_SERVER')
 APP_NAME = os.getenv('APP_NAME')
-SERVER_HOST = os.getenv('SERVER_HOST')
+SERVER_HOST = os.getenv('SERVER_HOST','0.0.0.0')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
 
 # 로깅 설정
@@ -36,16 +37,62 @@ def find_free_port():
         s.listen(1)
         port = s.getsockname()[1]
         return port
+    
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    try:
+        logger.info(f"Using port: {server_port}")
+        # Eureka 클라이언트 초기화
+        eureka_config = {
+            "eureka_server": EUREKA_SERVER,
+            "app_name": APP_NAME,
+            "instance_port": server_port,
+            "instance_host": INSTANCE_HOST
+        }
+        logger.info(f"Eureka configuration: {eureka_config}")
+        
+        # 필수 값 검증
+        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, server_port]):
+            missing_values = []
+            if not EUREKA_SERVER: missing_values.append("EUREKA_SERVER")
+            if not APP_NAME: missing_values.append("APP_NAME")
+            if not INSTANCE_HOST: missing_values.append("INSTANCE_HOST")
+            if not server_port: missing_values.append("server_port")
+            raise ValueError(f"Missing required configuration: {', '.join(missing_values)}")
+
+        await eureka_client.init_async(
+            eureka_server=EUREKA_SERVER,
+            app_name=APP_NAME,
+            instance_port=server_port,
+            instance_host=INSTANCE_HOST,
+            instance_ip=INSTANCE_HOST
+        )
+        logger.info(f"Successfully registered to Eureka server at {EUREKA_SERVER}")
+    except Exception as e:
+        logger.error(f"Failed to register to Eureka server: {str(e)}")
+        raise
+    
+    yield
+    
+    # Shutdown
+    try:
+        await eureka_client.stop_async()
+        logger.info("Successfully unregistered from Eureka server")
+    except Exception as e:
+        logger.error(f"Error during Eureka client shutdown: {str(e)}")
 
 app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # 글로벌 변수로 포트 저장
-server_port = None
+server_port = find_free_port()
 
+# CORS 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -343,10 +390,9 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
-    server_port = find_free_port()
     logger.info(f"Starting server on port {server_port}")
     uvicorn.run(
         app, 
-        host=SERVER_HOST, 
+        host=SERVER_HOST,
         port=server_port,
     )
