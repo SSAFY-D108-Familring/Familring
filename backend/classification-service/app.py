@@ -14,8 +14,6 @@ import cv2
 import logging
 import os
 from dotenv import load_dotenv
-import socket
-import contextlib
 from py_eureka_client import eureka_client
 
 # .env 파일 로드
@@ -26,6 +24,7 @@ EUREKA_SERVER = os.getenv('EUREKA_SERVER')
 APP_NAME = os.getenv('APP_NAME')
 SERVER_HOST = os.getenv('SERVER_HOST', '0.0.0.0')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
+SERVER_PORT = int(os.getenv('SERVER_PORT', '8000'))  # 기본값 8000으로 설정
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -294,7 +293,7 @@ async def register_to_eureka():
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
             "app_name": APP_NAME,
-            "instance_port": server_port,
+            "instance_port": SERVER_PORT,  # 고정 포트 사용
             "instance_host": INSTANCE_HOST
         }
         
@@ -310,7 +309,7 @@ async def register_to_eureka():
         await eureka_client.init_async(
             eureka_server=EUREKA_SERVER,
             app_name=APP_NAME,
-            instance_port=server_port,
+            instance_port=SERVER_PORT,  # 고정 포트 사용
             instance_host=INSTANCE_HOST,
             instance_ip=INSTANCE_HOST
         )
@@ -336,10 +335,10 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info(f"Starting server on port {server_port}")
+    logger.info(f"Starting server on port {SERVER_PORT}")
     uvicorn.run(
-        "app:app",
+        app, 
         host=SERVER_HOST,
-        port=server_port,
+        port=SERVER_PORT,  # 고정 포트 사용
         reload=False
     )
