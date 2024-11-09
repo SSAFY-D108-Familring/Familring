@@ -22,7 +22,7 @@ public class InterestAnswer {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "interest_select_id")
+    @JoinColumn(name = "interest_id")
     private Interest interest;
 
     @Column(name="user_id")
@@ -33,5 +33,12 @@ public class InterestAnswer {
 
     @Column(name="interest_answer_content")
     private String content;
+
+    @Column(name="interest_answer_selected")
+    private boolean selected;
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 
 }
