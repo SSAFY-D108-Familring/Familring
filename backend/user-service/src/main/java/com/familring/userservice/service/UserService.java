@@ -27,6 +27,9 @@ public interface UserService {
     // FCM 토큰 저장
     void updateFcmToken(Long userId, String fcmToken);
 
+    // 로그아웃
+    void logout(Long userId);
+
     // 회원 기분 설정
     void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
 

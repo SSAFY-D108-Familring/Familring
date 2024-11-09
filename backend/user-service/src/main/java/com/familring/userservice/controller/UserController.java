@@ -72,6 +72,14 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "FCM 토큰이 정상적으로 저장되었습니다."));
     }
 
+    @PostMapping("/logout")
+    @Operation(summary = "로그아웃", description = "Header의 토큰을 사용해 요청 회원을 로그아웃 처리")
+    public ResponseEntity<BaseResponse<Void>> logout(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        userService.logout(userId);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원이 성공적으로 로그아웃되었습니다."));
+    }
+
     @PatchMapping("/emotion")
     @Operation(summary = "회원 기분 수정", description = "userId에 해당하는 회원 기분 수정")
     public ResponseEntity<BaseResponse<Void>> updateUserEmotion

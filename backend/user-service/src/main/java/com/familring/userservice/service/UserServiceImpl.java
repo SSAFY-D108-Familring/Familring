@@ -182,6 +182,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void logout(Long userId) {
+        // 1. 사용자 정보 찾기
+        UserDto user = userDao.findUserByUserId(userId)
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+        log.info("[logout] 찾은 회원 userKakaoId={}", user.getUserKakaoId());
+
+        // 2. redis에 저장된 refreshToken 삭제
+        redisService.deleteRefreshToken(user.getUserKakaoId());
+        log.info("[logout] Redis에 저장된 refreshToken 삭제");
+    }
+
+    @Override
     @Transactional
     public void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest) {
         // 1. 사용자 정보 찾기
