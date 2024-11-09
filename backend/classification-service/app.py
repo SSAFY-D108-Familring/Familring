@@ -40,9 +40,7 @@ def find_free_port():
 app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
-    version="1.0.0",
-    docs_url=None,
-    redoc_url=None
+    version="1.0.0"
 )
 
 # 글로벌 변수로 포트 저장
@@ -177,16 +175,21 @@ async def root():
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
-    from fastapi.openapi.docs import get_swagger_ui_html
     return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
+        openapi_url="/openapi.json",
         title=app.title + " - Swagger UI",
-        swagger_favicon_url=""
+        swagger_favicon_url="",
+        swagger_ui_parameters={"defaultModelsExpandDepth": -1}
     )
 
 @app.get("/openapi.json", include_in_schema=False)
-async def get_openapi_json():
-    return app.openapi()
+async def get_openapi_endpoint():
+    return get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
 
 @app.post("/classification", response_model=List[SimilarityResponse])
 async def classify_images(request: AnalysisRequest):
