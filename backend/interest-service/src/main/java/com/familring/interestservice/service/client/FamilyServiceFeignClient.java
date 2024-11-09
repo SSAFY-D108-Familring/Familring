@@ -1,8 +1,8 @@
 package com.familring.interestservice.service.client;
 
 import com.familring.common_module.dto.BaseResponse;
-import com.familring.questionservice.dto.client.Family;
-import com.familring.questionservice.dto.client.UserInfoResponse;
+import com.familring.interestservice.dto.client.Family;
+import com.familring.interestservice.dto.client.UserInfoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
