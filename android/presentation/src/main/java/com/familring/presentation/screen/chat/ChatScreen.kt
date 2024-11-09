@@ -264,7 +264,10 @@ fun ChatScreen(
                 "voice" -> {
                     VoiceRecordScreen(
                         onDismiss = { showBottomSheet = false },
-                        onRecordingComplete = {},
+                        onRecordingComplete = {
+                            // 음성 메시지 전송 api 호출
+                        },
+                        showSnackBar = showSnackBar,
                     )
                 }
 

@@ -1,6 +1,7 @@
 package com.familring.presentation.screen.chat
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,12 +44,15 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import kotlinx.coroutines.delay
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
+@SuppressLint("DefaultLocale")
 @Composable
 fun VoiceRecordScreen(
     onDismiss: () -> Unit,
     onRecordingComplete: (String) -> Unit,
+    showSnackBar: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val voiceRecorder = remember { VoiceRecorder(context) }
@@ -120,6 +124,7 @@ fun VoiceRecordScreen(
                     onRecordingComplete(recordedFilePath!!)
                     onDismiss()
                 },
+                showSnackBar = showSnackBar,
             )
         }
         // 녹음 중일 때
@@ -198,6 +203,7 @@ fun VoicePlaybackUI(
     filePath: String,
     onDelete: () -> Unit,
     onSend: () -> Unit,
+    showSnackBar: (String) -> Unit,
 ) {
     val voicePlayer = remember { VoicePlayer() }
     var isPlaying by remember { mutableStateOf(false) }
@@ -205,6 +211,7 @@ fun VoicePlaybackUI(
     var totalDuration by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(isPlaying) {
+        Timber.d("isPlaying: $isPlaying")
         if (isPlaying) {
             totalDuration = voicePlayer.getTotalDuration()
         }
@@ -236,6 +243,9 @@ fun VoicePlaybackUI(
                             onComplete = {
                                 isPlaying = false
                                 progress = 0f
+                            },
+                            onError = {
+                                showSnackBar(it)
                             },
                         )
                         isPlaying = true
