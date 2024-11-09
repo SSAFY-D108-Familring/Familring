@@ -1,4 +1,7 @@
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, Depends
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.utils import get_openapi
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
@@ -37,12 +40,15 @@ def find_free_port():
         port = s.getsockname()[1]
         return port
 
+# Bearer 토큰 설정
+security = HTTPBearer()
+
 app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
     version="1.0.0",
-    docs_url=None,
-    redoc_url=None
+    docs_url=None,  # 기본 /docs 비활성화
+    openapi_url=None  # 기본 /openapi.json 비활성화
 )
 
 # 글로벌 변수로 포트 저장
@@ -177,19 +183,27 @@ async def root():
 
 @app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
-    from fastapi.openapi.docs import get_swagger_ui_html
     return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
+        openapi_url="/openapi.json",
         title=app.title + " - Swagger UI",
-        swagger_favicon_url=""
+        swagger_js_url="/static/swagger-ui-bundle.js",
+        swagger_css_url="/static/swagger-ui.css",
     )
 
 @app.get("/openapi.json", include_in_schema=False)
-async def get_openapi_json():
-    return app.openapi()
+async def custom_openapi():
+    return get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
 
 @app.post("/classification", response_model=List[SimilarityResponse])
-async def classify_images(request: AnalysisRequest):
+async def classify_images(
+    request: AnalysisRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
 
@@ -243,7 +257,10 @@ async def classify_images(request: AnalysisRequest):
 # 기존 코드는 동일하고 /face-count API 부분만 수정됩니다
 
 @app.post("/face-count", response_model=CountResponse)
-async def count_faces(file: UploadFile = File(...)):
+async def count_faces(
+    file: UploadFile = File(...),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
     """
     업로드된 이미지 파일에서 검출된 얼굴의 수를 반환합니다.
 
