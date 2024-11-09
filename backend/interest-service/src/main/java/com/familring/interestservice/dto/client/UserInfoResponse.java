@@ -1,4 +1,4 @@
-package com.familring.questionservice.dto.client;
+package com.familring.interestservice.dto.client;
 
 import lombok.Builder;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.familring.questionservice.dto.client;
+package com.familring.interestservice.dto.client;
 
 public enum FamilyRole {
     F,  // 아빠
