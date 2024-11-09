@@ -10,14 +10,16 @@ import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.model.repository.ChatRepository;
 import com.familring.familyservice.model.repository.VoteRepository;
 import com.familring.familyservice.service.chat.event.ChatRoomConnectEvent;
-import com.familring.familyservice.service.chat.event.VoteCompletedEvent;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import com.familring.familyservice.service.family.FamilyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -239,6 +241,46 @@ public class ChatServiceImpl implements ChatService {
                 Vote vote = voteRepository.findByVoteId(chat.getVoteId())
                         .orElseThrow(() -> new VoteNotFoundException());
                 log.info("[findAllChatByRoomId] 찾은 투표 voteTitle={}", vote.getVoteTitle());
+                chatResponse.setVote(vote);
+            }
+
+            responseList.add(chatResponse);
+        }
+
+        return responseList;
+    }
+
+    @Override
+    public List<ChatResponse> findPagedChatByRoomId(Long roomId, Long userId, int page, int size) {
+        log.info("[findPagedChatByRoomId] 채팅 찾기 roomId={}, userId={}, page={}, size={}", roomId, userId, page, size);
+        List<ChatResponse> responseList = new ArrayList<>();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Chat> chatPage = chatRepository.findByRoomId(roomId, pageable);
+
+        for (Chat chat : chatPage.getContent()) {
+            UserInfoResponse user = userServiceFeignClient.getUser(chat.getSenderId()).getData();
+            log.info("[findPagedChatByRoomId] 발신자 찾기 userNickname={}", user.getUserNickname());
+
+            ChatResponse chatResponse = ChatResponse.builder()
+                    .chatId(chat.getChatId())
+                    .roomId(chat.getRoomId())
+                    .senderId(chat.getSenderId())
+                    .sender(user)
+                    .content(chat.getContent())
+                    .createdAt(chat.getCreatedAt())
+                    .isVote(chat.getIsVote())
+                    .vote(null)
+                    .isVoteResponse(chat.getIsVoteResponse())
+                    .responseOfVote(chat.getResponseOfVote())
+                    .isVoteResult(chat.getIsVoteResult())
+                    .resultOfVote(chat.getResultOfVote())
+                    .build();
+
+            if (chat.getIsVote()) {
+                log.info("[findPagedChatByRoomId] 투표 찾기 voteId={}", chat.getVoteId());
+                Vote vote = voteRepository.findByVoteId(chat.getVoteId()).orElseThrow(() -> new VoteNotFoundException());
+                log.info("[findPagedChatByRoomId] 찾은 투표 voteTitle={}", vote.getVoteTitle());
                 chatResponse.setVote(vote);
             }
 

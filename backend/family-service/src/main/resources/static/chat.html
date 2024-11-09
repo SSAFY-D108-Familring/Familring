@@ -26,10 +26,13 @@
     <button onclick="sendMessage()">Send</button>
 </div>
 <div id="chat-log"></div>
+<button onclick="loadMoreMessages()">Load More Messages</button>
 
 <script>
     let stompClient = null;
     let isConnected = false;
+    let currentPage = 0;
+    const pageSize = 100;
 
     function toggleVoteOptions() {
         const voteTitleInput = document.getElementById("voteTitle");
@@ -50,7 +53,7 @@
             return;
         }
 
-        fetchChatHistory(roomId, userId);
+        fetchChatHistory(roomId, userId, currentPage, pageSize);
 
         const socket = new SockJS('/ws-stomp');
         stompClient = Stomp.over(socket);
@@ -80,6 +83,13 @@
             });
             const result = await response.json();
             const chatLog = document.getElementById("chat-log");
+
+            // chatLog 요소가 존재하는지 확인
+            if (!chatLog) {
+                console.warn("채팅 기록을 표시할 요소가 없습니다.");
+                return;
+            }
+
             chatLog.innerHTML = "";
 
             if (result.data && Array.isArray(result.data)) {
@@ -92,6 +102,13 @@
         } catch (error) {
             console.error("채팅 기록을 불러오는 중 오류 발생:", error);
         }
+    }
+
+    function loadMoreMessages() {
+        currentPage++;
+        const roomId = document.getElementById("roomId").value;
+        const userId = document.getElementById("userId").value;
+        fetchChatHistory(roomId, userId, currentPage, pageSize);
     }
 
     function sendMessage() {
@@ -157,23 +174,19 @@
             <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>`;
 
         if (message.isVote) {
-            // 투표 메시지
             content += `
                 <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
                 <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '찬성')">찬성</button>
                 <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '반대')">반대</button>`;
         } else if (message.isVoteResponse) {
-            // 투표 응답 메시지
             content += `<p><strong>투표 응답:</strong> ${message.responseOfVote}</p>`;
         } else if (message.isVoteResult && message.resultOfVote) {
-            // 투표 결과 메시지
             content += `<p><strong>투표 결과:</strong></p><ul>`;
             for (const [option, count] of Object.entries(message.resultOfVote)) {
                 content += `<li>${option}: ${count}명</li>`;
             }
             content += `</ul>`;
         } else {
-            // 일반 메시지
             content += `<p>일반 메시지</p>`;
         }
 
