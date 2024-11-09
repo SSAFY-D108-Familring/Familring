@@ -35,9 +35,11 @@ fun NumberTextField(
     placeholder: String = "",
     focusManager: FocusManager,
     maxLength: Int,
-    borderColor: Color = if (number.isEmpty()) Gray03 else Green03,
-    textColor: Color = if (number.isEmpty()) Gray03 else Black,
+    borderColor: Color = Green03,
 ) {
+    val borderColor: Color = if (number.isEmpty()) Gray03 else borderColor
+    val textColor: Color = if (number.isEmpty()) Gray03 else Black
+
     OutlinedTextField(
         modifier =
             modifier.border(
