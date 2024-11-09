@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,14 +50,15 @@ import com.familring.presentation.R
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.IconCustomDropBoxStyles
 import com.familring.presentation.component.IconCustomDropdownMenu
+import com.familring.presentation.component.ImageLoadingProgress
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
-import com.familring.presentation.theme.Red02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
@@ -170,6 +172,7 @@ fun DailyItem(
     showDeleteDailyDialog: (Long) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    var isImageLoaded by remember { mutableStateOf(false) }
 
     Column(
         modifier =
@@ -255,9 +258,16 @@ fun DailyItem(
                     contentDescription = "img_daily",
                     alignment = Alignment.Center,
                     contentScale = ContentScale.FillWidth,
-//                    placeholder = painterResource(id = R.drawable.img_camera), // 로딩 중 이미지
-//                    error = painterResource(id = R.drawable.img_album), // 로드 실패 시 이미지
+                    onLoading = {
+                        isImageLoaded = false
+                    },
+                    onSuccess = {
+                        isImageLoaded = true
+                    },
                 )
+                if (!isImageLoaded) {
+                    ImageLoadingProgress()
+                }
             }
         }
     }
