@@ -3,6 +3,7 @@ package com.familring.interestservice.controller;
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
 import com.familring.interestservice.dto.response.InterestAnswerListResponse;
+import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
 import com.familring.interestservice.service.InterestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,6 +45,13 @@ public class InterestController {
     public ResponseEntity<BaseResponse<InterestAnswerListResponse>> getInterestAnswerList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         InterestAnswerListResponse response = interestService.getInterestAnswerList(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족들의 관심사 답변 목록 조회에 성공했습니다.", response));
+    }
+
+    @GetMapping("/interest/answers/mine")
+    @Operation(summary = "내가 작성한 관심사 조회", description = "내가 작성했던 관심사 조회 (수정하는 화면에서 내가 작성한 관심사 조회하는 용도)")
+    public ResponseEntity<BaseResponse<InterestAnswerMineResponse>> getInterestAnswerMine (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        InterestAnswerMineResponse response = interestService.getInterestAnswerMine(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "내가 작성했던 관심사 조회에 성공했습니다.", response));
     }
 
 }

@@ -7,6 +7,7 @@ import com.familring.interestservice.dto.client.UserInfoResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
 import com.familring.interestservice.dto.response.InterestAnswerItem;
 import com.familring.interestservice.dto.response.InterestAnswerListResponse;
+import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
 import com.familring.interestservice.exception.InterestAnswerNotFoundException;
 import com.familring.interestservice.repository.InterestAnswerRepository;
 import com.familring.interestservice.repository.InterestMissionRepository;
@@ -139,6 +140,26 @@ public class InterestService {
         return InterestAnswerListResponse
                 .builder()
                 .items(interestAnswerItems)
+                .build();
+
+    }
+
+    // 내가 작성한 관심사 조회
+    public InterestAnswerMineResponse getInterestAnswerMine(Long userId) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+
+        // 내가 작성한 관심사 답변 찾기
+        InterestAnswer interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest).orElseThrow(InterestAnswerNotFoundException::new);
+
+        return InterestAnswerMineResponse
+                .builder()
+                .content(interestAnswer.getContent())
                 .build();
 
     }
