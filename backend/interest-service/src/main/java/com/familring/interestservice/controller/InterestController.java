@@ -69,4 +69,11 @@ public class InterestController {
         interestService.setInterestMissionPeriod(userID, interestMissionCreatePeriodRequest);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 기한 설정에 성공했습니다."));
     }
+
+    @GetMapping("/missions/period")
+    @Operation(summary = "관심사 체험 인증 남은 기간 조회", description = "관심사 체험하는 기간 얼마나 남았는지 조회")
+    public ResponseEntity<BaseResponse<Integer>> getInterestMissionDate (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        int response = interestService.getInterestMissionDate(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 남은 기간 조회에 성공했습니다.", response));
+    }
 }

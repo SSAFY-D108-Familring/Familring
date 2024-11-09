@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -251,6 +252,30 @@ public class InterestService {
             throw new InterestAnswerNotFoundException();
         }
 
+    }
+
+    // 관심사 체험 인증 남은 기간 조회
+    public int getInterestMissionDate(Long userId) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+
+        // 오늘 날짜
+        LocalDate today = LocalDate.now();
+
+        int diff = 0;
+        if (interest.getMissionEndDate() != null) {
+            diff = (int) ChronoUnit.DAYS.between(today, interest.getMissionEndDate());
+        } else {
+            throw new InterestMissionEndDateNotFoundException(); // 관심사 인증 기간을 설정하지 않았을 때
+        }
+
+        // 남은 기간 조회
+        return diff;
     }
 
 }
