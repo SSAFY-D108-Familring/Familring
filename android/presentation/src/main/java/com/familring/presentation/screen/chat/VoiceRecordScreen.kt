@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -43,6 +45,7 @@ import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.util.noRippleClickable
 import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -53,6 +56,7 @@ fun VoiceRecordScreen(
     onDismiss: () -> Unit,
     onRecordingComplete: (String) -> Unit,
     showSnackBar: (String) -> Unit,
+    popUpBackStack: () -> Unit,
 ) {
     val context = LocalContext.current
     val voiceRecorder = remember { VoiceRecorder(context) }
@@ -163,11 +167,32 @@ fun VoiceRecordScreen(
         }
         // 녹음 시작 전
         else {
-            Text(
-                text = "음성메시지",
-                style = Typography.headlineMedium,
-                color = Black,
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterStart,
+                ) {
+                    Icon(
+                        modifier =
+                            Modifier.noRippleClickable {
+                                popUpBackStack()
+                            },
+                        painter = painterResource(id = R.drawable.ic_back),
+                        contentDescription =
+                            "back",
+                    )
+                }
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "음성메시지",
+                        style = Typography.headlineMedium,
+                        color = Black,
+                    )
+                }
+            }
             Spacer(modifier = Modifier.weight(1f))
             IconButton(
                 onClick = {
@@ -184,10 +209,13 @@ fun VoiceRecordScreen(
                         else -> permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 },
-                modifier = Modifier.size(60.dp),
+                modifier =
+                    Modifier.size(60.dp),
             ) {
                 Icon(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier =
+                        Modifier
+                            .fillMaxSize(),
                     painter = painterResource(id = R.drawable.ic_record),
                     contentDescription = "record",
                     tint = Red01,
@@ -276,6 +304,8 @@ fun VoicePlaybackUI(
                         .height(8.dp)
                         .padding(horizontal = 8.dp),
             )
+        }
+        if (!isPlaying) {
             Row {
                 IconButton(onClick = {
                     voicePlayer.stopPlaying()
@@ -289,9 +319,9 @@ fun VoicePlaybackUI(
                     )
                 }
                 IconButton(onClick = {
+                    onSend()
                     voicePlayer.stopPlaying()
                     isPlaying = false
-                    onSend()
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_send),

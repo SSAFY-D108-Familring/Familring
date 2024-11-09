@@ -268,6 +268,7 @@ fun ChatScreen(
                             // 음성 메시지 전송 api 호출
                         },
                         showSnackBar = showSnackBar,
+                        popUpBackStack = { clickedItem = "" },
                     )
                 }
 
