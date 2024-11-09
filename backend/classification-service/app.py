@@ -171,18 +171,18 @@ def get_face_encodings(image):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/classification/v3/api-docs")
 
-@app.get("/docs", include_in_schema=False)
+@app.get("/classification/v3/api-docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
-        openapi_url="/openapi.json",
+        openapi_url="/classification/v3/api-docs/openapi.json",
         title=app.title + " - Swagger UI",
         swagger_favicon_url="",
         swagger_ui_parameters={"defaultModelsExpandDepth": -1}
     )
 
-@app.get("/openapi.json", include_in_schema=False)
+@app.get("/classification/v3/api-docs/openapi.json", include_in_schema=False)
 async def get_openapi_endpoint():
     return get_openapi(
         title=app.title,
