@@ -37,31 +37,6 @@
         voteTitleInput.style.display = messageType === "vote" ? "block" : "none";
     }
 
-    async function fetchChatHistory(roomId, userId) {
-        try {
-            const response = await fetch(`/rooms/enter/${roomId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-User-ID': userId
-                }
-            });
-            const result = await response.json();
-            const chatLog = document.getElementById("chat-log");
-            chatLog.innerHTML = "";
-
-            if (result.data && Array.isArray(result.data)) {
-                result.data.forEach(message => {
-                    showMessage(message);
-                });
-            } else {
-                console.warn("No chat data available.");
-            }
-        } catch (error) {
-            console.error("채팅 기록을 불러오는 중 오류 발생:", error);
-        }
-    }
-
     function connect() {
         if (isConnected) {
             alert("이미 연결되어 있습니다.");
@@ -84,11 +59,39 @@
             { "X-User-ID": userId },
             () => {
                 stompClient.subscribe(`/room/${roomId}`, (message) => {
-                    showMessage(JSON.parse(message.body));
+                    const parsedMessage = JSON.parse(message.body);
+                    console.log("New message received:", parsedMessage);
+                    displayMessageByType(parsedMessage);
                 });
                 isConnected = true;
+                console.log("WebSocket connected and subscribed to /room/" + roomId);
             }
         );
+    }
+
+    async function fetchChatHistory(roomId, userId) {
+        try {
+            const response = await fetch(`/rooms/enter/${roomId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': userId
+                }
+            });
+            const result = await response.json();
+            const chatLog = document.getElementById("chat-log");
+            chatLog.innerHTML = "";
+
+            if (result.data && Array.isArray(result.data)) {
+                result.data.forEach(message => {
+                    displayMessageByType(message);
+                });
+            } else {
+                console.warn("No chat data available.");
+            }
+        } catch (error) {
+            console.error("채팅 기록을 불러오는 중 오류 발생:", error);
+        }
     }
 
     function sendMessage() {
@@ -104,7 +107,7 @@
         }
 
         if (stompClient && stompClient.connected) {
-            stompClient.send(`/send/${roomId}`, {}, JSON.stringify({
+            stompClient.send(`/send/chat.send`, {}, JSON.stringify({
                 roomId: roomId,
                 senderId: userId,
                 content: messageContent,
@@ -122,49 +125,60 @@
     function sendVoteResponse(roomId, voteId, response) {
         const userId = document.getElementById("userId").value;
 
-        stompClient.send(`/send/${roomId}/vote`, {}, JSON.stringify({
-            senderId: userId,
-            voteId: String(voteId),
-            isVoteResponse: true,
-            responseOfVote: response
-        }));
+        if (!userId || !roomId || !voteId) {
+            alert("User ID, Room ID, 또는 Vote ID가 없습니다.");
+            return;
+        }
+
+        if (stompClient && stompClient.connected) {
+            stompClient.send(`/send/chat.vote`, {}, JSON.stringify({
+                roomId: roomId,
+                senderId: userId,
+                voteId: voteId,
+                isVoteResponse: true,
+                responseOfVote: response
+            }));
+            console.log(`[sendVoteResponse] 응답 전송: ${response}`);
+        } else {
+            alert("WebSocket 서버에 연결되어 있지 않습니다.");
+        }
     }
 
-    function showMessage(message) {
+    function displayMessageByType(message) {
         const chatLog = document.getElementById("chat-log");
+        console.log("Displaying message by type:", message);
 
-        const chatId = message.chatId && message.chatId.timestamp ? message.chatId.timestamp : "N/A";
-
-        let voteInfo = "<p>일반 메시지</p>";
-        if (message.isVote && message.vote) {
-            voteInfo = `
-            <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
-            <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '찬성')">찬성</button>
-            <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '반대')">반대</button>
-        `;
-        } else if (message.isVoteResponse) {
-            voteInfo = `<p><strong>투표 응답:</strong> ${message.responseOfVote}</p>`;
-        }
-
-        // 투표 결과 표시
-        if (message.isVoteResult && message.resultOfVote) {
-            voteInfo = `<p><strong>투표 결과:</strong></p><ul>`;
-            for (const [option, count] of Object.entries(message.resultOfVote)) {
-                voteInfo += `<li>${option}: ${count}명</li>`;
-            }
-            voteInfo += `</ul>`;
-        }
-
-        chatLog.innerHTML += `
-        <div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-            <p><strong>채팅 ID:</strong> ${chatId}</p>
+        let content = `<div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
+            <p><strong>채팅 ID:</strong> ${message.chatId || "N/A"}</p>
             <p><strong>방 ID:</strong> ${message.roomId}</p>
             <p><strong>발신자 ID:</strong> ${message.senderId}</p>
-            <p><strong>발신자 닉네임:</strong> ${message.sender.userNickname}</p>
+            <p><strong>발신자 닉네임:</strong> ${message.sender ? message.sender.userNickname : "Unknown"}</p>
             <p><strong>내용:</strong> ${message.content}</p>
-            <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>
-            ${voteInfo}
-        </div>`;
+            <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>`;
+
+        if (message.isVote) {
+            // 투표 메시지
+            content += `
+                <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
+                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '찬성')">찬성</button>
+                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '반대')">반대</button>`;
+        } else if (message.isVoteResponse) {
+            // 투표 응답 메시지
+            content += `<p><strong>투표 응답:</strong> ${message.responseOfVote}</p>`;
+        } else if (message.isVoteResult && message.resultOfVote) {
+            // 투표 결과 메시지
+            content += `<p><strong>투표 결과:</strong></p><ul>`;
+            for (const [option, count] of Object.entries(message.resultOfVote)) {
+                content += `<li>${option}: ${count}명</li>`;
+            }
+            content += `</ul>`;
+        } else {
+            // 일반 메시지
+            content += `<p>일반 메시지</p>`;
+        }
+
+        content += `</div>`;
+        chatLog.innerHTML += content;
     }
 </script>
 </body>

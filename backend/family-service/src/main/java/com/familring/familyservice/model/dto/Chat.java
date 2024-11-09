@@ -34,6 +34,7 @@ public class Chat {
     // 투표 응답
     private boolean isVoteResponse; // 투표 응답 여부
     private String responseOfVote; // 투표 응답
+    private boolean isVoteEnd; // 투표 종료 여부
     
     // 투표 결과
     private boolean isVoteResult; // 투표 결과 여부
@@ -53,6 +54,10 @@ public class Chat {
 
     public void setIsVoteResponse(boolean isVoteResponse) {
         this.isVoteResponse = isVoteResponse;
+    }
+
+    public boolean getIsVoteEnd() {
+        return isVoteEnd;
     }
 
     public boolean getIsVoteResult() {

@@ -9,6 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatRequest {
+    // 채팅방 정보
+    private Long roomId;
+
     // 발신자 정보
     private Long senderId; // 발신자 id
     private String content; // 채팅 내용

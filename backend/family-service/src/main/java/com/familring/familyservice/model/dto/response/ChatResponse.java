@@ -16,7 +16,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatResponse {
-    
     private String chatId; // 채팅의 id
     private Long roomId; // 채팅 방의 id == familyId
     
@@ -33,6 +32,7 @@ public class ChatResponse {
     // 투표 응답
     private boolean isVoteResponse; // 투표 응답 여부
     private String responseOfVote; // 투표 응답
+    private boolean voteEnd; // 투표 끝남 유무
 
     // 투표 결과
     private boolean isVoteResult; // 투표 결과 여부
