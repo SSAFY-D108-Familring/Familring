@@ -26,8 +26,13 @@ public class InterestMission {
     @Column(name="user_id")
     private Long userId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "interest_id")
+    private Interest interest;
+
     @Column(name="interest_mission_photo_url")
-    private LocalDate startDate;
+    private String photoUrl;
 
-
+    @Column(name="interest_mission_created_at")
+    private LocalDate createdAt;
 }
