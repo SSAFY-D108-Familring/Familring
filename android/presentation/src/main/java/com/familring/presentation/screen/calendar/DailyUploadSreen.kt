@@ -157,20 +157,24 @@ fun DailyUploadScreen(
             }
         }
 
-    var content by remember { mutableStateOf("") }
+    var content by remember { mutableStateOf(if(isModify) targetDaily.content else "") }
+    val contentScrollState = rememberScrollState()
+
     val scrollState = rememberScrollState()
 
     // 키보드 높이 감지
     val imeInsets = WindowInsets.ime.exclude(WindowInsets.navigationBars)
     val imeHeight = imeInsets.getBottom(LocalDensity.current)
 
+    LaunchedEffect(imeHeight) {
+        scrollState.scrollTo(scrollState.maxValue)
+    }
+
     LaunchedEffect(targetDaily) {
         if (isModify) {
-            content = targetDaily.content
             imgUri = targetDaily.dailyImgUrl.toUri()
         }
     }
-
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -197,8 +201,8 @@ fun DailyUploadScreen(
             Box(
                 modifier =
                     Modifier
-                        .fillMaxWidth(0.6f)
-                        .aspectRatio(3f / 4f)
+                        .fillMaxWidth(0.9f)
+                        .aspectRatio(3.5f / 3f)
                         .clip(shape = RoundedCornerShape(12.dp))
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp))
                         .clickable {
@@ -230,9 +234,9 @@ fun DailyUploadScreen(
                 modifier =
                     Modifier
                         .fillMaxWidth(0.9f)
-                        .aspectRatio(3f / 2f),
+                        .aspectRatio(2.8f / 2f),
                 content = content,
-                scrollState = rememberScrollState(),
+                scrollState = contentScrollState,
                 onValueChange = { content = it },
                 hint = "가족과 공유하고 싶은 일상을 작성해 주세요!",
             )

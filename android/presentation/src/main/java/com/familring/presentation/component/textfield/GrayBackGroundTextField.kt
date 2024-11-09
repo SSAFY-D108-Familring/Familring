@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -27,6 +31,12 @@ fun GrayBackgroundTextField(
     onValueChange: (String) -> Unit,
     hint: String = "여기에 작성해 주세요",
 ) {
+    val textFieldState = remember { TextFieldState(content) }
+
+    LaunchedEffect(textFieldState.text) {
+        onValueChange(textFieldState.text.toString())
+    }
+
     Box(
         modifier =
             modifier
@@ -36,19 +46,18 @@ fun GrayBackgroundTextField(
                 .padding(16.dp),
     ) {
         BasicTextField(
-            value = content,
-            onValueChange = onValueChange,
             modifier =
                 Modifier.verticalScroll(
                     state = scrollState,
                 ),
+            state = textFieldState,
             textStyle =
                 Typography.bodyMedium.copy(
                     fontSize = 20.sp,
                     color = Black,
                 ),
-            decorationBox = { innerTextField ->
-                if (content.isEmpty()) {
+            decorator = { innerTextField ->
+                if (content.isBlank()) {
                     Text(
                         modifier = Modifier.fillMaxSize(),
                         text = hint,
