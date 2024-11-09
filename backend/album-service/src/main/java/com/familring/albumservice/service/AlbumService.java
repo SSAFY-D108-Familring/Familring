@@ -144,6 +144,12 @@ public class AlbumService {
             throw new InvalidAlbumRequestException();
         }
 
+        // 가족 구성원 불러오기
+
+        // 얼사분
+
+        // 가족
+
         List<String> photoUrls = fileServiceFeignClient.uploadFiles(photos, getAlbumPhotoPath(familyId)).getData();
         List<Photo> newPhotos = photoUrls.stream().map(url -> Photo.builder().photoUrl(url).build()).toList();
         album.addPhotos(newPhotos);
