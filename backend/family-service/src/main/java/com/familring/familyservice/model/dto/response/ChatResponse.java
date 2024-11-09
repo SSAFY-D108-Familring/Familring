@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @Builder
@@ -25,10 +26,17 @@ public class ChatResponse {
     private String content; // 채팅 내용
     private LocalDateTime createdAt; // 채팅 발신 시간
 
+    // 투표
     private boolean isVote; // 투표 여부
     private Vote vote; // 투표
+
+    // 투표 응답
     private boolean isVoteResponse; // 투표 응답 여부
     private String responseOfVote; // 투표 응답
+
+    // 투표 결과
+    private boolean isVoteResult; // 투표 결과 여부
+    private Map<String, Integer> resultOfVote; // 투표 결과
 
     public boolean getIsVote() {
         return isVote;
@@ -51,4 +59,12 @@ public class ChatResponse {
     }
 
     public void setIsVoteResponse(boolean isVoteResponse) {}
+
+    public boolean getIsVoteResult() {
+        return isVoteResult;
+    }
+
+    public void setIsVoteResult(boolean isVoteResult) {
+        this.isVoteResult = isVoteResult;
+    }
 }

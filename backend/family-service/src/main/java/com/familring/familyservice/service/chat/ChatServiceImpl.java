@@ -9,12 +9,15 @@ import com.familring.familyservice.model.dto.request.ChatRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.model.repository.ChatRepository;
 import com.familring.familyservice.model.repository.VoteRepository;
-import com.familring.familyservice.service.chat.event.ChatCreatedEvent;
+import com.familring.familyservice.service.chat.event.ChatRoomConnectEvent;
+import com.familring.familyservice.service.chat.event.VoteCompletedEvent;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import com.familring.familyservice.service.family.FamilyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +31,17 @@ import java.util.List;
 @Log4j2
 public class ChatServiceImpl implements ChatService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final UserServiceFeignClient userServiceFeignClient;
     private final FamilyService familyService;
-    private final ApplicationEventPublisher eventPublisher;
 
     private final ChatRepository chatRepository;
     private final VoteRepository voteRepository;
+
+    @EventListener
+    public void handleChatRoomConnect(ChatRoomConnectEvent event) {
+        connectChatRoom(event.getRoomId(), event.getUserId());
+    }
 
     @Override
     @Transactional
@@ -57,6 +65,8 @@ public class ChatServiceImpl implements ChatService {
                 .voteId("") // 투표 유효하지 않은 값 넣기
                 .isVoteResponse(chatRequest.getIsVoteResponse())
                 .responseOfVote("") // 투표 응답 유효하지 않은 값 넣기
+                .isVoteResult(false)
+                .resultOfVote(new HashMap<>()) // 투표 결과 유효하지 않은 값 넣기
                 .build();
         log.info("[createChat] 채팅 객체 생성: chat={}", chat);
         log.info("[createChat] chatRequest.isVote()={}", chatRequest.isVote());
@@ -89,13 +99,13 @@ public class ChatServiceImpl implements ChatService {
             log.info("[createChat] 생성된 투표 객체 voteId={}", chat.getVoteId());
         }
         
-        // 저장
+        // chatRepository에 저장
         chatRepository.save(chat);
         log.info("[createChat] chatRepository 저장 완료");
 
         // ChatCreatedEvent 이벤트를 발행하여 다른 서비스나 컴포넌트에서 이 이벤트를 처리할 수 있게 함
-        eventPublisher.publishEvent(new ChatCreatedEvent(roomId, chatRequest.getContent(), LocalDateTime.now().toString()));
-        log.info("[createChat] 이벤트 발행 완료");
+//        eventPublisher.publishEvent(new ChatCreatedEvent(roomId, chatRequest.getContent(), LocalDateTime.now().toString()));
+//        log.info("[createChat] 이벤트 발행 완료");
 
         return chat;
     }
@@ -138,15 +148,10 @@ public class ChatServiceImpl implements ChatService {
 
         // 투표 저장
         voteRepository.save(vote);
-
-        // 투표를 모두 참여한 경우 체크
-        if(vote.getFamilyCount() == vote.getChoices().size()) {
-            log.info("[createChatVoteResponse] 모든 사용자 투표 참여 완료: familyCount={}, participants={}", vote.getFamilyCount(), vote.getChoices().size());
-            log.info("[createChatVoteResponse] voteResult={}", vote.getVoteResult());
-        }
+        log.info("[createChatVoteResponse] voteRepository 저장 완료");
 
         // 채팅 객체 생성
-        Chat chat = Chat.builder()
+        Chat voteChat = Chat.builder()
                 .roomId(roomId)
                 .senderId(chatRequest.getSenderId())
                 .content(chatRequest.getContent())
@@ -155,10 +160,33 @@ public class ChatServiceImpl implements ChatService {
                 .voteId(voteId)
                 .isVoteResponse(chatRequest.getIsVoteResponse())
                 .responseOfVote(chatRequest.getResponseOfVote())
+                .isVoteResult(false)
+                .resultOfVote(new HashMap<>())
                 .build();
-        log.info("[createChatVoteResponse] 채팅 객체 생성: chat={}", chat);
+        log.info("[createChatVoteResponse] 투표 응답 채팅 객체: voteChat={}", voteChat);
 
-        return chat;
+        // 투표 응답 채팅 객체 저장
+        chatRepository.save(voteChat);
+        log.info("[createChatVoteResponse] 투표 응답 채팅 chatRepository 저장 완료");
+
+        // 투표를 모두 참여한 경우 체크
+        if(vote.getFamilyCount() == vote.getChoices().size()) {
+            log.info("[createChatVoteResponse] 모든 사용자 투표 참여 완료: familyCount={}, participants={}", vote.getFamilyCount(), vote.getChoices().size());
+            log.info("[createChatVoteResponse] voteResult={}", vote.getVoteResult());
+
+            // 이벤트 발행
+            eventPublisher.publishEvent(new VoteCompletedEvent(
+                    roomId,
+                    voteId,
+                    vote.getSenderId(),
+                    vote.getVoteTitle(),
+                    vote.getVoteResult(),
+                    LocalDateTime.now()
+            ));
+            log.info("[createChatVoteResponse] VoteCompletedEvent 발행 완료");
+        }
+
+        return voteChat;
     }
 
     @Override
@@ -182,6 +210,8 @@ public class ChatServiceImpl implements ChatService {
                     .vote(null)
                     .isVoteResponse(chat.getIsVoteResponse())
                     .responseOfVote(chat.getResponseOfVote())
+                    .isVoteResult(chat.getIsVoteResult())
+                    .resultOfVote(chat.getResultOfVote())
                     .build();
 
             // 투표인 경우

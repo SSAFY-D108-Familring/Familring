@@ -2,10 +2,13 @@ package com.familring.familyservice.config.websocket;
 
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.service.chat.ChatService;
+import com.familring.familyservice.service.chat.event.ChatRoomConnectEvent;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
@@ -20,7 +23,8 @@ import java.util.Optional;
 @Log4j2
 public class StompHandler implements ChannelInterceptor {
 
-    private final ChatService chatService;
+//    private final ChatService chatService;
+    private final ApplicationEventPublisher eventPublisher;
     private final UserServiceFeignClient userServiceFeignClient;
 
     @Override
@@ -83,7 +87,7 @@ public class StompHandler implements ChannelInterceptor {
         UserInfoResponse user = userServiceFeignClient.getUser(userId).getData();
         log.info("[connectToChatRoom] 회원 이름 = {}", user.getUserNickname());
 
-        chatService.connectChatRoom(roomId, userId);
+        eventPublisher.publishEvent(new ChatRoomConnectEvent(roomId, userId));
         log.info("[connectToChatRoom] connectChatRoom() 연결 완료");
 
         return roomId;

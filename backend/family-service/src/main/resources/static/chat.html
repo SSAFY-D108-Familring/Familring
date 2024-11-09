@@ -122,15 +122,11 @@
     function sendVoteResponse(roomId, voteId, response) {
         const userId = document.getElementById("userId").value;
 
-        // 로그로 voteId 확인
-        console.log("voteId (string):", String(voteId));
-
-        // /send 경로로 메시지 전송
         stompClient.send(`/send/${roomId}/vote`, {}, JSON.stringify({
-            senderId: userId,            // 발신자 ID
-            voteId: String(voteId),      // 투표 ID, 문자열로 변환
-            isVoteResponse: true,        // 투표 응답 여부를 true로 설정
-            responseOfVote: response     // 변경된 필드명 사용
+            senderId: userId,
+            voteId: String(voteId),
+            isVoteResponse: true,
+            responseOfVote: response
         }));
     }
 
@@ -148,6 +144,15 @@
         `;
         } else if (message.isVoteResponse) {
             voteInfo = `<p><strong>투표 응답:</strong> ${message.responseOfVote}</p>`;
+        }
+
+        // 투표 결과 표시
+        if (message.isVoteResult && message.resultOfVote) {
+            voteInfo = `<p><strong>투표 결과:</strong></p><ul>`;
+            for (const [option, count] of Object.entries(message.resultOfVote)) {
+                voteInfo += `<li>${option}: ${count}명</li>`;
+            }
+            voteInfo += `</ul>`;
         }
 
         chatLog.innerHTML += `
