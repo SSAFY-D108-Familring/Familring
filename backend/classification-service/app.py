@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel, Field
 from typing import List, Dict
 import face_recognition
@@ -12,8 +14,6 @@ import cv2
 import logging
 import os
 from dotenv import load_dotenv
-import socket
-import contextlib
 from py_eureka_client import eureka_client
 
 # .env 파일 로드
@@ -22,29 +22,21 @@ load_dotenv()
 # 환경변수 설정
 EUREKA_SERVER = os.getenv('EUREKA_SERVER')
 APP_NAME = os.getenv('APP_NAME')
-SERVER_HOST = os.getenv('SERVER_HOST', '0.0.0.0')
+SERVER_HOST = os.getenv('SERVER_HOST')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
+SERVER_PORT = int(os.getenv('SERVER_PORT', '8000'))  # 기본값 8000으로 설정
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def find_free_port():
-    """사용 가능한 랜덤 포트를 찾는 함수"""
-    with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(('', 0))
-        s.listen(1)
-        port = s.getsockname()[1]
-        return port
-
 app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url=None,
+    redoc_url=None
 )
-
-# 글로벌 변수로 포트 저장
-server_port = None
 
 app.add_middleware(
     CORSMiddleware,
@@ -136,11 +128,10 @@ def get_face_encodings(image):
         face_locations = face_recognition.face_locations(
             image,
             model="hog",
-            number_of_times_to_upsample=2  # 작은 얼굴도 찾기 위해 업샘플링
+            number_of_times_to_upsample=2
         )
         
         if not face_locations:
-            # 첫 시도 실패시 다른 크기로 한번 더 시도
             scaled_image = cv2.resize(image, None, fx=0.5, fy=0.5)
             face_locations = face_recognition.face_locations(
                 scaled_image,
@@ -148,7 +139,6 @@ def get_face_encodings(image):
                 number_of_times_to_upsample=2
             )
             if face_locations:
-                # 좌표 원본 크기로 변환
                 face_locations = [(int(top*2), int(right*2), 
                                  int(bottom*2), int(left*2))
                                 for top, right, bottom, left in face_locations]
@@ -156,11 +146,10 @@ def get_face_encodings(image):
         if not face_locations:
             return None
             
-        # 얼굴 인코딩
         face_encodings = face_recognition.face_encodings(
             image,
             face_locations,
-            num_jitters=1  # 기본값 사용
+            num_jitters=1
         )
         
         return face_encodings if face_encodings else None
@@ -195,15 +184,7 @@ async def get_openapi_endpoint():
 async def classify_images(request: AnalysisRequest):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
-
-    - **targetImages**: 분석할 대상 이미지 URL 리스트
-    - **people**: 비교할 사람들의 정보 (id와 photoUrl)
-
-    Returns:
-        각 이미지별로 등록된 사람들과의 최대 유사도 점수 (0~1 사이 값)
-        얼굴이 감지되지 않는 경우 모든 유사도는 0으로 반환
     """
-    # 등록된 사람들의 얼굴 인코딩 준비
     people_encodings = {}
     for person in request.people:
         img = load_image_from_url(person.photoUrl)
@@ -243,21 +224,11 @@ async def classify_images(request: AnalysisRequest):
     
     return results
 
-# 기존 코드는 동일하고 /face-count API 부분만 수정됩니다
-
 @app.post("/face-count", response_model=CountResponse)
 async def count_faces(file: UploadFile = File(...)):
     """
     업로드된 이미지 파일에서 검출된 얼굴의 수를 반환합니다.
-
-    - **file**: 이미지 파일 (multipart/form-data)
-    - 지원 형식: JPG, JPEG, PNG, GIF, BMP, WEBP
-    - 최대 파일 크기: 10MB
-
-    Returns:
-        검출된 얼굴의 수
     """
-    # 파일 확장자 검사
     allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
     file_ext = file.filename.lower()[file.filename.rfind("."):]
     
@@ -267,7 +238,6 @@ async def count_faces(file: UploadFile = File(...)):
             detail="지원되지 않는 파일 형식입니다. JPG, JPEG, PNG, GIF, BMP, WEBP 파일만 허용됩니다."
         )
     
-    # 파일 크기 제한 (10MB)
     MAX_FILE_SIZE = 10 * 1024 * 1024
     file_content = await file.read()
     if len(file_content) > MAX_FILE_SIZE:
@@ -285,40 +255,34 @@ async def count_faces(file: UploadFile = File(...)):
 
     return CountResponse(faceCount=face_count)
 
-
 async def register_to_eureka():
     """Eureka 서버에 서비스 등록"""
-    global server_port
     try:
-        # eureka_client 설정
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
             "app_name": APP_NAME,
-            "instance_port": server_port,
+            "instance_port": SERVER_PORT,
             "instance_host": INSTANCE_HOST
         }
         
-        # 설정값 로깅
         logger.info(f"Eureka configuration: {eureka_config}")
         
-        # 필수 값 검증
-        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, server_port]):
+        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST]):
             missing_values = []
             if not EUREKA_SERVER: missing_values.append("EUREKA_SERVER")
             if not APP_NAME: missing_values.append("APP_NAME")
             if not INSTANCE_HOST: missing_values.append("INSTANCE_HOST")
-            if not server_port: missing_values.append("server_port")
             raise ValueError(f"Missing required configuration: {', '.join(missing_values)}")
 
-        # Eureka 클라이언트 초기화
         await eureka_client.init_async(
             eureka_server=EUREKA_SERVER,
             app_name=APP_NAME,
-            instance_port=server_port,
+            instance_port=SERVER_PORT,
             instance_host=INSTANCE_HOST,
             instance_ip=INSTANCE_HOST
         )
         logger.info(f"Successfully registered to Eureka server at {EUREKA_SERVER}")
+        
     except Exception as e:
         logger.error(f"Failed to register to Eureka server: {str(e)}")
         raise
@@ -326,10 +290,6 @@ async def register_to_eureka():
 @app.on_event("startup")
 async def startup_event():
     """애플리케이션 시작 시 Eureka 서버에 등록"""
-    global server_port
-    if server_port is None:
-        server_port = find_free_port()
-    logger.info(f"Using port: {server_port}")
     await register_to_eureka()
 
 @app.on_event("shutdown")
@@ -343,10 +303,10 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
-    server_port = find_free_port()
-    logger.info(f"Starting server on port {server_port}")
+    logger.info(f"Starting server on port {SERVER_PORT}")
     uvicorn.run(
         app, 
-        host=SERVER_HOST, 
-        port=server_port
+        host=SERVER_HOST,
+        port=SERVER_PORT,
+        reload=False
     )
