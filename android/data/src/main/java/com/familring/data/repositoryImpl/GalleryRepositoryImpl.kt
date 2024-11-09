@@ -115,4 +115,17 @@ class GalleryRepositoryImpl
                     ),
                 )
             }
+
+        override suspend fun deletePhotos(
+            albumId: Long,
+            photoIds: List<Long>,
+        ): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.deletePhotos(albumId, photoIds) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
     }

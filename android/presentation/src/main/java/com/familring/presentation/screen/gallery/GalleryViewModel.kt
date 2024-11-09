@@ -113,7 +113,8 @@ class GalleryViewModel
 
                         is ApiResponse.Error -> {
                             _photoUiState.value =
-                                PhotoUiState.Error( // 이 부분 추가
+                                PhotoUiState.Error(
+                                    // 이 부분 추가
                                     errorMessage = response.message,
                                 )
                             _galleryUiEvent.emit(
@@ -181,6 +182,31 @@ class GalleryViewModel
         ) {
             viewModelScope.launch {
                 galleryRepository.uploadPhotos(albumId, photos).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _galleryUiEvent.emit(GalleryUiEvent.Success)
+                            getOneAlbum(albumId)
+                        }
+
+                        is ApiResponse.Error -> {
+                            _galleryUiEvent.emit(
+                                GalleryUiEvent.Error(
+                                    response.code,
+                                    response.message,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        fun deletePhotos(
+            albumId: Long,
+            photoIds: List<Long>,
+        ) {
+            viewModelScope.launch {
+                galleryRepository.deletePhotos(albumId, photoIds).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
                             _galleryUiEvent.emit(GalleryUiEvent.Success)

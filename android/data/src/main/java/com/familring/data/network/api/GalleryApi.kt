@@ -9,6 +9,7 @@ import okhttp3.MultipartBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.HTTP
 import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
@@ -48,5 +49,11 @@ interface GalleryApi {
     suspend fun uploadPhotos(
         @Path("album_id") albumId: Long,
         @Part photos: List<MultipartBody.Part?>,
+    ): BaseResponse<Unit>
+
+    @HTTP(method = "DELETE", path = "albums/{album_id}/photos", hasBody = true)
+    suspend fun deletePhotos(
+        @Path("album_id") albumId: Long,
+        @Body photoIds: List<Long>,
     ): BaseResponse<Unit>
 }

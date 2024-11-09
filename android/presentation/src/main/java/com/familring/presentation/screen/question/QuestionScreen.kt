@@ -166,7 +166,7 @@ fun QuestionScreen(
                             Text(
                                 text = "오늘의 질문",
                                 style = Typography.titleLarge,
-                                color = Black
+                                color = Black,
                             )
                         },
                         trailingIcon = {
@@ -227,7 +227,7 @@ fun QuestionScreen(
                                         modifier = Modifier.padding(horizontal = 26.dp),
                                         overflow = TextOverflow.Visible,
                                         style = Typography.displayMedium.copy(fontSize = 22.sp),
-                                        color = Black
+                                        color = Black,
                                     )
                                     Spacer(modifier = Modifier.fillMaxSize(0.05f))
                                 }

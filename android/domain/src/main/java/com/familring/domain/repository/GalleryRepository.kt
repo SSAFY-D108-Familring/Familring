@@ -30,4 +30,9 @@ interface GalleryRepository {
         albumId: Long,
         photos: List<File>,
     ): Flow<ApiResponse<Unit>>
+
+    suspend fun deletePhotos(
+        albumId: Long,
+        photoIds: List<Long>,
+    ): Flow<ApiResponse<Unit>>
 }
