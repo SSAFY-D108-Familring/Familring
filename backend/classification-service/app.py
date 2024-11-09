@@ -30,18 +30,6 @@ SERVER_PORT = int(os.getenv('SERVER_PORT', '8000'))  # 기본값 8000으로 설�
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def find_free_port():
-    """사용 가능한 랜덤 포트를 찾는 함수"""
-    with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(('', 0))
-        s.listen(1)
-        port = s.getsockname()[1]
-        return port
-
-# 글로벌 변수로 포트 저장
-server_port = find_free_port()
-logger.info(f"Selected random port: {server_port}")
-
 app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
@@ -140,11 +128,10 @@ def get_face_encodings(image):
         face_locations = face_recognition.face_locations(
             image,
             model="hog",
-            number_of_times_to_upsample=2  # 작은 얼굴도 찾기 위해 업샘플링
+            number_of_times_to_upsample=2
         )
         
         if not face_locations:
-            # 첫 시도 실패시 다른 크기로 한번 더 시도
             scaled_image = cv2.resize(image, None, fx=0.5, fy=0.5)
             face_locations = face_recognition.face_locations(
                 scaled_image,
@@ -152,7 +139,6 @@ def get_face_encodings(image):
                 number_of_times_to_upsample=2
             )
             if face_locations:
-                # 좌표 원본 크기로 변환
                 face_locations = [(int(top*2), int(right*2), 
                                  int(bottom*2), int(left*2))
                                 for top, right, bottom, left in face_locations]
@@ -160,11 +146,10 @@ def get_face_encodings(image):
         if not face_locations:
             return None
             
-        # 얼굴 인코딩
         face_encodings = face_recognition.face_encodings(
             image,
             face_locations,
-            num_jitters=1  # 기본값 사용
+            num_jitters=1
         )
         
         return face_encodings if face_encodings else None
@@ -199,15 +184,7 @@ async def get_openapi_endpoint():
 async def classify_images(request: AnalysisRequest):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
-
-    - **targetImages**: 분석할 대상 이미지 URL 리스트
-    - **people**: 비교할 사람들의 정보 (id와 photoUrl)
-
-    Returns:
-        각 이미지별로 등록된 사람들과의 최대 유사도 점수 (0~1 사이 값)
-        얼굴이 감지되지 않는 경우 모든 유사도는 0으로 반환
     """
-    # 등록된 사람들의 얼굴 인코딩 준비
     people_encodings = {}
     for person in request.people:
         img = load_image_from_url(person.photoUrl)
@@ -251,15 +228,7 @@ async def classify_images(request: AnalysisRequest):
 async def count_faces(file: UploadFile = File(...)):
     """
     업로드된 이미지 파일에서 검출된 얼굴의 수를 반환합니다.
-
-    - **file**: 이미지 파일 (multipart/form-data)
-    - 지원 형식: JPG, JPEG, PNG, GIF, BMP, WEBP
-    - 최대 파일 크기: 10MB
-
-    Returns:
-        검출된 얼굴의 수
     """
-    # 파일 확장자 검사
     allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
     file_ext = file.filename.lower()[file.filename.rfind("."):]
     
@@ -269,7 +238,6 @@ async def count_faces(file: UploadFile = File(...)):
             detail="지원되지 않는 파일 형식입니다. JPG, JPEG, PNG, GIF, BMP, WEBP 파일만 허용됩니다."
         )
     
-    # 파일 크기 제한 (10MB)
     MAX_FILE_SIZE = 10 * 1024 * 1024
     file_content = await file.read()
     if len(file_content) > MAX_FILE_SIZE:
@@ -293,7 +261,7 @@ async def register_to_eureka():
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
             "app_name": APP_NAME,
-            "instance_port": SERVER_PORT,  # 고정 포트 사용
+            "instance_port": SERVER_PORT,
             "instance_host": INSTANCE_HOST
         }
         
@@ -309,7 +277,7 @@ async def register_to_eureka():
         await eureka_client.init_async(
             eureka_server=EUREKA_SERVER,
             app_name=APP_NAME,
-            instance_port=SERVER_PORT,  # 고정 포트 사용
+            instance_port=SERVER_PORT,
             instance_host=INSTANCE_HOST,
             instance_ip=INSTANCE_HOST
         )
@@ -339,6 +307,6 @@ if __name__ == "__main__":
     uvicorn.run(
         app, 
         host=SERVER_HOST,
-        port=SERVER_PORT,  # 고정 포트 사용
+        port=SERVER_PORT,
         reload=False
     )
