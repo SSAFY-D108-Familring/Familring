@@ -37,4 +37,8 @@ public class InterestAnswer {
     @Column(name="interest_answer_selected")
     private boolean selected;
 
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
 }
