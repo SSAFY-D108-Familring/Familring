@@ -345,4 +345,8 @@ if __name__ == "__main__":
     import uvicorn
     server_port = find_free_port()
     logger.info(f"Starting server on port {server_port}")
-    uvicorn.run(app, host=SERVER_HOST, port=server_port)
+    uvicorn.run(
+        app, 
+        host=SERVER_HOST, 
+        port=server_port
+    )
