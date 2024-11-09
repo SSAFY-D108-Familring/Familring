@@ -28,5 +28,5 @@ COPY . .
 # Set Python path to include current directory
 ENV PYTHONPATH=/app
 
-# Command to run the application (포트 지정 제거)
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0"]
+# Command to run the application
+CMD ["python", "app.py"]
