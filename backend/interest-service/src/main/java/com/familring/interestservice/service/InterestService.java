@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.familring.interestservice.exception.InterestNotFoundException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -107,21 +108,33 @@ public class InterestService {
         // 가장 최근 관심사 찾기
         Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
 
-        // 가족의 관심사 답변 찾기
-        List<InterestAnswer> interestAnswerList = interestAnswerRepository.findByFamilyIdAndInterest(familyId, interest);
+        // 가족 구성원 찾기
+        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
-        // 관심사 답변 아이템 목록 생성
-        List<InterestAnswerItem> interestAnswerItems = interestAnswerList.stream().map(interestAnswer -> {
-            // 사용자 정보 조회
-            UserInfoResponse userInfo = userServiceFeignClient.getUser(interestAnswer.getUserId()).getData();
+        List<InterestAnswerItem> interestAnswerItems = new ArrayList<>();
 
-            return InterestAnswerItem.builder()
-                    .userId(userInfo.getUserId())
-                    .userNickname(userInfo.getUserNickname())
-                    .userZodiacSign(userInfo.getUserZodiacSign())
-                    .content(interestAnswer.getContent())
+        for (UserInfoResponse familyMember : familyMembers) {
+
+            // 구성원이 답변 했는지 확인
+            Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findByUserIdAndInterest(familyMember.getUserId(), interest);
+
+            String content = null;
+
+            // 답변 했으면 cotent 채워주기
+            if (interestAnswer.isPresent()) { // 존재하면
+                content = interestAnswer.get().getContent();
+            }
+
+            // 가족 구성원 답변 정보 반환
+            InterestAnswerItem interestAnswerItem = InterestAnswerItem.builder()
+                    .userId(familyMember.getUserId())
+                    .userNickname(familyMember.getUserNickname())
+                    .userZodiacSign(familyMember.getUserZodiacSign())
+                    .content(content)
                     .build();
-        }).toList();
+
+            interestAnswerItems.add(interestAnswerItem);
+        }
 
         return InterestAnswerListResponse
                 .builder()
