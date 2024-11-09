@@ -51,6 +51,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.DaySchedule
 import com.familring.domain.model.calendar.PreviewDaily
 import com.familring.domain.model.calendar.PreviewSchedule
@@ -76,6 +77,7 @@ fun CalendarRoute(
     navigateToCreateSchedule: () -> Unit,
     navigateToModifySchedule: (Schedule) -> Unit,
     navigateToCreateDaily: () -> Unit,
+    navigateToModifyDaily: (DailyLife) -> Unit,
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
@@ -97,6 +99,7 @@ fun CalendarRoute(
         navigateToCreateAlbum = navigateToCreateAlbum,
         navigateToAlbum = navigateToAlbum,
         navigateToModifySchedule = navigateToModifySchedule,
+        navigateToModifyDaily = navigateToModifyDaily,
         showSnackBar = showSnackBar,
     )
 }
@@ -117,6 +120,7 @@ fun CalendarScreen(
     navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
     navigateToModifySchedule: (Schedule) -> Unit = {},
+    navigateToModifyDaily: (DailyLife) -> Unit = {},
     showSnackBar: (String) -> Unit = {},
 ) {
     // pager
@@ -415,6 +419,7 @@ fun CalendarScreen(
                         showDailyDeleteDialog = true
                     },
                     navigateToModifySchedule = navigateToModifySchedule,
+                    navigateToModifyDaily = navigateToModifyDaily,
                     navigateToCreateAlbum = navigateToCreateAlbum,
                     navigateToAlbum = navigateToAlbum,
                 )

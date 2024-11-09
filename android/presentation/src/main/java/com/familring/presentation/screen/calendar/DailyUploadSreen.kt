@@ -49,10 +49,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil.compose.AsyncImage
+import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.util.toMultiPart
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
@@ -71,6 +72,8 @@ import java.io.File
 @Composable
 fun DailyUploadRoute(
     modifier: Modifier = Modifier,
+    targetDaily: DailyLife,
+    isModify: Boolean,
     dailyViewModel: DailyViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
     showSnackbar: (String) -> Unit,
@@ -94,17 +97,23 @@ fun DailyUploadRoute(
     DailyUploadScreen(
         modifier = modifier,
         state = uiState,
+        targetDaily = targetDaily,
+        isModify = isModify,
         createDaily = dailyViewModel::createDaily,
+        modifyDaily = dailyViewModel::updateDaily,
         popUpBackStack = popUpBackStack,
     )
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyUploadScreen(
     modifier: Modifier = Modifier,
     state: DailyUiState = DailyUiState(),
+    targetDaily: DailyLife,
+    isModify: Boolean = false,
     createDaily: (String, MultipartBody.Part?) -> Unit = { _, _ -> },
+    modifyDaily: (Long, String, MultipartBody.Part?) -> Unit = { _, _, _ -> },
     popUpBackStack: () -> Unit = {},
 ) {
     val context = LocalContext.current
@@ -155,6 +164,13 @@ fun DailyUploadScreen(
     val imeInsets = WindowInsets.ime.exclude(WindowInsets.navigationBars)
     val imeHeight = imeInsets.getBottom(LocalDensity.current)
 
+    LaunchedEffect(targetDaily) {
+        if (isModify) {
+            content = targetDaily.content
+            imgUri = targetDaily.dailyImgUrl.toUri()
+        }
+    }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -191,7 +207,7 @@ fun DailyUploadScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 if (imgUri != null) {
-                    GlideImage(
+                    AsyncImage(
                         modifier =
                             Modifier
                                 .matchParentSize()
@@ -224,8 +240,18 @@ fun DailyUploadScreen(
                 modifier =
                     Modifier
                         .padding(vertical = 20.dp),
-                text = "일상 등록하기",
-                onClick = { createDaily(content, imgUri?.toFile(context).toMultiPart()) },
+                text = if (!isModify) "일상 등록하기" else "일상 수정하기",
+                onClick = {
+                    if (!isModify) {
+                        createDaily(content, imgUri?.toFile(context).toMultiPart())
+                    } else {
+                        modifyDaily(
+                            targetDaily.dailyId,
+                            content,
+                            imgUri?.toFile(context).toMultiPart(),
+                        )
+                    }
+                },
                 enabled = imgUri != null,
             )
         }
@@ -303,5 +329,8 @@ fun DailyUploadScreen(
 @Preview
 @Composable
 private fun DailyUploadScreenPreview() {
-    DailyUploadScreen()
+    DailyUploadScreen(
+        targetDaily = DailyLife(),
+        isModify = true,
+    )
 }

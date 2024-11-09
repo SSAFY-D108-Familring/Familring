@@ -72,6 +72,7 @@ fun CalendarTab(
     showDeleteScheduleDialog: (Long) -> Unit,
     showDeleteDailyDialog: (Long) -> Unit,
     navigateToModifySchedule: (Schedule) -> Unit = {},
+    navigateToModifyDaily: (DailyLife) -> Unit = {},
     navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
 ) {
@@ -106,6 +107,7 @@ fun CalendarTab(
                 1 ->
                     DailyTab(
                         dailyLifes = dailyLifes,
+                        navigateToModifyDaily = navigateToModifyDaily,
                         showDeleteDailyDialog = showDeleteDailyDialog,
                     )
             }
@@ -117,6 +119,7 @@ fun CalendarTab(
 fun DailyTab(
     modifier: Modifier = Modifier,
     dailyLifes: List<DailyLife>,
+    navigateToModifyDaily: (DailyLife) -> Unit = {},
     showDeleteDailyDialog: (Long) -> Unit,
 ) {
     if (dailyLifes.isEmpty()) {
@@ -151,6 +154,7 @@ fun DailyTab(
             ) { page ->
                 DailyItem(
                     dailyLife = dailyLifes[page],
+                    navigateToModifyDaily = navigateToModifyDaily,
                     showDeleteDailyDialog = showDeleteDailyDialog,
                 )
             }
@@ -162,6 +166,7 @@ fun DailyTab(
 fun DailyItem(
     modifier: Modifier = Modifier,
     dailyLife: DailyLife,
+    navigateToModifyDaily: (DailyLife) -> Unit,
     showDeleteDailyDialog: (Long) -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -197,17 +202,30 @@ fun DailyItem(
             )
             Spacer(modifier = Modifier.width(8.dp))
             if (dailyLife.myPost) {
-                Icon(
-                    modifier =
-                        Modifier
-                            .size(28.dp)
-                            .noRippleClickable {
-                                showDeleteDailyDialog(dailyLife.dailyId)
-                            },
-                    painter = painterResource(id = R.drawable.ic_delete),
-                    contentDescription = "ic_delete",
-                    tint = Red02,
-                )
+                Row {
+                    Icon(
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
+                                    navigateToModifyDaily(dailyLife)
+                                },
+                        painter = painterResource(id = R.drawable.ic_edit),
+                        contentDescription = "ic_edit",
+                        tint = Gray01,
+                    )
+                    Icon(
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
+                                    showDeleteDailyDialog(dailyLife.dailyId)
+                                },
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = "ic_delete",
+                        tint = Gray01,
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(10.dp))

@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.LocalDateTimeAdapter
 import com.google.gson.Gson
@@ -95,7 +96,21 @@ sealed class ScreenDestinations(
     }
 
     // 일상 업로드
-    data object DailyUpload : ScreenDestinations(route = "DailyUpload")
+    data object DailyUpload : ScreenDestinations(route = "DailyUpload") {
+        override val route: String
+            get() = "DailyUpload/{targetDaily}/{isModify}"
+
+        val argument =
+            listOf(
+                navArgument(name = "targetDaily") { type = DailyNavType(gson) },
+                navArgument(name = "isModify") { type = NavType.BoolType },
+            )
+
+        fun createRoute(
+            targetDaily: DailyLife,
+            isModify: Boolean = false,
+        ) = "DailyUpload/${Uri.encode(gson.toJson(targetDaily))}/$isModify"
+    }
 
     // 갤러리
     data object Gallery : ScreenDestinations(route = "Gallery")
@@ -163,6 +178,26 @@ class ScheduleNavType(
         bundle: Bundle,
         key: String,
         value: Schedule,
+    ) {
+        bundle.putParcelable(key, value)
+    }
+}
+
+// Schedule 전달 위한 NavType 정의
+class DailyNavType(
+    private val gson: Gson,
+) : NavType<DailyLife>(isNullableAllowed = false) {
+    override fun get(
+        bundle: Bundle,
+        key: String,
+    ): DailyLife? = bundle.getParcelable(key)
+
+    override fun parseValue(value: String): DailyLife = gson.fromJson(value, DailyLife::class.java)
+
+    override fun put(
+        bundle: Bundle,
+        key: String,
+        value: DailyLife,
     ) {
         bundle.putParcelable(key, value)
     }
