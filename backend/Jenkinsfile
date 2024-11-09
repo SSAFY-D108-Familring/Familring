@@ -61,7 +61,7 @@ pipeline {
                 stage('Build and Deploy Classification Service') {
                     steps {
                         script {
-                            if (hasChanges('backend/album-service')) {
+                            if (hasChanges('backend/classification-service')) {
                                 build job: 'classification-service', propagate: false
                             }
                         }
