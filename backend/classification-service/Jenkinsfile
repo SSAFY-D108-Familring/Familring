@@ -9,10 +9,10 @@ pipeline {
         }
         stage('Build and Deploy Classification Service') {
             steps {
-                withCredentials([file(credentialsId: 'classification-service.env', variable: 'env')]) {
+                withCredentials([file(credentialsId: 'classification-service.env', variable: 'ENV_FILE')]) {
                     script {
                         dir('backend/classification-service') {
-                            copyApplicationEnv(env)
+                            copyApplicationEnv(ENV_FILE)
                             buildAndRunContainer('classification-service', 0)
                         }
                     }
