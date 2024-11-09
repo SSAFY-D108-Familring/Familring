@@ -24,6 +24,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,6 +39,7 @@ import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import kotlinx.coroutines.delay
@@ -123,7 +126,7 @@ fun VoiceRecordScreen(
         else if (isRecording) {
             Text(
                 text = formattedTime,
-                style = Typography.bodyMedium,
+                style = Typography.headlineSmall,
                 color = Black,
             )
             Spacer(modifier = Modifier.height(15.dp))
@@ -160,7 +163,7 @@ fun VoiceRecordScreen(
                 style = Typography.headlineMedium,
                 color = Black,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.2f))
+            Spacer(modifier = Modifier.weight(1f))
             IconButton(
                 onClick = {
                     when (PackageManager.PERMISSION_GRANTED) {
@@ -176,7 +179,7 @@ fun VoiceRecordScreen(
                         else -> permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                     }
                 },
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(60.dp),
             ) {
                 Icon(
                     modifier = Modifier.fillMaxSize(),
@@ -185,6 +188,7 @@ fun VoiceRecordScreen(
                     tint = Red01,
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }
@@ -197,8 +201,8 @@ fun VoicePlaybackUI(
 ) {
     val voicePlayer = remember { VoicePlayer() }
     var isPlaying by remember { mutableStateOf(false) }
-    var progress by remember { mutableStateOf(0f) }
-    var totalDuration by remember { mutableStateOf(0) }
+    var progress by remember { mutableFloatStateOf(0f) }
+    var totalDuration by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(isPlaying) {
         if (isPlaying) {
@@ -254,7 +258,7 @@ fun VoicePlaybackUI(
             Spacer(modifier = Modifier.width(10.dp))
             LinearProgressIndicator(
                 progress = { progress },
-                color = Gray01,
+                color = Green02,
                 trackColor = Gray03,
                 modifier =
                     Modifier
@@ -274,7 +278,6 @@ fun VoicePlaybackUI(
                         tint = Gray01,
                     )
                 }
-
                 IconButton(onClick = {
                     voicePlayer.stopPlaying()
                     isPlaying = false
@@ -283,7 +286,7 @@ fun VoicePlaybackUI(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_send),
                         contentDescription = "Send",
-                        tint = Gray01,
+                        tint = Green02,
                     )
                 }
             }
