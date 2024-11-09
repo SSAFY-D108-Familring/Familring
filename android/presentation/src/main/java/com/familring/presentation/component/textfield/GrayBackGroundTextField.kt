@@ -22,21 +22,15 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
+import org.apache.commons.lang3.StringUtils.isBlank
 
 @Composable
 fun GrayBackgroundTextField(
     modifier: Modifier = Modifier,
-    content: String,
+    textFieldState: TextFieldState,
     scrollState: ScrollState,
-    onValueChange: (String) -> Unit,
     hint: String = "여기에 작성해 주세요",
 ) {
-    val textFieldState = remember { TextFieldState(content) }
-
-    LaunchedEffect(textFieldState.text) {
-        onValueChange(textFieldState.text.toString())
-    }
-
     Box(
         modifier =
             modifier
@@ -57,7 +51,7 @@ fun GrayBackgroundTextField(
                     color = Black,
                 ),
             decorator = { innerTextField ->
-                if (content.isBlank()) {
+                if (textFieldState.text.isBlank()) {
                     Text(
                         modifier = Modifier.fillMaxSize(),
                         text = hint,

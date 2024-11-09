@@ -9,12 +9,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,6 +34,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import org.apache.commons.lang3.StringUtils.isNotBlank
 
 object WritingState {
     const val NO_TIME_CAPSULE = 0
@@ -81,12 +82,8 @@ fun WritingTimeCapsule(
     state: TimeCapsuleUiState,
     createTimeCapsuleAnswer: (String) -> Unit = {},
 ) {
-    var content by remember { mutableStateOf("") }
+    val textFieldState = remember { TextFieldState("") }
     val scrollState = rememberScrollState()
-
-    LaunchedEffect(content) {
-        scrollState.animateScrollTo(scrollState.maxValue)
-    }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -119,19 +116,18 @@ fun WritingTimeCapsule(
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             GrayBackgroundTextField(
+                textFieldState = textFieldState,
                 modifier =
                     Modifier
                         .fillMaxWidth(0.9f)
                         .fillMaxHeight(0.5f),
-                content = content,
                 scrollState = scrollState,
-                onValueChange = { content = it },
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             RoundLongButton(
                 text = "작성 완료",
-                onClick = { createTimeCapsuleAnswer(content) },
-                enabled = content.isNotBlank(),
+                onClick = { createTimeCapsuleAnswer(textFieldState.text.toString()) },
+                enabled = textFieldState.text.toString().isNotBlank(),
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.06f))
             Text(

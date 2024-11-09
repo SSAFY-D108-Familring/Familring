@@ -2,7 +2,6 @@ package com.familring.presentation.screen.calendar
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -120,7 +120,9 @@ fun DailyUploadScreen(
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    var imgUri by remember { mutableStateOf<Uri?>(null) }
+    var imgUri by remember {
+        mutableStateOf(if (isModify) targetDaily.dailyImgUrl.toUri() else null)
+    }
     val singlePhotoPickerLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia(),
@@ -157,7 +159,8 @@ fun DailyUploadScreen(
             }
         }
 
-    var content by remember { mutableStateOf(if(isModify) targetDaily.content else "") }
+    val textFieldState =
+        remember { TextFieldState(if (isModify) targetDaily.content else "") }
     val contentScrollState = rememberScrollState()
 
     val scrollState = rememberScrollState()
@@ -170,11 +173,6 @@ fun DailyUploadScreen(
         scrollState.scrollTo(scrollState.maxValue)
     }
 
-    LaunchedEffect(targetDaily) {
-        if (isModify) {
-            imgUri = targetDaily.dailyImgUrl.toUri()
-        }
-    }
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -231,13 +229,12 @@ fun DailyUploadScreen(
             }
             Spacer(modifier = Modifier.height(15.dp))
             GrayBackgroundTextField(
+                textFieldState = textFieldState,
                 modifier =
                     Modifier
                         .fillMaxWidth(0.9f)
                         .aspectRatio(2.8f / 2f),
-                content = content,
                 scrollState = contentScrollState,
-                onValueChange = { content = it },
                 hint = "가족과 공유하고 싶은 일상을 작성해 주세요!",
             )
             RoundLongButton(
@@ -247,11 +244,14 @@ fun DailyUploadScreen(
                 text = if (!isModify) "일상 등록하기" else "일상 수정하기",
                 onClick = {
                     if (!isModify) {
-                        createDaily(content, imgUri?.toFile(context).toMultiPart())
+                        createDaily(
+                            textFieldState.text.toString(),
+                            imgUri?.toFile(context).toMultiPart(),
+                        )
                     } else {
                         modifyDaily(
                             targetDaily.dailyId,
-                            content,
+                            textFieldState.text.toString(),
                             imgUri?.toFile(context).toMultiPart(),
                         )
                     }
@@ -275,18 +275,20 @@ fun DailyUploadScreen(
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Column(
                             modifier =
-                                Modifier.weight(1f).noRippleClickable {
-                                    when (PackageManager.PERMISSION_GRANTED) {
-                                        ContextCompat.checkSelfPermission(
-                                            context,
-                                            Manifest.permission.CAMERA,
-                                        ),
-                                        -> cameraLauncher.launch(cameraFileUri)
+                                Modifier
+                                    .weight(1f)
+                                    .noRippleClickable {
+                                        when (PackageManager.PERMISSION_GRANTED) {
+                                            ContextCompat.checkSelfPermission(
+                                                context,
+                                                Manifest.permission.CAMERA,
+                                            ),
+                                            -> cameraLauncher.launch(cameraFileUri)
 
-                                        else -> permissionLauncher.launch(Manifest.permission.CAMERA)
-                                    }
-                                    showBottomSheet = false
-                                },
+                                            else -> permissionLauncher.launch(Manifest.permission.CAMERA)
+                                        }
+                                        showBottomSheet = false
+                                    },
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Image(
