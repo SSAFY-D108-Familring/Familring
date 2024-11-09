@@ -171,18 +171,18 @@ def get_face_encodings(image):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/classification/v3/api-docs")
 
-@app.get("/docs", include_in_schema=False)
+@app.get("/classification/v3/api-docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
-        openapi_url="/openapi.json",
+        openapi_url="/classification/v3/api-docs/openapi.json",
         title=app.title + " - Swagger UI",
         swagger_favicon_url="",
         swagger_ui_parameters={"defaultModelsExpandDepth": -1}
     )
 
-@app.get("/openapi.json", include_in_schema=False)
+@app.get("/classification/v3/api-docs/openapi.json", include_in_schema=False)
 async def get_openapi_endpoint():
     return get_openapi(
         title=app.title,
@@ -349,9 +349,4 @@ if __name__ == "__main__":
         app, 
         host=SERVER_HOST, 
         port=server_port,
-        log_config=None  # 이 옵션을 추가하여 FastAPI의 기본 로깅을 유지
     )
-else:
-    # 다른 방식으로 실행될 때도 포트 설정
-    server_port = find_free_port()
-    logger.info(f"Server initialized on port {server_port}")
