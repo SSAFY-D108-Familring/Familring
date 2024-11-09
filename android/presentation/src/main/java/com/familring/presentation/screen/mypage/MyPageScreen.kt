@@ -212,7 +212,7 @@ fun MyPageScreen(
                     )
                     Spacer(modifier = Modifier.height(7.dp))
                     Text(
-                        text = emotion,
+                        text = if (emotion.isEmpty()) "평범해요 🙂" else emotion,
                         style = Typography.displayMedium.copy(fontSize = 16.sp),
                         color = Gray01,
                     )
