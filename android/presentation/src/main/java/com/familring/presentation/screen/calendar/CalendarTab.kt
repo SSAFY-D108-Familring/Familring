@@ -53,7 +53,6 @@ import com.familring.presentation.component.IconCustomDropdownMenu
 import com.familring.presentation.component.ImageLoadingProgress
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
-import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
@@ -73,13 +72,13 @@ fun CalendarTab(
     dailyLifes: List<DailyLife>,
     showDeleteScheduleDialog: (Long) -> Unit,
     showDeleteDailyDialog: (Long) -> Unit,
+    createAlbum: (Long, String) -> Unit = { _, _ -> },
     navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToModifyDaily: (DailyLife) -> Unit = {},
-    navigateToCreateAlbum: () -> Unit,
     navigateToAlbum: (Long) -> Unit,
 ) {
     val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
-    var selectedItemIndex by remember { mutableIntStateOf(1) }
+    var selectedItemIndex by remember { mutableIntStateOf(0) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -100,9 +99,9 @@ fun CalendarTab(
                 0 ->
                     ScheduleTab(
                         schedules = schedules,
+                        createAlbum = createAlbum,
                         showDeleteDialog = showDeleteScheduleDialog,
                         navigateToModifySchedule = navigateToModifySchedule,
-                        navigateToCreateAlbum = navigateToCreateAlbum,
                         navigateToAlbum = navigateToAlbum,
                     )
 
@@ -278,8 +277,8 @@ fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
     showDeleteDialog: (Long) -> Unit = {},
+    createAlbum: (Long, String) -> Unit = { _, _ -> },
     navigateToModifySchedule: (Schedule) -> Unit = {},
-    navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
     if (schedules.isEmpty()) {
@@ -306,7 +305,7 @@ fun ScheduleTab(
                     schedule = schedule,
                     showDeleteDialog = showDeleteDialog,
                     navigateToModifySchedule = navigateToModifySchedule,
-                    navigateToCreateAlbum = navigateToCreateAlbum,
+                    createAlbum = createAlbum,
                     navigateToAlbum = navigateToAlbum,
                 )
             }
@@ -318,15 +317,15 @@ fun ScheduleTab(
 fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
+    createAlbum: (Long, String) -> Unit = { _, _ -> },
     showDeleteDialog: (Long) -> Unit = {},
     navigateToModifySchedule: (Schedule) -> Unit = {},
-    navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
     Box(
         modifier =
             modifier
-                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.scheduleId) }
+                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.albumId!!) }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
@@ -399,7 +398,7 @@ fun ScheduleItem(
                         listOf(
                             "수정" to { navigateToModifySchedule(schedule) },
                             "삭제" to { showDeleteDialog(schedule.scheduleId) },
-                            "앨범 생성" to { navigateToCreateAlbum() },
+                            "앨범 생성" to { createAlbum(schedule.scheduleId, schedule.title) },
                         )
                     } else {
                         listOf(
@@ -449,8 +448,8 @@ private fun CalendarTabPreview() {
     CalendarTab(
         dailyLifes = dailyLifes,
         schedules = schedules,
+        createAlbum = { _, _ -> },
         navigateToModifySchedule = {},
-        navigateToCreateAlbum = {},
         navigateToAlbum = {},
         showDeleteScheduleDialog = {},
         showDeleteDailyDialog = {},

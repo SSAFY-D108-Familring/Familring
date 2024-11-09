@@ -94,6 +94,7 @@ fun CalendarRoute(
         getDayDailies = calendarViewModel::getDayDailies,
         deleteSchedule = calendarViewModel::deleteSchedule,
         deleteDaily = calendarViewModel::deleteDaily,
+        createAlbum = calendarViewModel::createAlbum,
         navigateToCreateSchedule = navigateToCreateSchedule,
         navigateToCreateDaily = navigateToCreateDaily,
         navigateToCreateAlbum = navigateToCreateAlbum,
@@ -115,6 +116,7 @@ fun CalendarScreen(
     getDayDailies: (List<Long>) -> Unit = {},
     deleteSchedule: (Long) -> Unit = {},
     deleteDaily: (Long) -> Unit = {},
+    createAlbum: (Long, String) -> Unit = { _, _ -> },
     navigateToCreateSchedule: () -> Unit = {},
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
@@ -158,12 +160,13 @@ fun CalendarScreen(
     LaunchedEffect(event) {
         event.collect { event ->
             when (event) {
-                is CalendarUiEvent.Loading -> {
-                    // 로딩 중
-                }
-
                 is CalendarUiEvent.DeleteSuccess -> {
                     getMonthData(selectedMonth.year, selectedMonth.monthValue)
+                }
+
+                is CalendarUiEvent.CreateAlbumSuccess -> {
+                    showSnackBar("앨범을 생성했어요")
+                    navigateToCreateAlbum()
                 }
 
                 is CalendarUiEvent.Error -> {
@@ -410,6 +413,7 @@ fun CalendarScreen(
                 CalendarTab(
                     schedules = state.detailedSchedule,
                     dailyLifes = state.detailedDailies,
+                    createAlbum = createAlbum,
                     showDeleteScheduleDialog = {
                         deleteTargetScheduleId = it
                         showScheduleDeleteDialog = true
@@ -420,7 +424,6 @@ fun CalendarScreen(
                     },
                     navigateToModifySchedule = navigateToModifySchedule,
                     navigateToModifyDaily = navigateToModifyDaily,
-                    navigateToCreateAlbum = navigateToCreateAlbum,
                     navigateToAlbum = navigateToAlbum,
                 )
             }

@@ -247,7 +247,9 @@ fun MainNavHost(
                     )
                 },
                 navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
-                navigateToAlbum = {},
+                navigateToAlbum = { albumId ->
+                    navController.navigate(ScreenDestinations.Album.createRoute(albumId))
+                },
                 showSnackBar = showSnackBar,
             )
         }
