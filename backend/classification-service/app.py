@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
+from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.utils import get_openapi
 from pydantic import BaseModel, Field
 from typing import List, Dict
 import face_recognition
@@ -40,7 +42,9 @@ def find_free_port():
 app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
-    version="1.0.0"
+    version="1.0.0",
+    docs_url=None,  # 기본 /docs 경로 비활성화
+    redoc_url=None  # 기본 /redoc 경로 비활성화
 )
 
 # 글로벌 변수로 포트 저장
@@ -171,18 +175,18 @@ def get_face_encodings(image):
 
 @app.get("/", include_in_schema=False)
 async def root():
-    return RedirectResponse(url="/docs")
+    return RedirectResponse(url="/classification/v3/api-docs")
 
-@app.get("/docs", include_in_schema=False)
+@app.get("/classification/v3/api-docs", include_in_schema=False)
 async def custom_swagger_ui_html():
     return get_swagger_ui_html(
-        openapi_url="/openapi.json",
+        openapi_url="/classification/v3/api-docs/openapi.json",
         title=app.title + " - Swagger UI",
         swagger_favicon_url="",
         swagger_ui_parameters={"defaultModelsExpandDepth": -1}
     )
 
-@app.get("/openapi.json", include_in_schema=False)
+@app.get("/classification/v3/api-docs/openapi.json", include_in_schema=False)
 async def get_openapi_endpoint():
     return get_openapi(
         title=app.title,
@@ -243,8 +247,6 @@ async def classify_images(request: AnalysisRequest):
     
     return results
 
-# 기존 코드는 동일하고 /face-count API 부분만 수정됩니다
-
 @app.post("/face-count", response_model=CountResponse)
 async def count_faces(file: UploadFile = File(...)):
     """
@@ -284,7 +286,6 @@ async def count_faces(file: UploadFile = File(...)):
     face_count = len(face_encodings) if face_encodings else 0
 
     return CountResponse(faceCount=face_count)
-
 
 async def register_to_eureka():
     """Eureka 서버에 서비스 등록"""
