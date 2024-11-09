@@ -4,6 +4,7 @@ import com.familring.interestservice.domain.Interest;
 import com.familring.interestservice.domain.InterestAnswer;
 import com.familring.interestservice.dto.client.Family;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
+import com.familring.interestservice.exception.InterestAnswerNotFoundException;
 import com.familring.interestservice.repository.InterestAnswerRepository;
 import com.familring.interestservice.repository.InterestMissionRepository;
 import com.familring.interestservice.repository.InterestRepository;
@@ -12,6 +13,7 @@ import com.familring.interestservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.familring.interestservice.exception.InterestNotFoundException;
 
 @Service
 @Transactional
@@ -50,6 +52,24 @@ public class InterestService {
 
         interestAnswerRepository.save(interestAnswer);
 
+    }
+
+    // 관심사 답변 수정
+    public void updateInterestAnswer(Long userId, Long interestId, InterestAnswerCreateRequest interestAnswerCreateRequest) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 관심사 찾기
+        Interest interest = interestRepository.findByIdAndFamilyId(interestId, familyId).orElseThrow(InterestNotFoundException::new);
+
+        // 찾은 관심사로 관심사 답변 찾기
+        InterestAnswer interestAnswer = interestAnswerRepository.findByInterest(interest).orElseThrow(InterestAnswerNotFoundException::new);
+
+        // 수정
+        interestAnswer.updateContent(interestAnswerCreateRequest.getContent());
+//        interestAnswerRepository.save(interestAnswer);
     }
 
 }

@@ -24,4 +24,13 @@ public class InterestController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 답변 작성에 성공했습니다."));
     }
 
+    @PatchMapping("/answers/{interest-id}")
+    @Operation(summary = "관심사 답변 수정", description = "관심사 답변 수정 (내용만 입력), 관심사 ID 필수")
+    public ResponseEntity<BaseResponse<Void>> updateInterestAnswer(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userID, @PathVariable(name="interest-id") Long interestId, @RequestBody InterestAnswerCreateRequest interestAnswerCreateRequest) {
+        interestService.updateInterestAnswer(userID, interestId, interestAnswerCreateRequest);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 답변 수정에 성공했습니다."));
+    }
+
+    
+
 }
