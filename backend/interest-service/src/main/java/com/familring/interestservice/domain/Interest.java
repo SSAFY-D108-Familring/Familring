@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.time.LocalDate;
+
 @Entity
 @Getter
 @Builder
@@ -24,7 +26,7 @@ public class Interest {
     @Column(name="family_id")
     private Long familyId;
 
-    @Column(name="interest_mission_end_date")
-    private String missionEndDate;
+    @Column(name="interest_mission_end_date", nullable = true)
+    private LocalDate missionEndDate;
 
 }
