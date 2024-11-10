@@ -80,10 +80,13 @@ app = FastAPI(
     description="얼굴 유사도 분석 API",
     version="1.0.0",
     lifespan=lifespan,
-    openapi_url="/classification/openapi.json",  # OpenAPI 스키마 경로 추가
-    docs_url="/classification/v3/api-docs",  # Swagger UI URL 경로
-    redoc_url=None  # ReDoc 비활성화
+    openapi_url="/openapi.json",       # 기본 경로로 변경
+    docs_url="/docs",                  # 기본 경로로 변경
+    redoc_url=None
 )
+
+# 전체 앱에 대한 라우터 접두어 설정
+app.router.prefix = "/face-recognition"  # 모든 엔드포인트에 대한 접두어 설정
 
 # CORS 미들웨어 설정
 app.add_middleware(
