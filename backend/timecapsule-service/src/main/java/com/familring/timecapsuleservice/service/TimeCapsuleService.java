@@ -182,7 +182,7 @@ public class TimeCapsuleService {
         Long familyId = family.getFamilyId();
 
         PageRequest pageRequest = PageRequest.of(pageNo, 18); // 18개씩
-        Slice<TimeCapsule> timeCapsuleSlice = timeCapsuleRepository.findTimeCapsulesByFamilyId(familyId, pageRequest);
+        Slice<TimeCapsule> timeCapsuleSlice = timeCapsuleRepository.findTimeCapsulesByFamilyIdOrderByStartDateDesc(familyId, pageRequest);
         List<TimeCapsule> timeCapsuleList = timeCapsuleSlice.getContent();
 
         List<TimeCapsuleItem> timeCapsuleItems = timeCapsuleList.stream()

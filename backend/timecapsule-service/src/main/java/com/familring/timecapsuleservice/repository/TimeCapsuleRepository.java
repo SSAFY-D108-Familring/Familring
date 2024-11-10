@@ -20,6 +20,6 @@ public interface TimeCapsuleRepository extends JpaRepository<TimeCapsule, Intege
     int countByFamilyId(Long familyId);
 
     // 한 가족이 생성했던 타임 캡슐 전체 조회
-    Slice<TimeCapsule> findTimeCapsulesByFamilyId(Long familyId, Pageable pageable);
+    Slice<TimeCapsule> findTimeCapsulesByFamilyIdOrderByStartDateDesc(Long familyId, Pageable pageable);
 
 }

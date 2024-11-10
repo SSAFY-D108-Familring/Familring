@@ -279,6 +279,6 @@ public class InterestService {
     }
 
     // 관심사 체험 인증 게시글 작성
-    
+
 
 }
