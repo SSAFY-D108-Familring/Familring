@@ -92,4 +92,13 @@ dependencies {
 
     // lottie
     implementation(libs.lottie)
+
+    // websocket
+    implementation(libs.krossbow.stomp.core)
+    implementation(libs.krossbow.websocket.okhttp)
+    implementation(libs.krossbow.stomp.moshi)
+
+    // moshi
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
 }
