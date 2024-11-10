@@ -42,5 +42,5 @@ def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
 
     sh "docker build -t ${serviceName} ."
-    sh "docker run --name ${serviceName} --env-file .env -d ${serviceName}"
+    sh "docker run --name ${serviceName} --env-file .env -p 5555:5555 -d ${serviceName}"
 }

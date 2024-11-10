@@ -25,46 +25,39 @@ EUREKA_SERVER = os.getenv('EUREKA_SERVER')
 APP_NAME = os.getenv('APP_NAME')
 SERVER_HOST = os.getenv('SERVER_HOST','0.0.0.0')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
+SERVER_PORT = os.getenv('SERVER_PORT')
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def find_free_port():
-    """사용 가능한 랜덤 포트를 찾는 함수"""
-    with contextlib.closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
-        s.bind(('', 0))
-        s.listen(1)
-        port = s.getsockname()[1]
-        return port
-    
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     try:
-        logger.info(f"Using port: {server_port}")
+        logger.info(f"Using port: {SERVER_PORT}")
         # Eureka 클라이언트 초기화
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
             "app_name": APP_NAME,
-            "instance_port": server_port,
+            "instance_port": SERVER_PORT,
             "instance_host": INSTANCE_HOST
         }
         logger.info(f"Eureka configuration: {eureka_config}")
         
         # 필수 값 검증
-        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, server_port]):
+        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, SERVER_PORT]):
             missing_values = []
             if not EUREKA_SERVER: missing_values.append("EUREKA_SERVER")
             if not APP_NAME: missing_values.append("APP_NAME")
             if not INSTANCE_HOST: missing_values.append("INSTANCE_HOST")
-            if not server_port: missing_values.append("server_port")
+            if not SERVER_PORT: missing_values.append("SERVER_PORT")
             raise ValueError(f"Missing required configuration: {', '.join(missing_values)}")
 
         await eureka_client.init_async(
             eureka_server=EUREKA_SERVER,
             app_name=APP_NAME,
-            instance_port=server_port,
+            instance_port=SERVER_PORT,
             instance_host=INSTANCE_HOST,
             instance_ip=INSTANCE_HOST
         )
@@ -90,9 +83,6 @@ app = FastAPI(
     docs_url="/classification/v3/api-docs",  # Swagger UI URL 경로 수정
     redoc_url=None  # ReDoc 비활성화
 )
-
-# 글로벌 변수로 포트 저장
-server_port = find_free_port()
 
 # CORS 미들웨어 설정
 app.add_middleware(
@@ -321,7 +311,7 @@ async def register_to_eureka():
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
             "app_name": APP_NAME,
-            "instance_port": server_port,
+            "instance_port": SERVER_PORT,
             "instance_host": INSTANCE_HOST
         }
         
@@ -329,19 +319,19 @@ async def register_to_eureka():
         logger.info(f"Eureka configuration: {eureka_config}")
         
         # 필수 값 검증
-        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, server_port]):
+        if not all([EUREKA_SERVER, APP_NAME, INSTANCE_HOST, SERVER_PORT]):
             missing_values = []
             if not EUREKA_SERVER: missing_values.append("EUREKA_SERVER")
             if not APP_NAME: missing_values.append("APP_NAME")
             if not INSTANCE_HOST: missing_values.append("INSTANCE_HOST")
-            if not server_port: missing_values.append("server_port")
+            if not SERVER_PORT: missing_values.append("SERVER_PORT")
             raise ValueError(f"Missing required configuration: {', '.join(missing_values)}")
 
         # Eureka 클라이언트 초기화
         await eureka_client.init_async(
             eureka_server=EUREKA_SERVER,
             app_name=APP_NAME,
-            instance_port=server_port,
+            instance_port=SERVER_PORT,
             instance_host=INSTANCE_HOST,
             instance_ip=INSTANCE_HOST
         )
@@ -352,9 +342,9 @@ async def register_to_eureka():
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info(f"Starting server on port {server_port}")
+    logger.info(f"Starting server on port {SERVER_PORT}")
     uvicorn.run(
         app, 
         host=SERVER_HOST,
-        port=server_port,
+        port=SERVER_PORT,
     )
