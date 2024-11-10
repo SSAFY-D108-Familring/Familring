@@ -1,18 +1,15 @@
 package com.familring.familyservice.model.dto.response;
 
-import com.familring.familyservice.model.dto.Chat;
-import com.familring.familyservice.model.dto.Vote;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.bson.types.ObjectId;
+import com.familring.familyservice.model.dto.chat.Vote;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatResponse {
@@ -32,11 +29,14 @@ public class ChatResponse {
     // 투표 응답
     private boolean isVoteResponse; // 투표 응답 여부
     private String responseOfVote; // 투표 응답
-    private boolean voteEnd; // 투표 끝남 유무
+    private boolean isVoteEnd; // 투표 끝남 유무
 
     // 투표 결과
     private boolean isVoteResult; // 투표 결과 여부
     private Map<String, Integer> resultOfVote; // 투표 결과
+
+    // 읽음 처리
+    private int unReadMembers; // 안읽은 사람 수
 
     public boolean getIsVote() {
         return isVote;
@@ -44,10 +44,6 @@ public class ChatResponse {
 
     public void setIsVote(boolean isVote) {
         this.isVote = isVote;
-    }
-
-    public Vote getVote() {
-        return vote;
     }
 
     public void setVote(Vote vote) {
@@ -58,7 +54,9 @@ public class ChatResponse {
         return isVoteResponse;
     }
 
-    public void setIsVoteResponse(boolean isVoteResponse) {}
+    public void setIsVoteResponse(boolean isVoteResponse) {
+        this.isVoteResponse = isVoteResponse;
+    }
 
     public boolean getIsVoteResult() {
         return isVoteResult;
