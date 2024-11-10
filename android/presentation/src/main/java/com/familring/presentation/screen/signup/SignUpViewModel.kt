@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.datasource.AuthDataStore
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.repository.FaceRepository
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserJoinRequest
@@ -25,6 +26,7 @@ class SignUpViewModel
     constructor(
         private val userRepository: UserRepository,
         private val familyRepository: FamilyRepository,
+        private val faceRepository: FaceRepository,
         private val authDataStore: AuthDataStore,
     ) : ViewModel() {
         private val _state = MutableStateFlow(SignUpUiState())
@@ -182,6 +184,29 @@ class SignUpViewModel
                         }
 
                         is ApiResponse.Error -> {
+                            _event.emit(SignUpUiEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
+            }
+        }
+
+        fun getFaceCount(face: File) {
+            _state.update { it.copy(isLoading = true) }
+            viewModelScope.launch {
+                faceRepository.getFaceCount(face).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _state.update { it.copy(isLoading = false) }
+                            if (response.data == 1) {
+                                _event.emit(SignUpUiEvent.FaceSuccess)
+                            } else {
+                                _event.emit(SignUpUiEvent.FaceFail)
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _state.update { it.copy(isLoading = false) }
                             _event.emit(SignUpUiEvent.Error(response.code, response.message))
                         }
                     }

@@ -17,7 +17,7 @@ class FaceRepositoryImpl
     ) : FaceRepository {
         override suspend fun getFaceCount(face: File): Flow<ApiResponse<Int>> =
             flow {
-                val image = face.toMultiPart()
+                val image = face.toMultiPart(filename = "file")
                 val response =
                     emitApiResponse(
                         apiResponse = { api.getFaceCount(image) },

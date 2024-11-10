@@ -34,16 +34,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
@@ -51,6 +51,8 @@ import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toFile
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 
 @Composable
@@ -61,31 +63,63 @@ fun PictureRoute(
     showSnackBar: (String) -> Unit,
     navigateToCount: () -> Unit,
 ) {
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
+
     PictureScreen(
         modifier = modifier,
+        uiEvent = viewModel.event,
         popUpBackStack = popUpBackStack,
         showSnackBar = showSnackBar,
         navigateToCount = navigateToCount,
         updatePicture = viewModel::updateFace,
+        getFaceCount = viewModel::getFaceCount,
     )
+
+    if (uiState.isLoading) {
+        LoadingDialog(
+            loadingMessage = "얼굴 개수를 세고 있어요...",
+        )
+    }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PictureScreen(
     modifier: Modifier = Modifier,
+    uiEvent: SharedFlow<SignUpUiEvent>,
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
     navigateToCount: () -> Unit = {},
     updatePicture: (File) -> Unit = {},
+    getFaceCount: (File) -> Unit = {},
 ) {
     val context = LocalContext.current
     var imgUri by remember { mutableStateOf<Uri?>(null) }
+    var faceSuccess by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiEvent) {
+        uiEvent.collectLatest { event ->
+            when (event) {
+                is SignUpUiEvent.FaceSuccess -> {
+                    val file = imgUri?.toFile(context)
+                    file?.let {
+                        updatePicture(it)
+                        faceSuccess = true
+                    }
+                }
+
+                is SignUpUiEvent.FaceFail -> {
+                    showSnackBar("분석 결과 얼굴이 하나 이상이에요. 다시 한 번 촬영해 주세요!")
+                }
+
+                else -> {}
+            }
+        }
+    }
 
     LaunchedEffect(imgUri) {
         val file = imgUri?.toFile(context)
         if (file != null) {
-            updatePicture(file)
+            getFaceCount(file)
         }
     }
 
@@ -212,14 +246,8 @@ fun PictureScreen(
                         showSnackBar("사진을 다시 한 번 촬영해 주세요!")
                     }
                 },
-                enabled = imgUri != null,
+                enabled = faceSuccess,
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun PicturePreview() {
-    PictureScreen()
 }
