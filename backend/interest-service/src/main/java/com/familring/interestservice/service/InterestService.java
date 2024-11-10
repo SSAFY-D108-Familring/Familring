@@ -17,6 +17,8 @@ import com.familring.interestservice.service.client.FileServiceFeignClient;
 import com.familring.interestservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -351,6 +353,56 @@ public class InterestService {
                 .builder()
                 .items(interestMissionItemList)
                 .count(count)
+                .build();
+    }
+
+    // 관심사 전체 목록 조회
+    public InterestListResponse getInterestList(Long userId, int pageNo) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가족이 생성했던 관심사 전체 조회
+        PageRequest pageRequest = PageRequest.of(pageNo, 18); // 18개씩
+        Slice<Interest> interestSlice = interestRepository.findByFamilyIdOrderByIdDesc(familyId, pageRequest);
+        List<Interest> interestList = interestSlice.getContent();
+
+        int totalCount = interestRepository.countByFamilyId(familyId);
+
+        List<InterestItem> interestItemList = new ArrayList<>();
+
+        int index = 0;
+        // interestList 돌면서
+        for (Interest interest : interestList) {
+            // interestAnswerRepository 에서 관심사, 가족 ID로 찾아서 그 중에 select 가 true 인 것만
+            Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findSelectedAnswersByFamilyIdAndInterest(familyId, interest);
+
+            if (interestAnswer.isPresent()) {
+                UserInfoResponse userInfo = userServiceFeignClient.getUser(interestAnswer.get().getUserId()).getData();
+                String userNickname = userInfo.getUserNickname();
+
+                InterestItem interestItem = InterestItem
+                        .builder()
+                        .interestId(interest.getId())
+                        .index(totalCount - (pageNo * 18 + index))
+                        .content(interestAnswer.get().getContent())
+                        .userNickname(userNickname) // userId로 userNickname 찾아서
+                        .build();
+
+                // interestItemList 에 add 해서
+                interestItemList.add(interestItem);
+
+                // index 증가
+                index++;
+            }
+        }
+
+        return InterestListResponse
+                .builder()
+                .items(interestItemList)
+                .isLast(interestSlice.isLast())
+                .hasNext(interestSlice.hasNext())
                 .build();
     }
 

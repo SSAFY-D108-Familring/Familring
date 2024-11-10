@@ -3,10 +3,7 @@ package com.familring.interestservice.controller;
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
 import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequest;
-import com.familring.interestservice.dto.response.InterestAnswerListResponse;
-import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
-import com.familring.interestservice.dto.response.InterestAnswerSelectedResponse;
-import com.familring.interestservice.dto.response.InterestMissionListResponse;
+import com.familring.interestservice.dto.response.*;
 import com.familring.interestservice.service.InterestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -87,12 +84,18 @@ public class InterestController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 게시글 작성에 성공했습니다."));
     }
 
-    // getInterestMissionList
     @GetMapping("/missions")
     @Operation(summary = "관심사 체험 인증 목록 조회", description = "관심사 체험했던 구성원 목록 조회")
     public ResponseEntity<BaseResponse<InterestMissionListResponse>> getInterestMissionList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         InterestMissionListResponse response = interestService.getInterestMissionList(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 목록 조회에 성공했습니다.", response));
+    }
+
+    @GetMapping()
+    @Operation(summary = "관심사 전체 목록 조회", description = "그동안 선정됐던 관심사 목록 조회")
+    public ResponseEntity<BaseResponse<InterestListResponse>> getInterestList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestParam int pageNo) {
+        InterestListResponse response = interestService.getInterestList(userId, pageNo);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 전체 목록 조회에 성공했습니다.", response));
     }
 
 }
