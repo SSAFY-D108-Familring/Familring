@@ -406,4 +406,44 @@ public class InterestService {
                 .build();
     }
 
+    // 관심사 상세보기
+    public InterestDetailListResponse getInterestDetail(Long userId, Long interestId) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 관심사 고유번호, 가족 고유번호 로 관심사 찾기
+        Optional<Interest> interest = interestRepository.findByIdAndFamilyId(interestId, familyId);
+
+        List<InterestDetailItem> interestDetailItemList = new ArrayList<>();
+        if (interest.isPresent()) {
+            List<InterestMission> interestMissionList = interestMissionRepository.findByInterest(interest.get());
+
+            for (InterestMission interestMission : interestMissionList) {
+                String photoUrl = interestMission.getPhotoUrl();
+
+                UserInfoResponse userInfo = userServiceFeignClient.getUser(interestMission.getUserId()).getData();
+
+                InterestDetailItem interestDetailItem = InterestDetailItem
+                        .builder()
+                        .photoUrl(photoUrl)
+                        .userNickname(userInfo.getUserNickname())
+                        .userZodiacSign(userInfo.getUserZodiacSign())
+                        .build();
+
+                interestDetailItemList.add(interestDetailItem);
+            }
+
+        } else {
+            throw new InterestNotFoundException();
+        }
+
+        return InterestDetailListResponse
+                .builder()
+                .items(interestDetailItemList)
+                .build();
+    }
+
+
 }
