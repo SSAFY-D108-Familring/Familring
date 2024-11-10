@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
-import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -28,13 +28,13 @@ fun InterestRoute(
     modifier: Modifier,
     navigateToInterestList: () -> Unit,
     navigateToOtherInterest: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
 ) {
     InterestScreen(
         modifier = modifier,
         isWrote = true,
-        interest = "엘지트윈스",
-        isShareDay = true,
+        interest = "엘지 트윈스",
+        isShareDay = false,
         isShare = true,
         navigateToInterestList = navigateToInterestList,
         navigateToOtherInterest = navigateToOtherInterest,
@@ -92,10 +92,12 @@ fun InterestScreen(
                 )
             } else {
                 WriteDayScreen(
+                    modifier = Modifier.imePadding(),
                     isWrote = isWrote,
                     interest = interest,
                     writeInterest = writeInterest,
                     editInterest = editInterest,
+                    navigateToOtherInterest = navigateToOtherInterest,
                 )
             }
         }
