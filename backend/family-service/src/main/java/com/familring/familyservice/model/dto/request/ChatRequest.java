@@ -28,12 +28,4 @@ public class ChatRequest {
     private String voteId; // 투표 Id
     private boolean isVoteResponse; // 투표 응답 여부
     private String responseOfVote; // 투표 응답
-
-    public boolean isVote() { // 정확히 `isVote()`으로 설정
-        return isVote;
-    }
-
-    public boolean getIsVoteResponse() {
-        return isVoteResponse;
-    }
 }

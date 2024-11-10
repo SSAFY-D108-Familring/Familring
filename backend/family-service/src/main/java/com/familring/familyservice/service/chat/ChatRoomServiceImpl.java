@@ -79,25 +79,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return responseList;
     }
 
-    private void markMessagesAsRead(Long roomId, Long userId) {
-        List<Chat> chats = chatRepository.findAllByRoomId(roomId);
-
-        for (Chat chat : chats) {
-            String readStatusKey = "READ_STATUS_" + roomId + "_" + chat.getChatId();
-            String unreadCountKey = "UNREAD_COUNT_" + roomId + "_" + chat.getChatId();
-
-            // Redis에 읽음 사용자 추가 및 읽지 않은 사람 수 감소
-            if (redisUtil.insertSet(readStatusKey, String.valueOf(userId)) == 1) { // 새로 읽은 경우
-                redisUtil.decrementString(unreadCountKey); // 읽지 않은 사람 수 감소
-                log.info("[markMessagesAsRead] userId={}가 messageId={}를 Redis에서 읽음 처리함", userId, chat.getChatId());
-            }
-
-            // MongoDB에 읽음 업데이트
-            chat.markAsRead(userId);
-            chatRepository.save(chat);
-        }
-    }
-
     @Override
     public void notifyReadStatusUpdate(Long roomId) {
         notificationService.notifyReadStatusUpdate(roomId);

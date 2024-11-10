@@ -37,8 +37,8 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public Chat createChatAndVote(Long roomId, ChatRequest chatRequest) {
-        log.info("[createChatAndVote] 채팅 메시지 수신: roomId={}, senderId={}, content={}", roomId, chatRequest.getSenderId(), chatRequest.getContent());
+    public Chat createChatOrVoiceOrVote(Long roomId, ChatRequest chatRequest) {
+        log.info("[createChatAndVote] 채팅 메시지 수신: roomId={}, senderId={}, messageType={}, content={}", roomId, chatRequest.getSenderId(), chatRequest.getMessageType(), chatRequest.getContent());
 
         UserInfoResponse user = userServiceFeignClient.getUser(chatRequest.getSenderId()).getData();
         log.info("[createChatAndVote] 회원 찾기: userId={}, userNickname={}", user.getUserId(), user.getUserNickname());
@@ -78,8 +78,6 @@ public class ChatServiceImpl implements ChatService {
         redisUtil.setString(unreadCountKey, String.valueOf(familyCount - readByUserIds.size()));
 
         if(chatRequest.getMessageType().equals(MessageType.VOTE)) {
-            log.info("[createChatAndVote] 투표인 경우 messageType={}", chatRequest.getMessageType());
-
             // 투표 객체 생성
             Vote vote = Vote.builder()
                     .voteTitle(chatRequest.getVoteTitle())
