@@ -9,6 +9,6 @@ data class TimeCapsuleUiState(
     val leftDays: Int = 0,
     val timeCapsuleCount: Int = 0,
     val writers: List<Profile> = listOf(),
-    val currentPageNo: Int = -1,
+    val currentPageNo: Int = 0,
     val timeCapsules: List<TimeCapsule> = listOf(),
 )

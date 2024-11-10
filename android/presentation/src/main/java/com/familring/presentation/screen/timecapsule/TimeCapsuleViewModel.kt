@@ -29,7 +29,7 @@ class TimeCapsuleViewModel
 
         init {
             getTimeCapsuleStatus()
-            getTimeCapsules(_uiState.value.currentPageNo)
+            getTimeCapsules(0)
         }
 
         fun getTimeCapsuleStatus() {

@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
@@ -167,7 +168,6 @@ fun MainNavHost(
             )
         }
 
-        // 타임캡슐
         composable(
             route = ScreenDestinations.TimeCapsule.route,
         ) {
@@ -236,9 +236,21 @@ fun MainNavHost(
                         ScreenDestinations.ScheduleCreate.createRoute(schedule, true),
                     )
                 },
-                navigateToCreateDaily = { navController.navigate(ScreenDestinations.DailyUpload.route) },
+                navigateToCreateDaily = {
+                    navController.navigate(ScreenDestinations.DailyUpload.createRoute(DailyLife()))
+                },
+                navigateToModifyDaily = { dailyLife ->
+                    navController.navigate(
+                        ScreenDestinations.DailyUpload.createRoute(
+                            dailyLife,
+                            true,
+                        ),
+                    )
+                },
                 navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
-                navigateToAlbum = {},
+                navigateToAlbum = { albumId ->
+                    navController.navigate(ScreenDestinations.Album.createRoute(albumId))
+                },
                 showSnackBar = showSnackBar,
             )
         }
@@ -263,12 +275,20 @@ fun MainNavHost(
 
         composable(
             route = ScreenDestinations.DailyUpload.route,
-        ) {
-            DailyUploadRoute(
-                modifier = modifier,
-                popUpBackStack = navController::popBackStack,
-                showSnackbar = showSnackBar,
-            )
+            arguments = ScreenDestinations.DailyUpload.argument,
+        ) { backStackEntry ->
+            val daily = backStackEntry.arguments?.getParcelable<DailyLife>("targetDaily")
+            val isModify = backStackEntry.arguments?.getBoolean("isModify") ?: false
+
+            if (daily != null) {
+                DailyUploadRoute(
+                    modifier = modifier,
+                    targetDaily = daily,
+                    isModify = isModify,
+                    popUpBackStack = navController::popBackStack,
+                    showSnackbar = showSnackBar,
+                )
+            }
         }
 
         composable(

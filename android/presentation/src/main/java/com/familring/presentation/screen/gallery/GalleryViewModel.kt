@@ -30,7 +30,8 @@ class GalleryViewModel
         private val _photoUiState = MutableStateFlow<PhotoUiState>(PhotoUiState.Loading)
         val photoUiState = _photoUiState.asStateFlow()
 
-        private var currentAlbumTypes: List<AlbumType> = listOf(AlbumType.NORMAL, AlbumType.PERSON)
+        private var currentAlbumTypes: List<AlbumType> =
+            listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON)
 
         fun getAlbums(albumTypes: List<AlbumType>) {
             Timber.d("된거임?")
@@ -47,7 +48,12 @@ class GalleryViewModel
                             is ApiResponse.Success -> {
                                 _galleryUiState.value =
                                     GalleryUiState.Success(
-                                        normalAlbums = response.data.NORMAL ?: emptyList(),
+                                        normalAlbums =
+                                            (
+                                                response.data.NORMAL?.toMutableList() ?: emptyList()
+                                            ) + (
+                                                response.data.SCHEDULE?.toMutableList() ?: emptyList()
+                                            ),
                                         personAlbums = response.data.PERSON ?: emptyList(),
                                     )
                             }

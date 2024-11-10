@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,10 +29,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.component.textfield.NumberTextField
+import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
-import com.familring.presentation.theme.Gray02
-import com.familring.presentation.theme.Green05
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
@@ -48,7 +49,7 @@ fun TimeInputRow(
 ) {
     Row(
         modifier =
-        modifier
+            modifier
                 .fillMaxWidth()
                 .height(IntrinsicSize.Max),
         horizontalArrangement = Arrangement.Center,
@@ -61,6 +62,7 @@ fun TimeInputRow(
             placeholder = "09",
             focusManager = focusManager,
             maxLength = 2,
+            borderColor = Green02,
         )
         Spacer(modifier = Modifier.width(5.dp))
         Column(
@@ -88,10 +90,11 @@ fun TimeInputRow(
             placeholder = "00",
             focusManager = focusManager,
             maxLength = 2,
+            borderColor = Green02,
         )
         Spacer(modifier = Modifier.fillMaxWidth(0.02f))
         AmPmPicker(
-            modifier = Modifier.weight(0.5f),
+            modifier = Modifier.weight(1f),
             isAm = isAm,
             onAmPmChanged = onAmPmChanged,
         )
@@ -104,12 +107,12 @@ fun AmPmPicker(
     isAm: Boolean,
     onAmPmChanged: (isAm: Boolean) -> Unit,
 ) {
-    val selectedBackgroundColor = Green05
-    val selectedTextColor = Brown01
+    val selectedBackgroundColor = Green02
+    val selectedTextColor = White
     val unselectedBackgroundColor = Color.Transparent
-    val unselectedTextColor = Gray02
+    val unselectedTextColor = Black
 
-    Column(
+    Row(
         modifier =
             modifier
                 .fillMaxHeight()
@@ -119,18 +122,18 @@ fun AmPmPicker(
                     shape = RoundedCornerShape(12.dp),
                 ).border(
                     width = 3.dp,
-                    color = Gray02,
+                    color = Green02,
                     shape = RoundedCornerShape(12.dp),
                 ),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier =
                 Modifier
                     .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(
-                        shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+                        shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
                         color = if (isAm) selectedBackgroundColor else unselectedBackgroundColor,
                     ).noRippleClickable { onAmPmChanged(true) },
             contentAlignment = Alignment.Center,
@@ -148,17 +151,13 @@ fun AmPmPicker(
                 textAlign = TextAlign.Center,
             )
         }
-        HorizontalDivider(
-            color = Gray02,
-            thickness = 3.dp,
-        )
         Box(
             modifier =
                 Modifier
                     .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .background(
-                        shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
+                        shape = RoundedCornerShape(topEnd = 12.dp, bottomEnd = 12.dp),
                         color = if (!isAm) selectedBackgroundColor else unselectedBackgroundColor,
                     ).noRippleClickable { onAmPmChanged(false) },
             contentAlignment = Alignment.Center,
@@ -185,7 +184,7 @@ private fun TimeInputRowPreview() {
     TimeInputRow(
         hour = "12",
         minute = "34",
-        isAm = true,
+        isAm = false,
         onHourChange = {},
         onMinuteChange = {},
         onAmPmChanged = {},
