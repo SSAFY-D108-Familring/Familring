@@ -8,10 +8,6 @@ public interface ChatRoomService {
 
     List<ChatResponse> findPagedChatByRoomId(Long roomId, Long userId, int page, int size);
 
-    void connectChatRoom(Long roomId, Long userId);
-
-    void disconnectChatRoom(Long roomId, Long userId);
-
     void notifyReadStatusUpdate(Long roomId);
 
     void notifyRoomExit(Long roomId, Long userId);

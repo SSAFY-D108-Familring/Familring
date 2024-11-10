@@ -3,6 +3,7 @@ package com.familring.familyservice.service.chat;
 import com.familring.familyservice.config.redis.RedisUtil;
 import com.familring.familyservice.exception.chat.VoteNotFoundException;
 import com.familring.familyservice.model.dto.chat.Chat;
+import com.familring.familyservice.model.dto.chat.MessageType;
 import com.familring.familyservice.model.dto.chat.Vote;
 import com.familring.familyservice.model.dto.response.ChatResponse;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
@@ -50,28 +51,25 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             ChatResponse chatResponse = new ChatResponse(
                     chat.getChatId(),
                     chat.getRoomId(),
+                    chat.getMessageType(),
                     chat.getSenderId(),
                     user,
                     chat.getContent(),
                     chat.getCreatedAt(),
-                    chat.getIsVote(),       // 투표 여부 설정
                     null,                   // 투표 객체는 초기 설정 없음
-                    chat.getIsVoteResponse(),
                     chat.getResponseOfVote(),
                     chat.getIsVoteEnd(),    // 투표 종료 여부 설정
-                    chat.getIsVoteResult(),
                     chat.getResultOfVote(),
                     unReadMembers           // 읽지 않은 사람 수 설정
             );
 
             // 투표인 경우
-            if (chat.getIsVote()) {
+            if (chat.getMessageType().equals(MessageType.VOTE)) {
                 log.info("[findPagedChatByRoomId] 투표 찾기 voteId={}", chat.getVoteId());
                 Vote vote = voteRepository.findByVoteId(chat.getVoteId()).orElseThrow(() -> new VoteNotFoundException());
                 log.info("[findPagedChatByRoomId] 찾은 투표 voteTitle={}", vote.getVoteTitle());
-                chatResponse.setIsVote(chat.getIsVote());
-                log.info("[findPagedChatByRoomId] chatResponse.isVote={}", chatResponse.getIsVote());
-                chatResponse.setVote(vote);
+                log.info("[findPagedChatByRoomId] chatResponse.getMessageType={}", chatResponse.getMessageType());
+                chatResponse.setVote(vote); // 투표 객체 설정
             }
 
             log.info("[findPagedChatByRoomId] chatResponse={}", chatResponse);
@@ -79,40 +77,6 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         }
 
         return responseList;
-    }
-
-    @Override
-    public void connectChatRoom(Long roomId, Long userId) {
-        log.info("[connectChatRoom] roomId={}, userId={}", roomId, userId);
-
-        String chatRoomUserCountKey = "CHAT_ROOM_USER_COUNT_" + roomId;
-        log.info("[connectChatRoom] chatRoomUserCountKey={}", chatRoomUserCountKey);
-
-        // 채팅방에 있는 사용자를 Redis에 추가
-        Long roomUserCount = redisUtil.insertSet(chatRoomUserCountKey, String.valueOf(userId));
-        log.info("[connectChatRoom] 구독 후 채팅방 사람 수 roomUserCount={}", roomUserCount);
-
-        // 읽음 처리
-        markMessagesAsRead(roomId, userId);
-        log.info("[connectChatRoom] 읽음 처리 완료");
-
-        // 새로운 사용자가 입장하면 비동기로 읽음 수를 업데이트하는 이벤트 전송
-        notifyReadStatusUpdate(roomId);
-        log.info("[connectChatRoom] 이벤트 전송 완료");
-    }
-
-    @Override
-    public void disconnectChatRoom(Long roomId, Long userId) {
-        log.info("[disconnectChatRoom] roomId={}, userId={}", roomId, userId);
-
-        String chatRoomUserCountKey = "CHAT_ROOM_USER_COUNT_" + roomId;
-
-        // Redis에서 사용자 퇴장 처리
-        Long remainingUserCount = redisUtil.deleteSet(chatRoomUserCountKey, String.valueOf(userId));
-        log.info("[disconnectChatRoom] 퇴장 후 채팅방 인원 수 remainingUserCount={}", remainingUserCount);
-
-        // 읽음 상태 업데이트 알림 전송
-        notifyRoomExit(roomId, userId);
     }
 
     private void markMessagesAsRead(Long roomId, Long userId) {
