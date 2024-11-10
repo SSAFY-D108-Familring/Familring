@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 @Service
@@ -185,8 +186,13 @@ public class TimeCapsuleService {
         Slice<TimeCapsule> timeCapsuleSlice = timeCapsuleRepository.findTimeCapsulesByFamilyIdOrderByStartDateDesc(familyId, pageRequest);
         List<TimeCapsule> timeCapsuleList = timeCapsuleSlice.getContent();
 
-        List<TimeCapsuleItem> timeCapsuleItems = timeCapsuleList.stream()
-                .map(timeCapsule -> {
+        // 전체 타임캡슐 개수 조회
+        int totalCount = timeCapsuleRepository.countByFamilyId(familyId);
+
+        List<TimeCapsuleItem> timeCapsuleItems = IntStream.range(0, timeCapsuleList.size())
+                .mapToObj(index -> {
+                    TimeCapsule timeCapsule = timeCapsuleList.get(index);
+
                     // 특정 타임캡슐의 모든 답변 가져오기
                     List<TimeCapsuleAnswer> answers = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByTimecapsule(timeCapsule);
 
@@ -194,7 +200,6 @@ public class TimeCapsuleService {
                     List<TimeCapsuleAnswerItem> answerItems = answers.stream()
                             .map(answer -> {
                                 // userId로 사용자 정보 가져오기
-                                // 타임 캡슐, 타임 캡슐 답변으로 userId 찾기
                                 Long id = timeCapsuleAnswerRepository.findUserIdByIdAndTimecapsule(answer.getId(), timeCapsule);
                                 UserInfoResponse user = userServiceFeignClient.getAllUser(Collections.singletonList(id)).getData().get(0);
 
@@ -211,6 +216,7 @@ public class TimeCapsuleService {
                     return TimeCapsuleItem.builder()
                             .timeCapsuleId(timeCapsule.getId())
                             .date(timeCapsule.getEndDate()) // LocalDate로 변환
+                            .index(totalCount - (pageNo * 18 + index)) // 현재 페이지와 index 를 이용해 순서 계산
                             .items(answerItems)
                             .build();
                 }).collect(Collectors.toList());
