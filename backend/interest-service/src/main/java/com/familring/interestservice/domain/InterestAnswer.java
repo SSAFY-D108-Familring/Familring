@@ -41,4 +41,8 @@ public class InterestAnswer {
         this.content = content;
     }
 
+    public void updateSelected(boolean selected) {
+        this.selected = selected;
+    }
+
 }
