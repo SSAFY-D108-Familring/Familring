@@ -75,6 +75,10 @@ class SignUpViewModel
             _state.update { it.copy(make = make) }
         }
 
+        fun updateLunar(lunar: Boolean) {
+            _state.update { it.copy(userIsLunar = lunar) }
+        }
+
         fun join() {
             val request =
                 UserJoinRequest(
@@ -83,7 +87,7 @@ class SignUpViewModel
                     userBirthDate = state.value.userBirthDate,
                     userRole = state.value.userRole,
                     userColor = state.value.userColor,
-                    userIsLunar = false,
+                    userIsLunar = state.value.userIsLunar,
                 )
             val file = state.value.userFace!!
 
