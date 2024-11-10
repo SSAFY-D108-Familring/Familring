@@ -172,4 +172,20 @@ class SignUpViewModel
                 }
             }
         }
+
+        fun getParentAvailable(code: String) {
+            viewModelScope.launch {
+                familyRepository.getParentAvailable(code).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _state.update { it.copy(parents = response.data) }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(SignUpUiEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
+            }
+        }
     }

@@ -13,4 +13,6 @@ data class SignUpUiState(
     val userColor: String = "",
     val userFace: File? = null,
     val familyCode: String = "",
+    val userIsLunar: Boolean = false,
+    val parents: List<String> = listOf(),
 )
