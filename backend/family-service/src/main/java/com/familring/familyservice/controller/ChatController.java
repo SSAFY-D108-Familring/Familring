@@ -27,12 +27,25 @@ public class ChatController {
         Long roomId = chatRequest.getRoomId();
         log.info("[sendMessage] 채팅방 Id = {}", roomId);
 
-        // 메시지 생성 및 처리
-        Chat chat = chatService.createChatAndVote(roomId, chatRequest);
+        // 일반 메시지 생성 및 처리
+        Chat chat = chatService.createChatOrVoiceOrVote(roomId, chatRequest);
         ChatResponse chatResponse = chatService.findChat(chat, chatRequest.getSenderId());
 
         template.convertAndSend("/room/" + roomId, chatResponse);
         log.debug("[sendMessage] 일반 메시지 소켓 전송 완료.");
+    }
+
+    @MessageMapping("/chat.voice")
+    public void sendVoiceMessage(ChatRequest chatRequest) {
+        Long roomId = chatRequest.getRoomId();
+        log.info("[sendVoiceMessage] 채팅방 Id = {}", roomId);
+
+        // 음성 메시지 생성 및 처리
+        Chat chat = chatService.createChatOrVoiceOrVote(roomId, chatRequest);
+        ChatResponse voiceChatResponse = chatService.findChat(chat, chatRequest.getSenderId());
+
+        template.convertAndSend("/room/" + roomId, voiceChatResponse);
+        log.debug("[sendVoiceMessage] 음성 메시지 소켓 전송 완료.");
     }
 
     @MessageMapping("/chat.vote")

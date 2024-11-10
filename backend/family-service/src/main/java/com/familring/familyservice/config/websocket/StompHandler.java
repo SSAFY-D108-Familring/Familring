@@ -155,6 +155,8 @@ public class StompHandler implements ChannelInterceptor {
 
     private Long getChatRoomNo(MessageHeaders headers) {
         String destination = Optional.ofNullable((String) headers.get("simpDestination")).orElse("InvalidRoomId");
+        log.info("[getChatRoomNo] destination={}", destination);
+
         // 경로가 유효한 경우에만 roomId를 파싱
         if (destination.startsWith("/room/")) {
             String[] pathSegments = destination.split("/");
@@ -167,6 +169,7 @@ public class StompHandler implements ChannelInterceptor {
             }
         }
         log.warn("[getChatRoomNo] 유효하지 않은 경로 형식: " + destination);
+
         return null;
     }
 
