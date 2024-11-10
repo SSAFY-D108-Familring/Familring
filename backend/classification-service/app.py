@@ -80,13 +80,10 @@ app = FastAPI(
     description="얼굴 유사도 분석 API",
     version="1.0.0",
     lifespan=lifespan,
-    openapi_url="/face-recognition/openapi.json",       # 기본 경로로 변경
-    docs_url="/face-recognition/docs",                  # 기본 경로로 변경
+    openapi_url="/face-recognition/openapi.json",  
+    docs_url="/face-recognition/docs",          
     redoc_url=None
 )
-
-# 전체 앱에 대한 라우터 접두어 설정
-app.router.prefix = "/face-recognition"  # 모든 엔드포인트에 대한 접두어 설정
 
 # CORS 미들웨어 설정
 app.add_middleware(
@@ -212,7 +209,7 @@ def get_face_encodings(image):
         logger.error(f"얼굴 인코딩 실패: {str(e)}")
         return None
 
-@app.post("/classification", response_model=List[SimilarityResponse])
+@app.post("/face-recognition/classification", response_model=List[SimilarityResponse])
 async def classify_images(request: AnalysisRequest):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
@@ -266,7 +263,7 @@ async def classify_images(request: AnalysisRequest):
 
 # 기존 코드는 동일하고 /face-count API 부분만 수정됩니다
 
-@app.post("/face-count", response_model=CountResponse)
+@app.post("/face-recognition/face-count", response_model=CountResponse)
 async def count_faces(file: UploadFile = File(...)):
     """
     업로드된 이미지 파일에서 검출된 얼굴의 수를 반환합니다.
