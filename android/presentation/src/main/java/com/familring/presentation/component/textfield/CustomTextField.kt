@@ -11,6 +11,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,6 +31,7 @@ fun CustomTextField(
     value: String,
     onValueChanged: (String) -> Unit,
     placeHolder: String = "",
+    borderColor: Color = Green03,
     focusManager: FocusManager,
 ) {
     OutlinedTextField(
@@ -39,7 +41,7 @@ fun CustomTextField(
                 .height(55.dp)
                 .border(
                     width = 2.dp,
-                    color = if (value.isEmpty()) Gray03 else Green03,
+                    color = if (value.isEmpty()) Gray03 else borderColor,
                     shape = RoundedCornerShape(12.dp),
                 ),
         value = value,

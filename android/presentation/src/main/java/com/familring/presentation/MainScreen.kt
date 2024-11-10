@@ -217,6 +217,7 @@ fun MainNavHost(
             ChatRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
+                showSnackBar = showSnackBar,
             )
         }
 
