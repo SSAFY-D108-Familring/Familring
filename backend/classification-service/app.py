@@ -25,7 +25,7 @@ EUREKA_SERVER = os.getenv('EUREKA_SERVER')
 APP_NAME = os.getenv('APP_NAME')
 SERVER_HOST = os.getenv('SERVER_HOST','0.0.0.0')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
-SERVER_PORT = os.getenv('SERVER_PORT')
+SERVER_PORT = int(os.getenv('SERVER_PORT'))
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
