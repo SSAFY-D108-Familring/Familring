@@ -30,6 +30,9 @@ fun InterestRoute(
     navigateToOtherInterest: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
+    // 여기서 state 따라 스크린 다르게 처리해야 할듯
+    // 작성 or 공유는 InterestScreen
+    // 선정된 날은 ResultScreen
     InterestScreen(
         modifier = modifier,
         isWrote = true,
