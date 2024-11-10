@@ -2,6 +2,7 @@ package com.familring.interestservice.service;
 
 import com.familring.interestservice.domain.Interest;
 import com.familring.interestservice.domain.InterestAnswer;
+import com.familring.interestservice.domain.InterestMission;
 import com.familring.interestservice.dto.client.Family;
 import com.familring.interestservice.dto.client.UserInfoResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
@@ -15,11 +16,13 @@ import com.familring.interestservice.repository.InterestAnswerRepository;
 import com.familring.interestservice.repository.InterestMissionRepository;
 import com.familring.interestservice.repository.InterestRepository;
 import com.familring.interestservice.service.client.FamilyServiceFeignClient;
+import com.familring.interestservice.service.client.FileServiceFeignClient;
 import com.familring.interestservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cglib.core.Local;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -38,6 +41,10 @@ public class InterestService {
     private final InterestMissionRepository interestMissionRepository;
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final UserServiceFeignClient userServiceFeignClient;
+    private final FileServiceFeignClient fileServiceFeignClient;
+
+    @Value("${aws.s3.interest-photo-path}")
+    private String interestPhotoPath;
 
     // 관심사 답변 작성
     public void createInterestAnswer(Long userId, InterestAnswerCreateRequest interestAnswerCreateRequest) {
@@ -279,6 +286,35 @@ public class InterestService {
     }
 
     // 관심사 체험 인증 게시글 작성
+    public void createInterestMission(Long userId, MultipartFile image) {
 
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        List<MultipartFile> files = new ArrayList<>();
+        files.add(image);
+        String photoUrl = fileServiceFeignClient.uploadFiles(files, getInterestPhotoPath(familyId)).getData().get(0);
+
+        // 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+
+        // 오늘
+        LocalDate today = LocalDate.now();
+
+        InterestMission interestMission = InterestMission
+                .builder()
+                .userId(userId)
+                .interest(interest)
+                .photoUrl(photoUrl)
+                .createdAt(today)
+                .build();
+
+        interestMissionRepository.save(interestMission);
+    }
+
+    private String getInterestPhotoPath(Long familyId) {
+        return interestPhotoPath + "/" + familyId;
+    }
 
 }

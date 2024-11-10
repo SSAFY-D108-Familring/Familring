@@ -11,8 +11,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/interests")
@@ -76,4 +78,12 @@ public class InterestController {
         int response = interestService.getInterestMissionDate(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 남은 기간 조회에 성공했습니다.", response));
     }
+
+    @PostMapping(path = "/missions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "관심사 체험 인증 게시글 작성", description = "관심사 체험 인증 게시글 작성 (이미지만 입력)")
+    public ResponseEntity<BaseResponse<Void>> createInterestMission(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userID, @RequestPart("image") MultipartFile image) {
+        interestService.createInterestMission(userID, image);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 게시글 작성에 성공했습니다."));
+    }
+
 }
