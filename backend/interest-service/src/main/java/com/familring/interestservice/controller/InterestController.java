@@ -3,16 +3,16 @@ package com.familring.interestservice.controller;
 import com.familring.common_module.dto.BaseResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
 import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequest;
-import com.familring.interestservice.dto.response.InterestAnswerListResponse;
-import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
-import com.familring.interestservice.dto.response.InterestAnswerSelectedResponse;
+import com.familring.interestservice.dto.response.*;
 import com.familring.interestservice.service.InterestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/interests")
@@ -75,5 +75,40 @@ public class InterestController {
     public ResponseEntity<BaseResponse<Integer>> getInterestMissionDate (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         int response = interestService.getInterestMissionDate(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 남은 기간 조회에 성공했습니다.", response));
+    }
+
+    @PostMapping(path = "/missions", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "관심사 체험 인증 게시글 작성", description = "관심사 체험 인증 게시글 작성 (이미지만 입력)")
+    public ResponseEntity<BaseResponse<Void>> createInterestMission(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userID, @RequestPart("image") MultipartFile image) {
+        interestService.createInterestMission(userID, image);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 게시글 작성에 성공했습니다."));
+    }
+
+    @GetMapping("/missions")
+    @Operation(summary = "관심사 체험 인증 목록 조회", description = "관심사 체험했던 구성원 목록 조회")
+    public ResponseEntity<BaseResponse<InterestMissionListResponse>> getInterestMissionList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        InterestMissionListResponse response = interestService.getInterestMissionList(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 목록 조회에 성공했습니다.", response));
+    }
+
+    @GetMapping()
+    @Operation(summary = "관심사 전체 목록 조회", description = "그동안 선정됐던 관심사 목록 조회")
+    public ResponseEntity<BaseResponse<InterestListResponse>> getInterestList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestParam int pageNo) {
+        InterestListResponse response = interestService.getInterestList(userId, pageNo);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 전체 목록 조회에 성공했습니다.", response));
+    }
+
+    @GetMapping("/{interest-id}")
+    @Operation(summary = "관심사 상세보기", description = "선정됐던 관심사 상세보기")
+    public ResponseEntity<BaseResponse<InterestDetailListResponse>> getInterestDetail (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @PathVariable(name="interest-id") Long interestId) {
+        InterestDetailListResponse response = interestService.getInterestDetail(userId, interestId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 전체 목록 조회에 성공했습니다.", response));
+    }
+
+    @GetMapping("/status")
+    @Operation(summary = "관심사 상태 관리", description = "0, 1, 2 로 상태 구분")
+    public ResponseEntity<BaseResponse<Integer>> getInterestStatus(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        int response = interestService.getInterestStatus(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 상태 관리 조회에 성공했습니다.", response));
     }
 }
