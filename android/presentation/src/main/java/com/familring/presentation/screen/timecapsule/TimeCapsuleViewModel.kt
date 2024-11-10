@@ -2,10 +2,16 @@ package com.familring.presentation.screen.timecapsule
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.familring.domain.mapper.toProfile
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.domain.repository.TimeCapsuleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -29,7 +35,6 @@ class TimeCapsuleViewModel
 
         init {
             getTimeCapsuleStatus()
-            getTimeCapsules(0)
         }
 
         fun getTimeCapsuleStatus() {
@@ -73,34 +78,14 @@ class TimeCapsuleViewModel
             }
         }
 
-        fun getTimeCapsules(pageNo: Int) {
-            viewModelScope.launch {
-                timeCapsuleRepository.getTimeCapsules(pageNo).collect { result ->
-                    when (result) {
-                        is ApiResponse.Success -> {
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    currentPageNo = currentState.currentPageNo + 1,
-                                    timeCapsules = currentState.timeCapsules + result.data.timeCapsules,
-                                )
-                            }
-                        }
-
-                        is ApiResponse.Error -> {
-                            _event.emit(TimeCapsuleUiEvent.Error(result.code, result.message))
-                            Timber.d("code: ${result.code}, message: ${result.message}")
-                        }
-                    }
-                }
-            }
-        }
-
-        fun clearTimeCapsuleList() {
-            _uiState.update {
-                it.copy(
-                    currentPageNo = -1,
-                    timeCapsules = listOf(),
-                )
-            }
-        }
+        fun getTimeCapsulePagination(): Flow<PagingData<TimeCapsule>> =
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 18,
+                        enablePlaceholders = false,
+                    ),
+            ) {
+                TimeCapsulePageSource(timeCapsuleRepository)
+            }.flow.cachedIn(viewModelScope)
     }

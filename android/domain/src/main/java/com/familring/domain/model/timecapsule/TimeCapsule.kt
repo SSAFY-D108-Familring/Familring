@@ -6,6 +6,8 @@ import java.time.LocalDate
 data class TimeCapsule(
     @SerializedName("timeCapsuleId")
     val id: Int = 0,
+    @SerializedName("index")
+    val timeCapsuleIndex: Int = 0,
     @SerializedName("date")
     val openDate: LocalDate = LocalDate.now(),
     @SerializedName("items")

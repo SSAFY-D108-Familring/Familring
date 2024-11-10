@@ -18,6 +18,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
@@ -33,6 +36,7 @@ fun TimeCapsuleRoute(
     onShowSnackBar: (message: String) -> Unit = {},
 ) {
     val uiState by timeCapsuleViewModel.uiState.collectAsStateWithLifecycle()
+    val timeCapsules = timeCapsuleViewModel.getTimeCapsulePagination().collectAsLazyPagingItems()
 
     LaunchedEffect(Unit) {
         timeCapsuleViewModel.event.collect { event ->
@@ -53,10 +57,9 @@ fun TimeCapsuleRoute(
         popUpBackStack = popUpBackStack,
         navigateToCreate = navigateToCreate,
         state = uiState,
+        timeCapsules = timeCapsules,
         getTimeCapsuleStatus = timeCapsuleViewModel::getTimeCapsuleStatus,
         createTimeCapsuleAnswer = timeCapsuleViewModel::createTimeCapsuleAnswer,
-        getTimeCapsules = timeCapsuleViewModel::getTimeCapsules,
-        onShowSnackBar = onShowSnackBar,
     )
 }
 
@@ -66,10 +69,9 @@ fun TimeCapsuleScreen(
     popUpBackStack: () -> Unit = {},
     navigateToCreate: () -> Unit = {},
     state: TimeCapsuleUiState,
+    timeCapsules: LazyPagingItems<TimeCapsule>,
     getTimeCapsuleStatus: () -> Unit = {},
     createTimeCapsuleAnswer: (String) -> Unit = {},
-    getTimeCapsules: (Int) -> Unit = {},
-    onShowSnackBar: (message: String) -> Unit = {},
 ) {
     val tabs = listOf("작성", "목록")
     var selectedItemIndex by remember { mutableIntStateOf(0) }
@@ -111,9 +113,7 @@ fun TimeCapsuleScreen(
 
                 1 -> {
                     TimeCapsuleListScreen(
-                        state = state,
-                        getTimeCapsules = getTimeCapsules,
-                        onShowSnackBar = onShowSnackBar,
+                        timeCapsules = timeCapsules,
                     )
                 }
             }
@@ -124,10 +124,10 @@ fun TimeCapsuleScreen(
 @Preview
 @Composable
 private fun TimeCapsuleScreenPreview() {
-    TimeCapsuleScreen(
-        state =
-            TimeCapsuleUiState(
-                writingStatus = 2,
-            ),
-    )
+//    TimeCapsuleScreen(
+//        state =
+//            TimeCapsuleUiState(
+//                writingStatus = 2,
+//            ),
+//    )
 }
