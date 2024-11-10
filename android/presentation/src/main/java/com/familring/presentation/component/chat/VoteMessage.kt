@@ -2,6 +2,7 @@ package com.familring.presentation.component.chat
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.theme.Blue01
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Pink01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -41,7 +43,8 @@ fun VoteMessage(
             Modifier
                 .fillMaxWidth(0.75f)
                 .clip(shape = RoundedCornerShape(13.dp))
-                .background(color = White),
+                .background(color = White)
+                .border(width = 1.dp, color = Gray03, shape = RoundedCornerShape(13.dp)),
     ) {
         Column(modifier = Modifier.wrapContentSize()) {
             Box(
@@ -77,7 +80,8 @@ fun VoteMessage(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .wrapContentHeight(),
+                            .wrapContentHeight()
+                            .background(color = White),
                 ) {
                     Text(
                         modifier =
@@ -94,7 +98,8 @@ fun VoteMessage(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .wrapContentHeight(),
+                            .wrapContentHeight()
+                            .background(color = White),
                 ) {
                     Column(modifier = Modifier.wrapContentSize()) {
                         Spacer(modifier = Modifier.height(20.dp))
@@ -150,7 +155,7 @@ fun VoteMessage(
 }
 
 @Composable
-@Preview()
+@Preview(showBackground = true)
 fun MyVoteMessagePreview() {
     VoteMessage(isOther = false, title = "오늘 저녁 치킨 어때유?")
 }
