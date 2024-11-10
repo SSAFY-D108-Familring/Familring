@@ -105,4 +105,10 @@ public class InterestController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 전체 목록 조회에 성공했습니다.", response));
     }
 
+    @GetMapping("/status")
+    @Operation(summary = "관심사 상태 관리", description = "0, 1, 2 로 상태 구분")
+    public ResponseEntity<BaseResponse<Integer>> getInterestStatus(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        int response = interestService.getInterestStatus(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 상태 관리 조회에 성공했습니다.", response));
+    }
 }

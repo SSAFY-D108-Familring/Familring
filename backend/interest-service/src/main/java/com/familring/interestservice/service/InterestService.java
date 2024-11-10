@@ -445,5 +445,37 @@ public class InterestService {
                 .build();
     }
 
+    // 관심사 상태 관리
+    public int getInterestStatus(Long userId) {
+        int status = 0;
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Optional<Interest> interestOptional = interestRepository.findFirstByFamilyId(familyId);
+
+        // 0 → 작성하는 기간: 관심사 DB에 아무것도 없을 때 작성 가능한 상태
+        if (interestOptional.isEmpty()) {
+            return 0;
+        }
+
+        Interest interest = interestOptional.get();
+        Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findSelectedAnswersByFamilyIdAndInterest(familyId, interest);
+
+        // 0 → 작성하는 기간: 최근 관심사에 선정된 답변이 없고, 인증 기간도 설정되지 않은 경우
+        if (interestAnswer.isEmpty() && interest.getMissionEndDate() == null) {
+            return 0;
+        }
+
+        // 1 → 관심사 선정 완료, 인증 기간 미설정: 선정된 답변이 있으나 인증 기간이 설정되지 않은 경우
+        if (interestAnswer.isPresent() && interest.getMissionEndDate() == null) {
+            return 1;
+        }
+
+        // 2 → 인증 기간: 관심사 선정 완료 & 인증 기간 설정된 경우
+        return 2;
+    }
 
 }
