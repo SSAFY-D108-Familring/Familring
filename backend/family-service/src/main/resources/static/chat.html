@@ -66,10 +66,33 @@
                     console.log("New message received:", parsedMessage);
                     displayMessageByType(parsedMessage);
                 });
+
+                // 읽음 상태 업데이트 구독 추가
+                stompClient.subscribe(`/room/${roomId}/readStatus`, () => {
+                    fetchChatHistory(roomId, userId); // 읽음 수 업데이트를 위해 채팅 기록 다시 가져오기
+                });
+
+                // 채팅방 퇴장 알림 구독 추가
+                stompClient.subscribe(`/room/${roomId}/exit`, (message) => {
+                    console.log("Exit message received:", message.body);
+                    displayExitMessage(message.body);
+                });
+
                 isConnected = true;
                 console.log("WebSocket connected and subscribed to /room/" + roomId);
             }
         );
+    }
+
+    function displayExitMessage(message) {
+        const chatLog = document.getElementById("chat-log");
+        console.log("Exit message received:", message);
+
+        // 퇴장 메시지를 별도 스타일로 표시
+        const content = `<div style="color: red; padding: 10px; margin: 5px; border: 1px solid #f00;">
+        <p><strong>알림:</strong> ${message}</p>
+    </div>`;
+        chatLog.innerHTML += content;
     }
 
     async function fetchChatHistory(roomId, userId) {
@@ -84,7 +107,6 @@
             const result = await response.json();
             const chatLog = document.getElementById("chat-log");
 
-            // chatLog 요소가 존재하는지 확인
             if (!chatLog) {
                 console.warn("채팅 기록을 표시할 요소가 없습니다.");
                 return;
@@ -166,18 +188,19 @@
         console.log("Displaying message by type:", message);
 
         let content = `<div style="border: 1px solid #ccc; padding: 10px; margin: 5px;">
-            <p><strong>채팅 ID:</strong> ${message.chatId || "N/A"}</p>
-            <p><strong>방 ID:</strong> ${message.roomId}</p>
-            <p><strong>발신자 ID:</strong> ${message.senderId}</p>
-            <p><strong>발신자 닉네임:</strong> ${message.sender ? message.sender.userNickname : "Unknown"}</p>
-            <p><strong>내용:</strong> ${message.content}</p>
-            <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>`;
+        <p><strong>채팅 ID:</strong> ${message.chatId || "N/A"}</p>
+        <p><strong>방 ID:</strong> ${message.roomId}</p>
+        <p><strong>발신자 ID:</strong> ${message.senderId}</p>
+        <p><strong>발신자 닉네임:</strong> ${message.sender ? message.sender.userNickname : "Unknown"}</p>
+        <p><strong>내용:</strong> ${message.content}</p>
+        <p><strong>보낸 시간:</strong> ${new Date(message.createdAt).toLocaleString()}</p>
+        <p><strong>읽지 않은 사람 수:</strong> ${message.unReadMembers}</p>`;
 
         if (message.isVote) {
             content += `
-                <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
-                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '찬성')">찬성</button>
-                <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '반대')">반대</button>`;
+            <p><strong>투표 제목:</strong> ${message.vote.voteTitle}</p>
+            <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '찬성')">찬성</button>
+            <button onclick="sendVoteResponse('${message.roomId}', '${message.vote.voteId}', '반대')">반대</button>`;
         } else if (message.isVoteResponse) {
             content += `<p><strong>투표 응답:</strong> ${message.responseOfVote}</p>`;
         } else if (message.isVoteResult && message.resultOfVote) {
@@ -193,6 +216,7 @@
         content += `</div>`;
         chatLog.innerHTML += content;
     }
+
 </script>
 </body>
 </html>

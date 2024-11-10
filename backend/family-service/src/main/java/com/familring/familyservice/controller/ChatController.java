@@ -1,15 +1,12 @@
 package com.familring.familyservice.controller;
 
 import com.familring.familyservice.model.dto.response.ChatResponse;
-import com.familring.familyservice.model.dto.Chat;
+import com.familring.familyservice.model.dto.chat.Chat;
 import com.familring.familyservice.model.dto.request.ChatRequest;
 import com.familring.familyservice.service.chat.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.bson.types.ObjectId;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,7 +1,6 @@
 package com.familring.familyservice.model.repository;
 
-import com.familring.familyservice.model.dto.Vote;
-import org.bson.types.ObjectId;
+import com.familring.familyservice.model.dto.chat.Vote;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

@@ -1,84 +1,87 @@
 package com.familring.familyservice.service.chat;
 
+import com.familring.familyservice.config.redis.RedisUtil;
 import com.familring.familyservice.exception.chat.AlreadyVoteParticipantException;
 import com.familring.familyservice.exception.chat.VoteNotFoundException;
-import com.familring.familyservice.model.dto.Vote;
+import com.familring.familyservice.model.dto.chat.Vote;
 import com.familring.familyservice.model.dto.response.ChatResponse;
-import com.familring.familyservice.model.dto.Chat;
+import com.familring.familyservice.model.dto.chat.Chat;
 import com.familring.familyservice.model.dto.request.ChatRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.model.repository.ChatRepository;
 import com.familring.familyservice.model.repository.VoteRepository;
-import com.familring.familyservice.service.chat.event.ChatRoomConnectEvent;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import com.familring.familyservice.service.family.FamilyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.event.EventListener;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Log4j2
 public class ChatServiceImpl implements ChatService {
 
-    private final ApplicationEventPublisher eventPublisher;
+    private final RedisUtil redisUtil;
     private final UserServiceFeignClient userServiceFeignClient;
     private final FamilyService familyService;
+    private final ChatRoomService chatRoomService;
 
     private final ChatRepository chatRepository;
     private final VoteRepository voteRepository;
 
-    @EventListener
-    public void handleChatRoomConnect(ChatRoomConnectEvent event) {
-        connectChatRoom(event.getRoomId(), event.getUserId());
-    }
-
     @Override
     @Transactional
     public Chat createChatAndVote(Long roomId, ChatRequest chatRequest) {
-        log.info("[createChat] 채팅 메시지 수신: roomId={}, senderId={}, content={}", roomId, chatRequest.getSenderId(), chatRequest.getContent());
+        log.info("[createChatAndVote] 채팅 메시지 수신: roomId={}, senderId={}, content={}", roomId, chatRequest.getSenderId(), chatRequest.getContent());
 
         UserInfoResponse user = userServiceFeignClient.getUser(chatRequest.getSenderId()).getData();
-        log.info("[createChat] 회원 찾기: userId={}, userNickname={}", user.getUserId(), user.getUserNickname());
+        log.info("[createChatAndVote] 회원 찾기: userId={}, userNickname={}", user.getUserId(), user.getUserNickname());
 
-        // 지금 시간
+        int familyCount = familyService.getAllFamilyCount(chatRequest.getSenderId());
+        log.info("[createChatAndVote] 가족 구성원 수: familyCount={}", familyCount);
+
         LocalDateTime now = LocalDateTime.now();
-        log.info("[createChat] 지금 시간 now={}", now);
+        log.info("[createChatAndVote] 지금 시간 now={}", now);
+
+        // 채팅방에 구독 중인 사용자들을 모두 읽음 처리
+        String chatRoomUserKey = "CHAT_ROOM_USER_COUNT_" + roomId;
+        Set<String> currentUserIds = redisUtil.getSetMembers(chatRoomUserKey);
+        Set<Long> readByUserIds = currentUserIds.stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toSet());
 
         // 채팅 객체 생성
         Chat chat = Chat.builder()
                 .roomId(roomId)
                 .senderId(chatRequest.getSenderId())
+                .familyCount(familyCount)
                 .content(chatRequest.getContent())
                 .createdAt(now)
-                .isVote(chatRequest.isVote())
-                .voteId("") // 투표 유효하지 않은 값 넣기
+                .isVote(chatRequest.isVote())  // 투표 여부 설정
+                .voteId("") // 유효하지 않은 값
                 .isVoteResponse(chatRequest.getIsVoteResponse())
                 .isVoteEnd(false)
-                .responseOfVote("") // 투표 응답 유효하지 않은 값 넣기
+                .responseOfVote("") // 유효하지 않은 값
                 .isVoteResult(false)
-                .resultOfVote(new HashMap<>()) // 투표 결과 유효하지 않은 값 넣기
+                .resultOfVote(new HashMap<>())
+                .readByUserIds(readByUserIds) // 모든 구독 중인 사용자 읽음 처리
                 .build();
-        log.info("[createChat] 채팅 객체 생성: chat={}", chat);
-        log.info("[createChat] chatRequest.isVote()={}", chatRequest.isVote());
+
+        log.info("[createChatAndVote] 채팅 객체 생성: chat={}", chat);
+
+        // 읽지 않은 사용자 수 계산
+        String unreadCountKey = "UNREAD_COUNT_" + roomId + "_" + chat.getChatId();
+        redisUtil.setString(unreadCountKey, String.valueOf(familyCount - readByUserIds.size()));
 
         if(chatRequest.isVote()) {
-            log.info("[createChat] 투표인 경우");
-            int familyCount = familyService.getAllFamilyCount(chatRequest.getSenderId());
-            log.info("[createChat] 가족 구성원 수: familyCount={}", familyCount);
+            log.info("[createChatAndVote] 투표인 경우");
+            chat.setIsVote(chatRequest.isVote());
+            log.info("[createChatAndVote] chatRequest.isVote={}", chatRequest.isVote());
 
             // 투표 객체 생성
             Vote vote = Vote.builder()
@@ -92,20 +95,21 @@ public class ChatServiceImpl implements ChatService {
                     .roomId(roomId)
                     .senderId(chatRequest.getSenderId())
                     .build();
-            log.info("[createChat] 채팅 투표 객체 생성: vote={}", vote);
+            log.info("[createChatAndVote] 채팅 투표 객체 생성: vote={}", vote);
 
             // 투표 정보 저장
             voteRepository.save(vote);
-            log.info("[createChat] voteRepository 저장 완료");
+            log.info("[createChatAndVote] voteRepository 저장 완료");
 
-            // 유효한 id 넣기
             chat.setVoteId(vote.getVoteId());
-            log.info("[createChat] 생성된 투표 객체 voteId={}", chat.getVoteId());
+            log.info("[createChatAndVote] 생성된 투표 객체 voteId={}", chat.getVoteId());
         }
 
-        // chatRepository에 저장
         chatRepository.save(chat);
-        log.info("[createChat] chatRepository 저장 완료");
+        log.info("[createChatAndVote] chatRepository 저장 완료");
+
+        // 읽음 상태 업데이트 이벤트 전송
+        chatRoomService.notifyReadStatusUpdate(roomId);
 
         return chat;
     }
@@ -118,6 +122,9 @@ public class ChatServiceImpl implements ChatService {
         UserInfoResponse user = userServiceFeignClient.getUser(chatRequest.getSenderId()).getData();
         log.info("[createChatVoteResponse] 회원 찾기: userId={}, userNickname={}", user.getUserId(), user.getUserNickname());
 
+        int familyCount = familyService.getAllFamilyCount(chatRequest.getSenderId());
+        log.info("[createChatVoteResponse] 가족 구성원 수: familyCount={}", familyCount);
+
         LocalDateTime now = LocalDateTime.now();
         log.info("[createChatVoteResponse] 지금 시간 now={}", now);
 
@@ -127,72 +134,84 @@ public class ChatServiceImpl implements ChatService {
         log.info("[createChatVoteResponse] 투표 객체 찾기: vote={}", vote);
 
         // 투표 참여
-        Long participantId = user.getUserId(); // 투표자
+        Long participantId = user.getUserId();
         String voteResponse = chatRequest.getResponseOfVote();
         if (vote.getChoices().containsKey(participantId)) {
-            log.info("[createChatVoteResponse] 투표자Id={}가 이미 투표에 참여했습니다.", participantId);
+            log.info("[createChatVoteResponse] 해당 인원이 이미 투표에 참여 완료");
             throw new AlreadyVoteParticipantException();
         }
-        log.info("[createChatVoteResponse] 투표자Id={}, 응답={}", participantId, voteResponse);
         vote.getChoices().put(participantId, voteResponse);
-
-        // 투표 저장
         voteRepository.save(vote);
-        log.info("[createChatVoteResponse] voteRepository 저장 완료");
 
-        // 채팅 객체 생성
+        // 채팅방에 구독 중인 사용자들을 모두 읽음 처리
+        String chatRoomUserKey = "CHAT_ROOM_USER_COUNT_" + roomId;
+        Set<String> currentUserIds = redisUtil.getSetMembers(chatRoomUserKey);
+        Set<Long> readByUserIds = currentUserIds.stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toSet());
+        log.info("[createChatVoteResponse] 읽음 처리 완료 readByUserIds={}", readByUserIds.toArray(new Long[0]));
+
+        // 투표 응답 채팅 객체 생성
         Chat voteChat = Chat.builder()
                 .roomId(roomId)
                 .senderId(chatRequest.getSenderId())
+                .familyCount(familyCount)
                 .content(chatRequest.getContent())
                 .createdAt(now)
-                .isVote(chatRequest.isVote())
+                .isVote(false)
                 .voteId(voteId)
-                .isVoteResponse(chatRequest.getIsVoteResponse())
+                .isVoteResponse(true)
                 .responseOfVote(chatRequest.getResponseOfVote())
                 .isVoteResult(false)
                 .resultOfVote(new HashMap<>())
+                .readByUserIds(readByUserIds) // 모든 구독 중인 사용자 읽음 처리
                 .build();
-        log.info("[createChatVoteResponse] 투표 응답 채팅 객체: voteChat={}", voteChat);
 
-        // 투표를 모두 참여한 경우 체크
-        if(vote.getFamilyCount() == vote.getChoices().size()) {
-            log.info("[createChatVoteResponse] 모든 사용자 투표 참여 완료: familyCount={}, participants={}", vote.getFamilyCount(), vote.getChoices().size());
-            Map<Long, String> choices = vote.getChoices();
-            Map<String, Integer> voteResult = new HashMap<>();
+        // 읽지 않은 사용자 수를 Redis에 저장
+        String unreadCountKey = "UNREAD_COUNT_" + roomId + "_" + voteChat.getChatId();
+        redisUtil.setString(unreadCountKey, String.valueOf(familyCount - readByUserIds.size()));
 
-            // 투표 참여자들 결과 카운트하기
-            for (String choice : choices.values()) {
-                voteResult.put(choice, voteResult.getOrDefault(choice, 0) + 1);
-            }
-
-            log.info("[createChatVoteResponse] 투표 객체에 voteResult 넣기");
-            vote.setCompleted(true);
-            vote.setVoteResult(voteResult);
-            voteRepository.save(vote);
-
-            log.info("[createChatVoteResponse] 채팅 객체에 resultOfVote 넣기");
-            voteChat.setVoteEnd(true);
+        // 투표 결과 체크 및 저장
+        if (vote.getFamilyCount() == vote.getChoices().size()) {
+            log.info("[createChatVoteResponse] 가족 구성원 모두 투표 참여 완료");
+            vote.setCompleted(true); // 투표 완료 처리
+            vote.setVoteResult(vote.getChoices().values().stream()
+                    .collect(Collectors.groupingBy(choice -> choice, Collectors.summingInt(v -> 1))));
+            voteRepository.save(vote); // 투표 저장
+            voteChat.setVoteEnd(true); // 투표 응답에 투표 끝났다고 저장
         }
 
-        // 투표 응답 채팅 객체 저장
-        chatRepository.save(voteChat);
-        log.info("[createChatVoteResponse] 투표 응답 채팅 chatRepository 저장 완료");
+        chatRepository.save(voteChat); // 채팅 저장
+        log.info("[createChatVoteResponse] 저장된 채팅 정보 voteChat={}", voteChat);
+
+        chatRoomService.notifyReadStatusUpdate(roomId);
 
         return voteChat;
     }
 
     @Override
+    @Transactional
     public Chat createChatVoteResult(Long roomId, String voteId, ChatRequest chatRequest) {
-        // 투표 찾기
         Vote vote = voteRepository.findByVoteId(voteId)
                 .orElseThrow(() -> new VoteNotFoundException());
-        log.info("[createChatVoteResult] 투표 객체 찾기: vote={}", vote);
+        log.info("[createChatVoteResult] 종료된 투표 정보 vote={}", vote);
+
+        int familyCount = familyService.getAllFamilyCount(chatRequest.getSenderId());
+        log.info("[createChatVoteResult] 가족 구성원 수: familyCount={}", familyCount);
+
+        // 채팅방에 구독 중인 사용자들을 모두 읽음 처리
+        String chatRoomUserKey = "CHAT_ROOM_USER_COUNT_" + roomId;
+        Set<String> currentUserIds = redisUtil.getSetMembers(chatRoomUserKey);
+        Set<Long> readByUserIds = currentUserIds.stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toSet());
+        log.info("[createChatVoteResult] 읽음 처리 완료 readByUserIds={}", readByUserIds.toArray(new Long[0]));
 
         // 투표 결과 채팅 객체 생성
         Chat voteResultChat = Chat.builder()
                 .roomId(roomId)
                 .senderId(vote.getSenderId())
+                .familyCount(familyCount)
                 .content(vote.getVoteTitle())
                 .createdAt(LocalDateTime.now())
                 .isVote(false)
@@ -201,93 +220,17 @@ public class ChatServiceImpl implements ChatService {
                 .responseOfVote("")
                 .isVoteResult(true)
                 .resultOfVote(vote.getVoteResult())
+                .readByUserIds(readByUserIds) // 모든 구독 중인 사용자 읽음 처리
                 .build();
 
-        // 투표 결과 채팅 저장
-        chatRepository.save(voteResultChat);
-        log.info("[handleVoteCompleted] 투표 결과 채팅 저장 완료: chatId={}", voteResultChat.getChatId());
+        String unreadCountKey = "UNREAD_COUNT_" + roomId + "_" + voteResultChat.getChatId();
+        redisUtil.setString(unreadCountKey, String.valueOf(familyCount - readByUserIds.size()));
+
+        chatRepository.save(voteResultChat); // 저장 완료
+        chatRoomService.notifyReadStatusUpdate(roomId);
+        log.info("[createChatVoteResult] 저장된 채팅 정보 voteResultChat={}", voteResultChat);
 
         return voteResultChat;
-    }
-
-    @Override
-    public List<ChatResponse> findAllChatByRoomId(Long roomId, Long userId) { 
-        log.info("[findAllChatByRoomId] 채팅 찾기 roomId={}, userId={}", roomId, userId);
-        List<ChatResponse> responseList = new ArrayList<>();
-
-        List<Chat> chatList = chatRepository.findAllByRoomId(roomId);
-        for(Chat chat : chatList) {
-            UserInfoResponse user = userServiceFeignClient.getUser(chat.getSenderId()).getData();
-            log.info("[findAllChatByRoomId] 발신자 찾기 userNickname={}", user.getUserNickname());
-
-            ChatResponse chatResponse = ChatResponse.builder()
-                    .chatId(chat.getChatId())
-                    .roomId(chat.getRoomId())
-                    .senderId(chat.getSenderId())
-                    .sender(user)
-                    .content(chat.getContent())
-                    .createdAt(chat.getCreatedAt())
-                    .isVote(chat.getIsVote())
-                    .vote(null)
-                    .isVoteResponse(chat.getIsVoteResponse())
-                    .responseOfVote(chat.getResponseOfVote())
-                    .isVoteResult(chat.getIsVoteResult())
-                    .resultOfVote(chat.getResultOfVote())
-                    .build();
-
-            // 투표인 경우
-            if(chat.getIsVote()) {
-                log.info("[findAllChatByRoomId] 투표 찾기 voteId={}", chat.getVoteId());
-                Vote vote = voteRepository.findByVoteId(chat.getVoteId())
-                        .orElseThrow(() -> new VoteNotFoundException());
-                log.info("[findAllChatByRoomId] 찾은 투표 voteTitle={}", vote.getVoteTitle());
-                chatResponse.setVote(vote);
-            }
-
-            responseList.add(chatResponse);
-        }
-
-        return responseList;
-    }
-
-    @Override
-    public List<ChatResponse> findPagedChatByRoomId(Long roomId, Long userId, int page, int size) {
-        log.info("[findPagedChatByRoomId] 채팅 찾기 roomId={}, userId={}, page={}, size={}", roomId, userId, page, size);
-        List<ChatResponse> responseList = new ArrayList<>();
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Chat> chatPage = chatRepository.findByRoomId(roomId, pageable);
-
-        for (Chat chat : chatPage.getContent()) {
-            UserInfoResponse user = userServiceFeignClient.getUser(chat.getSenderId()).getData();
-            log.info("[findPagedChatByRoomId] 발신자 찾기 userNickname={}", user.getUserNickname());
-
-            ChatResponse chatResponse = ChatResponse.builder()
-                    .chatId(chat.getChatId())
-                    .roomId(chat.getRoomId())
-                    .senderId(chat.getSenderId())
-                    .sender(user)
-                    .content(chat.getContent())
-                    .createdAt(chat.getCreatedAt())
-                    .isVote(chat.getIsVote())
-                    .vote(null)
-                    .isVoteResponse(chat.getIsVoteResponse())
-                    .responseOfVote(chat.getResponseOfVote())
-                    .isVoteResult(chat.getIsVoteResult())
-                    .resultOfVote(chat.getResultOfVote())
-                    .build();
-
-            if (chat.getIsVote()) {
-                log.info("[findPagedChatByRoomId] 투표 찾기 voteId={}", chat.getVoteId());
-                Vote vote = voteRepository.findByVoteId(chat.getVoteId()).orElseThrow(() -> new VoteNotFoundException());
-                log.info("[findPagedChatByRoomId] 찾은 투표 voteTitle={}", vote.getVoteTitle());
-                chatResponse.setVote(vote);
-            }
-
-            responseList.add(chatResponse);
-        }
-
-        return responseList;
     }
 
     @Override
@@ -298,10 +241,24 @@ public class ChatServiceImpl implements ChatService {
         log.info("[findChat] 발신자 정보: userId={}, userNickname={}", user.getUserId(), user.getUserNickname());
         Vote vote = null;
 
-        if(chat.getIsVote()) {
+        if (chat.getIsVote()) {
             vote = voteRepository.findByVoteId(chat.getVoteId()).orElse(null);
             log.info("[findChat] 투표 정보: vote={}", vote);
         }
+
+        // Redis에서 읽은 사용자 ID 조회
+        String readStatusKey = "READ_STATUS_" + chat.getRoomId() + "_" + chat.getChatId();
+        Set<String> readUserIds = redisUtil.getSetMembers(readStatusKey);
+
+        // Redis에 사용자 읽음 상태 추가 (본인이 보낸 경우 바로 추가)
+        if (chat.getSenderId().equals(userId)) {
+            redisUtil.insertSet(readStatusKey, String.valueOf(userId));
+            readUserIds.add(String.valueOf(userId)); // 본인이 보낸 메시지는 자동 읽음 처리
+        }
+
+        // Redis에서 읽음 상태 기반으로 읽지 않은 사람 수 계산
+        int unReadMembers = chat.getFamilyCount() - readUserIds.size();
+        unReadMembers = Math.max(unReadMembers, 0); // 0 미만일 경우 0으로 설정
 
         ChatResponse response = ChatResponse.builder()
                 .chatId(chat.getChatId())
@@ -316,14 +273,10 @@ public class ChatServiceImpl implements ChatService {
                 .responseOfVote(chat.getResponseOfVote())
                 .isVoteResult(chat.getIsVoteResult())
                 .resultOfVote(chat.getResultOfVote())
+                .unReadMembers(unReadMembers) // 읽지 않은 사람 수 설정
                 .build();
+        log.info("[findChat] 찾은 채팅: chatId={}, unReadMembers={}", chat.getChatId(), unReadMembers);
 
         return response;
-    }
-
-    @Override
-    public void connectChatRoom(Long roomId, Long userId) {
-        log.info("[Service - connectChatRoom] 읽음 처리 roomId={}", roomId);
-        // 나중에 읽음 처리
     }
 }

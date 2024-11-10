@@ -1,12 +1,13 @@
-package com.familring.familyservice.model.dto;
+package com.familring.familyservice.model.dto.chat;
 
 import lombok.*;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 @Data
 @Builder
@@ -19,6 +20,7 @@ public class Chat {
     @Id
     private String chatId;
     private Long roomId; // 채팅 방의 id == familyId
+    private int familyCount; // 채팅 방 사람 총 수
 
     // 발신자 정보
     private Long senderId; // 발신자 id
@@ -39,7 +41,11 @@ public class Chat {
     // 투표 결과
     private boolean isVoteResult; // 투표 결과 여부
     private Map<String, Integer> resultOfVote; // 투표 결과
+    
+    // 읽음 처리
+    private Set<Long> readByUserIds; // 읽음 사람 id 저장
 
+    // getter, setter
     public boolean getIsVote() {
         return isVote;
     }
@@ -66,5 +72,15 @@ public class Chat {
 
     public void setIsVoteResult(boolean isVoteResult) {
         this.isVoteResult = isVoteResult;
+    }
+
+    // 읽음 처리 메소드
+    public void markAsRead(Long userId) {
+        readByUserIds.add(userId);
+    }
+
+    // 몇 명이 읽었는지 계산하는 메소드
+    public int getReadCount() {
+        return readByUserIds.size();
     }
 }

@@ -1,7 +1,6 @@
 package com.familring.familyservice.model.repository;
 
-import com.familring.familyservice.model.dto.Chat;
-import org.bson.types.ObjectId;
+import com.familring.familyservice.model.dto.chat.Chat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
