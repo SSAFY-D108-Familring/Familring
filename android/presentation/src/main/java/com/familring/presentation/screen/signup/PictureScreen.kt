@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -38,13 +39,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -154,8 +156,8 @@ fun PictureScreen(
             Box(
                 modifier =
                     Modifier
-                        .fillMaxWidth(0.6f)
-                        .aspectRatio(3f / 4f)
+                        .fillMaxWidth(0.9f)
+                        .aspectRatio(1f)
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp))
                         .clickable {
                             when (PackageManager.PERMISSION_GRANTED) {
@@ -171,7 +173,7 @@ fun PictureScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 if (imgUri != null) {
-                    GlideImage(
+                    AsyncImage(
                         modifier =
                             Modifier
                                 .matchParentSize()
@@ -181,12 +183,23 @@ fun PictureScreen(
                         contentDescription = "daily",
                     )
                 } else {
-                    Icon(
-                        modifier = Modifier.size(60.dp),
-                        painter = painterResource(id = R.drawable.ic_camera),
-                        contentDescription = "ic_camera",
-                        tint = Gray01,
-                    )
+                    Column(
+                        modifier = Modifier.wrapContentSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(50.dp),
+                            painter = painterResource(id = R.drawable.ic_camera),
+                            contentDescription = "ic_camera",
+                            tint = Gray02,
+                        )
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Text(
+                            text = "여기를 클릭해 사진을 촬영해 주세요",
+                            style = Typography.bodyMedium,
+                            color = Gray02,
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.fillMaxHeight(0.2f))
