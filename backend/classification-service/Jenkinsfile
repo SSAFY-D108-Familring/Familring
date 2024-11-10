@@ -37,8 +37,10 @@ def stopAndRemoveContainer(containerName) {
     }
 }
 
+// 공통 함수: 컨테이너 빌드 및 실행
 def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
+
     sh "docker build -t ${serviceName} ."
-    sh "docker run --name ${serviceName} --hostname classification-service --env-file .env -d ${serviceName}"
+    sh "docker run --name ${serviceName} --env-file .env -d ${serviceName}"
 }
