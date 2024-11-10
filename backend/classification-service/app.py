@@ -163,24 +163,30 @@ def load_image_from_bytes(file_content: bytes):
 
 def get_face_encodings(image):
     if image is None:
+        logger.error("입력 이미지가 None입니다")
         return None
     try:
         # 이미지 크기 조정
         height, width = image.shape[:2]
         max_dimension = 1024
+        logger.info(f"원본 이미지 크기: {width}x{height}")
+        
         if max(height, width) > max_dimension:
             scale = max_dimension / max(height, width)
             image = cv2.resize(image, None, fx=scale, fy=scale)
+            new_height, new_width = image.shape[:2]
+            logger.info(f"이미지 크기 조정: {new_width}x{new_height} (scale: {scale:.2f})")
 
         # HOG로 얼굴 검출
+        logger.info("1차 얼굴 검출 시도 (원본 크기)")
         face_locations = face_recognition.face_locations(
             image,
             model="hog",
-            number_of_times_to_upsample=2  # 작은 얼굴도 찾기 위해 업샘플링
+            number_of_times_to_upsample=2
         )
         
         if not face_locations:
-            # 첫 시도 실패시 다른 크기로 한번 더 시도
+            logger.info("1차 얼굴 검출 실패, 2차 시도 (크기 축소)")
             scaled_image = cv2.resize(image, None, fx=0.5, fy=0.5)
             face_locations = face_recognition.face_locations(
                 scaled_image,
@@ -188,25 +194,37 @@ def get_face_encodings(image):
                 number_of_times_to_upsample=2
             )
             if face_locations:
-                # 좌표 원본 크기로 변환
+                logger.info("2차 얼굴 검출 성공")
                 face_locations = [(int(top*2), int(right*2), 
                                  int(bottom*2), int(left*2))
                                 for top, right, bottom, left in face_locations]
         
         if not face_locations:
+            logger.warning("모든 얼굴 검출 시도 실패")
             return None
             
+        # 검출된 얼굴 위치 로깅
+        logger.info(f"검출된 얼굴 수: {len(face_locations)}")
+        for i, (top, right, bottom, left) in enumerate(face_locations):
+            logger.info(f"얼굴 {i+1} 위치: top={top}, right={right}, bottom={bottom}, left={left}")
+            
         # 얼굴 인코딩
+        logger.info("얼굴 인코딩 시작")
         face_encodings = face_recognition.face_encodings(
             image,
             face_locations,
-            num_jitters=1  # 기본값 사용
+            num_jitters=1
         )
         
-        return face_encodings if face_encodings else None
+        if face_encodings:
+            logger.info(f"얼굴 인코딩 완료: {len(face_encodings)}개")
+            return face_encodings
+        else:
+            logger.warning("얼굴 인코딩 실패")
+            return None
         
     except Exception as e:
-        logger.error(f"얼굴 인코딩 실패: {str(e)}")
+        logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
         return None
 
 @app.post("/face-recognition/classification", response_model=List[SimilarityResponse])
@@ -261,25 +279,20 @@ async def classify_images(request: AnalysisRequest):
     
     return results
 
-# 기존 코드는 동일하고 /face-count API 부분만 수정됩니다
-
 @app.post("/face-recognition/face-count", response_model=CountResponse)
 async def count_faces(file: UploadFile = File(...)):
     """
     업로드된 이미지 파일에서 검출된 얼굴의 수를 반환합니다.
-
-    - **file**: 이미지 파일 (multipart/form-data)
-    - 지원 형식: JPG, JPEG, PNG, GIF, BMP, WEBP
-    - 최대 파일 크기: 10MB
-
-    Returns:
-        검출된 얼굴의 수
     """
+    logger.info(f"얼굴 수 검출 요청 시작 - 파일명: {file.filename}")
+    
     # 파일 확장자 검사
     allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"}
     file_ext = file.filename.lower()[file.filename.rfind("."):]
+    logger.info(f"파일 확장자 검사: {file_ext}")
     
     if file_ext not in allowed_extensions:
+        logger.warning(f"지원되지 않는 파일 형식: {file_ext}")
         raise HTTPException(
             status_code=400,
             detail="지원되지 않는 파일 형식입니다. JPG, JPEG, PNG, GIF, BMP, WEBP 파일만 허용됩니다."
@@ -288,21 +301,40 @@ async def count_faces(file: UploadFile = File(...)):
     # 파일 크기 제한 (10MB)
     MAX_FILE_SIZE = 10 * 1024 * 1024
     file_content = await file.read()
-    if len(file_content) > MAX_FILE_SIZE:
+    file_size = len(file_content)
+    logger.info(f"파일 크기: {file_size / 1024 / 1024:.2f}MB")
+    
+    if file_size > MAX_FILE_SIZE:
+        logger.warning(f"파일 크기 초과: {file_size / 1024 / 1024:.2f}MB")
         raise HTTPException(
             status_code=400,
             detail="파일 크기가 너무 큽니다. 최대 10MB까지 허용됩니다."
         )
 
+    # 이미지 로드 및 전처리
+    logger.info("이미지 로드 및 전처리 시작")
     img = load_image_from_bytes(file_content)
     if img is None:
+        logger.error("이미지 로드 실패")
         raise HTTPException(status_code=400, detail="이미지를 처리할 수 없습니다")
+    
+    # 이미지 크기 로깅
+    height, width = img.shape[:2]
+    logger.info(f"이미지 크기: {width}x{height} 픽셀")
 
+    # 얼굴 검출
+    logger.info("얼굴 검출 시작")
     face_encodings = get_face_encodings(img)
     face_count = len(face_encodings) if face_encodings else 0
+    
+    # 결과 로깅
+    if face_count > 0:
+        logger.info(f"얼굴 검출 완료: {face_count}개의 얼굴 발견")
+    else:
+        logger.warning("얼굴 검출 실패: 얼굴을 찾을 수 없음")
 
+    logger.info("얼굴 수 검출 요청 완료")
     return CountResponse(faceCount=face_count)
-
 
 async def register_to_eureka():
     """Eureka 서버에 서비스 등록"""
