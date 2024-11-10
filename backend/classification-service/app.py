@@ -86,7 +86,9 @@ app = FastAPI(
     title="Face Classification API",
     description="얼굴 유사도 분석 API",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url="/classification/v3/api-docs",  # Swagger UI URL 경로 수정
+    redoc_url=None  # ReDoc 비활성화
 )
 
 # 글로벌 변수로 포트 저장
@@ -215,28 +217,6 @@ def get_face_encodings(image):
     except Exception as e:
         logger.error(f"얼굴 인코딩 실패: {str(e)}")
         return None
-
-@app.get("/", include_in_schema=False)
-async def root():
-    return RedirectResponse(url="/classification/v3/api-docs")
-
-@app.get("/classification/v3/api-docs", include_in_schema=False)
-async def custom_swagger_ui_html():
-    return get_swagger_ui_html(
-        openapi_url="/classification/v3/api-docs/openapi.json",
-        title=app.title + " - Swagger UI",
-        swagger_favicon_url="",
-        swagger_ui_parameters={"defaultModelsExpandDepth": -1}
-    )
-
-@app.get("/classification/v3/api-docs/openapi.json", include_in_schema=False)
-async def get_openapi_endpoint():
-    return get_openapi(
-        title=app.title,
-        version=app.version,
-        description=app.description,
-        routes=app.routes,
-    )
 
 @app.post("/classification", response_model=List[SimilarityResponse])
 async def classify_images(request: AnalysisRequest):
