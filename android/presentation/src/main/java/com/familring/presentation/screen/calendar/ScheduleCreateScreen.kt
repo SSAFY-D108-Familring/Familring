@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.calendar
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,6 +45,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
@@ -51,10 +54,11 @@ import com.familring.domain.model.calendar.Schedule
 import com.familring.domain.request.ScheduleCreateRequest
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomCheckBox
-import com.familring.presentation.component.dialog.LoadingDialog
-import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Blue01
 import com.familring.presentation.theme.Gray02
@@ -71,7 +75,6 @@ import com.familring.presentation.theme.Yellow03
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toColor
 import com.familring.presentation.util.toColorLongString
-import timber.log.Timber
 import java.time.LocalDateTime
 
 @Composable
@@ -171,6 +174,8 @@ fun ScheduleCreateScreen(
         }
     }
 
+    var showDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(targetSchedule) {
         if (isModify) {
             title = targetSchedule.title
@@ -203,7 +208,7 @@ fun ScheduleCreateScreen(
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
                 },
-                onNavigationClick = popUpBackStack,
+                onNavigationClick = { showDialog = true },
             )
             Spacer(modifier = Modifier.height(30.dp))
             Column(
@@ -483,6 +488,26 @@ fun ScheduleCreateScreen(
                     },
                 )
             }
+        }
+
+        if (showDialog) {
+            Dialog(
+                onDismissRequest = { showDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                TwoButtonTextDialog(
+                    text = if (!isModify) "일정 추가를 종료하시겠어요?" else "일정 수정을 종료하시겠어요?",
+                    onConfirmClick = {
+                        showDialog = false
+                        popUpBackStack()
+                    },
+                    onDismissClick = { showDialog = false },
+                )
+            }
+        }
+
+        BackHandler(enabled = !showDialog) {
+            showDialog = true
         }
     }
 }

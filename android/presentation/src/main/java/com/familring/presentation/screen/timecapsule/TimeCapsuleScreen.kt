@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.timecapsule
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -10,12 +11,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
@@ -23,6 +27,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.presentation.component.CustomTextTab
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
+import com.familring.presentation.screen.timecapsule.WritingState.WRITING_TIME_CAPSULE
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -76,6 +82,8 @@ fun TimeCapsuleScreen(
     val tabs = listOf("작성", "목록")
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
+    var showDialog by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -92,7 +100,13 @@ fun TimeCapsuleScreen(
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
                 },
-                onNavigationClick = popUpBackStack,
+                onNavigationClick = {
+                    if (state.writingStatus == WRITING_TIME_CAPSULE) {
+                        showDialog = true
+                    } else {
+                        popUpBackStack()
+                    }
+                },
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             CustomTextTab(
@@ -116,6 +130,30 @@ fun TimeCapsuleScreen(
                         timeCapsules = timeCapsules,
                     )
                 }
+            }
+        }
+
+        if (showDialog) {
+            Dialog(
+                onDismissRequest = { showDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                TwoButtonTextDialog(
+                    text = "타임 캡슐 작성을 종료하시겠어요?",
+                    onConfirmClick = {
+                        showDialog = false
+                        popUpBackStack()
+                    },
+                    onDismissClick = { showDialog = false },
+                )
+            }
+        }
+
+        BackHandler(enabled = true) {
+            if (state.writingStatus == WRITING_TIME_CAPSULE) {
+                showDialog = true
+            } else {
+                popUpBackStack()
             }
         }
     }
