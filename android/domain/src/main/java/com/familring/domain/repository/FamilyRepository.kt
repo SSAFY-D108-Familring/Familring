@@ -18,4 +18,6 @@ interface FamilyRepository {
     suspend fun getFamilyInfo(): Flow<ApiResponse<FamilyInfo>>
 
     suspend fun isAvailableCode(code: String): Flow<ApiResponse<Boolean>>
+
+    suspend fun getParentAvailable(code: String): Flow<ApiResponse<List<String>>>
 }
