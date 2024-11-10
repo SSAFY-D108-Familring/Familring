@@ -1,5 +1,6 @@
 package com.familring.familyservice.model.dto.request;
 
+import com.familring.familyservice.model.dto.chat.MessageType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class ChatRequest {
     // 채팅방 정보
     private Long roomId;
+    private MessageType messageType; // 메세지의 타입
 
     // 발신자 정보
     private Long senderId; // 발신자 id
