@@ -1,13 +1,11 @@
 package com.familring.presentation.screen.calendar
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.component.DateInputRow
-import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TimeInputRow
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.theme.Brown01
-import com.familring.presentation.theme.Gray04
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -82,66 +80,62 @@ fun TimeSelectTap(
                         fontSize = 22.sp,
                     ),
             )
-            Box(
+            HorizontalDivider(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 10.dp)
-                        .background(color = Gray04, shape = RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center,
+                        .padding(vertical = 20.dp, horizontal = 10.dp)
+                        .height(1.dp),
+            )
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.9f),
             ) {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth(0.9f),
-                ) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        text = "날짜",
-                        style = Typography.displayLarge.copy(fontSize = 16.sp),
-                    )
-                    DateInputRow(
-                        modifier = Modifier.padding(top = 5.dp),
-                        year = year,
-                        month = month,
-                        date = date,
-                        onYearChange = {
-                            year = it
-                        },
-                        onMonthChange = {
-                            month = it
-                        },
-                        onDateChange = {
-                            date = it
-                        },
-                        focusManager = focusManager,
-                    )
-                    if (isTimeChecked) {
-                        Column {
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Text(
-                                text = "시간",
-                                style = Typography.displayLarge.copy(fontSize = 16.sp),
-                            )
-                            TimeInputRow(
-                                modifier = Modifier.padding(top = 5.dp),
-                                hour = hour,
-                                minute = minute,
-                                isAm = isAm,
-                                onHourChange = {
-                                    hour = it
-                                },
-                                onMinuteChange = {
-                                    minute = it
-                                },
-                                onAmPmChanged = {
-                                    isAm = it
-                                },
-                                focusManager = focusManager,
-                            )
-                        }
+                Text(
+                    text = "날짜",
+                    style = Typography.displayLarge.copy(fontSize = 20.sp),
+                )
+                DateInputRow(
+                    modifier = Modifier.padding(top = 5.dp),
+                    year = year,
+                    month = month,
+                    date = date,
+                    onYearChange = {
+                        year = it
+                    },
+                    onMonthChange = {
+                        month = it
+                    },
+                    onDateChange = {
+                        date = it
+                    },
+                    focusManager = focusManager,
+                    borderColor = Green02,
+                )
+                if (isTimeChecked) {
+                    Column {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = "시간",
+                            style = Typography.displayLarge.copy(fontSize = 20.sp),
+                        )
+                        TimeInputRow(
+                            modifier = Modifier.padding(top = 5.dp),
+                            hour = hour,
+                            minute = minute,
+                            isAm = isAm,
+                            onHourChange = {
+                                hour = it
+                            },
+                            onMinuteChange = {
+                                minute = it
+                            },
+                            onAmPmChanged = {
+                                isAm = it
+                            },
+                            focusManager = focusManager,
+                        )
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
                 }
             }
             Text(

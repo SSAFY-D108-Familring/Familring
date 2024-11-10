@@ -3,7 +3,9 @@ package com.familring.presentation.screen.calendar
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.gallery.AlbumType
 import com.familring.domain.repository.DailyRepository
+import com.familring.domain.repository.GalleryRepository
 import com.familring.domain.repository.ScheduleRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -21,6 +23,7 @@ class CalendarViewModel
     constructor(
         private val scheduleRepository: ScheduleRepository,
         private val dailyRepository: DailyRepository,
+        private val galleryRepository: GalleryRepository,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(CalendarUiState())
         val uiState = _uiState.asStateFlow()
@@ -183,6 +186,33 @@ class CalendarViewModel
                         }
                     }
                 }
+            }
+        }
+
+        fun createAlbum(
+            scheduleId: Long,
+            albumName: String,
+        ) {
+            viewModelScope.launch {
+                galleryRepository
+                    .createAlbum(scheduleId, albumName, AlbumType.SCHEDULE.name)
+                    .collect { result ->
+                        when (result) {
+                            is ApiResponse.Success -> {
+                                _event.emit(CalendarUiEvent.CreateAlbumSuccess)
+                            }
+
+                            is ApiResponse.Error -> {
+                                Timber.d("code: ${result.code}, message: ${result.message}")
+                                _event.emit(
+                                    CalendarUiEvent.Error(
+                                        result.code,
+                                        result.message,
+                                    ),
+                                )
+                            }
+                        }
+                    }
             }
         }
     }

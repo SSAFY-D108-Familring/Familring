@@ -4,9 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -32,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -39,15 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.placeholder
+import coil.compose.AsyncImage
 import com.familring.domain.mapper.toProfile
 import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.Schedule
@@ -59,14 +54,13 @@ import com.familring.presentation.component.ImageLoadingProgress
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Black
-import com.familring.presentation.theme.Blue01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
-import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toColor
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -76,9 +70,11 @@ fun CalendarTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
-    showDeleteDialog: (Long) -> Unit,
+    showDeleteScheduleDialog: (Long) -> Unit,
+    showDeleteDailyDialog: (Long) -> Unit,
+    createAlbum: (Long, String) -> Unit = { _, _ -> },
     navigateToModifySchedule: (Schedule) -> Unit = {},
-    navigateToCreateAlbum: () -> Unit,
+    navigateToModifyDaily: (DailyLife) -> Unit = {},
     navigateToAlbum: (Long) -> Unit,
 ) {
     val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
@@ -103,15 +99,17 @@ fun CalendarTab(
                 0 ->
                     ScheduleTab(
                         schedules = schedules,
-                        showDeleteDialog = showDeleteDialog,
+                        createAlbum = createAlbum,
+                        showDeleteDialog = showDeleteScheduleDialog,
                         navigateToModifySchedule = navigateToModifySchedule,
-                        navigateToCreateAlbum = navigateToCreateAlbum,
                         navigateToAlbum = navigateToAlbum,
                     )
 
                 1 ->
                     DailyTab(
                         dailyLifes = dailyLifes,
+                        navigateToModifyDaily = navigateToModifyDaily,
+                        showDeleteDailyDialog = showDeleteDailyDialog,
                     )
             }
         }
@@ -122,6 +120,8 @@ fun CalendarTab(
 fun DailyTab(
     modifier: Modifier = Modifier,
     dailyLifes: List<DailyLife>,
+    navigateToModifyDaily: (DailyLife) -> Unit = {},
+    showDeleteDailyDialog: (Long) -> Unit,
 ) {
     if (dailyLifes.isEmpty()) {
         Column {
@@ -155,19 +155,23 @@ fun DailyTab(
             ) { page ->
                 DailyItem(
                     dailyLife = dailyLifes[page],
+                    navigateToModifyDaily = navigateToModifyDaily,
+                    showDeleteDailyDialog = showDeleteDailyDialog,
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun DailyItem(
     modifier: Modifier = Modifier,
     dailyLife: DailyLife,
+    navigateToModifyDaily: (DailyLife) -> Unit,
+    showDeleteDailyDialog: (Long) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    var isImageLoaded by remember { mutableStateOf(false) }
 
     Column(
         modifier =
@@ -190,6 +194,7 @@ fun DailyItem(
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
+                modifier = Modifier.weight(1f),
                 text = dailyLife.profile.nickname,
                 style =
                     Typography.titleMedium.copy(
@@ -197,44 +202,70 @@ fun DailyItem(
                         color = Gray01,
                     ),
             )
+            Spacer(modifier = Modifier.width(8.dp))
+            if (dailyLife.myPost) {
+                Row {
+                    Icon(
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
+                                    navigateToModifyDaily(dailyLife)
+                                },
+                        painter = painterResource(id = R.drawable.ic_edit),
+                        contentDescription = "ic_edit",
+                        tint = Gray01,
+                    )
+                    Icon(
+                        modifier =
+                            Modifier
+                                .size(24.dp)
+                                .noRippleClickable {
+                                    showDeleteDailyDialog(dailyLife.dailyId)
+                                },
+                        painter = painterResource(id = R.drawable.ic_delete),
+                        contentDescription = "ic_delete",
+                        tint = Gray01,
+                    )
+                }
+            }
         }
         Spacer(modifier = Modifier.height(10.dp))
         Column(modifier = Modifier.verticalScroll(scrollState)) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Start,
-                text = dailyLife.content,
-                style =
-                    Typography.headlineMedium.copy(
-                        fontSize = 17.sp,
-                        color = Black,
-                    ),
-            )
-            Spacer(modifier = Modifier.height(15.dp))
-            BoxWithConstraints(
-                modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-                contentAlignment = Alignment.Center,
-            ) {
-                val parentWidth = with(LocalDensity.current) { maxWidth.toPx() }
-
-                Column(
-                    modifier = Modifier.height(IntrinsicSize.Min),
-                ) {
-                    GlideImage(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .wrapContentHeight()
-                                .clip(RoundedCornerShape(12.dp)),
-                        loading =
-                            placeholder {
-                                ImageLoadingProgress()
-                            },
-                        model = dailyLife.dailyImgUrl,
-                        contentDescription = "img_daily",
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.FillWidth,
-                    )
+            if (dailyLife.content.isNotBlank() and dailyLife.content.isNotEmpty()) {
+                Text(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 15.dp),
+                    textAlign = TextAlign.Start,
+                    text = dailyLife.content,
+                    style =
+                        Typography.headlineMedium.copy(
+                            fontSize = 17.sp,
+                            color = Black,
+                        ),
+                )
+            }
+            Column {
+                AsyncImage(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp)),
+                    model = dailyLife.dailyImgUrl,
+                    contentDescription = "img_daily",
+                    alignment = Alignment.Center,
+                    contentScale = ContentScale.FillWidth,
+                    onLoading = {
+                        isImageLoaded = false
+                    },
+                    onSuccess = {
+                        isImageLoaded = true
+                    },
+                )
+                if (!isImageLoaded) {
+                    ImageLoadingProgress()
                 }
             }
         }
@@ -246,8 +277,8 @@ fun ScheduleTab(
     modifier: Modifier = Modifier,
     schedules: List<Schedule> = listOf(),
     showDeleteDialog: (Long) -> Unit = {},
+    createAlbum: (Long, String) -> Unit = { _, _ -> },
     navigateToModifySchedule: (Schedule) -> Unit = {},
-    navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
     if (schedules.isEmpty()) {
@@ -274,7 +305,7 @@ fun ScheduleTab(
                     schedule = schedule,
                     showDeleteDialog = showDeleteDialog,
                     navigateToModifySchedule = navigateToModifySchedule,
-                    navigateToCreateAlbum = navigateToCreateAlbum,
+                    createAlbum = createAlbum,
                     navigateToAlbum = navigateToAlbum,
                 )
             }
@@ -286,15 +317,15 @@ fun ScheduleTab(
 fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: Schedule,
+    createAlbum: (Long, String) -> Unit = { _, _ -> },
     showDeleteDialog: (Long) -> Unit = {},
     navigateToModifySchedule: (Schedule) -> Unit = {},
-    navigateToCreateAlbum: () -> Unit = {},
     navigateToAlbum: (Long) -> Unit = {},
 ) {
     Box(
         modifier =
             modifier
-                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.scheduleId) }
+                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.albumId!!) }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
@@ -367,7 +398,7 @@ fun ScheduleItem(
                         listOf(
                             "수정" to { navigateToModifySchedule(schedule) },
                             "삭제" to { showDeleteDialog(schedule.scheduleId) },
-                            "앨범 생성" to { navigateToCreateAlbum() },
+                            "앨범 생성" to { createAlbum(schedule.scheduleId, schedule.title) },
                         )
                     } else {
                         listOf(
@@ -417,10 +448,11 @@ private fun CalendarTabPreview() {
     CalendarTab(
         dailyLifes = dailyLifes,
         schedules = schedules,
+        createAlbum = { _, _ -> },
         navigateToModifySchedule = {},
-        navigateToCreateAlbum = {},
         navigateToAlbum = {},
-        showDeleteDialog = {},
+        showDeleteScheduleDialog = {},
+        showDeleteDailyDialog = {},
     )
 }
 
