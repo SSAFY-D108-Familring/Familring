@@ -4,6 +4,10 @@ import com.familring.albumservice.domain.Album;
 import com.familring.albumservice.domain.Album.AlbumBuilder;
 import com.familring.albumservice.domain.AlbumType;
 import com.familring.albumservice.domain.Photo;
+import com.familring.albumservice.dto.client.FaceSimilarityRequest;
+import com.familring.albumservice.dto.client.FaceSimilarityResponse;
+import com.familring.albumservice.dto.client.Person;
+import com.familring.albumservice.dto.client.UserInfoResponse;
 import com.familring.albumservice.dto.response.AlbumInfoResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
@@ -15,8 +19,10 @@ import com.familring.albumservice.exception.album.InvalidAlbumRequestException;
 import com.familring.albumservice.repository.AlbumQueryRepository;
 import com.familring.albumservice.repository.AlbumRepository;
 import com.familring.albumservice.repository.PhotoRepository;
+import com.familring.albumservice.service.client.ClassificationServiceFeignClient;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
 import com.familring.albumservice.service.client.FileServiceFeignClient;
+import com.familring.common_module.dto.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.familring.albumservice.domain.AlbumType.*;
 
@@ -39,6 +46,7 @@ public class AlbumService {
 
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final FileServiceFeignClient fileServiceFeignClient;
+    private final ClassificationServiceFeignClient classificationServiceFeignClient;
     private final AlbumRepository albumRepository;
     private final AlbumQueryRepository albumQueryRepository;
     private final PhotoRepository photoRepository;
@@ -144,14 +152,45 @@ public class AlbumService {
             throw new InvalidAlbumRequestException();
         }
 
-        // 가족 구성원 불러오기
-
-        // 얼사분
-
-        // 가족
-
+        // S3에 사진 업로드
         List<String> photoUrls = fileServiceFeignClient.uploadFiles(photos, getAlbumPhotoPath(familyId)).getData();
+
+        // Photo Entity 변환
         List<Photo> newPhotos = photoUrls.stream().map(url -> Photo.builder().photoUrl(url).build()).toList();
+
+        /****************** 얼굴 사진 분류 시작 ******************/
+
+        // 가족 얼굴 사진 가져오기
+        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
+
+        // 유사도 분석 (userId, similarity)
+        FaceSimilarityRequest faceSimilarityRequest = FaceSimilarityRequest.builder()
+                .targetImages(photoUrls).people(
+                        familyMembers.stream().map(m -> new Person(m.getUserId(), m.getUserFace())).toList()
+                ).build();
+        List<FaceSimilarityResponse> faceSimilarityResponses = classificationServiceFeignClient.calculateSimilarity(faceSimilarityRequest);
+
+        // 가족 구성원의 앨범 가져오기 (userId, album)
+        Map<Long, Album> albumMap = albumRepository.findByUserIdIn(familyMembers.stream().map(UserInfoResponse::getUserId).toList())
+                .stream().collect(Collectors.toMap(Album::getUserId, a -> a));
+
+        float threshold = 0.4f;
+
+        // 유사도가 일정 이상 넘으면 앨범에 추가
+        for (int i = 0; i < newPhotos.size(); i++) {
+            Photo photo = newPhotos.get(i);
+            Map<Long, Double> similarities = faceSimilarityResponses.get(i).getSimilarities();
+
+            similarities.forEach((id, score) -> {
+                if (score > threshold) {
+                    albumMap.get(id).addPhoto(photo);
+                }
+            });
+        }
+
+        /****************** 얼굴 사진 분류 끝 ******************/
+
+        // DB에 저장
         album.addPhotos(newPhotos);
     }
 
