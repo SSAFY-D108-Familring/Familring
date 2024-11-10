@@ -80,7 +80,8 @@ app = FastAPI(
     description="얼굴 유사도 분석 API",
     version="1.0.0",
     lifespan=lifespan,
-    docs_url="/classification/v3/api-docs",  # Swagger UI URL 경로 수정
+    openapi_url="/classification/openapi.json",  # OpenAPI 스키마 경로 추가
+    docs_url="/classification/v3/api-docs",  # Swagger UI URL 경로
     redoc_url=None  # ReDoc 비활성화
 )
 
