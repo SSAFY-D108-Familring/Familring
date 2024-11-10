@@ -51,4 +51,9 @@ public class Album {
         newPhotos.forEach(photo -> photo.setAlbum(this));
         this.photos.addAll(newPhotos);
     }
+
+    public void addPhoto(Photo photo) {
+        photo.setAlbum(this);
+        this.photos.add(photo);
+    }
 }
