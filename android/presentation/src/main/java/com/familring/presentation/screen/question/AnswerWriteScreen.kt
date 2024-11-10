@@ -127,7 +127,6 @@ fun AnswerWriteScreen(
                     content = it
                 },
                 placeholder = "답변을 입력해 주세요",
-                focusManager = focusManager,
             )
             Spacer(modifier = Modifier.height(30.dp))
             Text(
