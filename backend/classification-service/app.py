@@ -370,24 +370,6 @@ async def register_to_eureka():
         logger.error(f"Failed to register to Eureka server: {str(e)}")
         raise
 
-@app.on_event("startup")
-async def startup_event():
-    """애플리케이션 시작 시 Eureka 서버에 등록"""
-    global server_port
-    if server_port is None:
-        server_port = find_free_port()
-    logger.info(f"Using port: {server_port}")
-    await register_to_eureka()
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    """애플리케이션 종료 시 Eureka 서버에서 등록 해제"""
-    try:
-        await eureka_client.stop()
-        logger.info("Successfully unregistered from Eureka server")
-    except Exception as e:
-        logger.error(f"Error during Eureka client shutdown: {str(e)}")
-
 if __name__ == "__main__":
     import uvicorn
     logger.info(f"Starting server on port {server_port}")
