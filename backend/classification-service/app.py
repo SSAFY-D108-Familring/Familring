@@ -80,8 +80,8 @@ app = FastAPI(
     description="얼굴 유사도 분석 API",
     version="1.0.0",
     lifespan=lifespan,
-    openapi_url="/openapi.json",       # 기본 경로로 변경
-    docs_url="/docs",                  # 기본 경로로 변경
+    openapi_url="/face-recognition/openapi.json",       # 기본 경로로 변경
+    docs_url="/face-recognition/docs",                  # 기본 경로로 변경
     redoc_url=None
 )
 
