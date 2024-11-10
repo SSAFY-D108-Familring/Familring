@@ -1,16 +1,15 @@
 package com.familring.familyservice.model.dto.response;
 
 import com.familring.familyservice.model.dto.chat.Vote;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatResponse {
@@ -30,7 +29,7 @@ public class ChatResponse {
     // 투표 응답
     private boolean isVoteResponse; // 투표 응답 여부
     private String responseOfVote; // 투표 응답
-    private boolean voteEnd; // 투표 끝남 유무
+    private boolean isVoteEnd; // 투표 끝남 유무
 
     // 투표 결과
     private boolean isVoteResult; // 투표 결과 여부
@@ -49,5 +48,21 @@ public class ChatResponse {
 
     public void setVote(Vote vote) {
         this.vote = vote;
+    }
+
+    public boolean getIsVoteResponse() {
+        return isVoteResponse;
+    }
+
+    public void setIsVoteResponse(boolean isVoteResponse) {
+        this.isVoteResponse = isVoteResponse;
+    }
+
+    public boolean getIsVoteResult() {
+        return isVoteResult;
+    }
+
+    public void setIsVoteResult(boolean isVoteResult) {
+        this.isVoteResult = isVoteResult;
     }
 }

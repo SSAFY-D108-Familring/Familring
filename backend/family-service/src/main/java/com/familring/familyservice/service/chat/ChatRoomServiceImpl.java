@@ -47,21 +47,22 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             int unReadMembers = (int) (chat.getFamilyCount() - chat.getReadByUserIds().size());
             unReadMembers = Math.max(unReadMembers, 0); // 0 미만일 경우 0으로 설정
 
-            ChatResponse chatResponse = ChatResponse.builder()
-                    .chatId(chat.getChatId())
-                    .roomId(chat.getRoomId())
-                    .senderId(chat.getSenderId())
-                    .sender(user)
-                    .content(chat.getContent())
-                    .createdAt(chat.getCreatedAt())
-                    .isVote(chat.getIsVote())
-                    .vote(null)
-                    .isVoteResponse(chat.getIsVoteResponse())
-                    .responseOfVote(chat.getResponseOfVote())
-                    .isVoteResult(chat.getIsVoteResult())
-                    .resultOfVote(chat.getResultOfVote())
-                    .unReadMembers(unReadMembers) // 읽지 않은 사람 수 설정
-                    .build();
+            ChatResponse chatResponse = new ChatResponse(
+                    chat.getChatId(),
+                    chat.getRoomId(),
+                    chat.getSenderId(),
+                    user,
+                    chat.getContent(),
+                    chat.getCreatedAt(),
+                    chat.getIsVote(),       // 투표 여부 설정
+                    null,                   // 투표 객체는 초기 설정 없음
+                    chat.getIsVoteResponse(),
+                    chat.getResponseOfVote(),
+                    chat.getIsVoteEnd(),    // 투표 종료 여부 설정
+                    chat.getIsVoteResult(),
+                    chat.getResultOfVote(),
+                    unReadMembers           // 읽지 않은 사람 수 설정
+            );
 
             // 투표인 경우
             if (chat.getIsVote()) {
