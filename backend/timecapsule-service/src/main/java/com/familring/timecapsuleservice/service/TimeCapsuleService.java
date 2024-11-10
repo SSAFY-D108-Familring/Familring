@@ -79,11 +79,16 @@ public class TimeCapsuleService {
                 // 타임 캡슐 마감 날짜 - 현재 날짜 = 남은 날짜 같이 전송
                 int dayCount = (int) ChronoUnit.DAYS.between(currentDate, timeCapsule.getEndDate());
 
-                response = TimeCapsuleStatusResponse.builder()
-                        .status(1)
-                        .dayCount(dayCount) // 남은 날짜 전송
-                        .build();
-
+                if (dayCount > 0) {
+                    response = TimeCapsuleStatusResponse.builder()
+                            .status(1)
+                            .dayCount(dayCount) // 남은 날짜 전송
+                            .build();
+                } else { // dayCount == 0 (0 일이면 타임 캡슐 생성할 수 있게)
+                    response = TimeCapsuleStatusResponse.builder()
+                            .status(0) // 상태값만 전송
+                            .build();
+                }
             } else {
                 // 3. 지금 작성 가능한 상태 (2) - 해당 user 가 작성 안 한 경우
                 // 작성한 가족 구성원 목록 조회
@@ -136,7 +141,7 @@ public class TimeCapsuleService {
         timeCapsuleRepository.save(timeCapsule);
     }
 
-    // 타임캡슐 답변 생성 (타임캡슐 생성 일자 부터 3일 까지만 작성 가능)
+    // 타임캡슐 답변 생성 (타임캡슐 생성 일자 부터 최소 1일 까지만 작성 가능)
     public void createTimeCapsuleAnswer(Long userId, TimeCapsuleAnswerCreateRequest timeCapsuleAnswerCreateRequest) {
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -150,7 +155,7 @@ public class TimeCapsuleService {
         // 타임 캡슐이 있을 경우
         if (timeCapsuleOpt.isPresent()) {
             int dayDiff = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleOpt.get().getStartDate());
-            if (dayDiff<=3) { // 타임 캡슐 생성 일자, 현재 날짜 차이가 3일 이내라면
+            if (dayDiff>=1) { // 타임 캡슐 생성 일자, 현재 날짜 차이가 1일 보다 크기만 하면
                 Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsuleOpt.get());
                 if(answer.isEmpty()) {
                     // 작성한 답변이 없을 경우
@@ -164,7 +169,6 @@ public class TimeCapsuleService {
                     throw new AlreadyExistTimeCapsuleAnswerException(); // 이미 답변 작성함
                 }
             } else {
-                // 3일이 지났으면 답변 작성 불가
                 throw new ExpiredTimeCapsuleAnswerException();
             }
         } else {

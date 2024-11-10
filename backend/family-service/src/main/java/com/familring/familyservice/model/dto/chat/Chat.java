@@ -20,6 +20,7 @@ public class Chat {
     @Id
     private String chatId;
     private Long roomId; // 채팅 방의 id == familyId
+    private MessageType messageType; // 메세지의 타입
     private int familyCount; // 채팅 방 사람 총 수
 
     // 발신자 정보
@@ -30,48 +31,25 @@ public class Chat {
     private LocalDateTime createdAt; // 채팅 발신 시간
 
     // 투표
-    private boolean isVote; // 투표 여부
     private String voteId; // 투표 id
     
     // 투표 응답
-    private boolean isVoteResponse; // 투표 응답 여부
     private String responseOfVote; // 투표 응답
     private boolean isVoteEnd; // 투표 종료 여부
     
     // 투표 결과
-    private boolean isVoteResult; // 투표 결과 여부
     private Map<String, Integer> resultOfVote; // 투표 결과
     
     // 읽음 처리
     private Set<Long> readByUserIds; // 읽음 사람 id 저장
 
     // getter, setter
-    public boolean getIsVote() {
-        return isVote;
-    }
-
-    public void setIsVote(boolean isVote) {
-        this.isVote = isVote;
-    }
-
-    public boolean getIsVoteResponse() {
-        return isVoteResponse;
-    }
-
-    public void setIsVoteResponse(boolean isVoteResponse) {
-        this.isVoteResponse = isVoteResponse;
-    }
-
     public boolean getIsVoteEnd() {
         return isVoteEnd;
     }
 
-    public boolean getIsVoteResult() {
-        return isVoteResult;
-    }
-
-    public void setIsVoteResult(boolean isVoteResult) {
-        this.isVoteResult = isVoteResult;
+    public void setIsVoteEnd(boolean isVoteEnd) {
+        this.isVoteEnd = isVoteEnd;
     }
 
     // 읽음 처리 메소드
