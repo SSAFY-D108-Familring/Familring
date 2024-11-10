@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -54,6 +55,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green01
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
@@ -134,8 +136,12 @@ fun QuestionScreen(
                             ),
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "fab_img",
+                            imageVector = if (answerContents[0].answerStatus) {
+                                Icons.Default.Edit
+                            } else {
+                                Icons.Default.Add
+                            },
+                            contentDescription = if (answerContents[0].answerStatus) "edit_answer" else "write_answer",
                             tint = White,
                         )
                     }
@@ -183,71 +189,53 @@ fun QuestionScreen(
                         },
                     )
                     Spacer(modifier = Modifier.fillMaxSize(0.03f))
-                    Box {
-                        Column {
-                            Spacer(modifier = Modifier.fillMaxSize(0.012f))
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 24.dp)
-                                        .shadow(
-                                            elevation = 6.dp,
-                                            spotColor = Color.Black.copy(alpha = 0.6f),
-                                            ambientColor = Color.Black.copy(alpha = 0.6f),
-                                            shape = RoundedCornerShape(10.dp),
-                                        ).background(
-                                            Color.White,
-                                            shape = RoundedCornerShape(10.dp),
-                                        ),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                ) {
-                                    Spacer(modifier = Modifier.fillMaxSize(0.03f))
-                                    Text(
-                                        text = "${questionId}번째 질문",
-                                        textAlign = TextAlign.Center,
-                                        style = Typography.bodySmall,
-                                        color = Black,
-                                        modifier =
-                                            Modifier
-                                                .background(
-                                                    color = Green01,
-                                                    shape = RoundedCornerShape(8.dp),
-                                                ).padding(horizontal = 15.dp, vertical = 8.dp),
-                                    )
-                                    Spacer(modifier = Modifier.fillMaxSize(0.03f))
-                                    Text(
-                                        text = questionContent,
-                                        textAlign = TextAlign.Center,
-                                        softWrap = true,
-                                        modifier = Modifier.padding(horizontal = 26.dp),
-                                        overflow = TextOverflow.Visible,
-                                        style = Typography.displayMedium.copy(fontSize = 22.sp),
-                                        color = Black,
-                                    )
-                                    Spacer(modifier = Modifier.fillMaxSize(0.05f))
-                                }
-                            }
-                        }
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 46.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                    Column {
+                        Spacer(modifier = Modifier.fillMaxSize(0.012f))
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp)
+                                    .shadow(
+                                        elevation = 9.dp,
+                                        spotColor = Color.Black.copy(alpha = 0.6f),
+                                        ambientColor = Color.Black.copy(alpha = 0.6f),
+                                        shape = RoundedCornerShape(10.dp),
+                                    ).background(
+                                        Color.White,
+                                        shape = RoundedCornerShape(10.dp),
+                                    ),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.img_pin),
-                                contentDescription = "pin img",
-                                contentScale = ContentScale.Fit,
-                            )
-                            Image(
-                                painter = painterResource(id = R.drawable.img_pin),
-                                contentDescription = "pin img",
-                                contentScale = ContentScale.Fit,
-                            )
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Spacer(modifier = Modifier.fillMaxSize(0.03f))
+                                Text(
+                                    text = "${questionId}번째 질문",
+                                    textAlign = TextAlign.Center,
+                                    style = Typography.bodySmall,
+                                    color = White,
+                                    modifier =
+                                        Modifier
+                                            .background(
+                                                color = Green02,
+                                                shape = RoundedCornerShape(8.dp),
+                                            ).padding(horizontal = 15.dp, vertical = 8.dp),
+                                )
+                                Spacer(modifier = Modifier.fillMaxSize(0.03f))
+                                Text(
+                                    text = questionContent,
+                                    textAlign = TextAlign.Center,
+                                    softWrap = true,
+                                    modifier = Modifier.padding(horizontal = 26.dp),
+                                    overflow = TextOverflow.Visible,
+                                    style = Typography.displayMedium.copy(fontSize = 22.sp),
+                                    color = Black,
+                                )
+                                Spacer(modifier = Modifier.fillMaxSize(0.05f))
+                            }
                         }
                     }
 
@@ -305,6 +293,7 @@ fun FamilyListItem(
             Text(
                 text = questionAnswer.answerContent,
                 style = Typography.displaySmall.copy(fontSize = 18.sp),
+                color = Black,
             )
         } else {
             Row {

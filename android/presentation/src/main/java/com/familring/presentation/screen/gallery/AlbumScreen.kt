@@ -91,6 +91,7 @@ fun AlbumScreen(
     val context = LocalContext.current
     val photoUiState by viewModel.photoUiState.collectAsStateWithLifecycle()
     val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Loading)
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     var isSelectionMode by remember { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<Long>()) }
@@ -114,7 +115,7 @@ fun AlbumScreen(
 
     val multiplePhotoPickerLauncher =
         rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 10), // maxItems 추가
+            contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = 10),
         ) { uris ->
             if (uris.isNotEmpty()) {
                 val files =
@@ -151,18 +152,19 @@ fun AlbumScreen(
         }
 
     val onAddPhotoClick = {
-        when {
-            ContextCompat.checkSelfPermission(
-                context,
-                permission,
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                multiplePhotoPickerLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                )
-            }
-
-            else -> {
-                permissionLauncher.launch(permission)
+        if (!isLoading) {
+            when {
+                ContextCompat.checkSelfPermission(
+                    context,
+                    permission,
+                ) == PackageManager.PERMISSION_GRANTED -> {
+                    multiplePhotoPickerLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    )
+                }
+                else -> {
+                    permissionLauncher.launch(permission)
+                }
             }
         }
     }
@@ -172,11 +174,9 @@ fun AlbumScreen(
             is GalleryUiEvent.Success -> {
                 Toast.makeText(context, "성공적으로 반영되었습니다", Toast.LENGTH_SHORT).show()
             }
-
             is GalleryUiEvent.Error -> {
                 Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
             }
-
             else -> {}
         }
     }
@@ -191,10 +191,10 @@ fun AlbumScreen(
                 title = {
                     Text(
                         text =
-                            when (val state = photoUiState) {
-                                is PhotoUiState.Success -> state.albumName
-                                else -> "앨범"
-                            },
+                        when (val state = photoUiState) {
+                            is PhotoUiState.Success -> state.albumName
+                            else -> "앨범"
+                        },
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
                 },
@@ -206,24 +206,22 @@ fun AlbumScreen(
                                 if (isSelectionMode) {
                                     Row {
                                         Icon(
-                                            modifier =
-                                                Modifier
-                                                    .padding(end = 16.dp)
-                                                    .noRippleClickable {
-                                                        if (selectedPhotos.isNotEmpty()) {
-                                                            showDeleteDialog = true
-                                                        }
-                                                    },
+                                            modifier = Modifier
+                                                .padding(end = 16.dp)
+                                                .noRippleClickable{
+                                                    if (selectedPhotos.isNotEmpty()) {
+                                                        showDeleteDialog = true
+                                                    }
+                                                },
                                             imageVector = Icons.Default.Delete,
                                             contentDescription = "delete img",
                                             tint = Black,
                                         )
                                         Icon(
-                                            modifier =
-                                                Modifier.noRippleClickable {
-                                                    isSelectionMode = false
-                                                    selectedPhotos = emptySet()
-                                                },
+                                            modifier = Modifier.noRippleClickable{
+                                                isSelectionMode = false
+                                                selectedPhotos = emptySet()
+                                            },
                                             imageVector = Icons.Default.Close,
                                             contentDescription = "close",
                                             tint = Black,
@@ -231,10 +229,11 @@ fun AlbumScreen(
                                     }
                                 } else {
                                     Text(
-                                        modifier =
-                                            Modifier
-                                                .padding(end = 2.dp)
-                                                .noRippleClickable { isSelectionMode = true },
+                                        modifier = Modifier
+                                            .padding(end = 2.dp)
+                                            .noRippleClickable{
+                                                isSelectionMode = true
+                                            },
                                         text = "선택",
                                         style = Typography.headlineLarge.copy(fontSize = 20.sp),
                                         color = Black,
@@ -242,7 +241,6 @@ fun AlbumScreen(
                                 }
                             }
                         }
-
                         else -> {}
                     }
                 },
@@ -290,17 +288,17 @@ fun AlbumScreen(
                             Spacer(modifier = Modifier.fillMaxSize(0.01f))
                             Text(
                                 text = "하단 버튼을 클릭해서\n우리 가족의 추억을 기록해봐요!",
-                                style =
-                                    Typography.bodyMedium.copy(
-                                        fontSize = 20.sp,
-                                        color = Gray02,
-                                    ),
+                                style = Typography.bodyMedium.copy(
+                                    fontSize = 20.sp,
+                                    color = Gray02,
+                                ),
                                 textAlign = TextAlign.Center,
                             )
                             Spacer(modifier = Modifier.fillMaxSize(0.05f))
                             RoundLongButton(
                                 backgroundColor = Green02,
                                 text = "사진 추가하기",
+                                enabled = !isLoading,
                                 onClick = onAddPhotoClick,
                             )
                         }
@@ -314,7 +312,9 @@ fun AlbumScreen(
                         ) {
                             if (!isSelectionMode) {
                                 item {
-                                    AddPhotoButton(onClick = onAddPhotoClick)
+                                    AddPhotoButton(
+                                        onClick = onAddPhotoClick,
+                                    )
                                 }
                             }
                             items(state.photoList.size) { index ->
@@ -322,7 +322,7 @@ fun AlbumScreen(
                                     photo = state.photoList[index],
                                     selected = state.photoList[index].id in selectedPhotos,
                                     onPhotoClick = { photo ->
-                                        if (isSelectionMode) {
+                                        if (isSelectionMode && !isLoading) {
                                             selectedPhotos =
                                                 if (photo.id in selectedPhotos) {
                                                     selectedPhotos - photo.id
@@ -340,11 +340,10 @@ fun AlbumScreen(
         }
         if (showDeleteDialog) {
             Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(color = Black.copy(0.5f))
-                        .noRippleClickable { showDeleteDialog = false },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Black.copy(0.5f))
+                    .noRippleClickable { showDeleteDialog = false },
                 contentAlignment = Alignment.Center,
             ) {
                 TwoButtonTextDialog(
@@ -359,6 +358,17 @@ fun AlbumScreen(
                         showDeleteDialog = false
                     },
                 )
+            }
+        }
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Green02)
             }
         }
     }
