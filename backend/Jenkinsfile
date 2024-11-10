@@ -58,6 +58,15 @@ pipeline {
 
         stage('Build and Deploy Services') {
             parallel {
+                stage('Build and Deploy Classification Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/classification-service')) {
+                                build job: 'classification-service', propagate: false
+                            }
+                        }
+                    }
+                }
                 stage('Build and Deploy Album Service') {
                     steps {
                         script {
