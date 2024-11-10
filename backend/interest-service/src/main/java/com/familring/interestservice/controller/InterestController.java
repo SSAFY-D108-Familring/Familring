@@ -6,6 +6,7 @@ import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequ
 import com.familring.interestservice.dto.response.InterestAnswerListResponse;
 import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
 import com.familring.interestservice.dto.response.InterestAnswerSelectedResponse;
+import com.familring.interestservice.dto.response.InterestMissionListResponse;
 import com.familring.interestservice.service.InterestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -84,6 +85,14 @@ public class InterestController {
     public ResponseEntity<BaseResponse<Void>> createInterestMission(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userID, @RequestPart("image") MultipartFile image) {
         interestService.createInterestMission(userID, image);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 게시글 작성에 성공했습니다."));
+    }
+
+    // getInterestMissionList
+    @GetMapping("/missions")
+    @Operation(summary = "관심사 체험 인증 목록 조회", description = "관심사 체험했던 구성원 목록 조회")
+    public ResponseEntity<BaseResponse<InterestMissionListResponse>> getInterestMissionList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        InterestMissionListResponse response = interestService.getInterestMissionList(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 목록 조회에 성공했습니다.", response));
     }
 
 }

@@ -7,10 +7,7 @@ import com.familring.interestservice.dto.client.Family;
 import com.familring.interestservice.dto.client.UserInfoResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
 import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequest;
-import com.familring.interestservice.dto.response.InterestAnswerItem;
-import com.familring.interestservice.dto.response.InterestAnswerListResponse;
-import com.familring.interestservice.dto.response.InterestAnswerMineResponse;
-import com.familring.interestservice.dto.response.InterestAnswerSelectedResponse;
+import com.familring.interestservice.dto.response.*;
 import com.familring.interestservice.exception.*;
 import com.familring.interestservice.repository.InterestAnswerRepository;
 import com.familring.interestservice.repository.InterestMissionRepository;
@@ -315,6 +312,46 @@ public class InterestService {
 
     private String getInterestPhotoPath(Long familyId) {
         return interestPhotoPath + "/" + familyId;
+    }
+
+    // 관심사 체험 인증 목록 조회
+    public InterestMissionListResponse getInterestMissionList(Long userId) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+
+        // 가족 구성원 찾기
+        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
+
+        int count = 0;
+        List<InterestMissionItem> interestMissionItemList = new ArrayList<>();
+        for (UserInfoResponse member : familyMembers) {
+            // 관심사, 회원 번호 찾아서
+            Optional<InterestMission> interestMission = interestMissionRepository.findByInterestAndUserId(interest, member.getUserId());
+
+            if (interestMission.isPresent()) {
+                count++; // 있으면 count 올리기
+
+                // 이미지, 닉네임
+                InterestMissionItem interestMissionItem = InterestMissionItem
+                        .builder()
+                        .photoUrl(interestMission.get().getPhotoUrl())
+                        .userNickname(member.getUserNickname())
+                        .build();
+
+                interestMissionItemList.add(interestMissionItem);
+            }
+        }
+
+        return InterestMissionListResponse
+                .builder()
+                .items(interestMissionItemList)
+                .count(count)
+                .build();
     }
 
 }
