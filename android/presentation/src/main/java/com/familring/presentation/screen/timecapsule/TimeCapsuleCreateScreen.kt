@@ -81,7 +81,7 @@ fun TimeCapsuleCreateScreen(
     val today = LocalDate.now()
     var year by remember { mutableStateOf(today.year.toString()) }
     var month by remember { mutableStateOf(String.format("%02d", today.monthValue)) }
-    var date by remember { mutableStateOf(String.format("%02d", today.plusDays(3).dayOfMonth)) }
+    var date by remember { mutableStateOf(String.format("%02d", today.plusDays(1).dayOfMonth)) }
 
     val isDateFormValid by remember { derivedStateOf { isDateFormValid(year, month, date) } }
     val isAfterOneDay by remember { derivedStateOf { isAfterOneDay(year, month, date) } }
