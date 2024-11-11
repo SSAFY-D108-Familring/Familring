@@ -108,7 +108,8 @@ fun PictureScreen(
                 }
 
                 is SignUpUiEvent.FaceFail -> {
-                    showSnackBar("분석 결과 얼굴이 하나 이상이에요. 다시 한 번 촬영해 주세요!")
+                    faceSuccess = false
+                    showSnackBar("분석하기에 올바르지 않은 사진이에요. 다시 한 번 촬영해 주세요!")
                 }
 
                 else -> {}
