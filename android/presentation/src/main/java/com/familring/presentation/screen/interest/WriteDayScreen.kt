@@ -37,7 +37,6 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
-import timber.log.Timber
 
 @Composable
 fun WriteDayScreen(
@@ -122,7 +121,7 @@ fun WriteDayScreen(
                 maxLength = 10,
                 enabled = canEdit,
                 onDone = {
-                    if (interestKeyword.isNotEmpty()) {
+                    if (interestKeyword.isNotEmpty() and interestKeyword.isNotBlank()) {
                         if (isWroteInterest) {
                             editInterest(interestKeyword) // 관심사 수정
                         } else {

@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,16 +28,18 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun InterestSelectDialog(
     modifier: Modifier = Modifier,
     count: Int = 0,
-    saveInterest: () -> Unit = {},
+    selectInterest: () -> Unit = {},
+    closeDialog: () -> Unit = {},
 ) {
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = Black.copy(alpha = 0.85f),
+        color = Black.copy(alpha = 0.75f),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -72,17 +76,26 @@ fun InterestSelectDialog(
                 )
             }
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
-            Text(
+            Card(
                 modifier =
                     Modifier
-                        .clickable { saveInterest() }
-                        .background(color = Green01, shape = RoundedCornerShape(50.dp))
+                        .clip(shape = RoundedCornerShape(50.dp))
+                        .background(color = Green01)
+                        .clickable { selectInterest() }
                         .padding(horizontal = 22.dp, vertical = 18.dp),
-                text = "이제 관심사를 선정할래요",
-                style = Typography.titleSmall,
-            )
+                shape = RoundedCornerShape(50.dp),
+            ) {
+                Text(
+                    modifier =
+                        Modifier
+                            .background(color = Green01),
+                    text = "이제 관심사를 선정할래요",
+                    style = Typography.titleSmall,
+                )
+            }
             Spacer(modifier = Modifier.fillMaxHeight(0.08f))
             Text(
+                modifier = Modifier.noRippleClickable { closeDialog() },
                 text = "다음에 할래요",
                 style = Typography.headlineMedium.copy(fontSize = 18.sp),
                 color = White,

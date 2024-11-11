@@ -41,6 +41,9 @@ class InterestViewModel
                                     interestStatus = result.data,
                                 )
                             }
+                            if (result.data == InterestState.WRITING) {
+                                getAnswersCount()
+                            }
                         }
 
                         is ApiResponse.Error -> {
@@ -98,6 +101,30 @@ class InterestViewModel
                     when (result) {
                         is ApiResponse.Success -> {
                             getAnswerStatus()
+                        }
+
+                        is ApiResponse.Error -> {
+                            _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                            Timber.d("code: ${result.code}, message: ${result.message}")
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun getAnswersCount() {
+            viewModelScope.launch {
+                interestRepository.getAnswers().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    wroteFamilyCount =
+                                        result.data.count { member ->
+                                            member.interest.isNotEmpty() and member.interest.isNotBlank()
+                                        },
+                                )
+                            }
                         }
 
                         is ApiResponse.Error -> {

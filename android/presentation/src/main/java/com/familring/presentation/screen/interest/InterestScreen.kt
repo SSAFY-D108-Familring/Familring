@@ -10,13 +10,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
@@ -64,6 +70,14 @@ fun InterestScreen(
     editInterest: (String) -> Unit = {},
     shareImage: (Uri) -> Unit = {},
 ) {
+    var showDialog by remember { mutableStateOf(state.wroteFamilyCount >= 2) }
+
+    LaunchedEffect(state.wroteFamilyCount) {
+        if (state.wroteFamilyCount >= 2) {
+            showDialog = true
+        }
+    }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -121,6 +135,23 @@ fun InterestScreen(
                         navigateToOtherInterest = navigateToOtherInterest,
                     )
                 }
+            }
+        }
+
+        if (showDialog) {
+            // Dialog로 감싸서 다이얼로그가 오버레이되도록 함
+            Dialog(
+                onDismissRequest = { },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                InterestSelectDialog(
+                    count = state.wroteFamilyCount,
+                    selectInterest = {
+                        // 관심사 선택 및 화면 이동 작업
+                        showDialog = false
+                    },
+                    closeDialog = { showDialog = false },
+                )
             }
         }
     }
