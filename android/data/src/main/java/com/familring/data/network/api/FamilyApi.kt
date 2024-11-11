@@ -4,8 +4,10 @@ import com.familring.data.network.response.BaseResponse
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
+import com.familring.domain.model.chat.Chat
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -36,4 +38,10 @@ interface FamilyApi {
     suspend fun getParentAvailable(
         @Path("familyCode") code: String,
     ): BaseResponse<List<String>>
+
+    @GET("family/rooms/enter/{roomId}")
+    suspend fun enterRoom(
+        @Path("roomId") roomId: Long,
+        @Header("X-User-ID") userId: Long,
+    ): BaseResponse<List<Chat>>
 }
