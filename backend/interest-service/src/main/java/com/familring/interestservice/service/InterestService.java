@@ -177,6 +177,7 @@ public class InterestService {
                         .builder()
                         .answerStatusMine(false)
                         .answerStatusFamily(answerStatusFamily)
+                        .content("")
                         .build();
             }
         }
