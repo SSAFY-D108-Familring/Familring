@@ -142,7 +142,7 @@ public class AlbumService {
                     .id(album.getId())
                     .albumName(album.getAlbumName())
                     .thumbnailUrl(album.getPhotos().isEmpty() ?
-                            null : album.getPhotos().get(album.getPhotos().size() - 1).getPhotoUrl())
+                            null : album.getPhotos().get(0).getPhotoUrl())
                     .photoCount(album.getPhotos().size())
                     .build());
         });
@@ -193,7 +193,7 @@ public class AlbumService {
         Map<Long, Album> albumMap = albumRepository.findByUserIdIn(familyMembers.stream().map(UserInfoResponse::getUserId).toList())
                 .stream().collect(Collectors.toMap(Album::getUserId, a -> a));
 
-        float threshold = 0.46f;
+        float threshold = 0.38f;
 
         // 유사도가 일정 이상 넘으면 앨범에 추가
         for (int i = 0; i < newPhotos.size(); i++) {
