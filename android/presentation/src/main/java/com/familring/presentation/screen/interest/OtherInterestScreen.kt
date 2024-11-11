@@ -12,11 +12,14 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.model.InterestCard
-import com.familring.presentation.R
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familring.domain.model.interest.InterestCard
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -27,38 +30,28 @@ import com.familring.presentation.theme.White
 fun OtherInterestRoute(
     modifier: Modifier,
     popUpBackStack: () -> Unit,
+    otherInterestViewModel: OtherInterestViewModel = hiltViewModel(),
+    onShowSnackBar: (String) -> Unit,
 ) {
+    val uiState by otherInterestViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        otherInterestViewModel.uiEvent.collect { event ->
+            when (event) {
+                is InterestUiEvent.Success -> {
+                }
+
+                is InterestUiEvent.Error -> {
+                    onShowSnackBar(event.code)
+                }
+            }
+        }
+    }
+
     OtherInterestScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
-        interestList =
-            listOf(
-                InterestCard(
-                    profileImage = R.drawable.img_smile_face,
-                    nickname = "나갱이",
-                    interest = "엘지트윈스",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_interest_heart,
-                    nickname = "현지니",
-                    interest = "지드래곤",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_no_share_face,
-                    nickname = "승주니",
-                    interest = "네코타츠나",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_wrapped_gift,
-                    nickname = "엄망이",
-                    interest = "필라테스",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_worried_face,
-                    nickname = "아빵이",
-                    interest = "헬스",
-                ),
-            ),
+        interestList = uiState.otherInterests,
     )
 }
 
@@ -105,7 +98,7 @@ fun OtherInterestScreen(
                     val item = interestList[index]
                     InterestCardItem(
                         modifier = Modifier.padding(10.dp),
-                        profileImage = item.profileImage,
+                        profileImage = item.profileImgUrl,
                         nickname = item.nickname,
                         interest = item.interest,
                     )

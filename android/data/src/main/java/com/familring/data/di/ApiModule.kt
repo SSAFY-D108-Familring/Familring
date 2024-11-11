@@ -5,6 +5,7 @@ import com.familring.data.network.api.DailyApi
 import com.familring.data.network.api.FaceApi
 import com.familring.data.network.api.FamilyApi
 import com.familring.data.network.api.GalleryApi
+import com.familring.data.network.api.InterestApi
 import com.familring.data.network.api.QuestionApi
 import com.familring.data.network.api.ScheduleApi
 import com.familring.data.network.api.TimeCapsuleApi
@@ -73,4 +74,10 @@ object ApiModule {
     fun provideFaceApi(
         @NetworkModule.BaseClient retrofit: Retrofit,
     ): FaceApi = retrofit.create()
+
+    @Provides
+    @Singleton
+    fun provideInterestApi(
+        @NetworkModule.BaseClient retrofit: Retrofit,
+    ): InterestApi = retrofit.create()
 }
