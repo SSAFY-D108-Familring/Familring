@@ -183,10 +183,11 @@ def get_face_encodings(image):
     if image is None:
         logger.error("입력 이미지가 None입니다")
         return None
+    
     try:
         # 이미지 크기 조정
         height, width = image.shape[:2]
-        max_dimension = 1024
+        max_dimension = 2048  # 1024에서 2048로 수정
         logger.info(f"원본 이미지 크기: {width}x{height}")
         
         if max(height, width) > max_dimension:
@@ -205,7 +206,7 @@ def get_face_encodings(image):
         
         if not face_locations:
             logger.info("1차 얼굴 검출 실패, 2차 시도 (크기 축소)")
-            scaled_image = cv2.resize(image, None, fx=0.5, fy=0.5)
+            scaled_image = cv2.resize(image, None, fx=0.75, fy=0.75)  # 0.5에서 0.75로 수정
             face_locations = face_recognition.face_locations(
                 scaled_image,
                 model="hog",
@@ -213,8 +214,8 @@ def get_face_encodings(image):
             )
             if face_locations:
                 logger.info("2차 얼굴 검출 성공")
-                face_locations = [(int(top*2), int(right*2), 
-                                 int(bottom*2), int(left*2))
+                face_locations = [(int(top/0.75), int(right/0.75), 
+                                 int(bottom/0.75), int(left/0.75))
                                 for top, right, bottom, left in face_locations]
         
         if not face_locations:
@@ -240,7 +241,7 @@ def get_face_encodings(image):
         else:
             logger.warning("얼굴 인코딩 실패")
             return None
-        
+            
     except Exception as e:
         logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
         return None
