@@ -195,16 +195,19 @@ public class AlbumService {
 
         float threshold = 0.46f;
 
-        albumMap.values().forEach( a -> log.info("albuminfo: {}", a.getAlbumName()));
-
         // 유사도가 일정 이상 넘으면 앨범에 추가
         for (int i = 0; i < newPhotos.size(); i++) {
-            Photo photo = newPhotos.get(i);
+            Photo newPhoto = newPhotos.get(i);
             Map<Long, Double> similarities = faceSimilarityResponses.get(i).getSimilarities();
 
             similarities.forEach((id, score) -> {
                 if (score > threshold) {
-                    albumMap.get(id).addPhoto(photo);
+                    // 새로운 Photo 엔티티 생성
+                    Photo copyPhoto = Photo.builder()
+                            .photoUrl(newPhoto.getPhotoUrl())
+                            .build();
+
+                    albumMap.get(id).addPhoto(copyPhoto);
                 }
             });
         }
