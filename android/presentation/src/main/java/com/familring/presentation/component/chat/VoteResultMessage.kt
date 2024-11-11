@@ -5,11 +5,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,6 +29,7 @@ import com.familring.domain.model.Profile
 import com.familring.presentation.R
 import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.theme.Blue02
+import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
@@ -37,7 +40,8 @@ import com.familring.presentation.theme.Yellow01
 fun VoteResultMessage(
     title: String,
     result: String,
-    profiles: List<Profile>,
+    agreeList: List<Profile>,
+    disagreeList: List<Profile>,
 ) {
     Box(
         modifier =
@@ -103,10 +107,49 @@ fun VoteResultMessage(
                         color = if (result == "찬성") Blue02 else Red01,
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    OverlappingProfileLazyRow(
-                        profiles = profiles,
-                        profileSize = 28,
-                    )
+                    Row(
+                        modifier = Modifier.wrapContentSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "찬성",
+                            style = Typography.bodySmall,
+                            color = Gray01,
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        OverlappingProfileLazyRow(
+                            profiles = agreeList,
+                            profileSize = 25,
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "${agreeList.size}명",
+                            style = Typography.bodySmall,
+                            color = Gray01,
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Row(
+                        modifier = Modifier.wrapContentSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "반대",
+                            style = Typography.bodySmall,
+                            color = Gray01,
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        OverlappingProfileLazyRow(
+                            profiles = disagreeList,
+                            profileSize = 25,
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "${disagreeList.size}명",
+                            style = Typography.bodySmall,
+                            color = Gray01,
+                        )
+                    }
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
@@ -119,8 +162,8 @@ fun VoteResultMessage(
 fun VoteResultMessagePreview() {
     VoteResultMessage(
         title = "오늘 저녁 치킨 어때유?",
-        result = "반대",
-        profiles =
+        result = "찬성",
+        agreeList =
             listOf(
                 Profile(
                     nickname = "나갱",
@@ -132,6 +175,9 @@ fun VoteResultMessagePreview() {
                     zodiacImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/양.png",
                     backgroundColor = "0xFFC9D0FF",
                 ),
+            ),
+        disagreeList =
+            listOf(
                 Profile(
                     nickname = "ㅁㄴㅇㄹ",
                     zodiacImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/소.png",
