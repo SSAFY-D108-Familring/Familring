@@ -13,7 +13,7 @@ pipeline {
                     script {
                         dir('backend/timecapsule-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunBlueGreenDeployment()
+                            buildAndRunContainer('timecapsule-service')
                         }
                     }
                 }
@@ -28,60 +28,25 @@ def copyApplicationYaml(application_yml) {
     sh "cp ${application_yml} src/main/resources/application.yml"
 }
 
-// 현재 활성화된 컨테이너 확인
-def getActiveContainer() {
-    def output = sh(script: "docker ps --filter 'name=timecapsule-service' --format '{{.Names}}'", returnStdout: true).trim()
-    return output.contains("timecapsule-service-blue") ? 'blue' : 'green'
+// 공통 함수: 컨테이너 중지 및 삭제
+def stopAndRemoveContainer(containerName) {
+    // 기존 컨테이너 중지 및 삭제
+    sh """
+    docker-compose -f /home/.ssh/docker-compose.yml stop timecapsule-service || true
+    docker-compose -f /home/.ssh/docker-compose.yml rm -f timecapsule-service || true
+    """
 }
 
-// Blue-Green 배포 로직
-def buildAndRunBlueGreenDeployment() {
-    def activeContainer = getActiveContainer()
+// 공통 함수: 컨테이너 빌드 및 실행
+def buildAndRunContainer(serviceName) {
+    stopAndRemoveContainer(serviceName)
 
-    if (activeContainer == 'blue') {
-        deployToGreen()
-        switchTrafficToGreen()
-    } else {
-        deployToBlue()
-        switchTrafficToBlue()
-    }
-}
-
-// Green 인스턴스 배포
-def deployToGreen() {
-    // Green 버전 이미지 빌드
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
-    sh "docker build -t timecapsule-service-green ."
+    sh "docker build -t ${serviceName} ."
 
-    // Green 컨테이너 실행
+    // 해당 컨테이너만 재시작
     sh """
-    docker-compose -f /home/.ssh/docker-compose.yml up -d --no-deps --build timecapsule-service-green
-    """
-}
-
-// Blue 인스턴스 배포
-def deployToBlue() {
-    // Blue 버전 이미지 빌드
-    sh 'chmod +x ./gradlew'
-    sh './gradlew clean build -x test'
-    sh "docker build -t timecapsule-service-blue ."
-
-    // Blue 컨테이너 실행
-    sh """
-    docker-compose -f /home/.ssh/docker-compose.yml up -d --no-deps --build timecapsule-service-blue
-    """
-}
-
-// 트래픽 전환
-def switchTrafficToGreen() {
-    sh """
-    docker-compose -f /home/.ssh/docker-compose.yml stop timecapsule-service-blue
-    """
-}
-
-def switchTrafficToBlue() {
-    sh """
-    docker-compose -f /home/.ssh/docker-compose.yml stop timecapsule-service-green
+    docker-compose -f /home/.ssh/docker-compose.yml up -d --no-deps --build timecapsule-service
     """
 }
