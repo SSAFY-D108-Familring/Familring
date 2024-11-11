@@ -38,7 +38,7 @@ def stopAndRemoveContainer(containerName) {
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
-def buildAndRunContainer(serviceName, port, exposeToHost) {
+def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
