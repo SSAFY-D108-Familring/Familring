@@ -9,6 +9,7 @@ import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
+import com.familring.userservice.service.client.FileServiceFeignClient;
 import com.familring.userservice.service.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -29,9 +30,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
     private final JwtTokenProvider jwtTokenProvider;
+
     private final JwtTokenService tokenService;
     private final CustomUserDetailsService customUserDetailsService;
     private final RedisService redisService;
+
+    private final FileServiceFeignClient fileServiceFeignClient;
 
     @Override
     public UserInfoResponse getUser(String userName) {
@@ -246,6 +250,44 @@ public class UserServiceImpl implements UserService {
 
         // 2. 사용자의 닉네임 변경
         userDao.updateUserColorByUserId(user.getUserId(), userColor);
+    }
+
+    @Override
+    public void updateFace(Long userId, MultipartFile image) {
+        // 1. 사용자 정보 찾기
+        UserDto user = userDao.findUserByUserId(userId)
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+
+        // 2. 파일 제거
+        deleteFile(user.getUserFace());
+
+        // 3. 파일 업로드
+        String newFace = uploadFiles(image, "user-face").get(0);
+        log.info("[updateFace] 새로운 파일={}", newFace);
+
+        // 4. DB 변경
+        userDao.updateUserFaceByUserId(user.getUserId(), newFace);
+
+    }
+    public void deleteFile(String fileName) {
+        List<String> files = new ArrayList<>();
+        files.add(fileName);
+        fileServiceFeignClient.deleteFiles(files);
+        log.info("[deleteFile] 파일={} 제거 완료", fileName);
+    }
+    public List<String> uploadFiles(MultipartFile image, String folderPath) {
+        log.info("folderPath: {}", folderPath);
+
+        // List<MultipartFile>로 파일 리스트 구성
+        List<MultipartFile> faceFiles = List.of(image);
+
+        // Feign Client로 파일 업로드 요청
+        List<String> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath).getData();
+
+        return response;
     }
 
     @Override
