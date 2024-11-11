@@ -142,7 +142,7 @@ public class AlbumService {
                     .id(album.getId())
                     .albumName(album.getAlbumName())
                     .thumbnailUrl(album.getPhotos().isEmpty() ?
-                            null : album.getPhotos().get(album.getPhotos().size() - 1).getPhotoUrl())
+                            null : album.getPhotos().get(0).getPhotoUrl())
                     .photoCount(album.getPhotos().size())
                     .build());
         });

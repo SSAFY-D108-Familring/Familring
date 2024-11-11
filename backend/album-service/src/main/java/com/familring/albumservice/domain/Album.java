@@ -39,7 +39,7 @@ public class Album {
 
     @OneToMany(mappedBy = "album", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    @OrderBy("id ASC")  // id 기준 오름차순
+    @OrderBy("id DESC")
     private List<Photo> photos = new ArrayList<>();
 
 
