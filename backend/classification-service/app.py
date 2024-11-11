@@ -312,7 +312,7 @@ async def process_face_encodings(image):
         
         # 이미지 크기 조정
         height, width = image.shape[:2]
-        max_dimension = 1000
+        max_dimension = 1300
         logger.info(f"원본 이미지 크기: {width}x{height}")
         
         if max(height, width) > max_dimension:
