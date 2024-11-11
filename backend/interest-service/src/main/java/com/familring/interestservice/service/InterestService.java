@@ -84,14 +84,14 @@ public class InterestService {
     }
 
     // 관심사 답변 수정
-    public void updateInterestAnswer(Long userId, Long interestId, InterestAnswerCreateRequest interestAnswerCreateRequest) {
+    public void updateInterestAnswer(Long userId, InterestAnswerCreateRequest interestAnswerCreateRequest) {
 
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
 
-        // 관심사 찾기
-        Interest interest = interestRepository.findByIdAndFamilyId(interestId, familyId).orElseThrow(InterestNotFoundException::new);
+        // 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 찾은 관심사로 관심사 답변 찾기
         InterestAnswer interestAnswer = interestAnswerRepository.findByInterest(interest).orElseThrow(InterestAnswerNotFoundException::new);
