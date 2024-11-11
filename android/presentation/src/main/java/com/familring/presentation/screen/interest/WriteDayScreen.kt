@@ -37,6 +37,7 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun WriteDayScreen(
@@ -48,8 +49,8 @@ fun WriteDayScreen(
     editInterest: (String) -> Unit = {},
     navigateToOtherInterest: () -> Unit = {},
 ) {
-    var interestKeyword by remember { mutableStateOf(interest) }
-    var canEdit by remember { mutableStateOf(!isWroteInterest) }
+    var interestKeyword by remember(interest) { mutableStateOf(interest) }
+    var canEdit by remember(isWroteInterest) { mutableStateOf(!isWroteInterest) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
