@@ -407,7 +407,7 @@ public class InterestService {
     }
 
     // 관심사 상세보기
-    public InterestDetailListResponse getInterestDetail(Long userId, Long interestId) {
+    public List<InterestDetailResponse> getInterestDetail(Long userId, Long interestId) {
 
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -416,7 +416,7 @@ public class InterestService {
         // 관심사 고유번호, 가족 고유번호 로 관심사 찾기
         Optional<Interest> interest = interestRepository.findByIdAndFamilyId(interestId, familyId);
 
-        List<InterestDetailItem> interestDetailItemList = new ArrayList<>();
+        List<InterestDetailResponse> interestDetailResponseList = new ArrayList<>();
         if (interest.isPresent()) {
             List<InterestMission> interestMissionList = interestMissionRepository.findByInterest(interest.get());
 
@@ -425,24 +425,21 @@ public class InterestService {
 
                 UserInfoResponse userInfo = userServiceFeignClient.getUser(interestMission.getUserId()).getData();
 
-                InterestDetailItem interestDetailItem = InterestDetailItem
+                InterestDetailResponse interestDetailResponse = InterestDetailResponse
                         .builder()
                         .photoUrl(photoUrl)
                         .userNickname(userInfo.getUserNickname())
                         .userZodiacSign(userInfo.getUserZodiacSign())
                         .build();
 
-                interestDetailItemList.add(interestDetailItem);
+                interestDetailResponseList.add(interestDetailResponse);
             }
 
         } else {
             throw new InterestNotFoundException();
         }
 
-        return InterestDetailListResponse
-                .builder()
-                .items(interestDetailItemList)
-                .build();
+        return interestDetailResponseList;
     }
 
     // 관심사 상태 관리

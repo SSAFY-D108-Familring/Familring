@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class InterestDetailItem {
+public class InterestDetailResponse {
 
     private String userNickname;
     private String userZodiacSign;

@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/interests")
 @RequiredArgsConstructor
@@ -100,8 +102,8 @@ public class InterestController {
 
     @GetMapping("/{interest-id}")
     @Operation(summary = "관심사 상세보기", description = "선정됐던 관심사 상세보기")
-    public ResponseEntity<BaseResponse<InterestDetailListResponse>> getInterestDetail (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @PathVariable(name="interest-id") Long interestId) {
-        InterestDetailListResponse response = interestService.getInterestDetail(userId, interestId);
+    public ResponseEntity<BaseResponse<List<InterestDetailResponse>>> getInterestDetail (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @PathVariable(name="interest-id") Long interestId) {
+        List<InterestDetailResponse> response = interestService.getInterestDetail(userId, interestId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 전체 목록 조회에 성공했습니다.", response));
     }
 

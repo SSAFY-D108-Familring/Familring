@@ -80,6 +80,12 @@ public class QuestionService {
             // QuestionFamily 업데이트
             questionFamily.updateQuestion(nextQuestion);
             questionFamilyRepository.save(questionFamily);
+
+            // 모두 답변했을 때는 포인트 증가
+
+        } else {
+            // 모두 답변 안했을 때는 답변 안했던 인원수만큼 포인트 감소
+
         }
     }
 
