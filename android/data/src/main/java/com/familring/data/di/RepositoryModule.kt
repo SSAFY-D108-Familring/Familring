@@ -2,6 +2,7 @@ package com.familring.data.di
 
 import com.familring.data.repositoryImpl.AuthRepositoryImpl
 import com.familring.data.repositoryImpl.DailyRepositoryImpl
+import com.familring.data.repositoryImpl.FaceRepositoryImpl
 import com.familring.data.repositoryImpl.FamilyRepositoryImpl
 import com.familring.data.repositoryImpl.GalleryRepositoryImpl
 import com.familring.data.repositoryImpl.QuestionRepositoryImpl
@@ -10,6 +11,7 @@ import com.familring.data.repositoryImpl.TimeCapsuleRepositoryImpl
 import com.familring.data.repositoryImpl.UserRepositoryImpl
 import com.familring.domain.repository.AuthRepository
 import com.familring.domain.repository.DailyRepository
+import com.familring.domain.repository.FaceRepository
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.GalleryRepository
 import com.familring.domain.repository.QuestionRepository
@@ -56,4 +58,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindGalleryRepository(galleryRepositoryImpl: GalleryRepositoryImpl): GalleryRepository
+
+    @Binds
+    @Singleton
+    fun bindFaceRepository(faceRepositoryImpl: FaceRepositoryImpl): FaceRepository
 }
