@@ -78,7 +78,7 @@ fun PictureRoute(
 
     if (uiState.isLoading) {
         LoadingDialog(
-            loadingMessage = "얼굴 개수를 세고 있어요...",
+            loadingMessage = "얼굴을 인식하고 있어요...",
         )
     }
 }
