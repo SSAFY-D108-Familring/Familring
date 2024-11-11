@@ -202,7 +202,7 @@ class SignUpViewModel
                     when (response) {
                         is ApiResponse.Success -> {
                             _state.update { it.copy(isLoading = false) }
-                            if (response.data == 1) {
+                            if (response.data.faceCount == 1) {
                                 _event.emit(SignUpUiEvent.FaceSuccess)
                             } else {
                                 _event.emit(SignUpUiEvent.FaceFail)
