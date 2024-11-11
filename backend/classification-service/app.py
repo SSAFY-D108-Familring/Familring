@@ -389,7 +389,7 @@ async def classify_images(request: AnalysisRequest):
             }
 
             # 대상 이미지를 배치로 나누어 처리
-            BATCH_SIZE = 2  # 한 번에 처리할 이미지 수
+            BATCH_SIZE = 7  # 한 번에 처리할 이미지 수
             results = []
             
             # 배치 단위로 처리
