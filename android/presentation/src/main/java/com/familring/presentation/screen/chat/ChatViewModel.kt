@@ -2,18 +2,17 @@ package com.familring.presentation.screen.chat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.chat.Chat
+import com.familring.domain.model.chat.SendMessage
 import com.familring.domain.repository.FamilyRepository
 import com.familring.presentation.BuildConfig
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -24,11 +23,13 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.hildan.krossbow.stomp.StompClient
 import org.hildan.krossbow.stomp.StompSession
+import org.hildan.krossbow.stomp.conversions.convertAndSend
 import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
-import org.hildan.krossbow.stomp.frame.StompFrame
+import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import timber.log.Timber
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,9 +51,7 @@ class ChatViewModel
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
 
-        private lateinit var newChatMessage: Flow<StompFrame.Message>
         private lateinit var chatList: List<Chat>
-        var originalChatList: Flow<PagingData<Chat>>? = null
 
         private val _state = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
         val state = _state.asStateFlow()
@@ -87,7 +86,13 @@ class ChatViewModel
                     when (response) {
                         is ApiResponse.Success -> {
                             chatList = response.data
-                            _state.value = ChatUiState.Success(userId = userId, chatList = chatList)
+                            val currentState = _state.value
+
+                            if (currentState is ChatUiState.Success) {
+                                _state.value = currentState.copy(chatList = chatList)
+                            } else {
+                                _state.value = ChatUiState.Success(userId = userId, chatList = chatList)
+                            }
                         }
 
                         is ApiResponse.Error -> {
@@ -128,27 +133,51 @@ class ChatViewModel
                                     ),
                             ).withMoshi(moshi)
 
-                    newChatMessage =
-                        stompSession.subscribe(
-                            StompSubscribeHeaders(
-                                destination = "$SUBSCRIBE_URL$familyId",
-                            ),
-                        )
+                    subscribeMessages()
+                    subscribeReadStatus()
+                }
+            }
+        }
 
-                    newChatMessage.collect { message ->
+        // 메시지 구독
+        private fun subscribeMessages() {
+            viewModelScope.launch {
+                stompSession
+                    .subscribe(
+                        StompSubscribeHeaders(
+                            destination = "$SUBSCRIBE_URL$familyId",
+                        ),
+                    ).collect { message ->
                         val chatMessage = moshi.adapter(Chat::class.java).fromJson(message.bodyAsText)
-                        when (val state = _state.value) {
-                            is ChatUiState.Success -> {
-                                if (chatMessage != null) {
-                                    chatList = state.chatList + chatMessage
-                                    _state.value = state.copy(chatList = chatList)
-                                }
-                            }
-
-                            else -> {}
+                        chatMessage?.let {
+                            updateChatListWithNewMessage(it)
                         }
                     }
-                }
+            }
+        }
+
+        // 새로운 메시지 업데이트
+        private fun updateChatListWithNewMessage(chatMessage: Chat) {
+            val currentState = _state.value
+            if (currentState is ChatUiState.Success) {
+                val updatedChatList = listOf(chatMessage) + currentState.chatList
+                _state.value = currentState.copy(chatList = updatedChatList)
+            }
+        }
+
+        // 읽음 처리 구독
+        private fun subscribeReadStatus() {
+            viewModelScope.launch {
+                stompSession
+                    .subscribe(
+                        StompSubscribeHeaders(
+                            destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL",
+                        ),
+                    ).collect {
+                        if (familyId != null && userId != null) {
+                            enterRoom(roomId = familyId!!, userId = userId!!)
+                        }
+                    }
             }
         }
 
@@ -164,11 +193,24 @@ class ChatViewModel
 
         fun sendMessage(message: String) {
             viewModelScope.launch {
+                stompSession.withMoshi(moshi).convertAndSend(
+                    headers = StompSendHeaders(destination = SEND_URL),
+                    body =
+                        SendMessage(
+                            roomId = familyId.toString(),
+                            senderId = userId.toString(),
+                            content = message,
+                            createdAt = LocalDateTime.now().toString(),
+                            messageType = "MESSAGE",
+                        ),
+                )
             }
         }
 
         companion object {
             const val X_USER_ID = "X-User-ID"
             const val SUBSCRIBE_URL = "/room/"
+            const val READ_STATUS_URL = "/readStatus"
+            const val SEND_URL = "/send/chat.send"
         }
     }

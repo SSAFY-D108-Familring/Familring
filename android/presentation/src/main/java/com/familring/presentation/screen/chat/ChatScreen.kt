@@ -65,8 +65,8 @@ import com.familring.presentation.theme.Green05
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.launch
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun ChatRoute(
@@ -89,6 +89,7 @@ fun ChatRoute(
                 userId = uiState.userId,
                 popUpBackStack = popUpBackStack,
                 showSnackBar = showSnackBar,
+                sendMessage = viewModel::sendMessage,
             )
         }
     }
@@ -115,9 +116,14 @@ fun ChatScreen(
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        if (chatList.isNotEmpty()) {
+            lazyListState.animateScrollToItem(0)
+        }
+    }
     LaunchedEffect(chatList.size) {
         if (chatList.isNotEmpty()) {
-            lazyListState.animateScrollToItem(chatList.size - 1)
+            lazyListState.animateScrollToItem(0)
         }
     }
 
@@ -138,6 +144,7 @@ fun ChatScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
+            Spacer(modifier = Modifier.height(12.dp))
             LazyColumn(
                 modifier =
                     Modifier
@@ -145,13 +152,14 @@ fun ChatScreen(
                         .padding(horizontal = 15.dp),
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                reverseLayout = true,
             ) {
                 items(chatList.size) { index ->
                     val item = chatList[index]
                     if (item.senderId == userId) {
                         MyMessage(
                             message = item.content,
-                            time = item.createdAt.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            time = item.createdAt.toTimeOnly(),
                             unReadMembers = item.unReadMembers.toString(),
                         )
                     } else {
@@ -160,7 +168,7 @@ fun ChatScreen(
                             profileImg = item.sender.userZodiacSign,
                             color = item.sender.userColor,
                             message = item.content,
-                            time = item.createdAt.format(DateTimeFormatter.ofPattern("HH:mm")),
+                            time = item.createdAt.toTimeOnly(),
                             unReadMembers = item.unReadMembers.toString(),
                         )
                     }
@@ -197,7 +205,7 @@ fun ChatScreen(
                     onValueChanged = {
                         inputMessage = it
                         scope.launch {
-                            lazyListState.animateScrollToItem(chatList.size - 1)
+                            lazyListState.animateScrollToItem(0)
                         }
                     },
                     sendMessage = {
