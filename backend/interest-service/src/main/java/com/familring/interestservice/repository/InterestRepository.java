@@ -14,7 +14,7 @@ public interface InterestRepository extends JpaRepository<Interest, Integer> {
     Optional<Interest> findByIdAndFamilyId(Long id, Long familyId);
 
     // 가족에 가장 최근 관심사 찾기
-    Optional<Interest> findFirstByFamilyId(Long familyId);
+    Optional<Interest> findFirstByFamilyIdOrderByIdDesc(Long familyId);
 
     Slice<Interest> findByFamilyIdOrderByIdDesc(Long familyId, Pageable pageable);
 

@@ -16,6 +16,7 @@ import com.familring.interestservice.service.client.FamilyServiceFeignClient;
 import com.familring.interestservice.service.client.FileServiceFeignClient;
 import com.familring.interestservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
@@ -33,6 +34,7 @@ import java.util.Random;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class InterestService {
 
     private final InterestRepository interestRepository;
@@ -99,7 +101,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 내가 작성한 관심사 답변 찾기
         InterestAnswer interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest).orElseThrow(InterestAnswerNotFoundException::new);
@@ -130,7 +132,7 @@ public class InterestService {
                     .build();
         } else {
             // 그 가족의 가장 최근 관심사 찾기
-            interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+            interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
             // 내가 작성한 관심사 답변 찾기
             Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest);
@@ -152,6 +154,7 @@ public class InterestService {
             }
 
             if (interestAnswer.isPresent()) {
+                log.info("interestId : " + interest.getId());
                 // 내가 답변한 상태면 true
                 interestAnswerStatusResponse = InterestAnswerStatusResponse
                         .builder()
@@ -160,6 +163,7 @@ public class InterestService {
                         .content(interestAnswer.get().getContent())
                         .build();
             } else {
+                log.info("interestId : " + interest.getId());
                 // 내가 만약에 답변 안했으면 false
                 interestAnswerStatusResponse = InterestAnswerStatusResponse
                         .builder()
@@ -181,7 +185,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 가족 구성원 찾기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
@@ -223,7 +227,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 가족 구성원 찾기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
@@ -267,7 +271,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 가족 구성원 찾기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
@@ -310,7 +314,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 오늘 날짜
         LocalDate today = LocalDate.now();
@@ -338,7 +342,7 @@ public class InterestService {
         String photoUrl = fileServiceFeignClient.uploadFiles(files, getInterestPhotoPath(familyId)).getData().get(0);
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 오늘
         LocalDate today = LocalDate.now();
@@ -366,7 +370,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 가족 구성원 찾기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
@@ -488,7 +492,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Optional<Interest> interestOptional = interestRepository.findFirstByFamilyId(familyId);
+        Optional<Interest> interestOptional = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId);
 
         // 0 → 작성하는 기간: 관심사 DB에 아무것도 없을 때 작성 가능한 상태
         if (interestOptional.isEmpty()) {

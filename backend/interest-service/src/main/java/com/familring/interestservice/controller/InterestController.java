@@ -38,9 +38,9 @@ public class InterestController {
     }
 
     @GetMapping("/answers/status")
-    @Operation(summary = "관심사 답변 작성 유무", description = "관심사 답변을 했는지 안했는지 boolean 값으로 전달 (답변 했으면 true, 답변 안했으면 false")
-    public ResponseEntity<BaseResponse<Boolean>> getQuestion(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        boolean response = interestService.getInterestAnswerStatus(userId);
+    @Operation(summary = "관심사 답변 작성 유무", description = "관심사 답변을 했는지 안했는지 boolean 값으로 전달 (answerStatusMine : 내가 답변 했으면 true, 답변 안했으면 false / answerStatusFamily : 답변 작성한 가족이 있으면 true, 없으면 false)")
+    public ResponseEntity<BaseResponse<InterestAnswerStatusResponse>> getQuestion(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        InterestAnswerStatusResponse response = interestService.getInterestAnswerStatus(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 답변 작성 유무 조회에 성공했습니다.", response));
     }
 
