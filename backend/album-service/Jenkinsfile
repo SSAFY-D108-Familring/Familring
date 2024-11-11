@@ -1,5 +1,5 @@
 // 파이프라인 변수 선언 (초기 값 설정)
-def questionActiveInstance = 'album-service-blue'
+def activeInstance = 'album-service-blue'
 
 pipeline {
     agent any

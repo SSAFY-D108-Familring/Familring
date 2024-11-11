@@ -1,5 +1,5 @@
 // 파이프라인 변수 선언 (초기 값 설정)
-def questionActiveInstance = 'question-service-blue'
+def activeInstance = 'question-service-blue'
 
 pipeline {
     agent any
@@ -16,7 +16,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
                     script {
                         // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
-                        def newInstance = (questionActiveInstance == 'question-service-blue') ? 'question-service-green' : 'question-service-blue'
+                        def newInstance = (activeInstance == 'question-service-blue') ? 'question-service-green' : 'question-service-blue'
 
                         dir('backend/question-service') {
                             copyApplicationYaml(application_yml)
@@ -24,7 +24,7 @@ pipeline {
                         }
 
                         // 다음 배포를 위해 questionActiveInstance 변수를 업데이트
-                        questionActiveInstance = newInstance
+                        activeInstance = newInstance
                     }
                 }
             }
