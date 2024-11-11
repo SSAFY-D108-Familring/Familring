@@ -209,11 +209,9 @@ fun AnswerWriteScreen(
                 modifier = Modifier.align(Alignment.End).padding(end = 16.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
-            Text( // 버튼이 왜 안눌리지  ㅠ
+            RoundLongButton( // 버튼이 왜 안눌리지  ㅠ
                 text = if (initialAnswer.isEmpty()) "답변 저장하기" else "답변 수정하기",
-                modifier = Modifier.noRippleClickable {
-                    if (isEnabled) onSubmit(content)
-                },
+                onClick = {  if (isEnabled) onSubmit(content)},
             )
             Spacer(modifier = Modifier.fillMaxSize(0.06f))
         }

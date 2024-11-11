@@ -378,7 +378,7 @@ fun AlbumScreen(
                         .background(color = Black.copy(alpha = 0.5f)),
                 contentAlignment = Alignment.Center,
             ) {
-                //로딩추가
+                // 로딩추가
                 CircularProgressIndicator(color = Green02)
             }
         }
@@ -407,14 +407,13 @@ fun PhotoItem(
                     Modifier
                         .background(color = Black.copy(alpha = 0.8f))
                         .fillMaxSize(),
-            ) {
-                Icon(
-                    modifier = Modifier.align(Alignment.Center),
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = Color.White,
-                )
-            }
+            )
+            Icon(
+                modifier = Modifier.align(Alignment.Center),
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = Color.White,
+            )
         }
     }
 }
