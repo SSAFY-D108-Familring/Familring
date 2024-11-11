@@ -109,7 +109,7 @@ public class InterestService {
     }
 
     // 관심사 답변 목록 조회
-    public InterestAnswerListResponse getInterestAnswerList(Long userId) {
+    public List<InterestAnswerResponse> getInterestAnswerList(Long userId) {
 
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -121,7 +121,7 @@ public class InterestService {
         // 가족 구성원 찾기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
-        List<InterestAnswerItem> interestAnswerItems = new ArrayList<>();
+        List<InterestAnswerResponse> interestAnswerResponses = new ArrayList<>();
 
         for (UserInfoResponse familyMember : familyMembers) {
 
@@ -136,20 +136,17 @@ public class InterestService {
             }
 
             // 가족 구성원 답변 정보 반환
-            InterestAnswerItem interestAnswerItem = InterestAnswerItem.builder()
+            InterestAnswerResponse interestAnswerResponse = InterestAnswerResponse.builder()
                     .userId(familyMember.getUserId())
                     .userNickname(familyMember.getUserNickname())
                     .userZodiacSign(familyMember.getUserZodiacSign())
                     .content(content)
                     .build();
 
-            interestAnswerItems.add(interestAnswerItem);
+            interestAnswerResponses.add(interestAnswerResponse);
         }
 
-        return InterestAnswerListResponse
-                .builder()
-                .items(interestAnswerItems)
-                .build();
+        return interestAnswerResponses;
 
     }
 
@@ -317,7 +314,7 @@ public class InterestService {
     }
 
     // 관심사 체험 인증 목록 조회
-    public InterestMissionListResponse getInterestMissionList(Long userId) {
+    public List<InterestMissionResponse> getInterestMissionList(Long userId) {
 
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -330,7 +327,7 @@ public class InterestService {
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
         int count = 0;
-        List<InterestMissionItem> interestMissionItemList = new ArrayList<>();
+        List<InterestMissionResponse> interestMissionResponseList = new ArrayList<>();
         for (UserInfoResponse member : familyMembers) {
             // 관심사, 회원 번호 찾아서
             Optional<InterestMission> interestMission = interestMissionRepository.findByInterestAndUserId(interest, member.getUserId());
@@ -339,21 +336,17 @@ public class InterestService {
                 count++; // 있으면 count 올리기
 
                 // 이미지, 닉네임
-                InterestMissionItem interestMissionItem = InterestMissionItem
+                InterestMissionResponse interestMissionResponse = InterestMissionResponse
                         .builder()
                         .photoUrl(interestMission.get().getPhotoUrl())
                         .userNickname(member.getUserNickname())
                         .build();
 
-                interestMissionItemList.add(interestMissionItem);
+                interestMissionResponseList.add(interestMissionResponse);
             }
         }
 
-        return InterestMissionListResponse
-                .builder()
-                .items(interestMissionItemList)
-                .count(count)
-                .build();
+        return interestMissionResponseList;
     }
 
     // 관심사 전체 목록 조회
@@ -407,7 +400,7 @@ public class InterestService {
     }
 
     // 관심사 상세보기
-    public InterestDetailListResponse getInterestDetail(Long userId, Long interestId) {
+    public List<InterestDetailResponse> getInterestDetail(Long userId, Long interestId) {
 
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -416,7 +409,7 @@ public class InterestService {
         // 관심사 고유번호, 가족 고유번호 로 관심사 찾기
         Optional<Interest> interest = interestRepository.findByIdAndFamilyId(interestId, familyId);
 
-        List<InterestDetailItem> interestDetailItemList = new ArrayList<>();
+        List<InterestDetailResponse> interestDetailResponseList = new ArrayList<>();
         if (interest.isPresent()) {
             List<InterestMission> interestMissionList = interestMissionRepository.findByInterest(interest.get());
 
@@ -425,24 +418,21 @@ public class InterestService {
 
                 UserInfoResponse userInfo = userServiceFeignClient.getUser(interestMission.getUserId()).getData();
 
-                InterestDetailItem interestDetailItem = InterestDetailItem
+                InterestDetailResponse interestDetailResponse = InterestDetailResponse
                         .builder()
                         .photoUrl(photoUrl)
                         .userNickname(userInfo.getUserNickname())
                         .userZodiacSign(userInfo.getUserZodiacSign())
                         .build();
 
-                interestDetailItemList.add(interestDetailItem);
+                interestDetailResponseList.add(interestDetailResponse);
             }
 
         } else {
             throw new InterestNotFoundException();
         }
 
-        return InterestDetailListResponse
-                .builder()
-                .items(interestDetailItemList)
-                .build();
+        return interestDetailResponseList;
     }
 
     // 관심사 상태 관리

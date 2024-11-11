@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/interests")
 @RequiredArgsConstructor
@@ -44,8 +46,8 @@ public class InterestController {
 
     @GetMapping("/answers")
     @Operation(summary = "관심사 답변 목록 조회 (가족)", description = "가족들이 작성한 관심사 답변 목록 조회")
-    public ResponseEntity<BaseResponse<InterestAnswerListResponse>> getInterestAnswerList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        InterestAnswerListResponse response = interestService.getInterestAnswerList(userId);
+    public ResponseEntity<BaseResponse<List<InterestAnswerResponse>>> getInterestAnswerList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        List<InterestAnswerResponse> response = interestService.getInterestAnswerList(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족들의 관심사 답변 목록 조회에 성공했습니다.", response));
     }
 
@@ -86,8 +88,8 @@ public class InterestController {
 
     @GetMapping("/missions")
     @Operation(summary = "관심사 체험 인증 목록 조회", description = "관심사 체험했던 구성원 목록 조회")
-    public ResponseEntity<BaseResponse<InterestMissionListResponse>> getInterestMissionList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
-        InterestMissionListResponse response = interestService.getInterestMissionList(userId);
+    public ResponseEntity<BaseResponse<List<InterestMissionResponse>>> getInterestMissionList (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        List<InterestMissionResponse> response = interestService.getInterestMissionList(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 체험 인증 목록 조회에 성공했습니다.", response));
     }
 
@@ -100,8 +102,8 @@ public class InterestController {
 
     @GetMapping("/{interest-id}")
     @Operation(summary = "관심사 상세보기", description = "선정됐던 관심사 상세보기")
-    public ResponseEntity<BaseResponse<InterestDetailListResponse>> getInterestDetail (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @PathVariable(name="interest-id") Long interestId) {
-        InterestDetailListResponse response = interestService.getInterestDetail(userId, interestId);
+    public ResponseEntity<BaseResponse<List<InterestDetailResponse>>> getInterestDetail (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @PathVariable(name="interest-id") Long interestId) {
+        List<InterestDetailResponse> response = interestService.getInterestDetail(userId, interestId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 전체 목록 조회에 성공했습니다.", response));
     }
 

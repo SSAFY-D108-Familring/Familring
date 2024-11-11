@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class InterestMissionItem {
+public class InterestMissionResponse {
 
     private String photoUrl;
     private String userNickname;
