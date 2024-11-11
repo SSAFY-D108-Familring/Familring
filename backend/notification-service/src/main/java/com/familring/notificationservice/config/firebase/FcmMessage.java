@@ -1,4 +1,4 @@
-package com.familring.userservice.config.firebase;
+package com.familring.notificationservice.config.firebase;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
