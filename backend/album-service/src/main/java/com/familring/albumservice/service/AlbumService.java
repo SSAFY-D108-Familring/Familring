@@ -168,7 +168,7 @@ public class AlbumService {
                 .targetImages(photoUrls).people(
                         familyMembers.stream().map(m -> new Person(m.getUserId(), m.getUserFace())).toList()
                 ).build();
-        List<FaceSimilarityResponse> faceSimilarityResponses = classificationServiceFeignClient.calculateSimilarity(faceSimilarityRequest);
+        List<FaceSimilarityResponse> faceSimilarityResponses = classificationServiceFeignClient.calculateSimilarity(faceSimilarityRequest).getData();
 
         // 가족 구성원의 앨범 가져오기 (userId, album)
         Map<Long, Album> albumMap = albumRepository.findByUserIdIn(familyMembers.stream().map(UserInfoResponse::getUserId).toList())
