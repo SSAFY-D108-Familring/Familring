@@ -51,7 +51,7 @@ public interface FamilyDao {
     void updateFamilyCommunicationStatusByFamilyId(@Param("familyId") Long familyId, @Param("amount") int amount);
 
     // family_user 구성원 추가
-    void insetFamily_User(@Param("familyId") Long familyId, @Param("userId") Long userId);
+    Long insetFamily_User(@Param("familyId") Long familyId, @Param("userId") Long userId);
 
     // 가족 구성원 수 + 1
     void updateFamilyCountByFamilyId(@Param("familyId") Long familyId, @Param("amount") int amount);

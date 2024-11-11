@@ -1,6 +1,7 @@
 package com.familring.albumservice.repository;
 
 import com.familring.albumservice.domain.Album;
+import com.familring.albumservice.domain.AlbumType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,4 +14,6 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     Optional<Album> findByScheduleId(Long scheduleId);
 
     List<Album> findByUserIdIn(List<Long> userIds);
+
+    Optional<Album> findByUserIdAndAlbumType(Long userId, AlbumType albumType);
 }

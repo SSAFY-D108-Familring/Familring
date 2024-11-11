@@ -9,6 +9,7 @@ import com.familring.userservice.model.dto.UserDto;
 import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
+import com.familring.userservice.service.client.AlbumServiceFeignClient;
 import com.familring.userservice.service.jwt.JwtTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -31,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenService tokenService;
     private final CustomUserDetailsService customUserDetailsService;
+    private final AlbumServiceFeignClient albumServiceFeignClient;
     private final RedisService redisService;
 
     @Override
@@ -93,7 +95,7 @@ public class UserServiceImpl implements UserService {
         List<UserInfoResponse> responseList = new ArrayList<>();
 
         // 2. 각 userId별 메소드 호출
-        for(Long userId : userIds) {
+        for (Long userId : userIds) {
             responseList.add(getUser(userId));
         }
 
@@ -122,7 +124,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public JwtTokenResponse join(UserJoinRequest userJoinRequest, MultipartFile image) {
         // 1. 사용자 중복 확인
-        if(userDao.existsUserByUserKakaoId(userJoinRequest.getUserKakaoId())) {
+        if (userDao.existsUserByUserKakaoId(userJoinRequest.getUserKakaoId())) {
             throw new AlreadyUserException();
         }
 
@@ -221,6 +223,8 @@ public class UserServiceImpl implements UserService {
 
         // 2. 사용자의 닉네임 변경
         userDao.updateUserNicknameByUserId(user.getUserId(), userNickname);
+
+        albumServiceFeignClient.updatePersonAlbumName(PersonAlbumUpdateRequest.builder().userId(userId).userNickname(userNickname).build());
     }
 
     @Override
@@ -238,7 +242,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Long userId){
+    public void deleteUser(Long userId) {
         // 1. 회원 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
                 .orElseThrow(() -> {

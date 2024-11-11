@@ -4,10 +4,7 @@ import com.familring.albumservice.domain.Album;
 import com.familring.albumservice.domain.Album.AlbumBuilder;
 import com.familring.albumservice.domain.AlbumType;
 import com.familring.albumservice.domain.Photo;
-import com.familring.albumservice.dto.client.FaceSimilarityRequest;
-import com.familring.albumservice.dto.client.FaceSimilarityResponse;
-import com.familring.albumservice.dto.client.Person;
-import com.familring.albumservice.dto.client.UserInfoResponse;
+import com.familring.albumservice.dto.client.*;
 import com.familring.albumservice.dto.response.AlbumInfoResponse;
 import com.familring.albumservice.dto.request.AlbumRequest;
 import com.familring.albumservice.dto.request.AlbumUpdateRequest;
@@ -22,7 +19,7 @@ import com.familring.albumservice.repository.PhotoRepository;
 import com.familring.albumservice.service.client.ClassificationServiceFeignClient;
 import com.familring.albumservice.service.client.FamilyServiceFeignClient;
 import com.familring.albumservice.service.client.FileServiceFeignClient;
-import com.familring.common_module.dto.BaseResponse;
+import com.familring.albumservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +47,7 @@ public class AlbumService {
     private final AlbumRepository albumRepository;
     private final AlbumQueryRepository albumQueryRepository;
     private final PhotoRepository photoRepository;
+    private final UserServiceFeignClient userServiceFeignClient;
 
     @Value("${aws.s3.album-photo-path}")
     private String albumPhotoPath;
@@ -87,6 +85,21 @@ public class AlbumService {
         albumRepository.save(album);
     }
 
+    /**
+     * 인물 앨범의 경우 회원 생성시 자동으로 추가되는데
+     * 가족을 처음 생성하는 경우면 가족 생성 작업이 커밋이 아직 안되어서
+     * userId로 familyId가 조회 안되기 때문에
+     * 앨범을 생성하는데 필요한 familyId를 따로 받는 메서드 추가
+     */
+    @Transactional
+    public void createPersonAlbum(PersonAlbumCreateRequest request) {
+        UserInfoResponse user = userServiceFeignClient.getUser(request.getUserId()).getData();
+
+        Album album = Album.builder().familyId(request.getFamilyId()).userId(request.getUserId())
+                .albumName(user.getUserNickname() + "의 앨범").albumType(PERSON).build();
+        albumRepository.save(album);
+    }
+
     @Transactional
     public void updateAlbum(AlbumUpdateRequest albumUpdateRequest, Long albumId, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
@@ -97,6 +110,12 @@ public class AlbumService {
         }
 
         album.updateAlbumName(albumUpdateRequest.getAlbumName());
+    }
+
+    @Transactional
+    public void updatePersonAlbum(PersonAlbumUpdateRequest albumUpdateRequest) {
+        Album album = albumRepository.findByUserIdAndAlbumType(albumUpdateRequest.getUserId(), PERSON).orElseThrow(AlbumNotFoundException::new);
+        album.updateAlbumName(albumUpdateRequest.getUserNickname() + "의 앨범");
     }
 
     @Transactional
