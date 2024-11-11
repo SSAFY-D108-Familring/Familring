@@ -137,6 +137,8 @@ public class InterestService {
             interestAnswerStatusResponse = InterestAnswerStatusResponse
                     .builder()
                     .answerStatusMine(false)
+                    .answerStatusFamily(false)
+                    .content("")
                     .build();
         } else {
             // 그 가족의 가장 최근 관심사 찾기
