@@ -15,15 +15,15 @@ pipeline {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
                         // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
-//                         def newInstance = (activeInstance == 'timecapsule-service-blue') ? 'timecapsule-service-green' : 'timecapsule-service-blue'
+                        def newInstance = (activeInstance == 'timecapsule-service-blue') ? 'timecapsule-service-green' : 'timecapsule-service-blue'
 
                         dir('backend/timecapsule-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('timecapsule-service') // 내부 네트워크에서만 통신
+                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
                         }
 
-//                         // 다음 배포를 위해 questionActiveInstance 변수를 업데이트
-//                         activeInstance = newInstance
+                        // 다음 배포를 위해 questionActiveInstance 변수를 업데이트
+                        activeInstance = newInstance
                     }
                 }
             }
