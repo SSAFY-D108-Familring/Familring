@@ -1,3 +1,6 @@
+// 파이프라인 변수 선언 (초기 값 설정)
+def activeInstance = 'api-gateway-blue'
+
 pipeline {
     agent any
 
@@ -15,10 +18,17 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
-                        dir('backend/config-service') {
+                        // 활성화된 인스턴스를 기반으로 새로운 인스턴스와 포트 결정
+                        def newInstance = (activeInstance == 'api-gateway-blue') ? 'api-gateway-green' : 'api-gateway-blue'
+                        def newPort = (newInstance == 'api-gateway-blue') ? 8000 : 8001
+
+                        dir('backend/api-gateway') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('config-service', 8888, true)
+                            buildAndRunContainer(newInstance, newPort, true) // 새 인스턴스 배포
                         }
+
+                        // 다음 배포를 위해 activeInstance 변수를 업데이트
+                        activeInstance = newInstance
                     }
                 }
             }
