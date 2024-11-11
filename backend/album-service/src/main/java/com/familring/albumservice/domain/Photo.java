@@ -16,6 +16,11 @@ public class Photo {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_photo_id")
+    @Setter
+    private Photo parentPhoto;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "album_id")
     @Setter
     private Album album;

@@ -205,6 +205,7 @@ public class AlbumService {
                     // 새로운 Photo 엔티티 생성
                     Photo copyPhoto = Photo.builder()
                             .photoUrl(newPhoto.getPhotoUrl())
+                            .parentPhoto(newPhoto)
                             .build();
 
                     albumMap.get(id).addPhoto(copyPhoto);
