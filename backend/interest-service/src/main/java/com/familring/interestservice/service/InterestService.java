@@ -55,13 +55,13 @@ public class InterestService {
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
 
-        // 관심사
-        Interest interest = Interest
-                .builder()
-                .familyId(familyId)
-                .build();
-
-        interestRepository.save(interest);
+        // 그 가족의 최근 관심사 찾기
+        LocalDate today = LocalDate.now();
+        Interest interest = interestRepository
+                .findFirstByFamilyIdAndMissionEndDateAfterOrMissionEndDateIsNullOrderByIdDesc(familyId, today)
+                .orElseGet(() -> interestRepository.save(Interest.builder()
+                        .familyId(familyId)
+                        .build()));
 
         // 관심사 답변
         InterestAnswer interestAnswer = InterestAnswer
