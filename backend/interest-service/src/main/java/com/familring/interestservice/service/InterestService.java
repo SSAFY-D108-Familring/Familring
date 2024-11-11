@@ -314,7 +314,7 @@ public class InterestService {
     }
 
     // 관심사 체험 인증 목록 조회
-    public InterestMissionListResponse getInterestMissionList(Long userId) {
+    public List<InterestMissionResponse> getInterestMissionList(Long userId) {
 
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -327,7 +327,7 @@ public class InterestService {
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
         int count = 0;
-        List<InterestMissionItem> interestMissionItemList = new ArrayList<>();
+        List<InterestMissionResponse> interestMissionResponseList = new ArrayList<>();
         for (UserInfoResponse member : familyMembers) {
             // 관심사, 회원 번호 찾아서
             Optional<InterestMission> interestMission = interestMissionRepository.findByInterestAndUserId(interest, member.getUserId());
@@ -336,21 +336,17 @@ public class InterestService {
                 count++; // 있으면 count 올리기
 
                 // 이미지, 닉네임
-                InterestMissionItem interestMissionItem = InterestMissionItem
+                InterestMissionResponse interestMissionResponse = InterestMissionResponse
                         .builder()
                         .photoUrl(interestMission.get().getPhotoUrl())
                         .userNickname(member.getUserNickname())
                         .build();
 
-                interestMissionItemList.add(interestMissionItem);
+                interestMissionResponseList.add(interestMissionResponse);
             }
         }
 
-        return InterestMissionListResponse
-                .builder()
-                .items(interestMissionItemList)
-                .count(count)
-                .build();
+        return interestMissionResponseList;
     }
 
     // 관심사 전체 목록 조회
