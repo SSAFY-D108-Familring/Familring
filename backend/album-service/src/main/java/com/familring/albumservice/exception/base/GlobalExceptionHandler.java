@@ -47,7 +47,13 @@ public class GlobalExceptionHandler {
             errorResponse = objectMapper.readValue(errorJson, ErrorResponse.class);
         }
 
-        return ResponseEntity.status(ex.status()).body(errorResponse);
+        int status;
+        if (ex.status() == -1) {
+            status = 500;
+        } else {
+            status = ex.status();
+        }
+        return ResponseEntity.status(status).body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
