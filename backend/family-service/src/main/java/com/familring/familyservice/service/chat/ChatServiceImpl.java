@@ -3,20 +3,24 @@ package com.familring.familyservice.service.chat;
 import com.familring.familyservice.config.redis.RedisUtil;
 import com.familring.familyservice.exception.chat.AlreadyVoteParticipantException;
 import com.familring.familyservice.exception.chat.VoteNotFoundException;
+import com.familring.familyservice.exception.file.NoContentVoiceException;
 import com.familring.familyservice.model.dto.chat.MessageType;
 import com.familring.familyservice.model.dto.chat.Vote;
+import com.familring.familyservice.model.dto.request.FileUploadRequest;
 import com.familring.familyservice.model.dto.response.ChatResponse;
 import com.familring.familyservice.model.dto.chat.Chat;
 import com.familring.familyservice.model.dto.request.ChatRequest;
 import com.familring.familyservice.model.dto.response.UserInfoResponse;
 import com.familring.familyservice.model.repository.ChatRepository;
 import com.familring.familyservice.model.repository.VoteRepository;
+import com.familring.familyservice.service.client.FileServiceFeignClient;
 import com.familring.familyservice.service.client.UserServiceFeignClient;
 import com.familring.familyservice.service.family.FamilyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -28,7 +32,10 @@ import java.util.stream.Collectors;
 public class ChatServiceImpl implements ChatService {
 
     private final RedisUtil redisUtil;
+
     private final UserServiceFeignClient userServiceFeignClient;
+    private final FileServiceFeignClient fileServiceFeignClient;
+
     private final FamilyService familyService;
     private final ChatRoomService chatRoomService;
 
@@ -268,6 +275,34 @@ public class ChatServiceImpl implements ChatService {
                 .unReadMembers(unReadMembers) // 읽지 않은 사람 수 설정
                 .build();
         log.info("[findChat] 찾은 채팅: chatId={}, unReadMembers={}", chat.getChatId(), unReadMembers);
+
+        return response;
+    }
+
+    @Override
+    public String uploadVoiceFile(Long userId, FileUploadRequest fileUploadRequest, MultipartFile voice) {
+        // 음성 파일 처리
+        if(voice == null) {
+            log.debug("[uploadVoiceFile] 파일이 첨부되지 않은 경우 에러 처리");
+            throw new NoContentVoiceException();
+        }
+
+        // 음성 파일 저장
+        String folderPath = "chat-voice/" + fileUploadRequest.getRoomId() + "/" + userId; // chat-voice/roomId/userId
+        log.info("[uploadVoiceFile] S3 내 폴더 Path={}", folderPath);
+        String voiceUrl = uploadFiles(voice, folderPath).get(0);
+        log.info("[uploadVoiceFile] 업로드 된 파일 URL={}", voiceUrl);
+
+        return voiceUrl;
+    }
+    public List<String> uploadFiles(MultipartFile image, String folderPath) {
+        log.info("folderPath: {}", folderPath);
+
+        // List<MultipartFile>로 파일 리스트 구성
+        List<MultipartFile> voiceFiles = List.of(image);
+
+        // Feign Client로 파일 업로드 요청
+        List<String> response = fileServiceFeignClient.uploadFiles(voiceFiles, folderPath).getData();
 
         return response;
     }

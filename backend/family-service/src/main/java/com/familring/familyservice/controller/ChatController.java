@@ -1,21 +1,30 @@
 package com.familring.familyservice.controller;
 
+import com.familring.common_module.dto.BaseResponse;
+import com.familring.familyservice.model.dto.request.FileUploadRequest;
 import com.familring.familyservice.model.dto.response.ChatResponse;
 import com.familring.familyservice.model.dto.chat.Chat;
 import com.familring.familyservice.model.dto.request.ChatRequest;
 import com.familring.familyservice.service.chat.ChatService;
+import com.fasterxml.jackson.databind.ser.Serializers;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/chats")
+@RequestMapping("/family")
 @RequiredArgsConstructor
 @CrossOrigin("*")
+@Tag(name = "채팅 컨트롤러", description = "채팅 관련 기능 수행")
 @Log4j2
 public class ChatController {
 
@@ -71,5 +80,16 @@ public class ChatController {
             template.convertAndSend("/room/" + roomId, chatResponse);
             log.info("[participateInVote] 투표 결과 소켓 전송 완료.");
         }
+    }
+
+    @PostMapping(value = "/voice", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "음성 파일 업로드", description = "음성 파일을 S3에 저장한 후 url 반환")
+    public ResponseEntity<BaseResponse<String>> uploadVoiceFile
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @RequestPart("fileUploadRequest") FileUploadRequest fileUploadRequest,
+             @RequestPart(value = "voice", required = false) MultipartFile voice) {
+        String responseUrl = chatService.uploadVoiceFile(userId, fileUploadRequest, voice);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "음성 파일을 S3에 성공적으로 업로드했습니다.", responseUrl));
     }
 }

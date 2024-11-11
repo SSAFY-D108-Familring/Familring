@@ -4,9 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class JwtTokenResponse {
     @Schema(description = "토큰 권한 타입", example = "Bearer")
@@ -15,4 +17,6 @@ public class JwtTokenResponse {
     private String accessToken;
     @Schema(description = "JWT 리프레시 토큰", example = "dGhpcyBpcyByZWZyZXNoIHRva2Vu")
     private String refreshToken;
+    @Schema(description = "회원 고유번호", example = "1")
+    private Long userId;
 }

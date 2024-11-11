@@ -4,6 +4,7 @@ import com.familring.questionservice.domain.Question;
 import com.familring.questionservice.domain.QuestionAnswer;
 import com.familring.questionservice.domain.QuestionFamily;
 import com.familring.questionservice.dto.client.Family;
+import com.familring.questionservice.dto.client.FamilyStatusRequest;
 import com.familring.questionservice.dto.client.UserInfoResponse;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
@@ -52,7 +53,8 @@ public class QuestionService {
     }
 
     // 매일 9시에 자동으로 질문 생성
-    @Scheduled(cron = "0 0 9 * * ?")
+//    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 27 12 * * ?")
     public void scheduledCreateQuestion() {
         // 모든 가족 조회
         List<Long> allFamilyIds = familyServiceFeignClient.getAllFamilyId().getData();
@@ -82,10 +84,21 @@ public class QuestionService {
             questionFamilyRepository.save(questionFamily);
 
             // 모두 답변했을 때는 포인트 증가
-
+            FamilyStatusRequest familyStatusRequest = FamilyStatusRequest
+                    .builder()
+                    .familyId(familyId)
+                    .amount(10)
+                    .build();
+            familyServiceFeignClient.updateFamilyStatus(familyStatusRequest);
         } else {
-            // 모두 답변 안했을 때는 답변 안했던 인원수만큼 포인트 감소
-
+            // 모두 답변 안했을 때는 답변 안했던 인원수 만큼 포인트 감소
+            int cnt = count(familyId, currentQuestionId);
+            FamilyStatusRequest familyStatusRequest = FamilyStatusRequest
+                    .builder()
+                    .familyId(familyId)
+                    .amount(cnt * (-1))
+                    .build();
+            familyServiceFeignClient.updateFamilyStatus(familyStatusRequest);
         }
     }
 
@@ -103,6 +116,22 @@ public class QuestionService {
         }
 
         return true; // 모든 구성원이 답변을 완료함
+    }
+
+    private int count(Long familyId, Long questionFamilyId) {
+        int count = 0;
+        // 가족 구성원 조회
+        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberListByFamilyId(familyId).getData();
+
+        // 답변한 가족 구성원 인원 수
+        for (UserInfoResponse member : familyMembers) {
+            boolean hasAnswer = questionAnswerRepository.existsByQuestionFamilyIdAndUserId(questionFamilyId, member.getUserId());
+            if (hasAnswer) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     // 랜덤 질문 답변 작성

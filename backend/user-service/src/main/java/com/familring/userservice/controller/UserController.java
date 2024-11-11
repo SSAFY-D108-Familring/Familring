@@ -110,6 +110,16 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 프로필 배경색 변경에 성공했습니다."));
     }
 
+    @PatchMapping(value="/face", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "회원 얼굴 수정", description = "userId에 해당하는 얼굴 사진 수정")
+    public ResponseEntity<BaseResponse<Void>> updateUserFace
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @RequestPart(value = "image", required = false) MultipartFile image) {
+        userService.updateFace(userId, image);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원 얼굴 변경에 성공했습니다."));
+    }
+
     @DeleteMapping
     @Operation(summary = "회원 탈퇴", description = "Header의 토큰을 사용해 회원을 탈퇴 처리")
     public ResponseEntity<BaseResponse<Void>> deleteUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
