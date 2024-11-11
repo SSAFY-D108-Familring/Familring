@@ -1,16 +1,13 @@
 package com.familring.domain.model.chat
 
-import com.familring.domain.model.User
-import java.time.LocalDateTime
-
 data class Chat(
     val chatId: String,
     val roomId: Long,
     val messageType: String,
     val senderId: Long,
-    val sender: User,
+    val sender: ChatUser,
     val content: String,
-    val createdAt: LocalDateTime,
+    val createdAt: String,
     val vote: Vote? = null,
     val responseOfVote: String,
     val resultOfVote: Map<String, Int> = emptyMap(),
