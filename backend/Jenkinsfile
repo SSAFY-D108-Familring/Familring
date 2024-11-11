@@ -20,7 +20,7 @@ pipeline {
                     script {
                         dir('backend/config-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('config-service', 8888, true)
+                            buildAndRunContainer('config-service', 8888)
                         }
                     }
                 }
@@ -36,7 +36,7 @@ pipeline {
                     script {
                         dir('backend/discovery-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('discovery-service', 8761, true)
+                            buildAndRunContainer('discovery-service', 8761)
                         }
                     }
                 }
@@ -56,7 +56,7 @@ pipeline {
 
                         dir('backend/api-gateway') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance, newPort, true) // 새 인스턴스 배포
+                            buildAndRunContainer(newInstance, newPort) // 새 인스턴스 배포
                         }
 
                         // 다음 배포를 위해 activeInstance 변수를 업데이트
@@ -179,18 +179,12 @@ def stopAndRemoveContainer(containerName) {
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
-def buildAndRunContainer(serviceName, port, exposeToHost) {
+def buildAndRunContainer(serviceName, port) {
     stopAndRemoveContainer(serviceName)
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
-
-    // 호스트에 노출할지 여부에 따라 -p 옵션을 추가
-    if (exposeToHost) {
-        sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
-    } else {
-        sh "docker run --name ${serviceName} -d ${serviceName}"
-    }
+    sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
 }
 
 // 변경 사항 확인 함수
