@@ -23,6 +23,9 @@ pipeline {
                             buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
                         }
 
+                        // 새로운 인스턴스 실행 후 기존 인스턴스 삭제
+                        stopAndRemoveContainer(activeInstance)
+
                         // 다음 배포를 위해 activeInstance 변수를 업데이트
                         activeInstance = newInstance
                     }

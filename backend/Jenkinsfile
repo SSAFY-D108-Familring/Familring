@@ -41,9 +41,9 @@ pipeline {
         }
 
         stage('Build and Deploy API Gateway') {
-//             when {
-//                 changeset "backend/api-gateway/**"
-//             }
+            when {
+                changeset "backend/api-gateway/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
                     script {
