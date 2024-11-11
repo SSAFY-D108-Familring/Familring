@@ -398,7 +398,7 @@ fun GalleryItem(
                         }
                     },
                 )
-                Spacer(modifier = Modifier.fillMaxSize(0.02f))
+                Spacer(modifier = Modifier.fillMaxSize(0.03f))
                 RoundLongButton(
                     backgroundColor = Red01,
                     text = "삭제하기",
@@ -407,7 +407,7 @@ fun GalleryItem(
                         showDialog = false
                     },
                 )
-                Spacer(modifier = Modifier.fillMaxSize(0.1f))
+                Spacer(modifier = Modifier.fillMaxSize(0.08f))
             }
         }
     }
