@@ -1,6 +1,3 @@
-from concurrent.futures import ThreadPoolExecutor
-import asyncio
-from functools import partial
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -131,23 +128,6 @@ class SimilarityResponse(BaseModel):
 class CountResponse(BaseModel):
     faceCount: int = Field(..., alias="faceCount")
 
-async def load_people_encodings(people):
-    """여러 인물의 얼굴 인코딩을 병렬로 처리"""
-    def load_single_person(person):
-        img = load_image_from_url(person.photoUrl)
-        encodings = get_face_encodings(img)
-        return person.id, encodings[0] if encodings and len(encodings) > 0 else None
-
-    tasks = []
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        loop = asyncio.get_event_loop()
-        for person in people:
-            task = loop.run_in_executor(executor, load_single_person, person)
-            tasks.append(task)
-        
-        results = await asyncio.gather(*tasks)
-        return {person_id: encoding for person_id, encoding in results if encoding is not None}
-
 def fix_image_rotation(image):
     """
     EXIF 정보를 기반으로 이미지 회전을 보정합니다.
@@ -191,48 +171,6 @@ def fix_image_rotation(image):
     except Exception as e:
         logger.error(f"이미지 회전 보정 실패: {str(e)}")
         return np.array(image)
-
-async def process_target_image(target_url, people_encodings):
-    """단일 타겟 이미지 처리"""
-    def process_single_image(url, encodings):
-        target_img = load_image_from_url(url)
-        target_encodings = get_face_encodings(target_img)
-        
-        face_count = len(target_encodings) if target_encodings else 0
-        max_similarities = {person_id: 0.0 for person_id in encodings.keys()}
-        
-        if target_encodings:
-            for target_encoding in target_encodings:
-                for person_id, person_encoding in encodings.items():
-                    if person_encoding is not None:
-                        similarity = face_recognition.face_distance([person_encoding], target_encoding)[0]
-                        similarity = max(0, 1 - similarity)
-                        max_similarities[person_id] = max(
-                            max_similarities[person_id],
-                            float(similarity)
-                        )
-        
-        return SimilarityResponse(
-            imageUrl=url,
-            similarities=max_similarities,
-            faceCount=face_count
-        )
-    
-    loop = asyncio.get_event_loop()
-    with ThreadPoolExecutor() as executor:
-        result = await loop.run_in_executor(
-            executor,
-            process_single_image,
-            target_url,
-            people_encodings
-        )
-    return result
-    
-    return SimilarityResponse(
-        imageUrl=target_url,
-        similarities=max_similarities,
-        faceCount=face_count
-    )
 
 def preprocess_image(image):
     """
@@ -336,37 +274,72 @@ def get_face_encodings(image):
         logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
         return None
 
+# classification
 @app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
 async def classify_images(request: AnalysisRequest):
-    """여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 병렬로 분석"""
+    """
+    여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
+    """
     try:
-        # 1. 병렬로 인물 인코딩 처리
-        logger.info("인물 인코딩 시작")
-        people_encodings = await load_people_encodings(request.people)
-        logger.info(f"인물 인코딩 완료: {len(people_encodings)}명")
+        # 기존 로직 유지
+        people_encodings = {}
+        for person in request.people:
+            img = load_image_from_url(person.photoUrl)
+            encodings = get_face_encodings(img)
+            if encodings and len(encodings) > 0:
+                people_encodings[person.id] = encodings[0]
+                logger.info(f"사람 등록 성공: {person.id}")
+            else:
+                logger.warning(f"얼굴 감지 실패: {person.id} - 유사도 0으로 처리됩니다")
+                people_encodings[person.id] = None
+
+        results = []
         
-        # 2. 타겟 이미지 병렬 처리
-        logger.info("타겟 이미지 처리 시작")
-        tasks = []
         for target_url in request.targetImages:
-            task = process_target_image(target_url, people_encodings)
-            tasks.append(task)
+            # 기존 로직 유지
+            target_img = load_image_from_url(target_url)
+            target_encodings = get_face_encodings(target_img)
+            
+            face_count = len(target_encodings) if target_encodings else 0
+            max_similarities = {person_id: 0.0 for person_id in people_encodings.keys()}
+            
+            if target_encodings:
+                for target_encoding in target_encodings:
+                    for person_id, person_encoding in people_encodings.items():
+                        if person_encoding is not None:
+                            similarity = face_recognition.face_distance([person_encoding], target_encoding)[0]
+                            similarity = max(0, 1 - similarity)
+                            max_similarities[person_id] = max(
+                                max_similarities[person_id],
+                                float(similarity)
+                            )
+            
+            results.append(SimilarityResponse(
+                imageUrl=target_url,
+                similarities=max_similarities,
+                faceCount=face_count
+            ))
         
-        results = await asyncio.gather(*tasks)
-        logger.info(f"타겟 이미지 처리 완료: {len(results)}개")
-        
-        return BaseResponse.create(
+        response = BaseResponse.create(
             status_code=200,
             message="얼굴 유사도 분석이 완료되었습니다.",
             data=results
         )
         
+        # 응답 로깅 추가
+        logger.info(f"Classification API 응답: {response.model_dump_json(exclude_none=True)}")
+        
+        return response
     except Exception as e:
-        logger.error(f"Classification API 에러: {str(e)}")
-        return BaseResponse.create(
+        error_response = BaseResponse.create(
             status_code=500,
             message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
         )
+        
+        # 에러 응답 로깅 추가
+        logger.error(f"Classification API 에러 응답: {error_response.model_dump_json(exclude_none=True)}")
+        
+        return error_response
 
 @app.post("/face-recognition/face-count", response_model=BaseResponse[CountResponse])
 async def count_faces(file: UploadFile = File(...)):
@@ -394,18 +367,14 @@ async def count_faces(file: UploadFile = File(...)):
                 message="파일 크기가 너무 큽니다. 최대 20MB까지 허용됩니다."
             )
 
-        # 이미지 처리를 별도 스레드에서 실행
-        loop = asyncio.get_event_loop()
-        with ThreadPoolExecutor() as executor:
-            img = await loop.run_in_executor(executor, load_image_from_bytes, file_content)
-            if img is None:
-                return BaseResponse.create(
-                    status_code=400,
-                    message="이미지를 처리할 수 없습니다."
-                )
-            
-            face_encodings = await loop.run_in_executor(executor, get_face_encodings, img)
+        img = load_image_from_bytes(file_content)
+        if img is None:
+            return BaseResponse.create(
+                status_code=400,
+                message="이미지를 처리할 수 없습니다."
+            )
         
+        face_encodings = get_face_encodings(img)
         face_count = len(face_encodings) if face_encodings else 0
         
         return BaseResponse.create(
