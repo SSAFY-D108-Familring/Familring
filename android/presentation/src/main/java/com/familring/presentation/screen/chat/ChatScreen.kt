@@ -65,8 +65,8 @@ import com.familring.presentation.theme.Green05
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
-import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.launch
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun ChatRoute(
@@ -151,7 +151,7 @@ fun ChatScreen(
                     if (item.senderId == userId) {
                         MyMessage(
                             message = item.content,
-                            time = item.createdAt.toTimeOnly(),
+                            time = item.createdAt.format(DateTimeFormatter.ofPattern("HH:mm")),
                             unReadMembers = item.unReadMembers.toString(),
                         )
                     } else {
@@ -160,7 +160,7 @@ fun ChatScreen(
                             profileImg = item.sender.userZodiacSign,
                             color = item.sender.userColor,
                             message = item.content,
-                            time = item.createdAt.toTimeOnly(),
+                            time = item.createdAt.format(DateTimeFormatter.ofPattern("HH:mm")),
                             unReadMembers = item.unReadMembers.toString(),
                         )
                     }

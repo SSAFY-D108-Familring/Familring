@@ -28,6 +28,7 @@ import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
 import org.hildan.krossbow.stomp.frame.StompFrame
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,6 +45,8 @@ class ChatViewModel
         private val moshi: Moshi =
             Moshi
                 .Builder()
+                .add(LocalDateAdapter())
+                .add(LocalDateTimeAdapter())
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
 
@@ -88,6 +91,7 @@ class ChatViewModel
                         }
 
                         is ApiResponse.Error -> {
+                            Timber.d("너니")
                             _event.emit(ChatUiEvent.Error(response.code, response.message))
                         }
                     }
@@ -136,8 +140,8 @@ class ChatViewModel
                         when (val state = _state.value) {
                             is ChatUiState.Success -> {
                                 if (chatMessage != null) {
-//                                    chatList = state.chatList + chatMessage
-//                                    _state.value = state.copy(chatList = chatList)
+                                    chatList = state.chatList + chatMessage
+                                    _state.value = state.copy(chatList = chatList)
                                 }
                             }
 
