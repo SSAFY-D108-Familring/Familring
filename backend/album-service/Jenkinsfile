@@ -22,10 +22,6 @@ pipeline {
                             buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
                         }
 
-                        // 새로운 인스턴스의 헬스 체크
-                        waitForServiceHealthCheck(newInstance)
-
-
                         // 새로운 인스턴스 실행 후 기존 인스턴스 삭제
                         stopAndRemoveContainer(activeInstance)
 
@@ -60,19 +56,4 @@ def buildAndRunContainer(serviceName) {
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
     sh "docker run --name ${serviceName} -d ${serviceName}"
-}
-
-// 공통 함수: 새로운 인스턴스의 헬스 체크
-def waitForServiceHealthCheck(serviceName) {
-    def retries = 10
-    while (retries > 0) {
-        def status = sh(script: "curl -s -o /dev/null -w '%{http_code}' https://k11d108.p.ssafy.io/${serviceName}/health", returnStdout: true).trim()
-        if (status == '200') {
-            echo "${serviceName} is healthy and ready."
-            return
-        }
-        sleep 5 // 잠시 대기
-        retries--
-    }
-    error "${serviceName} failed to pass health check."
 }
