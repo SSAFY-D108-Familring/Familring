@@ -39,6 +39,9 @@ public interface UserService {
     // 회원 프로필 배경색 변경
     void updateUserColor(Long userId, String userColor);
 
+    // 회원 얼굴 변경
+    void updateFace(Long userId, MultipartFile image);
+
     // 회원 탈퇴
     void deleteUser(Long userId);
 }
