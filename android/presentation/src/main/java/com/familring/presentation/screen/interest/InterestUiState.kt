@@ -6,4 +6,6 @@ data class InterestUiState(
     val interest: String = "",
     val isUploadMission: Boolean = false,
     val isFamilyWrote: Boolean = false,
+    val wroteFamilyCount: Int = 0,
+    val selectedInterest: String = "",
 )
