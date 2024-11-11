@@ -55,5 +55,5 @@ def buildAndRunContainer(serviceName) {
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
-    sh "docker run --network host --name ${serviceName} -d ${serviceName}"
+    sh "docker run --name ${serviceName} -d ${serviceName}"
 }
