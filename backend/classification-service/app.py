@@ -201,7 +201,7 @@ def get_face_encodings(image):
         face_locations = face_recognition.face_locations(
             image,
             model="hog",
-            number_of_times_to_upsample=1  # 처리 속도를 위해 1 유지
+            number_of_times_to_upsample=2
         )
         
         if not face_locations:
@@ -319,6 +319,7 @@ async def count_faces(file: UploadFile = File(...)):
                 status_code=400,
                 message="파일 크기가 너무 큽니다. 최대 10MB까지 허용됩니다."
             )
+
         img = load_image_from_bytes(file_content)
         if img is None:
             return BaseResponse.create(
