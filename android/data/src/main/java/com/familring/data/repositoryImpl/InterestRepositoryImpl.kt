@@ -3,7 +3,7 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.InterestApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
-import com.familring.domain.model.Profile
+import com.familring.domain.model.interest.AnswerStatus
 import com.familring.domain.model.interest.InterestCard
 import com.familring.domain.model.interest.InterestPage
 import com.familring.domain.model.interest.Mission
@@ -41,7 +41,7 @@ class InterestRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun getInterestDetail(interestId: Long): Flow<ApiResponse<List<Profile>>> =
+        override suspend fun getInterestDetail(interestId: Long): Flow<ApiResponse<List<Mission>>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
@@ -61,21 +61,11 @@ class InterestRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun getMyAnswer(): Flow<ApiResponse<String>> =
+        override suspend fun updateAnswer(content: String): Flow<ApiResponse<Unit>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { interestApi.getMyAnswer() },
-                        default = "",
-                    )
-                emit(apiResponse)
-            }
-
-        override suspend fun updateAnswer(interestId: Long): Flow<ApiResponse<Unit>> =
-            flow {
-                val apiResponse =
-                    emitApiResponse(
-                        apiResponse = { interestApi.updateAnswer(interestId) },
+                        apiResponse = { interestApi.updateAnswer(AnswerRequest(content)) },
                         default = Unit,
                     )
                 emit(apiResponse)
@@ -91,12 +81,12 @@ class InterestRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun getAnswerStatus(): Flow<ApiResponse<Boolean>> =
+        override suspend fun getAnswerStatus(): Flow<ApiResponse<AnswerStatus>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
                         apiResponse = { interestApi.getAnswerStatus() },
-                        default = false,
+                        default = AnswerStatus(),
                     )
                 emit(apiResponse)
             }

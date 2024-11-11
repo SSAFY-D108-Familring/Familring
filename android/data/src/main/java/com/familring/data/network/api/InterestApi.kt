@@ -1,7 +1,7 @@
 package com.familring.data.network.api
 
 import com.familring.data.network.response.BaseResponse
-import com.familring.domain.model.Profile
+import com.familring.domain.model.interest.AnswerStatus
 import com.familring.domain.model.interest.InterestCard
 import com.familring.domain.model.interest.InterestPage
 import com.familring.domain.model.interest.Mission
@@ -30,26 +30,23 @@ interface InterestApi {
     @GET("interests/{interest-id}")
     suspend fun getInterestDetail(
         @Path("interest-id") interestId: Long,
-    ): BaseResponse<List<Profile>>
+    ): BaseResponse<List<Mission>>
 
     @POST("interests/answers")
     suspend fun createAnswer(
         @Body answer: AnswerRequest,
     ): BaseResponse<Unit>
 
-    @GET("interests/answers/mine")
-    suspend fun getMyAnswer(): BaseResponse<String>
-
-    @PATCH("interests/answers/{interest-id}")
+    @PATCH("interests/answers")
     suspend fun updateAnswer(
-        @Path("interest-id") interestId: Long,
+        @Body answer: AnswerRequest,
     ): BaseResponse<Unit>
 
     @GET("interests/answers")
     suspend fun getAnswers(): BaseResponse<List<InterestCard>>
 
     @GET("interests/answers/status")
-    suspend fun getAnswerStatus(): BaseResponse<Boolean>
+    suspend fun getAnswerStatus(): BaseResponse<AnswerStatus>
 
     @GET("interests/answers/selected")
     suspend fun getSelectedAnswer(): BaseResponse<SelectedInterest>

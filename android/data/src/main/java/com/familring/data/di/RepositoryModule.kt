@@ -4,6 +4,7 @@ import com.familring.data.repositoryImpl.AuthRepositoryImpl
 import com.familring.data.repositoryImpl.DailyRepositoryImpl
 import com.familring.data.repositoryImpl.FamilyRepositoryImpl
 import com.familring.data.repositoryImpl.GalleryRepositoryImpl
+import com.familring.data.repositoryImpl.InterestRepositoryImpl
 import com.familring.data.repositoryImpl.QuestionRepositoryImpl
 import com.familring.data.repositoryImpl.ScheduleRepositoryImpl
 import com.familring.data.repositoryImpl.TimeCapsuleRepositoryImpl
@@ -60,5 +61,5 @@ interface RepositoryModule {
 
     @Binds
     @Singleton
-    fun bindInterestRepository(interestRepository: InterestRepository): InterestRepository
+    fun bindInterestRepository(interestRepositoryImpl: InterestRepositoryImpl): InterestRepository
 }

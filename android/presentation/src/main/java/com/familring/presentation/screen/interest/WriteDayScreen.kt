@@ -41,14 +41,15 @@ import com.familring.presentation.util.noRippleClickable
 @Composable
 fun WriteDayScreen(
     modifier: Modifier = Modifier,
-    isWrote: Boolean = false,
+    isWroteInterest: Boolean = false,
     interest: String = "",
+    isFamilyWrote: Boolean = false,
     writeInterest: (String) -> Unit = {},
     editInterest: (String) -> Unit = {},
     navigateToOtherInterest: () -> Unit = {},
 ) {
     var interestKeyword by remember { mutableStateOf(interest) }
-    var canEdit by remember { mutableStateOf(!isWrote) }
+    var canEdit by remember { mutableStateOf(!isWroteInterest) }
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
@@ -121,7 +122,7 @@ fun WriteDayScreen(
                 enabled = canEdit,
                 onDone = {
                     if (interestKeyword.isNotEmpty()) {
-                        if (isWrote) {
+                        if (isWroteInterest) {
                             editInterest(interestKeyword) // 관심사 수정
                         } else {
                             writeInterest(interestKeyword)
@@ -130,7 +131,7 @@ fun WriteDayScreen(
                     }
                 },
             )
-            if (!isWrote) {
+            if (!isWroteInterest) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.interest_ten_word),
@@ -153,9 +154,10 @@ fun WriteDayScreen(
             Spacer(modifier = Modifier.weight(1f))
             RoundLongButton(
                 text = "다른 가족이 작성한 관심사 확인하기",
-                onClick = navigateToOtherInterest
+                onClick = navigateToOtherInterest,
+                enabled = isFamilyWrote,
             )
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

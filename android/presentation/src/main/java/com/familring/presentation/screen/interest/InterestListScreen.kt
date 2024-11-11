@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Icon
@@ -32,7 +31,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.model.interest.InterestCard
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import com.familring.domain.model.interest.Mission
+import com.familring.domain.model.interest.SelectedInterest
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black
@@ -46,49 +50,30 @@ import com.familring.presentation.util.noRippleClickable
 fun InterestListRoute(
     modifier: Modifier,
     popUpBackStack: () -> Unit,
+    interestListViewModel: InterestListViewModel = hiltViewModel(),
 ) {
+    val uiState by interestListViewModel.uiState.collectAsStateWithLifecycle()
+    val selectedInterests =
+        interestListViewModel.getSelectInterestsPagination().collectAsLazyPagingItems()
+
     InterestListScreen(
         modifier = modifier,
+        detailInterests = uiState.detailInterests,
+        interestList = selectedInterests,
+        getInterestDetails = interestListViewModel::getInterestDetails,
         popUpBackStack = popUpBackStack,
-        interestList =
-            listOf(
-                InterestCard(
-                    profileImage = R.drawable.img_smile_face,
-                    nickname = "나갱이",
-                    interest = "엘지트윈스",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_interest_heart,
-                    nickname = "현지니",
-                    interest = "지드래곤",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_no_share_face,
-                    nickname = "승주니",
-                    interest = "네코타츠나",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_wrapped_gift,
-                    nickname = "엄망이",
-                    interest = "필라테스",
-                ),
-                InterestCard(
-                    profileImage = R.drawable.img_worried_face,
-                    nickname = "아빵이",
-                    interest = "헬스",
-                ),
-            ),
     )
 }
 
 @Composable
 fun InterestListScreen(
     modifier: Modifier = Modifier,
+    detailInterests: List<Mission> = listOf(),
+    interestList: LazyPagingItems<SelectedInterest>,
+    getInterestDetails: (Long) -> Unit = {},
+    clickItem: (Long) -> Unit = {},
     popUpBackStack: () -> Unit,
-    interestList: List<InterestCard> = listOf(),
-    clickItem: (Int) -> Unit = {},
 ) {
-    val state = rememberLazyListState()
     var showDialog by remember { mutableStateOf(false) }
 
     Surface(
@@ -118,36 +103,25 @@ fun InterestListScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             LazyColumn(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                state = state,
-                reverseLayout = true,
                 verticalArrangement = Arrangement.spacedBy(25.dp),
             ) {
-                items(interestList.size) { index ->
+                items(interestList.itemCount) { index ->
                     val item = interestList[index]
-
-                    InterestListItem(
-                        index = index + 1,
-                        nickname = item.nickname,
-                        interest = item.interest,
-                        clickItem = { index ->
-                            // index 갖고 데이터 불러오기
-                            showDialog = true
-                        },
-                    )
+                    if (item != null) {
+                        InterestListItem(
+                            selectedInterest = item,
+                            clickItem = { interestId ->
+                                getInterestDetails(interestId)
+                                showDialog = true
+                            },
+                        )
+                    }
                 }
             }
         }
 
         if (showDialog) {
-            val data =
-                listOf(
-                    R.drawable.sample_img to "나갱이의 인증샷",
-                    R.drawable.sample_img to "승주니의 인증샷",
-                    R.drawable.sample_img to "현지니의 인증샷",
-                    R.drawable.sample_img to "엄마미의 인증샷",
-                    R.drawable.sample_img to "아빵이의 인증샷",
-                )
-            val pagerState = rememberPagerState(pageCount = { data.size })
+            val pagerState = rememberPagerState(pageCount = { detailInterests.size })
 
             Box(
                 modifier =
@@ -174,8 +148,9 @@ fun InterestListScreen(
                         contentPadding = PaddingValues(horizontal = 35.dp),
                     ) { page ->
                         SharePagerItem(
-                            imageUri = data[page].first,
-                            username = data[page].second,
+                            imgUrl = detailInterests[page].missionImgUrl,
+                            username = detailInterests[page].userNickname,
+                            zodiacImg = detailInterests[page].profileImgUrl,
                         )
                     }
                     Spacer(modifier = Modifier.height(18.dp))
@@ -193,10 +168,8 @@ fun InterestListScreen(
 @Composable
 fun InterestListItem(
     modifier: Modifier = Modifier,
-    index: Int = 0,
-    nickname: String = "",
-    interest: String = "",
-    clickItem: (Int) -> Unit = {},
+    selectedInterest: SelectedInterest = SelectedInterest(),
+    clickItem: (Long) -> Unit = {},
 ) {
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -210,7 +183,7 @@ fun InterestListItem(
                 modifier = Modifier.wrapContentSize(),
             ) {
                 Text(
-                    text = "${index}번째 관심사",
+                    text = "${selectedInterest.index}번째 관심사",
                     style = Typography.displaySmall,
                     color = Gray01,
                 )
@@ -220,13 +193,13 @@ fun InterestListItem(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "${nickname}의",
+                        text = "${selectedInterest.userNickname}의",
                         style = Typography.bodyLarge.copy(fontSize = 22.sp),
                         color = Black,
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = interest,
+                        text = selectedInterest.interest,
                         style = Typography.titleSmall,
                         color = Green02,
                     )
@@ -237,7 +210,7 @@ fun InterestListItem(
                     Modifier
                         .wrapContentSize()
                         .noRippleClickable {
-                            clickItem(index) // 여기에 이제 관심사 id
+                            clickItem(selectedInterest.interestId) // 여기에 이제 관심사 id
                         },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
