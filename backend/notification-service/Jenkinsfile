@@ -5,6 +5,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+                sh 'pwd'  // 현재 경로 확인
+                sh 'ls -al'  // 파일 목록 확인
             }
         }
         stage('Build and Deploy Notification Service') {
