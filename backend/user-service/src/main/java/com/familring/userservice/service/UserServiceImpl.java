@@ -114,6 +114,8 @@ public class UserServiceImpl implements UserService {
 
         // 2-2. 회원이 있는 경우 -> JWT 발급
         JwtTokenResponse tokens = tokenService.generateToken(user.getUserKakaoId(), "");
+        tokens.setUserId(user.getUserId());
+        log.info("[login] userId={}", user.getUserId());
 
         return tokens;
     }
@@ -131,6 +133,16 @@ public class UserServiceImpl implements UserService {
 
         // 3. 사용자 JWT 발급
         JwtTokenResponse tokens = tokenService.generateToken(userJoinRequest.getUserKakaoId(), "");
+
+        // 4. 사용자 조회
+        UserDto user = userDao.findUserByUserKakaoId(userJoinRequest.getUserKakaoId())
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserKakaoId(" + userJoinRequest.getUserKakaoId() + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+
+        tokens.setUserId(user.getUserId());
+        log.info("[join] userId={}", user.getUserId());
 
         return tokens;
     }
