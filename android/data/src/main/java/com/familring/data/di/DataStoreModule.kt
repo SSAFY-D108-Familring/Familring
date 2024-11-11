@@ -8,8 +8,8 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.familring.data.R
 import com.familring.data.datastoreImpl.AuthDataStoreImpl
 import com.familring.data.datastoreImpl.TokenDataStoreImpl
-import com.familring.domain.datasource.AuthDataStore
-import com.familring.domain.datasource.TokenDataStore
+import com.familring.domain.datastore.AuthDataStore
+import com.familring.domain.datastore.TokenDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

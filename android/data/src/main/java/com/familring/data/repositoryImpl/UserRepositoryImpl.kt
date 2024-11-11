@@ -2,8 +2,8 @@ package com.familring.data.repositoryImpl
 
 import com.familring.data.network.api.UserApi
 import com.familring.data.network.response.emitApiResponse
-import com.familring.domain.datasource.AuthDataStore
-import com.familring.domain.datasource.TokenDataStore
+import com.familring.domain.datastore.AuthDataStore
+import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.JwtToken
 import com.familring.domain.model.User
@@ -37,7 +37,15 @@ class UserRepositoryImpl
                     )
                 if (response is ApiResponse.Success) {
                     tokenDataStore.saveJwtToken(
-                        jwtToken = response.data,
+                        jwtToken =
+                            JwtToken(
+                                grantType = response.data.grantType,
+                                accessToken = response.data.accessToken,
+                                refreshToken = response.data.refreshToken,
+                            ),
+                    )
+                    authDataSource.saveUserId(
+                        userId = response.data.userId,
                     )
                 }
                 emit(response)
@@ -62,7 +70,17 @@ class UserRepositoryImpl
                         default = JwtToken(),
                     )
                 if (response is ApiResponse.Success) {
-                    tokenDataStore.saveJwtToken(response.data)
+                    tokenDataStore.saveJwtToken(
+                        jwtToken =
+                            JwtToken(
+                                grantType = response.data.grantType,
+                                accessToken = response.data.accessToken,
+                                refreshToken = response.data.refreshToken,
+                            ),
+                    )
+                    authDataSource.saveUserId(
+                        userId = response.data.userId,
+                    )
                     authDataSource.saveKakaoId(request.userKakaoId)
                 }
                 emit(response)
@@ -83,6 +101,7 @@ class UserRepositoryImpl
                     authDataSource.saveFace(response.data.userFace)
                     authDataSource.saveColor(response.data.userColor)
                     authDataSource.saveEmotion(response.data.userEmotion)
+                    authDataSource.saveUserId(response.data.userId)
                 }
                 emit(response)
             }

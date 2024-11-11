@@ -1,6 +1,6 @@
 package com.familring.data.network.interceptor
 
-import com.familring.domain.datasource.TokenDataStore
+import com.familring.domain.datastore.TokenDataStore
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response

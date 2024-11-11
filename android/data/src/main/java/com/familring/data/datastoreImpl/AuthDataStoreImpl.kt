@@ -4,7 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.familring.domain.datasource.AuthDataStore
+import com.familring.domain.datastore.AuthDataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -124,7 +124,34 @@ class AuthDataStoreImpl
                     prefs[EMOTION_KEY]
                 }.first()
 
+        override suspend fun saveUserId(userId: Long) {
+            dataStore.edit { prefs ->
+                prefs[USER_ID_KEY] = userId.toString()
+            }
+        }
+
+        override suspend fun getUserId(): Long? =
+            dataStore.data
+                .map { prefs ->
+                    prefs[USER_ID_KEY]
+                }.first()
+                ?.toLong()
+
+        override suspend fun saveFamilyId(familyId: Long) {
+            dataStore.edit { prefs ->
+                prefs[FAMILY_ID_KEY] = familyId.toString()
+            }
+        }
+
+        override suspend fun getFamilyId(): Long? =
+            dataStore.data
+                .map { prefs ->
+                    prefs[FAMILY_ID_KEY]
+                }.first()
+                ?.toLong()
+
         companion object {
+            val USER_ID_KEY = stringPreferencesKey("user_id_key")
             val KAKAO_ID_KEY = stringPreferencesKey("kakao_id_key")
             val NICKNAME_KEY = stringPreferencesKey("nickname_key")
             val BIRTH_DATE_KEY = stringPreferencesKey("birth_date_key")
@@ -133,5 +160,6 @@ class AuthDataStoreImpl
             val FACE_KEY = stringPreferencesKey("face_key")
             val COLOR_KEY = stringPreferencesKey("color_key")
             val EMOTION_KEY = stringPreferencesKey("emotion_key")
+            val FAMILY_ID_KEY = stringPreferencesKey("family_id_key")
         }
     }

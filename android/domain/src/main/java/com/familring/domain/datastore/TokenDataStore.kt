@@ -1,4 +1,4 @@
-package com.familring.domain.datasource
+package com.familring.domain.datastore
 
 import com.familring.domain.model.JwtToken
 
