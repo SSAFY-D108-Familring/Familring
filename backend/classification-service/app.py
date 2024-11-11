@@ -30,8 +30,9 @@ SERVER_HOST = os.getenv('SERVER_HOST','0.0.0.0')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
 SERVER_PORT = int(os.getenv('SERVER_PORT'))
 
-# 스레드 풀 생성
-THREAD_POOL = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+# CPU 코어 수에 기반한 스레드 풀 최적화
+CPU_COUNT = os.cpu_count() or 4
+THREAD_POOL = concurrent.futures.ThreadPoolExecutor(max_workers=CPU_COUNT * 2)
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
