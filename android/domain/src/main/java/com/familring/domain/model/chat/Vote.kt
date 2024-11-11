@@ -9,8 +9,8 @@ data class Vote(
     val familyCount: Int,
     val isCompleted: Boolean,
     val createdAt: LocalDateTime,
-    val voteResult: ResultOfVote,
-    val choices: ResultOfVote,
+    val voteResult: Map<String, Int>,
+    val choices: Map<String, Int>,
     val roomId: Long,
     val senderId: Long,
 )
