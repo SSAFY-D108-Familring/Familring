@@ -201,7 +201,7 @@ def get_face_encodings(image):
         face_locations = face_recognition.face_locations(
             image,
             model="hog",
-            number_of_times_to_upsample=2
+            number_of_times_to_upsample=1
         )
         
         if not face_locations:
