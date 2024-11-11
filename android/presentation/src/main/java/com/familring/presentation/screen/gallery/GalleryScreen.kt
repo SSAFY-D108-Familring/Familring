@@ -368,6 +368,7 @@ fun GalleryItem(
                             .padding(horizontal = 26.dp),
                     value = updatedAlbumName,
                     onValueChange = { updatedAlbumName = it },
+                    // 처음엔 그레이 색..?
                     textStyle =
                         Typography.titleSmall.copy(
                             color = if (updatedAlbumName.isEmpty()) Gray03 else Color.Black,
