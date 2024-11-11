@@ -10,9 +10,12 @@
 <body>
 <h2>WebSocket Chat</h2>
 <div>
+    <button onclick="connect()">연결</button>
+    <button onclick="disconnect()">나가기</button>
+    <br>
     <input type="text" id="userId" placeholder="User ID">
     <input type="text" id="roomId" placeholder="Room ID">
-    <input type="text" id="message" placeholder="Message">
+    <br>
     <div>
         <label>
             <input type="radio" name="messageType" value="MESSAGE" checked onclick="toggleVoteOptions()"> 일반 메시지
@@ -21,12 +24,12 @@
             <input type="radio" name="messageType" value="VOTE" onclick="toggleVoteOptions()"> 투표 메시지
         </label>
     </div>
+    <input type="text" id="message" placeholder="Message">
+    <button onclick="sendMessage()">보내기</button>
     <input type="text" id="voteTitle" placeholder="투표 제목" style="display: none;">
-    <button onclick="connect()">Connect</button>
-    <button onclick="sendMessage()">Send</button>
 </div>
 <div id="chat-log"></div>
-<button onclick="loadMoreMessages()">Load More Messages</button>
+<button onclick="loadMoreMessages()">더보기</button>
 
 <script>
     let stompClient = null;
@@ -80,6 +83,18 @@
                 console.log("WebSocket connected and subscribed to /room/" + roomId);
             }
         );
+    }
+
+    function disconnect() {
+        if (stompClient && stompClient.connected) {
+            stompClient.disconnect(() => {
+                console.log("Disconnected from WebSocket");
+                isConnected = false;
+                alert("채팅방에서 나갔습니다.");
+            });
+        } else {
+            alert("WebSocket에 연결되어 있지 않습니다.");
+        }
     }
 
     function displayExitMessage(message) {

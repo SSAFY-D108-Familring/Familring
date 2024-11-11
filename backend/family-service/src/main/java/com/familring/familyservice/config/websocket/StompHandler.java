@@ -67,6 +67,7 @@ public class StompHandler implements ChannelInterceptor {
 
                 if (destination.equals("/room/" + connectRoomId)) {
                     Long roomId = connectToChatRoom(headers, userId);
+                    accessor.getSessionAttributes().put("roomId", roomId); // roomId를 세션에 저장
                     log.info("[handleMessage] 구독한 채팅 방 = {}", roomId);
                     log.info("[handleMessage] SUBSCRIBE 시 읽음 처리 완료 for userId={} in roomId={}", userId, roomId);
                 } else {
@@ -90,18 +91,15 @@ public class StompHandler implements ChannelInterceptor {
             case DISCONNECT:
                 log.info("[handleMessage] DISCONNECT");
                 userId = (Long) accessor.getSessionAttributes().get("userId");
-                if (userId != null) {
-                    Long disconnectRoomId = getChatRoomNo(headers);
-                    if (disconnectRoomId != null) {
-                        log.info("[handleMessage] userId={}가 roomId={}에서 퇴장합니다.", userId, disconnectRoomId);
+                Long roomId = (Long) accessor.getSessionAttributes().get("roomId"); // roomId를 세션에서 가져옴
 
-                        // Redis에서 채팅방 인원 수 감소 처리
-                        disconnectChatRoom(disconnectRoomId, userId);
-                    } else {
-                        log.warn("[handleMessage] 퇴장하려는 채팅방 번호가 유효하지 않습니다.");
-                    }
+                if (userId != null && roomId != null) {
+                    log.info("[handleMessage] userId={}가 roomId={}에서 퇴장합니다.", userId, roomId);
+
+                    // Redis에서 채팅방 인원 수 감소 처리
+                    disconnectChatRoom(roomId, userId);
                 } else {
-                    log.warn("[handleMessage] 세션에 userId가 없습니다.");
+                    log.warn("[handleMessage] 세션에 userId 또는 roomId가 없습니다.");
                 }
                 break;
         }
