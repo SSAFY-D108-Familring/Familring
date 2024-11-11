@@ -187,7 +187,7 @@ def get_face_encodings(image):
     try:
         # 이미지 크기 조정
         height, width = image.shape[:2]
-        max_dimension = 2000  # 1500에서 2000으로 증가
+        max_dimension = 4032  # 1500에서 2000으로 증가
         logger.info(f"원본 이미지 크기: {width}x{height}")
         
         if max(height, width) > max_dimension:
