@@ -3,6 +3,7 @@ package com.familring.timecapsuleservice.service;
 import com.familring.timecapsuleservice.domain.TimeCapsule;
 import com.familring.timecapsuleservice.domain.TimeCapsuleAnswer;
 import com.familring.timecapsuleservice.dto.client.Family;
+import com.familring.timecapsuleservice.dto.client.FamilyStatusRequest;
 import com.familring.timecapsuleservice.dto.client.UserInfoResponse;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleAnswerCreateRequest;
 import com.familring.timecapsuleservice.dto.request.TimeCapsuleCreateRequest;
@@ -154,7 +155,7 @@ public class TimeCapsuleService {
         TimeCapsuleAnswer timeCapsuleAnswer = null;
         // 타임 캡슐이 있을 경우
         if (timeCapsuleOpt.isPresent()) {
-            int dayDiff = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleOpt.get().getStartDate());
+            int dayDiff = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleOpt.get().getEndDate());
             if (dayDiff>=1) { // 타임 캡슐 생성 일자, 현재 날짜 차이가 1일 보다 크기만 하면
                 Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsuleOpt.get());
                 if(answer.isEmpty()) {
@@ -176,6 +177,13 @@ public class TimeCapsuleService {
         }
 
         timeCapsuleAnswerRepository.save(timeCapsuleAnswer);
+
+        FamilyStatusRequest familyStatusRequest = FamilyStatusRequest
+                .builder()
+                .familyId(familyId)
+                .amount(3)
+                .build();
+        familyServiceFeignClient.updateFamilyStatus(familyStatusRequest);
 
     }
 

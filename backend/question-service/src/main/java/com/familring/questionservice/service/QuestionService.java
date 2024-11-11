@@ -87,7 +87,7 @@ public class QuestionService {
             FamilyStatusRequest familyStatusRequest = FamilyStatusRequest
                     .builder()
                     .familyId(familyId)
-                    .amount(5)
+                    .amount(10)
                     .build();
             familyServiceFeignClient.updateFamilyStatus(familyStatusRequest);
         } else {
@@ -96,7 +96,7 @@ public class QuestionService {
             FamilyStatusRequest familyStatusRequest = FamilyStatusRequest
                     .builder()
                     .familyId(familyId)
-                    .amount(cnt * (-2))
+                    .amount(cnt * (-1))
                     .build();
             familyServiceFeignClient.updateFamilyStatus(familyStatusRequest);
         }
