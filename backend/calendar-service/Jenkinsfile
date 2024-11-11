@@ -15,7 +15,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
                     script {
                         // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
-                        def newInstance = (activeInstance == 'calendar-service-blue') ? 'calendar-service-green' : 'calendarcalendar-service-blue'
+                        def newInstance = (activeInstance == 'calendar-service-blue') ? 'calendar-service-green' : 'calendar-service-blue'
 
                         dir('backend/calendar-service') {
                             copyApplicationYaml(application_yml)
