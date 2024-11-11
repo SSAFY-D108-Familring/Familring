@@ -3,6 +3,7 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.FaceApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.FaceCount
 import com.familring.domain.repository.FaceRepository
 import com.familring.domain.util.toMultiPart
 import kotlinx.coroutines.flow.Flow
@@ -15,13 +16,13 @@ class FaceRepositoryImpl
     constructor(
         private val api: FaceApi,
     ) : FaceRepository {
-        override suspend fun getFaceCount(face: File): Flow<ApiResponse<Int>> =
+        override suspend fun getFaceCount(face: File): Flow<ApiResponse<FaceCount>> =
             flow {
                 val image = face.toMultiPart(filename = "file")
                 val response =
                     emitApiResponse(
                         apiResponse = { api.getFaceCount(image) },
-                        default = 0,
+                        default = FaceCount(),
                     )
                 emit(response)
             }
