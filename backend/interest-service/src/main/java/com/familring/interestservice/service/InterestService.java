@@ -58,7 +58,7 @@ public class InterestService {
         // 그 가족의 최근 관심사 찾기
         LocalDate today = LocalDate.now();
         Interest interest = interestRepository
-                .findFirstByFamilyIdAndMissionEndDateAfterOrMissionEndDateIsNullOrderByIdDesc(familyId, today)
+                .findFirstByFamilyIdWithMissionEndDateAfterOrNull(familyId, today)
                 .orElseGet(() -> interestRepository.save(Interest.builder()
                         .familyId(familyId)
                         .build()));
