@@ -113,7 +113,7 @@ class BaseResponse(BaseModel, Generic[T]):
         )
 
 class Person(BaseModel):
-    id: str
+    id: int
     photoUrl: str = Field(..., alias="photoUrl")
 
 class AnalysisRequest(BaseModel):
