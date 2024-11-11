@@ -122,7 +122,7 @@ class AnalysisRequest(BaseModel):
 
 class SimilarityResponse(BaseModel):
     imageUrl: str = Field(..., alias="imageUrl")
-    similarities: Dict[str, float]
+    similarities: Dict[int, float]
     faceCount: int = Field(..., alias="faceCount")
 
 class CountResponse(BaseModel):
