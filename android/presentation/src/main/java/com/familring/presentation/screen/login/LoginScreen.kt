@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +36,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.MainActivity
 import com.familring.presentation.R
+import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.FamilringTheme
+import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
@@ -50,6 +53,7 @@ fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(viewModel.loginEvent) {
         viewModel.loginEvent.collect { event ->
@@ -67,6 +71,7 @@ fun LoginRoute(
         showSnackBar = showSnackBar,
         loginState = loginState,
         resetState = viewModel::resetState,
+        isLoading = isLoading,
         handleKakaoLogin = { activity -> viewModel.handleKakaoLogin(activity) },
     )
 }
@@ -76,6 +81,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     loginState: LoginState,
     resetState: () -> Unit = {},
+    isLoading: Boolean,
     navigateToFirst: () -> Unit = {},
     navigateToHome: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
@@ -91,6 +97,7 @@ fun LoginScreen(
                 navigateToFirst()
                 resetState()
             }
+
             is LoginState.Error -> showSnackBar(loginState.errorMessage)
             is LoginState.Loading -> Timber.tag("login").d("로그인 로딩중")
         }
@@ -162,6 +169,17 @@ fun LoginScreen(
                             }
                         },
             )
+        }
+    }
+    if (isLoading) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(color = Black.copy(alpha = 0.7f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(color = Green02)
         }
     }
 }
@@ -348,6 +366,7 @@ fun LoginScreenPreview() {
     FamilringTheme {
         LoginScreen(
             loginState = LoginState.Loading,
+            isLoading = false,
         )
     }
 }

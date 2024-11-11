@@ -162,6 +162,7 @@ fun AlbumScreen(
                         PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                     )
                 }
+
                 else -> {
                     permissionLauncher.launch(permission)
                 }
@@ -174,9 +175,11 @@ fun AlbumScreen(
             is GalleryUiEvent.Success -> {
                 Toast.makeText(context, "성공적으로 반영되었습니다", Toast.LENGTH_SHORT).show()
             }
+
             is GalleryUiEvent.Error -> {
                 Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
             }
+
             else -> {}
         }
     }
@@ -191,10 +194,10 @@ fun AlbumScreen(
                 title = {
                     Text(
                         text =
-                        when (val state = photoUiState) {
-                            is PhotoUiState.Success -> state.albumName
-                            else -> "앨범"
-                        },
+                            when (val state = photoUiState) {
+                                is PhotoUiState.Success -> state.albumName
+                                else -> "앨범"
+                            },
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
                 },
@@ -206,22 +209,24 @@ fun AlbumScreen(
                                 if (isSelectionMode) {
                                     Row {
                                         Icon(
-                                            modifier = Modifier
-                                                .padding(end = 16.dp)
-                                                .noRippleClickable{
-                                                    if (selectedPhotos.isNotEmpty()) {
-                                                        showDeleteDialog = true
-                                                    }
-                                                },
+                                            modifier =
+                                                Modifier
+                                                    .padding(end = 16.dp)
+                                                    .noRippleClickable {
+                                                        if (selectedPhotos.isNotEmpty()) {
+                                                            showDeleteDialog = true
+                                                        }
+                                                    },
                                             imageVector = Icons.Default.Delete,
                                             contentDescription = "delete img",
                                             tint = Black,
                                         )
                                         Icon(
-                                            modifier = Modifier.noRippleClickable{
-                                                isSelectionMode = false
-                                                selectedPhotos = emptySet()
-                                            },
+                                            modifier =
+                                                Modifier.noRippleClickable {
+                                                    isSelectionMode = false
+                                                    selectedPhotos = emptySet()
+                                                },
                                             imageVector = Icons.Default.Close,
                                             contentDescription = "close",
                                             tint = Black,
@@ -229,11 +234,12 @@ fun AlbumScreen(
                                     }
                                 } else {
                                     Text(
-                                        modifier = Modifier
-                                            .padding(end = 2.dp)
-                                            .noRippleClickable{
-                                                isSelectionMode = true
-                                            },
+                                        modifier =
+                                            Modifier
+                                                .padding(end = 2.dp)
+                                                .noRippleClickable {
+                                                    isSelectionMode = true
+                                                },
                                         text = "선택",
                                         style = Typography.headlineLarge.copy(fontSize = 20.sp),
                                         color = Black,
@@ -241,6 +247,7 @@ fun AlbumScreen(
                                 }
                             }
                         }
+
                         else -> {}
                     }
                 },
@@ -288,10 +295,11 @@ fun AlbumScreen(
                             Spacer(modifier = Modifier.fillMaxSize(0.01f))
                             Text(
                                 text = "하단 버튼을 클릭해서\n우리 가족의 추억을 기록해봐요!",
-                                style = Typography.bodyMedium.copy(
-                                    fontSize = 20.sp,
-                                    color = Gray02,
-                                ),
+                                style =
+                                    Typography.bodyMedium.copy(
+                                        fontSize = 20.sp,
+                                        color = Gray02,
+                                    ),
                                 textAlign = TextAlign.Center,
                             )
                             Spacer(modifier = Modifier.fillMaxSize(0.05f))
@@ -340,10 +348,11 @@ fun AlbumScreen(
         }
         if (showDeleteDialog) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Black.copy(0.5f))
-                    .noRippleClickable { showDeleteDialog = false },
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(color = Black.copy(0.5f))
+                        .noRippleClickable { showDeleteDialog = false },
                 contentAlignment = Alignment.Center,
             ) {
                 TwoButtonTextDialog(
@@ -363,10 +372,11 @@ fun AlbumScreen(
 
         if (isLoading) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Black.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(color = Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator(color = Green02)
             }
@@ -394,15 +404,16 @@ fun PhotoItem(
             Box(
                 modifier =
                     Modifier
-                        .background(Color.Black.copy(alpha = 0.8f))
+                        .background(color = Black.copy(alpha = 0.8f))
                         .fillMaxSize(),
-            )
-            Icon(
-                modifier = Modifier.align(Alignment.Center),
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = Color.White,
-            )
+            ) {
+                Icon(
+                    modifier = Modifier.align(Alignment.Center),
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                )
+            }
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.gallery
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -155,42 +154,44 @@ fun GalleryScreen(
                 Text(
                     text = "공유",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
-                    modifier = Modifier
-                        .background(
-                            color = if (privateGallerySelected) Green02 else White,
-                            shape = RoundedCornerShape(30.dp),
-                        ).border(
-                            border = if (privateGallerySelected) {
-                                BorderStroke(0.dp, Gray03)
-                            } else {
-                                BorderStroke(1.dp, Gray03)
-                            },
-                            RoundedCornerShape(30.dp),
-                        ).noRippleClickable {
-                            if (!isLoading) privateGallerySelected = true
-                        }
-                        .padding(horizontal = 19.dp, vertical = 8.dp),
+                    modifier =
+                        Modifier
+                            .background(
+                                color = if (privateGallerySelected) Green02 else White,
+                                shape = RoundedCornerShape(30.dp),
+                            ).border(
+                                border =
+                                    if (privateGallerySelected) {
+                                        BorderStroke(0.dp, Gray03)
+                                    } else {
+                                        BorderStroke(1.dp, Gray03)
+                                    },
+                                RoundedCornerShape(30.dp),
+                            ).noRippleClickable {
+                                if (!isLoading) privateGallerySelected = true
+                            }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (privateGallerySelected) White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "인물",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
-                    modifier = Modifier
-                        .background(
-                            color = if (!privateGallerySelected) Green02 else White,
-                            shape = RoundedCornerShape(30.dp),
-                        ).border(
-                            border = if (!privateGallerySelected) {
-                                BorderStroke(0.dp, Gray03)
-                            } else {
-                                BorderStroke(1.dp, Gray03)
-                            },
-                            RoundedCornerShape(30.dp),
-                        ).noRippleClickable {
-                            if (!isLoading) privateGallerySelected = false
-                        }
-                        .padding(horizontal = 19.dp, vertical = 8.dp),
+                    modifier =
+                        Modifier
+                            .background(
+                                color = if (!privateGallerySelected) Green02 else White,
+                                shape = RoundedCornerShape(30.dp),
+                            ).border(
+                                border =
+                                    if (!privateGallerySelected) {
+                                        BorderStroke(0.dp, Gray03)
+                                    } else {
+                                        BorderStroke(1.dp, Gray03)
+                                    },
+                                RoundedCornerShape(30.dp),
+                            ).noRippleClickable {
+                                if (!isLoading) privateGallerySelected = false
+                            }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (!privateGallerySelected) White else Color.Black,
                 )
             }
@@ -213,11 +214,12 @@ fun GalleryScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        val albums = if (privateGallerySelected) {
-                            galleryUiState.normalAlbums
-                        } else {
-                            galleryUiState.personAlbums
-                        }
+                        val albums =
+                            if (privateGallerySelected) {
+                                galleryUiState.normalAlbums
+                            } else {
+                                galleryUiState.personAlbums
+                            }
 
                         items(albums.size) { index ->
                             GalleryItem(
@@ -255,23 +257,26 @@ fun GalleryScreen(
                     onDismissRequest = {
                         showBottomSheet = false
                         albumname = ""
-                    }
+                    },
                 ) {
                     Column(
-                        modifier = Modifier
-                            .background(color = White)
-                            .padding(top = 16.dp),
+                        modifier =
+                            Modifier
+                                .background(color = White)
+                                .padding(top = 16.dp),
                     ) {
                         BasicTextField(
-                            modifier = Modifier
-                                .background(Color.Transparent)
-                                .padding(horizontal = 26.dp),
+                            modifier =
+                                Modifier
+                                    .background(Color.Transparent)
+                                    .padding(horizontal = 26.dp),
                             value = albumname,
                             onValueChange = { if (!isLoading) albumname = it },
-                            textStyle = Typography.titleSmall.copy(
-                                color = if (albumname.isEmpty()) Gray03 else Color.Black,
-                                fontSize = 24.sp,
-                            ),
+                            textStyle =
+                                Typography.titleSmall.copy(
+                                    color = if (albumname.isEmpty()) Gray03 else Color.Black,
+                                    fontSize = 24.sp,
+                                ),
                             enabled = !isLoading,
                             decorationBox = { innerTextField ->
                                 Box {
@@ -293,7 +298,7 @@ fun GalleryScreen(
                             text = "생성하기",
                             enabled = !isLoading && albumname.isNotEmpty(),
                             onClick = {
-                                Log.d("Gallery", "생성하기")
+                                Timber.d("생성하기")
                                 if (privateGallerySelected) {
                                     onGalleryCreate(albumname, AlbumType.NORMAL)
                                 } else {
@@ -311,10 +316,11 @@ fun GalleryScreen(
 
     if (isLoading) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f)),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center,
         ) {
             CircularProgressIndicator(color = Green02)
         }

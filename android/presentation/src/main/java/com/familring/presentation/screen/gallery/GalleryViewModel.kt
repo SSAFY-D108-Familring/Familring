@@ -37,7 +37,6 @@ class GalleryViewModel
         private var currentAlbumTypes: List<AlbumType> = listOf(AlbumType.NORMAL, AlbumType.PERSON)
 
         fun getAlbums(albumTypes: List<AlbumType>) {
-            Timber.d("된거임?")
             currentAlbumTypes = albumTypes
             loadAlbums()
         }
