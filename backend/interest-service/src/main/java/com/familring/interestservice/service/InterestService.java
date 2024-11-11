@@ -151,9 +151,7 @@ public class InterestService {
             // 가족 구성원이 아무도 답변 안했으면 false
             boolean answerStatusFamily = false;
             for (UserInfoResponse familyMember : familyMembers) {
-                if (familyMember.getUserId().equals(userId)) continue; // 나 자신일 때는 넘어가고
-                // 나머지 가족 구성원일 때
-                // 누군가 답변했으면 true
+                // 누군가 답변했으면 true (누군가에 나도 포함) 
                 Optional<InterestAnswer> familyMemberAnswer = interestAnswerRepository.findByUserIdAndInterest(familyMember.getUserId(), interest);
                 if (familyMemberAnswer.isPresent()) {
                     answerStatusFamily = true;
