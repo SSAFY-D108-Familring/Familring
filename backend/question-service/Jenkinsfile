@@ -1,3 +1,6 @@
+// 파이프라인 변수 선언 (초기 값 설정)
+def questionActiveInstance = 'question-service-blue'
+
 pipeline {
     agent any
 
@@ -7,14 +10,21 @@ pipeline {
                 checkout scm
             }
         }
+
         stage('Build and Deploy Question Service') {
             steps {
                 withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
                     script {
+                        // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
+                        def newInstance = (questionActiveInstance == 'question-service-blue') ? 'question-service-green' : 'question-service-blue'
+
                         dir('backend/question-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('question-service', 0, false) // 내부 네트워크에서만 통신
+                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
                         }
+
+                        // 다음 배포를 위해 questionActiveInstance 변수를 업데이트
+                        questionActiveInstance = newInstance
                     }
                 }
             }
@@ -38,16 +48,10 @@ def stopAndRemoveContainer(containerName) {
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
-def buildAndRunContainer(serviceName, port, exposeToHost) {
+def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
-
-    // 호스트에 노출할지 여부에 따라 -p 옵션을 추가
-    if (exposeToHost) {
-        sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
-    } else {
-        sh "docker run --name ${serviceName} -d ${serviceName}"
-    }
+    sh "docker run --name ${serviceName} -d ${serviceName}"
 }
