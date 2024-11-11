@@ -34,8 +34,8 @@ def copyApplicationYaml(application_yml) {
 def stopAndRemoveContainer(containerName) {
     // 기존 eureka-server 컨테이너 중지 및 삭제
     sh """
-    docker-compose -f docker-compose.yml stop notification-service || true
-    docker-compose -f docker-compose.yml rm -f notification-service || true
+    docker-compose -f /home/ubuntu/docker-compose.yml stop notification-service || true
+    docker-compose -f /home/ubuntu/docker-compose.yml rm -f notification-service || true
     """
 }
 
@@ -44,7 +44,7 @@ def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
     // 해당 컨테이너만 재시작
     sh """
-    docker-compose -f docker-compose.yml build --no-cache notification-service
-    docker-compose -f docker-compose.yml up -d --no-deps --build notification-service
+    docker-compose -f /home/ubuntu/docker-compose.yml build --no-cache notification-service
+    docker-compose -f /home/ubuntu/docker-compose.yml up -d --no-deps --build notification-service
     """
 }
