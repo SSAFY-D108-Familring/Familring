@@ -1,3 +1,6 @@
+// 파이프라인 변수 선언 (초기 값 설정)
+def activeInstance = 'timecapsule-service-blue'
+
 pipeline {
     agent any
 
@@ -7,14 +10,20 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Deploy Timecapsule Service') {
+        stage('Build and Deploy TimeCapsule Service') {
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
+                        // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
+                        def newInstance = (activeInstance == 'timecapsule-service-blue') ? 'timecapsule-service-green' : 'timecapsule-service-blue'
+
                         dir('backend/timecapsule-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('timecapsule-service')
+                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
                         }
+
+                        // 다음 배포를 위해 questionActiveInstance 변수를 업데이트
+                        activeInstance = newInstance
                     }
                 }
             }
@@ -30,23 +39,18 @@ def copyApplicationYaml(application_yml) {
 
 // 공통 함수: 컨테이너 중지 및 삭제
 def stopAndRemoveContainer(containerName) {
-    // 기존 컨테이너 중지 및 삭제
-    sh """
-    docker-compose -f /home/.ssh/docker-compose.yml stop timecapsule-service || true
-    docker-compose -f /home/.ssh/docker-compose.yml rm -f timecapsule-service || true
-    """
+    def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    if (container) {
+        sh "docker stop ${container}"
+        sh "docker rm ${container}"
+    }
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
 def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
-
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
-
-    // 해당 컨테이너만 재시작
-    sh """
-    docker-compose -f /home/.ssh/docker-compose.yml up -d --no-deps --build timecapsule-service
-    """
+    sh "docker run --name ${serviceName} -d ${serviceName}"
 }
