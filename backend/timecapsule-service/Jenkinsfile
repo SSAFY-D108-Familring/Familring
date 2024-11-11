@@ -13,7 +13,7 @@ pipeline {
                     script {
                         dir('backend/timecapsule-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('timecapsule-service', 0, false)
+                            buildAndRunContainer('timecapsule-service')
                         }
                     }
                 }
@@ -38,7 +38,7 @@ def stopAndRemoveContainer(containerName) {
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
-def buildAndRunContainer(serviceName, port, exposeToHost) {
+def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
 
     // 해당 컨테이너만 재시작
