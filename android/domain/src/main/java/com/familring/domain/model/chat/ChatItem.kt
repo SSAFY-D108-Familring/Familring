@@ -1,4 +1,4 @@
-package com.familring.domain.model
+package com.familring.domain.model.chat
 
 data class ChatItem(
     val userId: Long = 0,
