@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,8 +25,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -59,8 +56,9 @@ import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
-import com.familring.presentation.theme.Gray03
+import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Green02
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
@@ -405,32 +403,30 @@ fun PhotoItem(
             Box(
                 modifier =
                     Modifier
-                        .background(color = Black.copy(alpha = 0.8f))
-                        .fillMaxSize(),
-            )
-            Icon(
-                modifier = Modifier.align(Alignment.Center),
-                imageVector = Icons.Default.CheckCircle,
-                contentDescription = null,
-                tint = Color.White,
-            )
+                        .aspectRatio(1f)
+                        .background(color = Black.copy(alpha = 0.8f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    modifier = Modifier.align(Alignment.Center),
+                    imageVector = Icons.Default.CheckCircle,
+                    contentDescription = null,
+                    tint = Color.White,
+                )
+            }
         }
     }
 }
 
 @Composable
 fun AddPhotoButton(onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        border = BorderStroke(2.dp, Gray03),
+    Box(
         modifier =
             Modifier
+                .noRippleClickable { onClick() }
                 .fillMaxWidth()
+                .background(color = Gray04)
                 .aspectRatio(1f),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = White,
-            ),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -440,7 +436,7 @@ fun AddPhotoButton(onClick: () -> Unit) {
             Text(
                 text = "+",
                 style = Typography.headlineLarge.copy(fontSize = 45.sp),
-                color = Gray03,
+                color = Gray02,
             )
         }
     }

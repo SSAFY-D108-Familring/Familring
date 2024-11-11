@@ -407,7 +407,7 @@ fun GalleryItem(
                         showDialog = false
                     },
                 )
-                Spacer(modifier = Modifier.fillMaxSize(0.3f))
+                Spacer(modifier = Modifier.fillMaxSize(0.1f))
             }
         }
     }
@@ -419,7 +419,6 @@ fun GalleryItem(
                 .padding(bottom = 8.dp),
     ) {
         Card(
-            // onClick = { navigateToAlbum(album.id) },
             modifier =
                 Modifier
                     .fillMaxWidth()
