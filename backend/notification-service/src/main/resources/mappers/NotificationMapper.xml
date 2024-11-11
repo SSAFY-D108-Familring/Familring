@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.familring.notificationservice.model.dao.NotificationDao">
+    <resultMap id="notificationInfo" type="com.familring.notificationservice.model.dto.Notification">
+        <id property="notificationId" column="notification_id" />
+        <result property="receiverUserId" column="receiver_user_id" />
+        <result property="senderUserId" column="sender_user_id" />
+        <result property="notificationType" column="notification_type" />
+        <result property="notificationTitle" column="notification_title" />
+        <result property="notificationMessage" column="notification_message" />
+        <result property="notificationIsRead" column="notification_is_read" />
+        <result property="notificationCreatedAt" column="notification_created_at" />
+        <result property="notificationReadAt" column="notification_read_at" />
+    </resultMap>
+
+
+    <select id="findAllByReceiverId" parameterType="long" resultMap="notificationInfo">
+        SELECT *
+        FROM notification
+        WHERE receiver_user_id = #{userId}
+    </select>
+
+    <select id="findNotificationByNotificationId" resultMap="notificationInfo">
+        SELECT *
+        FROM notification
+        WHERE notification_id = #{notificationId}
+    </select>
+
+
+    <update id="updateNotificationIsReadByNotificationId">
+        UPDATE notification
+        SET notification_is_read = 1, notification_read_at = NOW()
+        WHERE notification_id = #{notificationId}
+    </update>
+
+</mapper>

@@ -8,7 +8,7 @@ import face_recognition
 import numpy as np
 import requests
 from io import BytesIO
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageEnhance, ExifTags
 import cv2
 import logging
 import os
@@ -128,22 +128,64 @@ class SimilarityResponse(BaseModel):
 class CountResponse(BaseModel):
     faceCount: int = Field(..., alias="faceCount")
 
+def fix_image_rotation(image):
+    """
+    EXIF 정보를 기반으로 이미지 회전을 보정합니다.
+    """
+    try:
+        # PIL Image가 아닌 경우 변환
+        if not isinstance(image, Image.Image):
+            image = Image.fromarray(image)
+
+        try:
+            # EXIF 정보 가져오기
+            for orientation in ExifTags.TAGS.keys():
+                if ExifTags.TAGS[orientation] == 'Orientation':
+                    break
+            
+            exif = image._getexif()
+            if exif is not None:
+                orientation_value = exif.get(orientation)
+                
+                # 방향에 따른 이미지 회전
+                if orientation_value == 2:
+                    image = image.transpose(Image.FLIP_LEFT_RIGHT)
+                elif orientation_value == 3:
+                    image = image.transpose(Image.ROTATE_180)
+                elif orientation_value == 4:
+                    image = image.transpose(Image.FLIP_TOP_BOTTOM)
+                elif orientation_value == 5:
+                    image = image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_90)
+                elif orientation_value == 6:
+                    image = image.transpose(Image.ROTATE_270)
+                elif orientation_value == 7:
+                    image = image.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_270)
+                elif orientation_value == 8:
+                    image = image.transpose(Image.ROTATE_90)
+        except (AttributeError, KeyError, IndexError):
+            # EXIF 정보가 없거나 처리할 수 없는 경우 원본 이미지 반환
+            pass
+
+        # numpy 배열로 변환하여 반환
+        return np.array(image)
+    except Exception as e:
+        logger.error(f"이미지 회전 보정 실패: {str(e)}")
+        return np.array(image)
+
 def preprocess_image(image):
     """
-    이미지 전처리 함수 (단순화)
-    - RGB 형식으로 변환
-    - 기본적인 히스토그램 평준화
+    이미지 전처리 함수 (EXIF 회전 보정 추가)
     """
     try:
         # PIL Image를 RGB로 변환
         if image.mode != 'RGB':
             image = image.convert('RGB')
         
-        # numpy 배열로 변환
-        img_array = np.array(image)
+        # EXIF 기반 회전 보정
+        rotated_image = fix_image_rotation(image)
         
-        # 기본적인 히스토그램 평준화
-        img_lab = cv2.cvtColor(img_array, cv2.COLOR_RGB2LAB)
+        # 히스토그램 평준화
+        img_lab = cv2.cvtColor(rotated_image, cv2.COLOR_RGB2LAB)
         l, a, b = cv2.split(img_lab)
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
         cl = clahe.apply(l)
@@ -162,7 +204,7 @@ def load_image_from_url(url: str):
         response.raise_for_status()
         img = Image.open(BytesIO(response.content))
         
-        # 이미지 전처리 적용
+        # 이미지 전처리 적용 (EXIF 회전 보정 포함)
         processed_img = preprocess_image(img)
         
         return processed_img

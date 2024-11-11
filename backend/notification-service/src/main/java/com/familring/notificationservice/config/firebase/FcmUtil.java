@@ -1,6 +1,6 @@
-package com.familring.userservice.config.firebase;
+package com.familring.notificationservice.config.firebase;
 
-import com.familring.userservice.model.dto.UserDto;
+import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -17,7 +17,7 @@ public class FcmUtil {
 
     // 단일 사용자에게 FCM 메시지를 비동기로 전송하는 메서드
     @Async("taskExecutor") // 비동기 처리
-    public void singleFcmSend(UserDto user, FcmMessage.FcmDto fcmDTO) {
+    public void singleFcmSend(UserInfoResponse user, FcmMessage.FcmDto fcmDTO) {
         String fcmToken = user.getUserFcmToken(); // 사용자 FCM 토큰 가져오기
 
         // FCM 토큰이 유효한 경우 메시지 생성 및 전송

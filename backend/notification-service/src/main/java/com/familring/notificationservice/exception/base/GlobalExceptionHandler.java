@@ -1,4 +1,4 @@
-package com.familring.albumservice.exception.base;
+package com.familring.notificationservice.exception.base;
 
 import com.familring.common_module.dto.ErrorResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -47,13 +47,7 @@ public class GlobalExceptionHandler {
             errorResponse = objectMapper.readValue(errorJson, ErrorResponse.class);
         }
 
-        int status;
-        if (ex.status() == -1) {
-            status = 500;
-        } else {
-            status = ex.status();
-        }
-        return ResponseEntity.status(status).body(errorResponse);
+        return ResponseEntity.status(ex.status()).body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

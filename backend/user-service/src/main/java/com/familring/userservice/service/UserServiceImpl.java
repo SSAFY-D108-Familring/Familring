@@ -87,6 +87,7 @@ public class UserServiceImpl implements UserService {
                 .userFace(user.getUserFace())
                 .userColor(user.getUserColor())
                 .userEmotion(user.getUserEmotion())
+                .userFcmToken(user.getUserFcmToken())
                 .build();
 
         // 3. 응답
