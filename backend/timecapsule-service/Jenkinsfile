@@ -19,7 +19,7 @@ pipeline {
 
                         dir('backend/timecapsule-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
+                            buildAndRunContainer('timecapsule-service') // 내부 네트워크에서만 통신
                         }
 
 //                         // 다음 배포를 위해 questionActiveInstance 변수를 업데이트
