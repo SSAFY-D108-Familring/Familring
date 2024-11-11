@@ -41,9 +41,12 @@ def stopAndRemoveContainer(containerName) {
 def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
 
+    sh 'chmod +x ./gradlew'
+    sh './gradlew clean build -x test'
+    sh "docker build -t ${serviceName} ."
+
     // 해당 컨테이너만 재시작
     sh """
-    docker-compose -f /home/.ssh/docker-compose.yml build --no-cache timecapsule-service
     docker-compose -f /home/.ssh/docker-compose.yml up -d --no-deps --build timecapsule-service
     """
 }
