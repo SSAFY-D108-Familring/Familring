@@ -91,20 +91,85 @@ public class InterestService {
 
     }
 
-    // 관심사 답변 작성 유무
-    public boolean getInterestAnswerStatus(Long userId) {
+    // 내가 작성한 관심사 조회
+    public InterestAnswerMineResponse getInterestAnswerMine(Long userId) {
 
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
 
-        // 그 가족의 가장 최근 관심사 찾기
+        // 가장 최근 관심사 찾기
         Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 내가 작성한 관심사 답변 찾기
-        Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest);
+        InterestAnswer interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest).orElseThrow(InterestAnswerNotFoundException::new);
 
-        return interestAnswer.isPresent(); // 있으면 true, 없으면 false
+        return InterestAnswerMineResponse
+                .builder()
+                .content(interestAnswer.getContent())
+                .build();
+
+    }
+
+    // 관심사 답변 작성 유무
+    public InterestAnswerStatusResponse getInterestAnswerStatus(Long userId) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        int cnt = interestRepository.countByFamilyId(familyId);
+
+        Interest interest;
+        InterestAnswerStatusResponse interestAnswerStatusResponse;
+        if (cnt==0) { // 관심사가 아예 없는 것 (답변할 수 있는 상태)
+            // 이때는 true
+            interestAnswerStatusResponse = InterestAnswerStatusResponse
+                    .builder()
+                    .answerStatusMine(false)
+                    .build();
+        } else {
+            // 그 가족의 가장 최근 관심사 찾기
+            interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
+
+            // 내가 작성한 관심사 답변 찾기
+            Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest);
+
+            // 가족 구성원 찾기
+            List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
+
+            // 가족 구성원이 아무도 답변 안했으면 false
+            boolean answerStatusFamily = false;
+            for (UserInfoResponse familyMember : familyMembers) {
+                if (familyMember.getUserId().equals(userId)) continue; // 나 자신일 때는 넘어가고
+                // 나머지 가족 구성원일 때
+                // 누군가 답변했으면 true
+                Optional<InterestAnswer> familyMemberAnswer = interestAnswerRepository.findByUserIdAndInterest(familyMember.getUserId(), interest);
+                if (familyMemberAnswer.isPresent()) {
+                    answerStatusFamily = true;
+                    break;
+                }
+            }
+
+            if (interestAnswer.isPresent()) {
+                // 내가 답변한 상태면 true
+                interestAnswerStatusResponse = InterestAnswerStatusResponse
+                        .builder()
+                        .answerStatusMine(true)
+                        .answerStatusFamily(answerStatusFamily)
+                        .content(interestAnswer.get().getContent())
+                        .build();
+            } else {
+                // 내가 만약에 답변 안했으면 false
+                interestAnswerStatusResponse = InterestAnswerStatusResponse
+                        .builder()
+                        .answerStatusMine(false)
+                        .answerStatusFamily(answerStatusFamily)
+                        .build();
+            }
+        }
+
+        return interestAnswerStatusResponse;
 
     }
 
@@ -147,26 +212,6 @@ public class InterestService {
         }
 
         return interestAnswerResponses;
-
-    }
-
-    // 내가 작성한 관심사 조회
-    public InterestAnswerMineResponse getInterestAnswerMine(Long userId) {
-
-        // 가족 조회
-        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
-        Long familyId = family.getFamilyId();
-
-        // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyId(familyId).orElseThrow(InterestNotFoundException::new);
-
-        // 내가 작성한 관심사 답변 찾기
-        InterestAnswer interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest).orElseThrow(InterestAnswerNotFoundException::new);
-
-        return InterestAnswerMineResponse
-                .builder()
-                .content(interestAnswer.getContent())
-                .build();
 
     }
 
@@ -438,8 +483,6 @@ public class InterestService {
 
     // 관심사 상태 관리
     public int getInterestStatus(Long userId) {
-        int status = 0;
-
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
@@ -455,18 +498,23 @@ public class InterestService {
         Interest interest = interestOptional.get();
         Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findSelectedAnswersByFamilyIdAndInterest(familyId, interest);
 
-        // 0 → 작성하는 기간: 최근 관심사에 선정된 답변이 없고, 인증 기간도 설정되지 않은 경우
-        if (interestAnswer.isEmpty() && interest.getMissionEndDate() == null) {
-            return 0;
+        // 조건에 따라 순차적으로 상태를 반환
+        if (interestAnswer.isEmpty()) {
+            // 0 → 최근 관심사에 선정된 답변이 없고, 인증 기간도 설정되지 않은 경우
+            if (interest.getMissionEndDate() == null) {
+                return 0;
+            }
+        } else {
+            // 1 → 관심사 선정 완료, 인증 기간 미설정
+            if (interest.getMissionEndDate() == null) {
+                return 1;
+            }
+            // 2 → 인증 기간
+            return 2;
         }
 
-        // 1 → 관심사 선정 완료, 인증 기간 미설정: 선정된 답변이 있으나 인증 기간이 설정되지 않은 경우
-        if (interestAnswer.isPresent() && interest.getMissionEndDate() == null) {
-            return 1;
-        }
-
-        // 2 → 인증 기간: 관심사 선정 완료 & 인증 기간 설정된 경우
-        return 2;
+        // 기본적으로 작성하는 기간으로 반환
+        return 0;
     }
 
 }
