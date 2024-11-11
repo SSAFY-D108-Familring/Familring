@@ -4,6 +4,7 @@ import com.familring.interestservice.domain.Interest;
 import com.familring.interestservice.domain.InterestAnswer;
 import com.familring.interestservice.domain.InterestMission;
 import com.familring.interestservice.dto.client.Family;
+import com.familring.interestservice.dto.client.FamilyStatusRequest;
 import com.familring.interestservice.dto.client.UserInfoResponse;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
 import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequest;
@@ -72,6 +73,13 @@ public class InterestService {
                 .build();
 
         interestAnswerRepository.save(interestAnswer);
+
+        FamilyStatusRequest familyStatusRequest = FamilyStatusRequest
+                .builder()
+                .familyId(familyId)
+                .amount(3)
+                .build();
+        familyServiceFeignClient.updateFamilyStatus(familyStatusRequest);
 
     }
 
