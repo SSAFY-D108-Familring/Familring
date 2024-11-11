@@ -186,6 +186,7 @@ fun MyPageScreen(
                                 backgroundColor = userColor,
                             ),
                         size = 135,
+                        paddingValue = 20,
                     )
                     Spacer(modifier = Modifier.height(15.dp))
                     Row(
