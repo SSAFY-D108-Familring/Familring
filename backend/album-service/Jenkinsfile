@@ -22,10 +22,7 @@ pipeline {
                             buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
                         }
 
-                        // album-service의 헬스 체크
-                        waitForServiceHealthCheck('album-service')
-
-                        // 헬스 체크 통과 후 이전 인스턴스 삭제
+                        // 새로운 인스턴스 실행 후 기존 인스턴스 삭제
                         stopAndRemoveContainer(activeInstance)
 
                         // 다음 배포를 위해 activeInstance 변수를 업데이트
@@ -52,28 +49,11 @@ def stopAndRemoveContainer(containerName) {
     }
 }
 
-def waitForServiceHealthCheck(serviceName) {
-    def retries = 10
-    while (retries > 0) {
-        def status = sh(script: "curl -s -o /dev/null -w '%{http_code}' https://k11d108.p.ssafy.io/${serviceName}/health", returnStdout: true).trim()
-        if (status == '200') {
-            echo "${serviceName} is healthy through Nginx."
-            return
-        }
-        sleep 5 // 잠시 대기
-        retries--
-    }
-    error "${serviceName} failed to pass health check through Nginx."
-}
-
-
 // 공통 함수: 컨테이너 빌드 및 실행
 def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
-//     sh "docker run --name ${serviceName} -d ${serviceName}"
     sh "docker run --network host --name ${serviceName} -d ${serviceName}"
-
 }
