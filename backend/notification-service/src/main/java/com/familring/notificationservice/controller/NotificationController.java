@@ -11,10 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.bouncycastle.asn1.x509.NoticeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,5 +29,15 @@ public class NotificationController {
         List<NotificationResponse> responseList = notificationService.getAllNotification(userId);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원의 알림을 성공적으로 조회했습니다.", responseList));
+    }
+
+    @PatchMapping("/{notificationId}")
+    @Operation(summary = "알림 읽음 처리", description = "notificationId에 해당하는 알림 읽음 처리")
+    public ResponseEntity<BaseResponse<Void>> updateNotificationIsRead
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @PathVariable("notificationId") Long notificationId) {
+        notificationService.updateNotificationIsRead(userId, notificationId);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "알림을 성공적으로 읽음 처리했습니다."));
     }
 }

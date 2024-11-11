@@ -1,5 +1,6 @@
 package com.familring.notificationservice.service;
 
+import com.familring.notificationservice.exception.notification.NotFoundNotificationException;
 import com.familring.notificationservice.model.dao.NotificationDao;
 import com.familring.notificationservice.model.dto.Notification;
 import com.familring.notificationservice.model.dto.response.NotificationResponse;
@@ -9,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +30,9 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("[getAllNotification] 찾은 사용자 정보 userNickname={}", user.getUserNickname());
 
         // 2. 회원의 알림 찾기
-        List<NotificationResponse> notificationResponseList = notificationDao.findAllByReceiverId(user.getUserId()).stream()
+        List<NotificationResponse> notificationResponseList = Optional.ofNullable(notificationDao.findAllByReceiverId(user.getUserId()))
+                .orElse(Collections.emptyList()) // null일 경우 빈 리스트로 처리
+                .stream()
                 .map(notification -> NotificationResponse.builder()
                         .notificationId(notification.getNotificationId())
                         .receiverUserId(notification.getReceiverUserId())
@@ -40,5 +45,16 @@ public class NotificationServiceImpl implements NotificationService {
                 .collect(Collectors.toList());
 
         return notificationResponseList;
+    }
+
+    @Override
+    public void updateNotificationIsRead(Long userId, Long notificationId) {
+        // 1. 해당하는 알림 찾기
+        Notification notification = notificationDao.findNotificationByNotificationId(notificationId)
+                .orElseThrow(() -> new NotFoundNotificationException());
+
+        // 2. 알림 읽음 여부 수정
+        notificationDao.updateNotificationIsReadByNotificationId(notificationId);
+        log.info("[] 알림 읽음 완료={}", notification.isNotificationIsRead());
     }
 }

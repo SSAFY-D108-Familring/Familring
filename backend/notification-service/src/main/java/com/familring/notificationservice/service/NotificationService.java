@@ -7,4 +7,7 @@ import java.util.List;
 public interface NotificationService {
     // 알림 조회
     List<NotificationResponse> getAllNotification(Long userId);
+
+    // 알림 읽음 상태 변경
+    void updateNotificationIsRead(Long userId, Long notificationId);
 }
