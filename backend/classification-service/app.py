@@ -285,7 +285,7 @@ async def classify_images(request: AnalysisRequest):
         )
         
         # 응답 로깅 추가
-        logger.info(f"Classification API 응답: {response.json(ensure_ascii=False)}")
+        logger.info(f"Classification API 응답: {response.model_dump_json(exclude_none=True)}")
         
         return response
     except Exception as e:
@@ -295,7 +295,7 @@ async def classify_images(request: AnalysisRequest):
         )
         
         # 에러 응답 로깅 추가
-        logger.error(f"Classification API 에러 응답: {error_response.json(ensure_ascii=False)}")
+        logger.error(f"Classification API 에러 응답: {error_response.model_dump_json(exclude_none=True)}")
         
         return error_response
 
