@@ -55,7 +55,7 @@ def stopAndRemoveContainer(containerName) {
 def waitForServiceHealthCheck(serviceName) {
     def retries = 10
     while (retries > 0) {
-        def status = sh(script: "curl -s -o /dev/null -w '%{http_code}' http://localhost/${serviceName}/health", returnStdout: true).trim()
+        def status = sh(script: "curl -s -o /dev/null -w '%{http_code}' https://k11d108.p.ssafy.io/${serviceName}/health", returnStdout: true).trim()
         if (status == '200') {
             echo "${serviceName} is healthy through Nginx."
             return
