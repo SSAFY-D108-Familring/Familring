@@ -2,6 +2,7 @@ package com.familring.presentation.screen.calendar
 
 import android.Manifest
 import android.content.pm.PackageManager
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,6 +48,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
@@ -58,6 +61,7 @@ import com.familring.domain.util.toMultiPart
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -169,6 +173,8 @@ fun DailyUploadScreen(
     val imeInsets = WindowInsets.ime.exclude(WindowInsets.navigationBars)
     val imeHeight = imeInsets.getBottom(LocalDensity.current)
 
+    var showDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(imeHeight) {
         scrollState.scrollTo(scrollState.maxValue)
     }
@@ -193,7 +199,7 @@ fun DailyUploadScreen(
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
                 },
-                onNavigationClick = popUpBackStack,
+                onNavigationClick = { showDialog = true },
             )
             Spacer(modifier = Modifier.height(30.dp))
             Box(
@@ -328,6 +334,26 @@ fun DailyUploadScreen(
                     }
                 }
             }
+        }
+
+        if (showDialog) {
+            Dialog(
+                onDismissRequest = { showDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                TwoButtonTextDialog(
+                    text = if (!isModify) "일상 업로드를 종료하시겠어요?" else "일상 수정을 종료하시겠어요?",
+                    onConfirmClick = {
+                        showDialog = false
+                        popUpBackStack()
+                    },
+                    onDismissClick = { showDialog = false },
+                )
+            }
+        }
+
+        BackHandler(enabled = !showDialog) {
+            showDialog = true
         }
     }
 }

@@ -26,9 +26,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
+import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.textfield.GrayBigTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
@@ -38,10 +40,12 @@ import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun WriteDayScreen(
+    modifier: Modifier = Modifier,
     isWrote: Boolean = false,
     interest: String = "",
     writeInterest: (String) -> Unit = {},
     editInterest: (String) -> Unit = {},
+    navigateToOtherInterest: () -> Unit = {},
 ) {
     var interestKeyword by remember { mutableStateOf(interest) }
     var canEdit by remember { mutableStateOf(!isWrote) }
@@ -55,7 +59,7 @@ fun WriteDayScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
     ) {
         Row(
             modifier =
@@ -146,6 +150,18 @@ fun WriteDayScreen(
                     textDecoration = TextDecoration.Underline,
                 )
             }
+            Spacer(modifier = Modifier.weight(1f))
+            RoundLongButton(
+                text = "다른 가족이 작성한 관심사 확인하기",
+                onClick = navigateToOtherInterest
+            )
+            Spacer(modifier = Modifier.height(10.dp))
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WriteDayScreenPreview() {
+    WriteDayScreen()
 }
