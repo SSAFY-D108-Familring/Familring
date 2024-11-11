@@ -14,9 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -34,7 +32,6 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import org.apache.commons.lang3.StringUtils.isNotBlank
 
 object WritingState {
     const val NO_TIME_CAPSULE = 0

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -55,14 +56,15 @@ fun NotificationScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             TopAppBar(
-                title = { Text(text = "알림", style = Typography.headlineMedium) },
+                title = { Text(text = "알림", style = Typography.headlineMedium.copy(fontSize = 26.sp)) },
                 onNavigationClick = navigateToHome,
             )
             Spacer(modifier = Modifier.height(23.dp))
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.weight(1f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 30.dp),
             ) {
                 items(notificationCnt) {
                     NotificationItem()

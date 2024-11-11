@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.firebase.messaging.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -92,6 +93,12 @@ dependencies {
 
     // lottie
     implementation(libs.lottie)
+
+    // pagination
+    implementation(libs.androidx.paging.compose)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 
     // websocket
     implementation(libs.krossbow.stomp.core)

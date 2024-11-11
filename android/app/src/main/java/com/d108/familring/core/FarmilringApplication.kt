@@ -1,6 +1,7 @@
 package com.d108.familring.core
 
 import android.app.Application
+import androidx.appcompat.app.AppCompatDelegate
 import com.d108.familring.BuildConfig
 import com.kakao.sdk.common.KakaoSdk
 import dagger.hilt.android.HiltAndroidApp

@@ -31,4 +31,9 @@ interface FamilyApi {
     suspend fun isAvailableCode(
         @Path("familyCode") code: String,
     ): BaseResponse<Boolean>
+
+    @GET("family/member/{familyCode}")
+    suspend fun getParentAvailable(
+        @Path("familyCode") code: String,
+    ): BaseResponse<List<String>>
 }

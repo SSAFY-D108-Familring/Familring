@@ -48,7 +48,7 @@ class UserRepositoryImpl
             userFace: File,
         ): Flow<ApiResponse<JwtToken>> =
             flow {
-                val image = userFace.toMultiPart()
+                val image = userFace.toMultiPart(filename = "image")
                 val requestBody =
                     gson.toJson(request).toRequestBody("application/json".toMediaTypeOrNull())
                 val response =
