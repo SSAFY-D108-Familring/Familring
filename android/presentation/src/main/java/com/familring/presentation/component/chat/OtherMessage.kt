@@ -56,7 +56,7 @@ fun OtherMessage(
                         backgroundColor = color,
                     ),
                 size = 36,
-                paddingValue = 5
+                paddingValue = 5,
             )
             Spacer(modifier = Modifier.width(7.dp))
             Column(modifier = Modifier.wrapContentSize()) {

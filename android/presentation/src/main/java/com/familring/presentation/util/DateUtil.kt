@@ -55,3 +55,12 @@ fun String.toTimeOnly(): String =
     } catch (e: Exception) {
         ""
     }
+
+fun String.toDateOnly(): String =
+    try {
+        val localDateTime = LocalDateTime.parse(this)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        localDateTime.format(formatter)
+    } catch (e: Exception) {
+        ""
+    }

@@ -53,6 +53,7 @@ import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.chat.ChatInputBar
+import com.familring.presentation.component.chat.DateDivider
 import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
 import com.familring.presentation.component.dialog.LoadingDialog
@@ -65,6 +66,7 @@ import com.familring.presentation.theme.Green05
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import com.familring.presentation.util.toDateOnly
 import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.launch
 
@@ -118,12 +120,12 @@ fun ChatScreen(
 
     LaunchedEffect(Unit) {
         if (chatList.isNotEmpty()) {
-            lazyListState.animateScrollToItem(0)
+            lazyListState.animateScrollToItem(chatList.size - 1)
         }
     }
     LaunchedEffect(chatList.size) {
         if (chatList.isNotEmpty()) {
-            lazyListState.animateScrollToItem(0)
+            lazyListState.animateScrollToItem(chatList.size - 1)
         }
     }
 
@@ -152,10 +154,21 @@ fun ChatScreen(
                         .padding(horizontal = 15.dp),
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                reverseLayout = true,
             ) {
-                items(chatList.size) { index ->
-                    val item = chatList[index]
+                items(chatList.reversed().size) { index ->
+                    val item = chatList.reversed()[index]
+                    var prevDate = ""
+                    if (index > 0) {
+                        prevDate = chatList.reversed()[index - 1].createdAt.toDateOnly()
+                    }
+                    val currentDate = item.createdAt.toDateOnly()
+
+                    if (prevDate != "" && currentDate != prevDate) {
+                        DateDivider(date = currentDate)
+                    } else if (index == 0) {
+                        DateDivider(date = currentDate)
+                    }
+
                     if (item.senderId == userId) {
                         MyMessage(
                             message = item.content,
@@ -205,7 +218,7 @@ fun ChatScreen(
                     onValueChanged = {
                         inputMessage = it
                         scope.launch {
-                            lazyListState.animateScrollToItem(0)
+                            lazyListState.animateScrollToItem(chatList.size - 1)
                         }
                     },
                     sendMessage = {
