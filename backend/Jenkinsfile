@@ -18,17 +18,10 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
-                        // 활성화된 인스턴스를 기반으로 새로운 인스턴스와 포트 결정
-                        def newInstance = (activeInstance == 'api-gateway-blue') ? 'api-gateway-green' : 'api-gateway-blue'
-                        def newPort = (newInstance == 'api-gateway-blue') ? 8000 : 8001
-
-                        dir('backend/api-gateway') {
+                        dir('backend/config-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance, newPort, true) // 새 인스턴스 배포
+                            buildAndRunContainer('config-service', 8888, true)
                         }
-
-                        // 다음 배포를 위해 activeInstance 변수를 업데이트
-                        activeInstance = newInstance
                     }
                 }
             }
@@ -51,16 +44,23 @@ pipeline {
         }
 
         stage('Build and Deploy API Gateway') {
-            when {
-                changeset "backend/api-gateway/**"
-            }
+//             when {
+//                 changeset "backend/api-gateway/**"
+//             }
             steps {
                 withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
                     script {
+                        // 활성화된 인스턴스를 기반으로 새로운 인스턴스와 포트 결정
+                        def newInstance = (activeInstance == 'api-gateway-blue') ? 'api-gateway-green' : 'api-gateway-blue'
+                        def newPort = (newInstance == 'api-gateway-blue') ? 8000 : 8001
+
                         dir('backend/api-gateway') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('api-gateway-service', 8000, true)  // 외부 포트 8000에 노출
+                            buildAndRunContainer(newInstance, newPort, true) // 새 인스턴스 배포
                         }
+
+                        // 다음 배포를 위해 activeInstance 변수를 업데이트
+                        activeInstance = newInstance
                     }
                 }
             }
