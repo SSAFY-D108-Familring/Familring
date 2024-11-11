@@ -187,7 +187,7 @@ def get_face_encodings(image):
     try:
         # 이미지 크기 조정
         height, width = image.shape[:2]
-        max_dimension = 2048  # 1024에서 2048로 수정
+        max_dimension = 2000  # 1500에서 2000으로 증가
         logger.info(f"원본 이미지 크기: {width}x{height}")
         
         if max(height, width) > max_dimension:
@@ -197,29 +197,15 @@ def get_face_encodings(image):
             logger.info(f"이미지 크기 조정: {new_width}x{new_height} (scale: {scale:.2f})")
 
         # HOG로 얼굴 검출
-        logger.info("1차 얼굴 검출 시도 (원본 크기)")
+        logger.info("얼굴 검출 시도")
         face_locations = face_recognition.face_locations(
             image,
             model="hog",
-            number_of_times_to_upsample=2
+            number_of_times_to_upsample=1  # 처리 속도를 위해 1 유지
         )
         
         if not face_locations:
-            logger.info("1차 얼굴 검출 실패, 2차 시도 (크기 축소)")
-            scaled_image = cv2.resize(image, None, fx=0.75, fy=0.75)  # 0.5에서 0.75로 수정
-            face_locations = face_recognition.face_locations(
-                scaled_image,
-                model="hog",
-                number_of_times_to_upsample=2
-            )
-            if face_locations:
-                logger.info("2차 얼굴 검출 성공")
-                face_locations = [(int(top/0.75), int(right/0.75), 
-                                 int(bottom/0.75), int(left/0.75))
-                                for top, right, bottom, left in face_locations]
-        
-        if not face_locations:
-            logger.warning("모든 얼굴 검출 시도 실패")
+            logger.warning("얼굴 검출 실패")
             return None
             
         # 검출된 얼굴 위치 로깅
@@ -234,7 +220,7 @@ def get_face_encodings(image):
             face_locations,
             num_jitters=1
         )
-        
+    
         if face_encodings:
             logger.info(f"얼굴 인코딩 완료: {len(face_encodings)}개")
             return face_encodings
@@ -333,7 +319,6 @@ async def count_faces(file: UploadFile = File(...)):
                 status_code=400,
                 message="파일 크기가 너무 큽니다. 최대 10MB까지 허용됩니다."
             )
-
         img = load_image_from_bytes(file_content)
         if img is None:
             return BaseResponse.create(
