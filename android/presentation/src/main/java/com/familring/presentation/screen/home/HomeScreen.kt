@@ -48,6 +48,7 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
+import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green03
@@ -359,7 +360,7 @@ fun FamilyCard(user: User) {
                     .padding(vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = user.userNickname, style = Typography.titleLarge.copy(fontSize = 15.sp))
+            Text(text = user.userNickname, style = Typography.titleLarge.copy(fontSize = 15.sp, color = Black))
             Spacer(modifier = Modifier.fillMaxSize(0.01f))
             AsyncImage(
                 model = user.userZodiacSign,
@@ -369,14 +370,23 @@ fun FamilyCard(user: User) {
                         .aspectRatio(1f),
                 contentDescription = "user zodiac img",
             )
+            if(user.userRole.equals("M")){
+                Text(text = "엄마", style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02))
+            }else if(user.userRole.equals("F")){
+                Text(text = "아빠", style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02))
+            }else if(user.userRole.equals("D")){
+                Text(text = "딸", style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02))
+            }else{
+                Text(text = "아들", style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02))
+            }
             Spacer(
-                modifier = Modifier.height(15.dp),
+                modifier = Modifier.height(8.dp),
             )
             Text(
                 user.userEmotion.ifEmpty {
                     "평범해요 🙂"
                 },
-                style = Typography.displaySmall.copy(fontSize = 14.sp),
+                style = Typography.displaySmall.copy(fontSize = 14.sp, color = Black),
             )
         }
     }

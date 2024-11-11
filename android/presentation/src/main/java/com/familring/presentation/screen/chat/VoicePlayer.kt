@@ -7,7 +7,6 @@ import timber.log.Timber
 
 class VoicePlayer {
     private var mediaPlayer: MediaPlayer? = null
-    private var isInitialized = false
     private var playing = false
     private var currentMessageUrl: String? = null
     private var pausePosition = 0
@@ -20,7 +19,7 @@ class VoicePlayer {
         onError: (String) -> Unit,
     ) {
         try {
-            if (mediaPlayer != null && isInitialized && currentMessageUrl == filePath) {
+            if (mediaPlayer != null && currentMessageUrl == filePath) {
                 mediaPlayer?.let {
                     it.seekTo(pausePosition)
                     it.start()
@@ -29,20 +28,15 @@ class VoicePlayer {
                 playing = true
                 return
             }
-
-            resetMediaPlayer()
-
             mediaPlayer =
                 MediaPlayer().apply {
                     setDataSource(filePath)
+                    prepareAsync()
                     setOnErrorListener { _, what, extra ->
                         Timber.e("MediaPlayer error: what=$what, extra=$extra")
-                        resetMediaPlayer()
-                        onError("MediaPlayer error occurred.")
                         true
                     }
                     setOnPreparedListener { mp ->
-                        isInitialized = true
                         mp.start()
                         playing = true
                         startProgressUpdate(mp, onProgressUpdate)
@@ -52,12 +46,9 @@ class VoicePlayer {
                         stopPlaying()
                         onComplete()
                     }
-                    prepareAsync()
                 }
             currentMessageUrl = filePath
         } catch (e: Exception) {
-            Timber.e("Error playing message: ${e.message}")
-            resetMediaPlayer()
             onError("Failed to play the message.")
         }
     }
@@ -87,7 +78,6 @@ class VoicePlayer {
                 it.release()
             }
         }
-        resetMediaPlayer()
     }
 
     fun pause() {
@@ -98,19 +88,6 @@ class VoicePlayer {
                 playing = false
             }
         }
-    }
-
-    private fun resetMediaPlayer() {
-        handler?.removeCallbacksAndMessages(null)
-        mediaPlayer?.apply {
-            stop()
-            release()
-        }
-        mediaPlayer = null
-        playing = false
-        pausePosition = 0
-        currentMessageUrl = null
-        isInitialized = false
     }
 
     fun getTotalDuration(): Int = mediaPlayer?.duration ?: 0

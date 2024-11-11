@@ -38,12 +38,16 @@ class LoginViewModel
         private val _loginEvent = MutableSharedFlow<LoginEvent>()
         val loginEvent = _loginEvent.asSharedFlow()
 
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading = _isLoading.asStateFlow()
+
         init {
             autoLogin()
         }
 
         private fun autoLogin() {
             viewModelScope.launch {
+                _isLoading.value = true
                 authDataStore.getKakaoId()?.let {
                     try {
                         userRepository
@@ -64,6 +68,8 @@ class LoginViewModel
                     } catch (e: Exception) {
                         Timber.e(e, "서버 통신 중 오류 발생")
                         _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${e.message}"))
+                    } finally {
+                        _isLoading.value = false
                     }
                 }
             }

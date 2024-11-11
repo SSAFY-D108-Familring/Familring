@@ -27,6 +27,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
@@ -56,14 +57,17 @@ fun CustomDropdownMenu(
     styles: CustomDropdownMenuStyles = CustomDropdownMenuStyles(),
 ) {
     val expanded = remember { mutableStateOf(false) }
-    val selectedMenu = remember { mutableStateOf(menuItems[0].first) }
+    val selectedMenu = remember { mutableStateOf("선택해 주세요") }
 
     Column(modifier = modifier) {
         OutlinedDropdownButton(
             buttonText = selectedMenu.value,
             iconDrawableId = if (expanded.value) expandedIconDrawable else iconDrawable,
             styles = styles,
-            textStyle = textStyle,
+            textStyle =
+                textStyle.copy(
+                    color = if (selectedMenu.value == "선택해 주세요") Gray02 else Black,
+                ),
         ) {
             expanded.value = true
         }
@@ -83,7 +87,8 @@ fun CustomDropdownMenu(
                     text = {
                         Text(
                             text = label,
-                            style = if (label != selectedMenu.value) menuItemTextStyle else textStyle,
+                            style = menuItemTextStyle,
+                            color = Black,
                         )
                     },
                     onClick = {

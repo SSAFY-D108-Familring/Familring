@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,11 +31,13 @@ class GalleryViewModel
         private val _photoUiState = MutableStateFlow<PhotoUiState>(PhotoUiState.Loading)
         val photoUiState = _photoUiState.asStateFlow()
 
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading = _isLoading.asStateFlow()
+
         private var currentAlbumTypes: List<AlbumType> =
             listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON)
 
         fun getAlbums(albumTypes: List<AlbumType>) {
-            Timber.d("된거임?")
             currentAlbumTypes = albumTypes
             loadAlbums()
         }
@@ -81,26 +84,31 @@ class GalleryViewModel
             albumType: AlbumType,
         ) {
             viewModelScope.launch {
-                galleryRepository
-                    .createAlbum(scheduleId, albumName, albumType.name)
-                    .collectLatest { response ->
-                        when (response) {
-                            is ApiResponse.Success -> {
-                                _galleryUiEvent.emit(GalleryUiEvent.Success)
-                                loadAlbums()
-                            }
+                _isLoading.value = true
+                try {
+                    galleryRepository
+                        .createAlbum(scheduleId, albumName, albumType.name)
+                        .collectLatest { response ->
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    _galleryUiEvent.emit(GalleryUiEvent.Success)
+                                    loadAlbums()
+                                }
 
-                            is ApiResponse.Error -> {
-                                _galleryUiEvent.emit(
-                                    GalleryUiEvent.Error(
-                                        response.code,
-                                        response.message,
-                                    ),
-                                )
-                                Timber.d("code: ${response.code}, message: ${response.message}")
+                                is ApiResponse.Error -> {
+                                    _galleryUiEvent.emit(
+                                        GalleryUiEvent.Error(
+                                            response.code,
+                                            response.message,
+                                        ),
+                                    )
+                                    Timber.d("code: ${response.code}, message: ${response.message}")
+                                }
                             }
                         }
-                    }
+                } finally {
+                    _isLoading.value = false
+                }
             }
         }
 
@@ -111,8 +119,115 @@ class GalleryViewModel
                         is ApiResponse.Success -> {
                             _photoUiState.value =
                                 PhotoUiState.Success(
-                                    photoList = response.data,
+                                    albumName = response.data.albumName,
+                                    photoList = response.data.photos,
                                 )
+                        }
+
+                        is ApiResponse.Error -> {
+                            _photoUiState.value =
+                                PhotoUiState.Error(
+                                    errorMessage = response.message,
+                                )
+                            _galleryUiEvent.emit(
+                                GalleryUiEvent.Error(
+                                    response.code,
+                                    response.message,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        fun updateAlbum(
+            albumId: Long,
+            albumName: String,
+        ) {
+            viewModelScope.launch {
+                galleryRepository.updateAlbum(albumId, albumName).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _galleryUiEvent.emit(GalleryUiEvent.Success)
+                            loadAlbums()
+                        }
+
+                        is ApiResponse.Error -> {
+                            _galleryUiEvent.emit(
+                                GalleryUiEvent.Error(
+                                    response.code,
+                                    response.message,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        fun deleteAlbum(albumId: Long) {
+            viewModelScope.launch {
+                galleryRepository.deleteAlbum(albumId).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _galleryUiEvent.emit(GalleryUiEvent.Success)
+                            loadAlbums()
+                        }
+
+                        is ApiResponse.Error -> {
+                            _galleryUiEvent.emit(
+                                GalleryUiEvent.Error(
+                                    response.code,
+                                    response.message,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        fun uploadPhotos(
+            albumId: Long,
+            photos: List<File>,
+        ) {
+            viewModelScope.launch {
+                _isLoading.value = true
+                try {
+                    galleryRepository.uploadPhotos(albumId, photos).collectLatest { response ->
+                        when (response) {
+                            is ApiResponse.Success -> {
+                                _galleryUiEvent.emit(GalleryUiEvent.Success)
+                                getOneAlbum(albumId)
+                            }
+
+                            is ApiResponse.Error -> {
+                                _galleryUiEvent.emit(
+                                    GalleryUiEvent.Error(
+                                        response.code,
+                                        response.message,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                } finally {
+                    _isLoading.value = false
+                }
+            }
+        }
+
+        fun deletePhotos(
+            albumId: Long,
+            photoIds: List<Long>,
+        ) {
+            viewModelScope.launch {
+                galleryRepository.deletePhotos(albumId, photoIds).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _galleryUiEvent.emit(GalleryUiEvent.Success)
+                            getOneAlbum(albumId)
                         }
 
                         is ApiResponse.Error -> {
