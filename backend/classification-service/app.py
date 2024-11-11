@@ -278,17 +278,26 @@ async def classify_images(request: AnalysisRequest):
                 faceCount=face_count
             ))
         
-        return BaseResponse.create(
+        response = BaseResponse.create(
             status_code=200,
             message="얼굴 유사도 분석이 완료되었습니다.",
             data=results
         )
+        
+        # 응답 로깅 추가
+        logger.info(f"Classification API 응답: {response.json(ensure_ascii=False)}")
+        
+        return response
     except Exception as e:
-        logger.error(f"얼굴 유사도 분석 중 오류 발생: {str(e)}")
-        return BaseResponse.create(
+        error_response = BaseResponse.create(
             status_code=500,
             message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
         )
+        
+        # 에러 응답 로깅 추가
+        logger.error(f"Classification API 에러 응답: {error_response.json(ensure_ascii=False)}")
+        
+        return error_response
 
 @app.post("/face-recognition/face-count", response_model=BaseResponse[CountResponse])
 async def count_faces(file: UploadFile = File(...)):
