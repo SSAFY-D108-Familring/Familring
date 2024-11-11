@@ -290,12 +290,8 @@ async def classify_images(request: AnalysisRequest):
             message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
         )
 
-# face-count 엔드포인트 수정
 @app.post("/face-recognition/face-count", response_model=BaseResponse[CountResponse])
 async def count_faces(file: UploadFile = File(...)):
-    """
-    업로드된 이미지 파일에서 검출된 얼굴의 수를 반환합니다.
-    """
     try:
         logger.info(f"얼굴 수 검출 요청 시작 - 파일명: {file.filename}")
         
@@ -309,15 +305,15 @@ async def count_faces(file: UploadFile = File(...)):
                 message="지원되지 않는 파일 형식입니다. JPG, JPEG, PNG, GIF, BMP, WEBP 파일만 허용됩니다."
             )
         
-        # 파일 크기 제한 (10MB)
-        MAX_FILE_SIZE = 10 * 1024 * 1024
+        # 파일 크기 제한 (20MB)
+        MAX_FILE_SIZE = 20 * 1024 * 1024 
         file_content = await file.read()
         file_size = len(file_content)
         
         if file_size > MAX_FILE_SIZE:
             return BaseResponse.create(
                 status_code=400,
-                message="파일 크기가 너무 큽니다. 최대 10MB까지 허용됩니다."
+                message="파일 크기가 너무 큽니다. 최대 20MB까지 허용됩니다."
             )
 
         img = load_image_from_bytes(file_content)
