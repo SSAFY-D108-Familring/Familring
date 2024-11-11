@@ -9,6 +9,7 @@ import lombok.*;
 public class InterestMissionResponse {
 
     private String photoUrl;
+    private String userZodiacSign;
     private String userNickname;
 
 }

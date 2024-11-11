@@ -340,6 +340,7 @@ public class InterestService {
                         .builder()
                         .photoUrl(interestMission.get().getPhotoUrl())
                         .userNickname(member.getUserNickname())
+                        .userZodiacSign(member.getUserZodiacSign())
                         .build();
 
                 interestMissionResponseList.add(interestMissionResponse);
