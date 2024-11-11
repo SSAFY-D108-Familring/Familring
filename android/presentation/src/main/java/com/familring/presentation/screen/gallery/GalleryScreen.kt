@@ -72,7 +72,7 @@ fun GalleryRoute(
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.getAlbums(listOf(AlbumType.NORMAL, AlbumType.PERSON))
+        viewModel.getAlbums(listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON))
     }
 
     GalleryScreen(
@@ -81,7 +81,16 @@ fun GalleryRoute(
         galleryUiState = galleryUiState,
         isLoading = isLoading,
         onGalleryChange = { isNormal ->
-            viewModel.getAlbums(listOf(if (isNormal) AlbumType.NORMAL else AlbumType.PERSON))
+            viewModel.getAlbums(
+                if (isNormal) {
+                    listOf(
+                        AlbumType.NORMAL,
+                        AlbumType.SCHEDULE,
+                    )
+                } else {
+                    listOf(AlbumType.PERSON)
+                },
+            )
         },
         onGalleryCreate = { albumName, albumType ->
             viewModel.createAlbum(null, albumName, albumType)

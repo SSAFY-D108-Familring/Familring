@@ -16,12 +16,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.compose.LazyPagingItems
 import com.familring.domain.model.timecapsule.TimeCapsule
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
@@ -45,23 +44,14 @@ import com.familring.presentation.theme.White
 @Composable
 fun TimeCapsuleListScreen(
     modifier: Modifier = Modifier,
-    state: TimeCapsuleUiState,
-    getTimeCapsules: (Int) -> Unit = {},
-    onShowSnackBar: (message: String) -> Unit = {},
+    timeCapsules: LazyPagingItems<TimeCapsule>,
 ) {
-    LaunchedEffect(Unit) {
-        if (state.isFirstLoading) {
-            getTimeCapsules(state.currentPageNo + 1)
-        }
-    }
-
-    if (state.timeCapsules.isEmpty()) {
+    if (timeCapsules.itemCount == 0) {
         NoTimeCapsuleList(modifier = modifier)
     } else {
         TimeCapsuleList(
             modifier = modifier,
-            timeCapsules = state.timeCapsules,
-            onShowSnackBar = onShowSnackBar,
+            timeCapsules = timeCapsules,
         )
     }
 }
@@ -69,8 +59,7 @@ fun TimeCapsuleListScreen(
 @Composable
 fun TimeCapsuleList(
     modifier: Modifier = Modifier,
-    timeCapsules: List<TimeCapsule> = listOf(),
-    onShowSnackBar: (message: String) -> Unit = {},
+    timeCapsules: LazyPagingItems<TimeCapsule>,
 ) {
     Surface(
         modifier =
@@ -89,15 +78,13 @@ fun TimeCapsuleList(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                itemsIndexed(timeCapsules.reversed()) { index, item ->
+                items(timeCapsules.itemCount) { index ->
                     TimeCapsuleItem(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .aspectRatio(1f),
-                        count = timeCapsules.size - index,
-                        timeCapsule = item,
-                        onShowSnackBar = onShowSnackBar,
+                        timeCapsule = timeCapsules[index]!!,
                     )
                 }
             }
@@ -109,9 +96,7 @@ fun TimeCapsuleList(
 @Composable
 fun TimeCapsuleItem(
     modifier: Modifier = Modifier,
-    count: Int,
     timeCapsule: TimeCapsule,
-    onShowSnackBar: (message: String) -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
 
@@ -135,7 +120,7 @@ fun TimeCapsuleItem(
         ) {
             Text(
                 modifier = Modifier.padding(start = 3.dp),
-                text = "${count}번째 캡슐",
+                text = "${timeCapsule.timeCapsuleIndex}번째 캡슐",
                 style =
                     Typography.headlineLarge.copy(
                         color = Black,
@@ -189,19 +174,10 @@ fun TimeCapsuleItem(
     }
 }
 
-// @Preview(showBackground = true)
-// @Composable
-// private fun TimeCapsuleItemPreview() {
-//    TimeCapsuleItem(
-//        count = 2,
-//        openable = true,
-//    )
-// }
-
 @Preview
 @Composable
 private fun TimeCapsuleListPreview() {
-    TimeCapsuleListScreen(
-        state = TimeCapsuleUiState(),
-    )
+//    TimeCapsuleListScreen(
+//        state = TimeCapsuleUiState(),
+//    )
 }

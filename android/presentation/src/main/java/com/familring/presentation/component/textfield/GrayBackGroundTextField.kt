@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
@@ -18,13 +22,13 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
+import org.apache.commons.lang3.StringUtils.isBlank
 
 @Composable
 fun GrayBackgroundTextField(
     modifier: Modifier = Modifier,
-    content: String,
+    textFieldState: TextFieldState,
     scrollState: ScrollState,
-    onValueChange: (String) -> Unit,
     hint: String = "여기에 작성해 주세요",
 ) {
     Box(
@@ -36,20 +40,20 @@ fun GrayBackgroundTextField(
                 .padding(16.dp),
     ) {
         BasicTextField(
-            value = content,
-            onValueChange = onValueChange,
             modifier =
                 Modifier.verticalScroll(
                     state = scrollState,
                 ),
+            state = textFieldState,
             textStyle =
                 Typography.bodyMedium.copy(
                     fontSize = 20.sp,
                     color = Black,
                 ),
-            decorationBox = { innerTextField ->
-                if (content.isEmpty()) {
+            decorator = { innerTextField ->
+                if (textFieldState.text.isBlank()) {
                     Text(
+                        modifier = Modifier.fillMaxSize(),
                         text = hint,
                         style =
                             Typography.bodyMedium.copy(

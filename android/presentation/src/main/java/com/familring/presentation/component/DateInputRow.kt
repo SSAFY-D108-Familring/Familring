@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
 import com.familring.presentation.component.textfield.NumberTextField
+import com.familring.presentation.theme.Green03
 
 @Composable
 fun DateInputRow(
@@ -19,6 +21,7 @@ fun DateInputRow(
     onMonthChange: (String) -> Unit,
     onDateChange: (String) -> Unit,
     focusManager: FocusManager,
+    borderColor: Color = Green03
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -31,6 +34,7 @@ fun DateInputRow(
             placeholder = "YYYY",
             focusManager = focusManager,
             maxLength = 4,
+            borderColor = borderColor,
         )
         Spacer(modifier = Modifier.fillMaxWidth(0.02f))
         NumberTextField(
@@ -40,6 +44,7 @@ fun DateInputRow(
             placeholder = "MM",
             focusManager = focusManager,
             maxLength = 2,
+            borderColor = borderColor,
         )
         Spacer(modifier = Modifier.fillMaxWidth(0.02f))
         NumberTextField(
@@ -49,6 +54,7 @@ fun DateInputRow(
             placeholder = "DD",
             focusManager = focusManager,
             maxLength = 2,
+            borderColor = borderColor,
         )
     }
 }

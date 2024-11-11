@@ -2,7 +2,7 @@ package com.familring.presentation.screen.calendar
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,14 +13,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
@@ -37,20 +43,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil.compose.AsyncImage
+import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.util.toMultiPart
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -65,6 +76,8 @@ import java.io.File
 @Composable
 fun DailyUploadRoute(
     modifier: Modifier = Modifier,
+    targetDaily: DailyLife,
+    isModify: Boolean,
     dailyViewModel: DailyViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
     showSnackbar: (String) -> Unit,
@@ -88,24 +101,32 @@ fun DailyUploadRoute(
     DailyUploadScreen(
         modifier = modifier,
         state = uiState,
+        targetDaily = targetDaily,
+        isModify = isModify,
         createDaily = dailyViewModel::createDaily,
+        modifyDaily = dailyViewModel::updateDaily,
         popUpBackStack = popUpBackStack,
     )
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DailyUploadScreen(
     modifier: Modifier = Modifier,
     state: DailyUiState = DailyUiState(),
+    targetDaily: DailyLife,
+    isModify: Boolean = false,
     createDaily: (String, MultipartBody.Part?) -> Unit = { _, _ -> },
+    modifyDaily: (Long, String, MultipartBody.Part?) -> Unit = { _, _, _ -> },
     popUpBackStack: () -> Unit = {},
 ) {
     val context = LocalContext.current
 
     var showBottomSheet by remember { mutableStateOf(false) }
 
-    var imgUri by remember { mutableStateOf<Uri?>(null) }
+    var imgUri by remember {
+        mutableStateOf(if (isModify) targetDaily.dailyImgUrl.toUri() else null)
+    }
     val singlePhotoPickerLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.PickVisualMedia(),
@@ -142,11 +163,20 @@ fun DailyUploadScreen(
             }
         }
 
-    var content by remember { mutableStateOf("") }
+    val textFieldState =
+        remember { TextFieldState(if (isModify) targetDaily.content else "") }
+    val contentScrollState = rememberScrollState()
+
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(content) {
-        scrollState.animateScrollTo(scrollState.maxValue)
+    // 키보드 높이 감지
+    val imeInsets = WindowInsets.ime.exclude(WindowInsets.navigationBars)
+    val imeHeight = imeInsets.getBottom(LocalDensity.current)
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(imeHeight) {
+        scrollState.scrollTo(scrollState.maxValue)
     }
 
     Surface(
@@ -154,7 +184,11 @@ fun DailyUploadScreen(
         color = White,
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = with(LocalDensity.current) { (imeHeight).toDp() }) // 키보드 높이만큼 padding을 추가
+                    .verticalScroll(state = scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TopAppBar(
@@ -165,14 +199,14 @@ fun DailyUploadScreen(
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
                 },
-                onNavigationClick = popUpBackStack,
+                onNavigationClick = { showDialog = true },
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
+            Spacer(modifier = Modifier.height(30.dp))
             Box(
                 modifier =
                     Modifier
-                        .fillMaxWidth(0.6f)
-                        .aspectRatio(3f / 4f)
+                        .fillMaxWidth(0.9f)
+                        .aspectRatio(3.5f / 3f)
                         .clip(shape = RoundedCornerShape(12.dp))
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp))
                         .clickable {
@@ -181,7 +215,7 @@ fun DailyUploadScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 if (imgUri != null) {
-                    GlideImage(
+                    AsyncImage(
                         modifier =
                             Modifier
                                 .matchParentSize()
@@ -199,22 +233,36 @@ fun DailyUploadScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+            Spacer(modifier = Modifier.height(15.dp))
             GrayBackgroundTextField(
+                textFieldState = textFieldState,
                 modifier =
                     Modifier
                         .fillMaxWidth(0.9f)
-                        .weight(1f),
-                content = content,
-                scrollState = scrollState,
-                onValueChange = { content = it },
+                        .aspectRatio(2.8f / 2f),
+                scrollState = contentScrollState,
                 hint = "가족과 공유하고 싶은 일상을 작성해 주세요!",
             )
             RoundLongButton(
-                modifier = Modifier.padding(vertical = 20.dp),
-                text = "일상 등록하기",
-                onClick = { createDaily(content, imgUri?.toFile(context).toMultiPart()) },
-                enabled = imgUri != null && content != "",
+                modifier =
+                    Modifier
+                        .padding(vertical = 20.dp),
+                text = if (!isModify) "일상 등록하기" else "일상 수정하기",
+                onClick = {
+                    if (!isModify) {
+                        createDaily(
+                            textFieldState.text.toString(),
+                            imgUri?.toFile(context).toMultiPart(),
+                        )
+                    } else {
+                        modifyDaily(
+                            targetDaily.dailyId,
+                            textFieldState.text.toString(),
+                            imgUri?.toFile(context).toMultiPart(),
+                        )
+                    }
+                },
+                enabled = imgUri != null,
             )
         }
 
@@ -233,18 +281,20 @@ fun DailyUploadScreen(
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Column(
                             modifier =
-                                Modifier.weight(1f).noRippleClickable {
-                                    when (PackageManager.PERMISSION_GRANTED) {
-                                        ContextCompat.checkSelfPermission(
-                                            context,
-                                            Manifest.permission.CAMERA,
-                                        ),
-                                        -> cameraLauncher.launch(cameraFileUri)
+                                Modifier
+                                    .weight(1f)
+                                    .noRippleClickable {
+                                        when (PackageManager.PERMISSION_GRANTED) {
+                                            ContextCompat.checkSelfPermission(
+                                                context,
+                                                Manifest.permission.CAMERA,
+                                            ),
+                                            -> cameraLauncher.launch(cameraFileUri)
 
-                                        else -> permissionLauncher.launch(Manifest.permission.CAMERA)
-                                    }
-                                    showBottomSheet = false
-                                },
+                                            else -> permissionLauncher.launch(Manifest.permission.CAMERA)
+                                        }
+                                        showBottomSheet = false
+                                    },
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Image(
@@ -285,11 +335,34 @@ fun DailyUploadScreen(
                 }
             }
         }
+
+        if (showDialog) {
+            Dialog(
+                onDismissRequest = { showDialog = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                TwoButtonTextDialog(
+                    text = if (!isModify) "일상 업로드를 종료하시겠어요?" else "일상 수정을 종료하시겠어요?",
+                    onConfirmClick = {
+                        showDialog = false
+                        popUpBackStack()
+                    },
+                    onDismissClick = { showDialog = false },
+                )
+            }
+        }
+
+        BackHandler(enabled = !showDialog) {
+            showDialog = true
+        }
     }
 }
 
 @Preview
 @Composable
 private fun DailyUploadScreenPreview() {
-    DailyUploadScreen()
+    DailyUploadScreen(
+        targetDaily = DailyLife(),
+        isModify = true,
+    )
 }

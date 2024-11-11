@@ -92,4 +92,7 @@ dependencies {
 
     // lottie
     implementation(libs.lottie)
+
+    // pagination
+    implementation(libs.androidx.paging.compose)
 }

@@ -201,7 +201,6 @@ fun AnswerWriteScreen(
                     }
                 },
                 placeholder = "답변을 입력해 주세요",
-                focusManager = focusManager,
             )
             Text(
                 text = "${content.length}/${maxLength}",

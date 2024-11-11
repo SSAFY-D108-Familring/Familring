@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.timecapsule
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
@@ -30,6 +33,7 @@ import com.familring.presentation.component.DateInputRow
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.dialog.LoadingDialog
+import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Red01
@@ -81,22 +85,24 @@ fun TimeCapsuleCreateScreen(
     val today = LocalDate.now()
     var year by remember { mutableStateOf(today.year.toString()) }
     var month by remember { mutableStateOf(String.format("%02d", today.monthValue)) }
-    var date by remember { mutableStateOf(String.format("%02d", today.plusDays(3).dayOfMonth)) }
+    var date by remember { mutableStateOf(String.format("%02d", today.plusDays(1).dayOfMonth)) }
 
     val isDateFormValid by remember { derivedStateOf { isDateFormValid(year, month, date) } }
-    val isAfter3Days by remember { derivedStateOf { isAfter3Days(year, month, date) } }
-    val isButtonEnabled = isDateFormValid && isAfter3Days
+    val isAfterOneDay by remember { derivedStateOf { isAfterOneDay(year, month, date) } }
+    val isButtonEnabled = isDateFormValid && isAfterOneDay
 
     val errorText =
         if (!isDateFormValid) {
             "날짜 형식을 확인해 주세요"
-        } else if (!isAfter3Days) {
+        } else if (!isAfterOneDay) {
             "타임캡슐은 최소 하루 뒤에 열 수 있어요"
         } else {
             ""
         }
 
     val focusManager = LocalFocusManager.current
+
+    var showDialog by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -114,7 +120,7 @@ fun TimeCapsuleCreateScreen(
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
                     )
                 },
-                onNavigationClick = popUpBackStack,
+                onNavigationClick = { showDialog = true },
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             Image(
@@ -183,9 +189,29 @@ fun TimeCapsuleCreateScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
         }
     }
+
+    if (showDialog) {
+        Dialog(
+            onDismissRequest = { showDialog = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            TwoButtonTextDialog(
+                text = "타임 캡슐 생성을 종료하시겠어요?",
+                onConfirmClick = {
+                    showDialog = false
+                    popUpBackStack()
+                },
+                onDismissClick = { showDialog = false },
+            )
+        }
+    }
+
+    BackHandler(enabled = !showDialog) {
+        showDialog = true
+    }
 }
 
-private fun isAfter3Days(
+private fun isAfterOneDay(
     year: String,
     month: String,
     date: String,
@@ -193,7 +219,7 @@ private fun isAfter3Days(
     try {
         val today = LocalDate.now()
         val targetDate = LocalDate.of(year.toInt(), month.toInt(), date.toInt())
-        val threeDaysLater = today.plusDays(3)
+        val threeDaysLater = today.plusDays(1)
 
         return targetDate.isAfter(threeDaysLater) || targetDate.isEqual(threeDaysLater)
     } catch (e: Exception) {

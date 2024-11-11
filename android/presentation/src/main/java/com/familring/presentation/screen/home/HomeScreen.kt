@@ -384,7 +384,7 @@ fun FamilyCard(user: User) {
             )
             Text(
                 user.userEmotion.ifEmpty {
-                    "평범해요\uD83D\uDE10"
+                    "평범해요 🙂"
                 },
                 style = Typography.displaySmall.copy(fontSize = 14.sp, color = Black),
             )
@@ -426,7 +426,7 @@ fun EmptyCard() {
                     modifier = Modifier.height(15.dp),
                 )
                 Text(
-                    text = "평범해요\uD83D\uDE10",
+                    text = "평범해요 \uD83D\uDE42",
                     style = Typography.displaySmall.copy(fontSize = 14.sp),
                     modifier = Modifier.alpha(0.3f),
                 )
