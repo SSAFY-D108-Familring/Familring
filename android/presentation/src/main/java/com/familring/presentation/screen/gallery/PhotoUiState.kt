@@ -8,6 +8,7 @@ sealed interface PhotoUiState {
     object Loading : PhotoUiState
 
     data class Success(
+        val albumName: String = "",
         val photoList: List<Photo>,
     ) : PhotoUiState
 

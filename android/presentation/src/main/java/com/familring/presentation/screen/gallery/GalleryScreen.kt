@@ -1,9 +1,9 @@
 package com.familring.presentation.screen.gallery
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,13 +49,16 @@ import com.familring.domain.model.gallery.AlbumType
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun GalleryRoute(
@@ -65,6 +69,8 @@ fun GalleryRoute(
 ) {
     val galleryUiState by viewModel.galleryUiState.collectAsStateWithLifecycle()
     val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Loading)
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+
     LaunchedEffect(Unit) {
         viewModel.getAlbums(listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON))
     }
@@ -73,6 +79,7 @@ fun GalleryRoute(
         modifier = modifier,
         navigateToAlbum = navigateToAlbum,
         galleryUiState = galleryUiState,
+        isLoading = isLoading,
         onGalleryChange = { isNormal ->
             viewModel.getAlbums(
                 if (isNormal) {
@@ -88,9 +95,15 @@ fun GalleryRoute(
         onGalleryCreate = { albumName, albumType ->
             viewModel.createAlbum(null, albumName, albumType)
         },
+        onUpdateAlbum = { albumId, albumName ->
+            viewModel.updateAlbum(albumId, albumName)
+        },
+        deleteAlbum = { albumId ->
+            viewModel.deleteAlbum(albumId)
+        },
     )
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(galleryUiEvent) {
         when (galleryUiEvent) {
             is GalleryUiEvent.Loading -> {
                 // 로딩중
@@ -113,8 +126,11 @@ fun GalleryScreen(
     modifier: Modifier,
     navigateToAlbum: (Long) -> Unit,
     galleryUiState: GalleryUiState,
+    isLoading: Boolean,
     onGalleryChange: (Boolean) -> Unit,
     onGalleryCreate: (String, AlbumType) -> Unit = { _, _ -> },
+    onUpdateAlbum: (Long, String) -> Unit = { _, _ -> },
+    deleteAlbum: (Long) -> Unit = {},
 ) {
     var privateGallerySelected by remember { mutableStateOf(true) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -129,7 +145,13 @@ fun GalleryScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             TopAppBar(
-                title = { Text(text = "앨범", style = Typography.titleLarge) },
+                title = {
+                    Text(
+                        text = "앨범",
+                        style = Typography.titleLarge,
+                        color = Black,
+                    )
+                },
                 navigationType = TopAppBarNavigationType.None,
             )
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
@@ -149,16 +171,14 @@ fun GalleryScreen(
                             ).border(
                                 border =
                                     if (privateGallerySelected) {
-                                        BorderStroke(
-                                            0.dp,
-                                            Gray03,
-                                        )
+                                        BorderStroke(0.dp, Gray03)
                                     } else {
                                         BorderStroke(1.dp, Gray03)
                                     },
                                 RoundedCornerShape(30.dp),
-                            ).noRippleClickable { privateGallerySelected = true }
-                            .padding(horizontal = 19.dp, vertical = 8.dp),
+                            ).noRippleClickable {
+                                if (!isLoading) privateGallerySelected = true
+                            }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (privateGallerySelected) White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -173,16 +193,14 @@ fun GalleryScreen(
                             ).border(
                                 border =
                                     if (!privateGallerySelected) {
-                                        BorderStroke(
-                                            0.dp,
-                                            Gray03,
-                                        )
+                                        BorderStroke(0.dp, Gray03)
                                     } else {
                                         BorderStroke(1.dp, Gray03)
                                     },
                                 RoundedCornerShape(30.dp),
-                            ).noRippleClickable { privateGallerySelected = false }
-                            .padding(horizontal = 19.dp, vertical = 8.dp),
+                            ).noRippleClickable {
+                                if (!isLoading) privateGallerySelected = false
+                            }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (!privateGallerySelected) White else Color.Black,
                 )
             }
@@ -213,11 +231,16 @@ fun GalleryScreen(
                             }
 
                         items(albums.size) { index ->
-                            GalleryItem(albums[index], navigateToAlbum = navigateToAlbum)
+                            GalleryItem(
+                                albums[index],
+                                navigateToAlbum = navigateToAlbum,
+                                onUpdateAlbum = onUpdateAlbum,
+                                deleteAlbum = deleteAlbum,
+                            )
                         }
                         item {
                             AddAlbumButton(onClick = {
-                                showBottomSheet = true
+                                if (!isLoading) showBottomSheet = true
                             })
                         }
                     }
@@ -238,10 +261,13 @@ fun GalleryScreen(
             }
 
             if (showBottomSheet) {
-                ModalBottomSheet(containerColor = White, onDismissRequest = {
-                    showBottomSheet = false
-                    albumname = ""
-                }) {
+                ModalBottomSheet(
+                    containerColor = White,
+                    onDismissRequest = {
+                        showBottomSheet = false
+                        albumname = ""
+                    },
+                ) {
                     Column(
                         modifier =
                             Modifier
@@ -254,12 +280,13 @@ fun GalleryScreen(
                                     .background(Color.Transparent)
                                     .padding(horizontal = 26.dp),
                             value = albumname,
-                            onValueChange = { albumname = it },
+                            onValueChange = { if (!isLoading) albumname = it },
                             textStyle =
                                 Typography.titleSmall.copy(
                                     color = if (albumname.isEmpty()) Gray03 else Color.Black,
                                     fontSize = 24.sp,
                                 ),
+                            enabled = !isLoading,
                             decorationBox = { innerTextField ->
                                 Box {
                                     if (albumname.isEmpty()) {
@@ -278,8 +305,9 @@ fun GalleryScreen(
                         RoundLongButton(
                             backgroundColor = Brown01,
                             text = "생성하기",
+                            enabled = !isLoading && albumname.isNotEmpty(),
                             onClick = {
-                                Log.d("Gallery", "생성하기")
+                                Timber.d("생성하기")
                                 if (privateGallerySelected) {
                                     onGalleryCreate(albumname, AlbumType.NORMAL)
                                 } else {
@@ -294,13 +322,97 @@ fun GalleryScreen(
             }
         }
     }
+
+    if (isLoading) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(color = Green02)
+        }
+    }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GalleryItem(
     album: Album,
     navigateToAlbum: (Long) -> Unit,
+    onUpdateAlbum: (Long, String) -> Unit,
+    deleteAlbum: (Long) -> Unit,
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+    var updatedAlbumName by remember { mutableStateOf(album.albumName) }
+
+    if (showDialog) {
+        ModalBottomSheet(
+            containerColor = White,
+            onDismissRequest = {
+                showDialog = false
+                updatedAlbumName = album.albumName // 취소 시 원래 이름으로 초기화
+            },
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .background(color = White)
+                        .padding(top = 16.dp),
+            ) {
+                BasicTextField(
+                    modifier =
+                        Modifier
+                            .background(Color.Transparent)
+                            .padding(horizontal = 26.dp),
+                    value = updatedAlbumName,
+                    onValueChange = { updatedAlbumName = it },
+                    // 처음엔 그레이 색..?
+                    textStyle =
+                        Typography.titleSmall.copy(
+                            color = if (updatedAlbumName.isEmpty()) Gray03 else Color.Black,
+                            fontSize = 24.sp,
+                        ),
+                    decorationBox = { innerTextField ->
+                        Box {
+                            if (updatedAlbumName.isEmpty()) {
+                                Text(
+                                    text = "앨범 이름",
+                                    color = Gray03,
+                                    style = Typography.titleSmall.copy(fontSize = 24.sp),
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
+                )
+
+                Spacer(modifier = Modifier.fillMaxSize(0.05f))
+                RoundLongButton(
+                    backgroundColor = Brown01,
+                    text = "수정하기",
+                    onClick = {
+                        if (updatedAlbumName.isNotEmpty()) {
+                            onUpdateAlbum(album.id, updatedAlbumName)
+                            showDialog = false
+                        }
+                    },
+                )
+                Spacer(modifier = Modifier.fillMaxSize(0.03f))
+                RoundLongButton(
+                    backgroundColor = Red01,
+                    text = "삭제하기",
+                    onClick = {
+                        deleteAlbum(album.id)
+                        showDialog = false
+                    },
+                )
+                Spacer(modifier = Modifier.fillMaxSize(0.08f))
+            }
+        }
+    }
+
     Column(
         modifier =
             Modifier
@@ -308,12 +420,20 @@ fun GalleryItem(
                 .padding(bottom = 8.dp),
     ) {
         Card(
-            onClick = { navigateToAlbum(album.id) },
-            shape = RoundedCornerShape(18.dp),
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .aspectRatio(1f),
+                    .aspectRatio(1f)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = { showDialog = true },
+                            onTap = {
+                                navigateToAlbum(album.id)
+                                Timber.d("짧터치")
+                            },
+                        )
+                    },
+            shape = RoundedCornerShape(18.dp),
         ) {
             AsyncImage(
                 modifier = Modifier.aspectRatio(1f),
@@ -380,5 +500,6 @@ fun GalleryScreenPreview() {
         navigateToAlbum = {},
         galleryUiState = GalleryUiState.Loading,
         onGalleryChange = {},
+        isLoading = false,
     )
 }
