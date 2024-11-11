@@ -15,7 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.model.InterestCard
+import com.familring.domain.model.interest.InterestCard
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.theme.Black

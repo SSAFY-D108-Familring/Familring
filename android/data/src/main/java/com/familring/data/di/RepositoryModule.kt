@@ -12,6 +12,7 @@ import com.familring.domain.repository.AuthRepository
 import com.familring.domain.repository.DailyRepository
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.GalleryRepository
+import com.familring.domain.repository.InterestRepository
 import com.familring.domain.repository.QuestionRepository
 import com.familring.domain.repository.ScheduleRepository
 import com.familring.domain.repository.TimeCapsuleRepository
@@ -56,4 +57,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun bindGalleryRepository(galleryRepositoryImpl: GalleryRepositoryImpl): GalleryRepository
+
+    @Binds
+    @Singleton
+    fun bindInterestRepository(interestRepository: InterestRepository): InterestRepository
 }
