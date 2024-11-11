@@ -49,7 +49,7 @@ pipeline {
                     script {
                         dir('backend/api-gateway') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('api-gateway', 8000
+                            buildAndRunContainer('api-gateway', 8000)
                         }
                     }
                 }
