@@ -27,9 +27,16 @@ class AuthDataStoreImpl
                     prefs[KAKAO_ID_KEY]
                 }.first()
 
+        override suspend fun saveFCMToken(fcmToken: String) {
+            dataStore.edit { prefs ->
+                prefs[FCM_TOKEN_KEY] = fcmToken
+            }
+        }
+
         override suspend fun deleteAuthData() {
             dataStore.edit { prefs ->
                 prefs.remove(KAKAO_ID_KEY)
+                prefs.remove(FCM_TOKEN_KEY)
                 prefs.remove(NICKNAME_KEY)
                 prefs.remove(BIRTH_DATE_KEY)
                 prefs.remove(ZODIAC_SIGN_KEY)
@@ -126,6 +133,7 @@ class AuthDataStoreImpl
 
         companion object {
             val KAKAO_ID_KEY = stringPreferencesKey("kakao_id_key")
+            val FCM_TOKEN_KEY = stringPreferencesKey("fcm_token_key")
             val NICKNAME_KEY = stringPreferencesKey("nickname_key")
             val BIRTH_DATE_KEY = stringPreferencesKey("birth_date_key")
             val ZODIAC_SIGN_KEY = stringPreferencesKey("zodiac_sign_key")

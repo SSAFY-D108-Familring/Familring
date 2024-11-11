@@ -6,6 +6,8 @@ import java.util.Date
 interface AuthDataStore {
     suspend fun saveKakaoId(kakaoId: String)
 
+    suspend fun saveFCMToken(fcmToken: String)
+
     suspend fun getKakaoId(): String?
 
     suspend fun deleteAuthData()

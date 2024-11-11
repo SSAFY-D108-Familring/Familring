@@ -26,4 +26,11 @@ interface UserRepository {
     suspend fun updateNickname(nickname: String): Flow<ApiResponse<Unit>>
 
     suspend fun updateColor(color: String): Flow<ApiResponse<Unit>>
+
+    suspend fun updateFCMToken(token: String): Flow<ApiResponse<Unit>>
+
+    suspend fun sendKnockNotification(
+        targetUserId: String,
+        senderNickname: String,
+    ): Flow<ApiResponse<Unit>>
 }

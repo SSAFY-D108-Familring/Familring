@@ -261,6 +261,7 @@ fun QuestionScreen(
 fun FamilyListItem(
     questionAnswer: QuestionAnswer,
     showSnackBar: (String) -> Unit,
+    viewModel: QuestionViewModel = hiltViewModel(),
 ) {
     Column(
         modifier =
@@ -295,6 +296,30 @@ fun FamilyListItem(
                 style = Typography.displaySmall.copy(fontSize = 18.sp),
                 color = Black,
             )
+            Text(
+                text =
+                buildAnnotatedString {
+                    withStyle(
+                        style =
+                        SpanStyle(
+                            textDecoration = TextDecoration.Underline,
+                        ),
+                    ) {
+                        append("✊\uD83C\uDFFB 똑똑")
+                    }
+                },
+                style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                color = Gray02,
+                modifier =
+                Modifier.noRippleClickable {
+                    viewModel.sendKnockNotification(
+                        userId = questionAnswer.userId.toString(),
+                        senderNickname = questionAnswer.userNickname,
+                    )
+                    Timber.d("똑똑 누름 " + questionAnswer.userId)
+                    showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
+                },
+            )
         } else {
             Row {
                 Text(
@@ -318,6 +343,10 @@ fun FamilyListItem(
                     color = Gray02,
                     modifier =
                         Modifier.noRippleClickable {
+                            viewModel.sendKnockNotification(
+                                userId = questionAnswer.userId.toString(),
+                                senderNickname = questionAnswer.userNickname,
+                            )
                             Timber.d("똑똑 누름 " + questionAnswer.userId)
                             showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
                         },
