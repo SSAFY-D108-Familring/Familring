@@ -140,11 +140,11 @@ fun ShareDayScreen(
     } else {
         val items =
             listOf(
-                R.drawable.sample_img to "나갱이의 인증샷",
-                R.drawable.sample_img to "승주니의 인증샷",
-                R.drawable.sample_img to "현지니의 인증샷",
-                R.drawable.sample_img to "엄마미의 인증샷",
-                R.drawable.sample_img to "아빵이의 인증샷",
+                "" to "나갱이의 인증샷",
+                "" to "승주니의 인증샷",
+                "" to "현지니의 인증샷",
+                "" to "엄마미의 인증샷",
+                "" to "아빵이의 인증샷",
             )
         val pagerState = rememberPagerState(pageCount = { items.size })
 
@@ -192,7 +192,7 @@ fun ShareDayScreen(
                     contentPadding = PaddingValues(horizontal = 35.dp),
                 ) { page ->
                     SharePagerItem(
-                        imageUri = items[page].first,
+                        imgUrl = items[page].first,
                         username = items[page].second,
                     )
                 }

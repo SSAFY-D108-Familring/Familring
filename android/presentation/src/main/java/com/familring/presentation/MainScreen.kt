@@ -333,6 +333,7 @@ fun MainNavHost(
             OtherInterestRoute(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
+                onShowSnackBar = showSnackBar,
             )
         }
 

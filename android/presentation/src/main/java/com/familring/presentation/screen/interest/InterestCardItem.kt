@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.interest
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -17,12 +16,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.presentation.R
+import coil.compose.AsyncImage
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
@@ -31,9 +30,9 @@ import com.familring.presentation.theme.White
 @Composable
 fun InterestCardItem(
     modifier: Modifier = Modifier,
-    profileImage: Int = R.drawable.img_smile_face,
-    nickname: String = "나갱이",
-    interest: String = "엘지트윈스",
+    profileImage: String = "",
+    nickname: String = "",
+    interest: String = "",
 ) {
     Box(
         modifier =
@@ -48,12 +47,12 @@ fun InterestCardItem(
             modifier = Modifier.wrapContentSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Image(
+            AsyncImage(
                 modifier =
                     Modifier
                         .fillMaxWidth(0.35f)
                         .aspectRatio(1f),
-                painter = painterResource(id = profileImage),
+                model = profileImage,
                 contentDescription = "profile",
             )
             Spacer(modifier = Modifier.fillMaxHeight(0.13f))
@@ -63,11 +62,19 @@ fun InterestCardItem(
                 color = Gray01,
             )
             Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = interest,
-                style = Typography.titleMedium.copy(fontSize = 25.sp),
-                color = Green02,
-            )
+            if (interest.isNotBlank() && interest.isNotEmpty()) {
+                Text(
+                    text = interest,
+                    style = Typography.titleMedium.copy(fontSize = 25.sp),
+                    color = Green02,
+                )
+            } else {
+                Text(
+                    text = "미작성",
+                    style = Typography.titleMedium.copy(fontSize = 25.sp),
+                    color = Gray03,
+                )
+            }
         }
     }
 }
