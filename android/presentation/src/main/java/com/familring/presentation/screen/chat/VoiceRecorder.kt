@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
@@ -54,6 +55,7 @@ class VoiceRecorder(
     }
 
     fun stopRecording(): File? {
+        amplitudeJob?.cancel()
         mediaRecorder?.apply {
             if (recording) {
                 stop()
@@ -62,7 +64,6 @@ class VoiceRecorder(
         }
         recording = false
         mediaRecorder = null
-        amplitudeJob?.cancel()
         return outputFile
     }
 
@@ -70,13 +71,17 @@ class VoiceRecorder(
         amplitudes.clear()
         amplitudeJob =
             CoroutineScope(Dispatchers.IO).launch {
-                while (recording) {
+                while (isActive && recording && mediaRecorder != null) {
                     try {
-                        mediaRecorder?.maxAmplitude?.let { amplitude ->
+                        val amplitude = mediaRecorder?.maxAmplitude
+                        if (amplitude != null) {
                             amplitudes.add(amplitude)
+                        } else {
+                            break
                         }
                     } catch (e: IllegalStateException) {
                         e.printStackTrace()
+                        break
                     }
                     delay(100)
                 }
