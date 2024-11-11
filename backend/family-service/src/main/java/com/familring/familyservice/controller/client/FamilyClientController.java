@@ -76,8 +76,8 @@ public class FamilyClientController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "해당 회원을 성공적으로 가족 구성원에 제거했습니다.", response));
     }
 
-    @PatchMapping("/status")
-    public ResponseEntity<BaseResponse<String>> updateFamilyStatus(FamilyStatusRequest familyStatusRequest) {
+    @PutMapping("/status")
+    public ResponseEntity<BaseResponse<String>> updateFamilyStatus(@RequestBody FamilyStatusRequest familyStatusRequest) {
         familyService.updateFamilyStatus(familyStatusRequest);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "가족 상태를 성공적으로 변경했습니다."));
