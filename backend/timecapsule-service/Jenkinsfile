@@ -32,8 +32,8 @@ def copyApplicationYaml(application_yml) {
 def stopAndRemoveContainer(containerName) {
     // 기존 컨테이너 중지 및 삭제
     sh """
-    docker-compose -f docker-compose.yml stop timecapsule-service || true
-    docker-compose -f docker-compose.yml rm -f timecapsule-service || true
+    docker-compose -f /home/ubuntu/docker-compose.yml stop timecapsule-service || true
+    docker-compose -f /home/ubuntu/docker-compose.yml rm -f timecapsule-service || true
     """
 }
 
@@ -43,7 +43,7 @@ def buildAndRunContainer(serviceName, port, exposeToHost) {
 
     // 해당 컨테이너만 재시작
     sh """
-    docker-compose -f docker-compose.yml build --no-cache timecapsule-service
-    docker-compose -f docker-compose.yml up -d --no-deps --build timecapsule-service
+    docker-compose -f /home/ubuntu/docker-compose.yml build --no-cache timecapsule-service
+    docker-compose -f /home/ubuntu/docker-compose.yml up -d --no-deps --build timecapsule-service
     """
 }
