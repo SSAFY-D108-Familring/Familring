@@ -155,19 +155,8 @@ public class StompHandler implements ChannelInterceptor {
         String destination = Optional.ofNullable((String) headers.get("simpDestination")).orElse("InvalidRoomId");
         log.info("[getChatRoomNo] destination={}", destination);
 
-        // 경로가 /family/room/로 시작하는지 확인
-        if (destination.startsWith("/family/room/")) {
-            String[] pathSegments = destination.split("/");
-            if (pathSegments.length > 3) {
-                try {
-                    return Long.valueOf(pathSegments[3]);
-                } catch (NumberFormatException e) {
-                    log.warn("[getChatRoomNo] roomId 파싱 중 오류 발생: " + pathSegments[3], e);
-                }
-            }
-        }
-        // 로컬 환경에서는 /room/로 시작하는 경로 처리
-        else if (destination.startsWith("/room/")) {
+        // 경로가 유효한 경우에만 roomId를 파싱
+        if (destination.startsWith("/room/")) {
             String[] pathSegments = destination.split("/");
             if (pathSegments.length > 2) {
                 try {
@@ -178,6 +167,7 @@ public class StompHandler implements ChannelInterceptor {
             }
         }
         log.warn("[getChatRoomNo] 유효하지 않은 경로 형식: " + destination);
+
         return null;
     }
 

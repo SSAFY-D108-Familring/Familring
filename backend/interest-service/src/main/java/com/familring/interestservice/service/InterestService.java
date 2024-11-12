@@ -278,6 +278,7 @@ public class InterestService {
         Long selectedAnswerUserId;
         UserInfoResponse selectedUser;
         if (selectedAnswer.isPresent()) {
+            log.info("selectedAnswer : " + selectedAnswer.get().getContent());
             content = selectedAnswer.get().getContent();
             selectedAnswerUserId = selectedAnswer.get().getUserId();
 
@@ -289,6 +290,7 @@ public class InterestService {
         } else {
             throw new InterestAnswerNotFoundException();
         }
+
 
         return InterestAnswerSelectedResponse.builder()
                 .userNickname(selectedUser.getUserNickname())
