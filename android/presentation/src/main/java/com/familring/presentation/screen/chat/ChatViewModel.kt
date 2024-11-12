@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.chat
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.datastore.AuthDataStore
@@ -7,8 +8,10 @@ import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.chat.Chat
 import com.familring.domain.model.chat.SendMessage
+import com.familring.domain.model.chat.VoteResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.presentation.BuildConfig
+import com.familring.presentation.R
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,13 +53,15 @@ class ChatViewModel
                 .add(LocalDateTimeAdapter())
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
-
         private lateinit var chatList: List<Chat>
-
         private val _state = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
         val state = _state.asStateFlow()
         private val _event = MutableSharedFlow<ChatUiEvent>()
         val event = _event.asSharedFlow()
+
+        private var isReconnecting = false // 재연결 플래그
+        private val maxRetries = 5 // 최대 재연결 횟수
+        private val retryDelayMillis = 3000L // 재연결 대기 시간
 
         init {
             loadUserData()
@@ -96,7 +101,7 @@ class ChatViewModel
                         }
 
                         is ApiResponse.Error -> {
-                            Timber.d("너니")
+                            _state.value = ChatUiState.Error
                             _event.emit(ChatUiEvent.Error(response.code, response.message))
                         }
                     }
@@ -143,11 +148,8 @@ class ChatViewModel
         private fun subscribeMessages() {
             viewModelScope.launch {
                 stompSession
-                    .subscribe(
-                        StompSubscribeHeaders(
-                            destination = "$SUBSCRIBE_URL$familyId",
-                        ),
-                    ).collect { message ->
+                    .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId"))
+                    .collect { message ->
                         val chatMessage = moshi.adapter(Chat::class.java).fromJson(message.bodyAsText)
                         chatMessage?.let {
                             updateChatListWithNewMessage(it)
@@ -169,11 +171,8 @@ class ChatViewModel
         private fun subscribeReadStatus() {
             viewModelScope.launch {
                 stompSession
-                    .subscribe(
-                        StompSubscribeHeaders(
-                            destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL",
-                        ),
-                    ).collect {
+                    .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL"))
+                    .collect {
                         if (familyId != null && userId != null) {
                             enterRoom(roomId = familyId!!, userId = userId!!)
                         }
@@ -183,15 +182,20 @@ class ChatViewModel
 
         fun disconnect() {
             try {
+                isReconnecting = false // 수동 연결 해제 시 재연결 방지
                 viewModelScope.launch {
                     stompSession.disconnect()
+                    Timber.d("WebSocket disconnected")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
 
-        fun sendMessage(message: String) {
+        fun sendMessage(
+            context: Context,
+            message: String,
+        ) {
             viewModelScope.launch {
                 stompSession.withMoshi(moshi).convertAndSend(
                     headers = StompSendHeaders(destination = SEND_URL),
@@ -201,7 +205,47 @@ class ChatViewModel
                             senderId = userId.toString(),
                             content = message,
                             createdAt = LocalDateTime.now().toString(),
-                            messageType = "MESSAGE",
+                            messageType = context.getString(R.string.message_type),
+                        ),
+                )
+            }
+        }
+
+        fun sendVoteMessage(
+            context: Context,
+            title: String,
+        ) {
+            viewModelScope.launch {
+                stompSession.withMoshi(moshi).convertAndSend(
+                    headers = StompSendHeaders(destination = SEND_URL),
+                    body =
+                        SendMessage(
+                            roomId = familyId.toString(),
+                            senderId = userId.toString(),
+                            content = "",
+                            createdAt = LocalDateTime.now().toString(),
+                            messageType = context.getString(R.string.vote_type),
+                            voteTitle = title,
+                        ),
+                )
+            }
+        }
+
+        fun sendVoteResponse(
+            context: Context,
+            voteId: String,
+            responseOfVote: String,
+        ) {
+            viewModelScope.launch {
+                stompSession.withMoshi(moshi).convertAndSend(
+                    headers = StompSendHeaders(destination = VOTE_URL),
+                    body =
+                        VoteResponse(
+                            roomId = familyId.toString(),
+                            senderId = userId.toString(),
+                            voteId = voteId,
+                            messageType = context.getString(R.string.vote_response_type),
+                            responseOfVote = responseOfVote,
                         ),
                 )
             }
@@ -212,5 +256,6 @@ class ChatViewModel
             const val SUBSCRIBE_URL = "/room/"
             const val READ_STATUS_URL = "/readStatus"
             const val SEND_URL = "/send/chat.send"
+            const val VOTE_URL = "/send/chat.vote"
         }
     }

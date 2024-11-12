@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.chat
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,8 +42,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +59,8 @@ import com.familring.presentation.component.chat.ChatInputBar
 import com.familring.presentation.component.chat.DateDivider
 import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
+import com.familring.presentation.component.chat.VoteMessage
+import com.familring.presentation.component.chat.VoteResultMessage
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
@@ -68,6 +73,7 @@ import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toDateOnly
 import com.familring.presentation.util.toTimeOnly
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -78,6 +84,18 @@ fun ChatRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(viewModel.event) {
+        viewModel.event.collectLatest { event ->
+            when (event) {
+                is ChatUiEvent.Error -> {
+                    showSnackBar(event.message)
+                }
+
+                else -> {}
+            }
+        }
+    }
 
     when (val uiState = state) {
         is ChatUiState.Loading -> {
@@ -92,8 +110,12 @@ fun ChatRoute(
                 popUpBackStack = popUpBackStack,
                 showSnackBar = showSnackBar,
                 sendMessage = viewModel::sendMessage,
+                sendVoteMessage = viewModel::sendVoteMessage,
+                sendVoteResponse = viewModel::sendVoteResponse,
             )
         }
+
+        is ChatUiState.Error -> {}
     }
 
     DisposableEffect(Unit) {
@@ -111,12 +133,15 @@ fun ChatScreen(
     showSnackBar: (String) -> Unit = {},
     chatList: List<Chat> = listOf(),
     userId: Long = 0L,
-    sendMessage: (String) -> Unit = {},
+    sendMessage: (Context, String) -> Unit = { _, _ -> },
+    sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
+    sendVoteResponse: (Context, String, String) -> Unit = { _, _, _ -> },
 ) {
     var inputMessage by remember { mutableStateOf("") }
     var showBottomSheet by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         if (chatList.isNotEmpty()) {
@@ -169,21 +194,84 @@ fun ChatScreen(
                         DateDivider(date = currentDate)
                     }
 
-                    if (item.senderId == userId) {
-                        MyMessage(
-                            message = item.content,
-                            time = item.createdAt.toTimeOnly(),
-                            unReadMembers = item.unReadMembers.toString(),
-                        )
-                    } else {
-                        OtherMessage(
-                            nickname = item.sender.userNickname,
-                            profileImg = item.sender.userZodiacSign,
-                            color = item.sender.userColor,
-                            message = item.content,
-                            time = item.createdAt.toTimeOnly(),
-                            unReadMembers = item.unReadMembers.toString(),
-                        )
+                    when (item.messageType) {
+                        context.getString(R.string.message_type) -> {
+                            if (item.senderId == userId) {
+                                MyMessage(
+                                    message = item.content,
+                                    time = item.createdAt.toTimeOnly(),
+                                    unReadMembers = item.unReadMembers.toString(),
+                                )
+                            } else {
+                                OtherMessage(
+                                    nickname = item.sender.userNickname,
+                                    profileImg = item.sender.userZodiacSign,
+                                    color = item.sender.userColor,
+                                    message = item.content,
+                                    time = item.createdAt.toTimeOnly(),
+                                    unReadMembers = item.unReadMembers.toString(),
+                                )
+                            }
+                        }
+
+                        context.getString(R.string.vote_type) -> {
+                            if (item.senderId == userId) {
+                                item.vote?.let {
+                                    VoteMessage(isOther = false, title = it.voteTitle)
+                                }
+                            } else {
+                                item.vote?.let {
+                                    VoteMessage(
+                                        isOther = true,
+                                        title = it.voteTitle,
+                                        onAgree = {
+                                            sendVoteResponse(
+                                                context,
+                                                it.voteId,
+                                                "찬성",
+                                            )
+                                        },
+                                        onDisagree = {
+                                            sendVoteResponse(
+                                                context,
+                                                it.voteId,
+                                                "반대",
+                                            )
+                                        },
+                                    )
+                                }
+                            }
+                        }
+
+                        context.getString(R.string.vote_response_type) -> {
+                            item.vote?.let {
+                                VoteChatItem(
+                                    isOther = item.senderId == userId,
+                                    title = it.voteTitle,
+                                    select = item.responseOfVote,
+                                    unReadMembers = item.unReadMembers.toString(),
+                                    time = item.createdAt.toTimeOnly(),
+                                    nickname = item.sender.userNickname,
+                                    profileImg = item.sender.userZodiacSign,
+                                    color = item.sender.userColor,
+                                )
+                            }
+                        }
+
+                        stringResource(R.string.vote_result_type) -> {
+                            item.vote?.let {
+                                VoteResultMessage(
+                                    isOther = item.senderId == userId,
+                                    title = it.voteTitle,
+                                    voteResult = it.voteResult,
+                                    unReadMembers = item.unReadMembers.toString(),
+                                    time = item.createdAt.toTimeOnly(),
+                                    nickname = item.sender.userNickname,
+                                    profileImg = item.sender.userZodiacSign,
+                                    color = item.sender.userColor,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -224,7 +312,7 @@ fun ChatScreen(
                         }
                     },
                     sendMessage = {
-                        sendMessage(inputMessage)
+                        sendMessage(context, inputMessage)
                         inputMessage = ""
                     },
                 )
@@ -272,7 +360,7 @@ fun ChatScreen(
                                 text = "투표 올리기",
                                 backgroundColor = Brown01,
                                 onClick = {
-                                    // 투표 전송 api 실행
+                                    sendVoteMessage(context, title)
                                     showBottomSheet = false
                                 },
                                 enabled = title.isNotBlank(),

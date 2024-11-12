@@ -25,14 +25,14 @@ suspend fun <T> emitApiResponse(
             when (e) {
                 is ApiException ->
                     ApiResponse.Error.ServerError(
-                        code = e.error.errorCode,
-                        message = e.error.errorMessage,
+                        code = e.error.errorCode ?: "500",
+                        message = e.error.errorMessage ?: "서버 내부 오류가 발생했습니다.",
                     )
 
                 is RefreshTokenExpiredException ->
                     ApiResponse.Error.TokenError(
-                        code = e.error.errorCode,
-                        message = e.error.errorMessage,
+                        code = e.error.errorCode ?: "500",
+                        message = e.error.errorMessage ?: "서버 내부 오류가 발생했습니다.",
                     )
 
                 is IOException ->
