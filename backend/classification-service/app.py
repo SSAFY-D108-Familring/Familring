@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
-from typing import List, Dict, TypeVar, Generic, Optional
+from typing import List, Dict, TypeVar, Generic, Optional, Tuple
 from contextlib import asynccontextmanager
 import face_recognition
 import numpy as np
@@ -371,7 +371,7 @@ async def classify_images(request: AnalysisRequest):
         
         async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
             # 세마포어를 사용한 이미지 로드 함수
-            async def load_image_with_semaphore(url: str) -> tuple[str, np.ndarray | None]:
+            async def load_image_with_semaphore(url: str) -> tuple[str, Optional[np.ndarray]]:
                 async with image_semaphore:
                     try:
                         # 메모리 해제를 위한 컨텍스트 관리
