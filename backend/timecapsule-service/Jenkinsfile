@@ -24,6 +24,11 @@ pipeline {
                             // 새로운 인스턴스 실행 후 기존 인스턴스 삭제
                             stopAndRemoveContainer(activeInstance)
 
+                             // 기존 인스턴스가 실행 중일 경우에만 중지하고 삭제
+                            if (isContainerRunning(activeInstance)) {
+                                stopAndRemoveContainer(activeInstance)
+                            }
+
                             // 다음 배포를 위해 activeInstance 변수를 업데이트
                             activeInstance = newInstance
                         }
@@ -38,6 +43,12 @@ pipeline {
 def copyApplicationYaml(application_yml) {
     sh 'mkdir -p src/main/resources'
     sh "cp ${application_yml} src/main/resources/application.yml"
+}
+
+// 컨테이너 실행 중 확인 함수
+def isContainerRunning(containerName) {
+    def containerId = sh(script: "docker ps --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    return containerId ? true : false
 }
 
 // 공통 함수: 컨테이너 중지 및 삭제
