@@ -333,7 +333,7 @@ fun AlbumScreen(
                             verticalArrangement = Arrangement.spacedBy(2.dp),
                             horizontalArrangement = Arrangement.spacedBy(2.dp),
                         ) {
-                            if (!isSelectionMode) {
+                            if (!isSelectionMode && isNormal) {
                                 item {
                                     AddPhotoButton(
                                         onClick = onAddPhotoClick,
