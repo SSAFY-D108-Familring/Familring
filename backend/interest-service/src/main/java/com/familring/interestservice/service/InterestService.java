@@ -383,15 +383,22 @@ public class InterestService {
         // 오늘
         LocalDate today = LocalDate.now();
 
-        InterestMission interestMission = InterestMission
-                .builder()
-                .userId(userId)
-                .interest(interest)
-                .photoUrl(photoUrl)
-                .createdAt(today)
-                .build();
+        // 미션 인증 판단
+        Optional<InterestMission> hasInterestMission = interestMissionRepository.findByInterestAndUserId(interest, userId);
 
-        interestMissionRepository.save(interestMission);
+        if (hasInterestMission.isEmpty()) {
+            InterestMission interestMission = InterestMission
+                    .builder()
+                    .userId(userId)
+                    .interest(interest)
+                    .photoUrl(photoUrl)
+                    .createdAt(today)
+                    .build();
+
+            interestMissionRepository.save(interestMission);
+        } else {
+            throw new AlreadyExistInterestMissionException();
+        }
     }
 
     private String getInterestPhotoPath(Long familyId) {
