@@ -361,31 +361,45 @@ image_semaphore = asyncio.Semaphore(MAX_CONCURRENT_IMAGES)
 
 @app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
 async def classify_images(request: AnalysisRequest):
-    """
-    여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 병렬 분석합니다.
-    메모리 사용량과 동시 처리를 제한하여 안정성을 개선했습니다.
-    """
     try:
-        connector = aiohttp.TCPConnector(limit=5, force_close=True)  # connection limit 감소
-        timeout = aiohttp.ClientTimeout(total=60)  # 타임아웃 증가
+        # 현재 실행 중인 루프 가져오기
+        loop = asyncio.get_running_loop()
         
-        async with aiohttp.ClientSession(connector=connector, timeout=timeout) as session:
-            # 세마포어를 사용한 이미지 로드 함수
+        # TCP 커넥터 설정 수정
+        connector = aiohttp.TCPConnector(
+            limit=5,
+            force_close=True,
+            enable_cleanup_closed=True,  # 닫힌 연결 정리 활성화
+            keepalive_timeout=60  # keepalive 타임아웃 설정
+        )
+        
+        # 타임아웃 설정 수정
+        timeout = aiohttp.ClientTimeout(
+            total=60,
+            connect=30,
+            sock_read=30
+        )
+        
+        async with aiohttp.ClientSession(
+            connector=connector,
+            timeout=timeout,
+            loop=loop  # 명시적으로 loop 지정
+        ) as session:
+            # 이미지 로드 함수 수정
             async def load_image_with_semaphore(url: str) -> tuple[str, Optional[np.ndarray]]:
                 async with image_semaphore:
                     try:
-                        # 메모리 해제를 위한 컨텍스트 관리
-                        async with session.get(url) as response:
-                            if response.status != 200:
-                                logger.warning(f"Invalid URL: {url}")
-                                return url, None
+                        async with session.get(url, raise_for_status=True) as response:
                             content = await response.read()
                             img = await load_image_from_url_async(url, session)
-                            # 명시적으로 메모리 해제
+                            # 메모리 해제
                             del content
                             return url, img
-                    except Exception as e:
+                    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
                         logger.error(f"Error loading image {url}: {str(e)}")
+                        return url, None
+                    except Exception as e:
+                        logger.error(f"Unexpected error loading image {url}: {str(e)}")
                         return url, None
 
             # 인물 이미지 먼저 처리
@@ -548,7 +562,10 @@ if __name__ == "__main__":
     import uvicorn
     logger.info(f"Starting server on port {SERVER_PORT}")
     uvicorn.run(
-        app, 
+        app,
         host=SERVER_HOST,
         port=SERVER_PORT,
+        loop="auto",  # asyncio 이벤트 루프 정책 자동 설정
+        workers=1,    # 단일 워커로 실행
+        timeout_keep_alive=60,  # keepalive 타임아웃 설정
     )
