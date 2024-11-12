@@ -70,15 +70,15 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void alarmByFcm(NotificationRequest notificationRequest) {
         // 1. 알림 생성 -> 알림 수신 인원만큼 수행
+        log.info("[alarmByFcm] 알림 수신 인원 수 {}명", notificationRequest.getReceiverUserIds().size());
         for(Long userId : notificationRequest.getReceiverUserIds()) {
             Notification newNotification = Notification.builder()
                     .receiverUserId(userId)
                     .senderUserId(notificationRequest.getSenderUserId())
                     .destinationId(notificationRequest.getDestinationId())
                     .notificationType(NotificationType.MENTION_SCHEDULE)
-                    .notificationTitle("캘린더 언급 알림")
+                    .notificationTitle(notificationRequest.getTitle())
                     .notificationMessage(notificationRequest.getMessage())
-                    .notificationCreatedAt(LocalDateTime.now())
                     .build();
 
             notificationDao.insertNotification(newNotification);

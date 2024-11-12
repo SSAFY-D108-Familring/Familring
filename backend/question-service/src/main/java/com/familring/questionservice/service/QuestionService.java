@@ -5,7 +5,9 @@ import com.familring.questionservice.domain.QuestionAnswer;
 import com.familring.questionservice.domain.QuestionFamily;
 import com.familring.questionservice.dto.client.Family;
 import com.familring.questionservice.dto.client.FamilyStatusRequest;
+import com.familring.questionservice.dto.client.NotificationRequest;
 import com.familring.questionservice.dto.client.UserInfoResponse;
+import com.familring.questionservice.dto.request.KnockRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
 import com.familring.questionservice.dto.response.QuestionAnswerItem;
@@ -17,6 +19,8 @@ import com.familring.questionservice.repository.QuestionAnswerRepository;
 import com.familring.questionservice.repository.QuestionFamilyRepository;
 import com.familring.questionservice.repository.QuestionRepository;
 import com.familring.questionservice.service.client.FamilyServiceFeignClient;
+import com.familring.questionservice.service.client.NotificationServiceFeignClient;
+import com.familring.questionservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -41,6 +45,8 @@ public class QuestionService {
     private final QuestionAnswerRepository questionAnswerRepository;
     private final QuestionFamilyRepository questionFamilyRepository;
     private final FamilyServiceFeignClient familyServiceFeignClient;
+    private final UserServiceFeignClient userServiceFeignClient;
+    private final NotificationServiceFeignClient notificationServiceFeignClient;
 
     // 가족의 질문을 초기화하고 첫 번째 질문을 설정
     public void initializeQuestionFamily(Long familyId) {
@@ -309,4 +315,33 @@ public class QuestionService {
                 .build();
     }
 
+    // 랜덤 질문 미응답자 알림 전송
+    public void fcmToUser(Long userId, KnockRequest knockRequest) {
+        // 사용자 조회 - 발신자
+        UserInfoResponse sender = userServiceFeignClient.getUser(userId).getData();
+        log.info("[fcmToUser] sender userId={}", sender.getUserId());
+
+        // 사용자 조회 - 수신자
+        UserInfoResponse receiver = userServiceFeignClient.getUser(knockRequest.getReceiverId()).getData();
+        log.info("[fcmToUser] receiver userId={}", receiver.getUserId());
+
+        // 알림 메시지 생성
+        String message = sender.getUserNickname() + "가 똑똑 두드렸어요 ✊\uD83C\uDFFB";
+        log.info("[fcmToUser] message={}", message);
+
+        // 알림 전송 객체 생성
+        NotificationRequest request = NotificationRequest.builder()
+                .receiverUserIds(new ArrayList<>(){{
+                    add(knockRequest.getReceiverId()); // 알림 보낼 사용자 Id
+                }})
+                .senderUserId(userId)
+                .destinationId(knockRequest.getQuestionId().toString())
+                .title("랜덤 질문 언급 알림")
+                .message(message)
+                .build();
+
+        // 알림 전송
+        log.info("[fcmToUser] 알림 보낼 사람 수: {}명", request.getReceiverUserIds().size());
+        notificationServiceFeignClient.alarmByFcm(request);
+    }
 }
