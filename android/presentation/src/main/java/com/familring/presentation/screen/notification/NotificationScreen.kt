@@ -15,29 +15,49 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familring.domain.model.notification.NotificationResponse
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
-import com.familring.presentation.theme.Green07
+import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun NotificationRoute(
     modifier: Modifier,
     navigateToHome: () -> Unit,
+    viewModel: NotificationViewModel = hiltViewModel(),
 ) {
+    val notificationListState = viewModel.notificationListState.collectAsStateWithLifecycle()
+    val notificationEvent =
+        viewModel.notificationEvent.collectAsStateWithLifecycle(initialValue = NotificationEvent.Loading)
+
+    LaunchedEffect(Unit) {
+        viewModel.getNotificationList()
+    }
+
     NotificationScreen(
         modifier = modifier,
         navigateToHome = navigateToHome,
+        notificationEvent = notificationEvent.value,
+        viewModel = viewModel,
+        notificationListState = notificationListState.value,
     )
 }
 
@@ -45,9 +65,28 @@ fun NotificationRoute(
 fun NotificationScreen(
     modifier: Modifier = Modifier,
     navigateToHome: () -> Unit = {},
+    viewModel: NotificationViewModel,
+    notificationEvent: NotificationEvent,
+    notificationListState: NotificationListState,
 ) {
-    var notificationCnt = 10
+    LaunchedEffect(notificationEvent) {
+        when (notificationEvent) {
+            is NotificationEvent.Loading -> {
+                // 로딩
+            }
 
+            is NotificationEvent.Success -> {
+                viewModel.getNotificationList()
+            }
+
+            is NotificationEvent.Error -> {
+            }
+
+            null -> {
+                // 로딩
+            }
+        }
+    }
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -56,18 +95,54 @@ fun NotificationScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             TopAppBar(
-                title = { Text(text = "알림", style = Typography.headlineMedium.copy(fontSize = 26.sp)) },
+                title = {
+                    Text(
+                        text = "알림",
+                        style = Typography.headlineMedium.copy(fontSize = 26.sp),
+                    )
+                },
                 onNavigationClick = navigateToHome,
             )
             Spacer(modifier = Modifier.height(23.dp))
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 30.dp),
-            ) {
-                items(notificationCnt) {
-                    NotificationItem()
+            when (notificationListState) {
+                is NotificationListState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(color = Green02)
+                    }
+                }
+
+                is NotificationListState.Success -> {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 30.dp),
+                    ) {
+                        items(notificationListState.notificationList.size) { index ->
+                            NotificationItem(
+                                notificationListState.notificationList[index],
+                                onNotificationClick = { notificationId ->
+                                    viewModel.readNotification(notificationId)
+                                },
+                            )
+                        }
+                    }
+                }
+
+                is NotificationListState.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = notificationListState.errorMessage,
+                            style = Typography.bodyLarge,
+                            color = Color.Red,
+                        )
+                    }
                 }
             }
         }
@@ -75,17 +150,26 @@ fun NotificationScreen(
 }
 
 @Composable
-fun NotificationItem() {
+fun NotificationItem(
+    notification: NotificationResponse,
+    onNotificationClick: (Long) -> Unit = {},
+) {
     Box {
         ElevatedCard(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 21.dp),
+                    .padding(horizontal = 21.dp)
+                    .noRippleClickable { onNotificationClick(notification.notificationId) },
             shape = RoundedCornerShape(20.dp),
             colors =
                 CardDefaults.cardColors(
-                    containerColor = Green07,
+                    containerColor =
+                        if (notification.notificationIsRead) {
+                            Gray03
+                        } else {
+                            Green06
+                        },
                 ),
         ) {
             Row(
@@ -106,12 +190,12 @@ fun NotificationItem() {
                 Spacer(modifier = Modifier.width(14.dp))
                 Column {
                     Text(
-                        text = "엄마미가 똑똑 두드렸어요 ✊🏻", // 알림 제목
+                        text = notification.notificationTitle, // 알림 제목
                         style = Typography.headlineSmall.copy(fontSize = 15.sp),
                     )
                     Spacer(modifier = Modifier.height(5.dp))
                     Text(
-                        text = "랜덤 질문에 답변을 달고 다른 가족의 답을 확인해 보세요", // 알림 내용
+                        text = notification.notificationMessage, // 알림 내용
                         style = Typography.labelSmall.copy(fontSize = 12.sp),
                     )
                 }
@@ -123,5 +207,9 @@ fun NotificationItem() {
 @Preview
 @Composable
 fun NotificationScreenPreview() {
-    NotificationScreen()
+    NotificationScreen(
+        viewModel = hiltViewModel(),
+        notificationListState = NotificationListState.Loading,
+        notificationEvent = NotificationEvent.Loading,
+    )
 }

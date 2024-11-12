@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission
@@ -33,16 +34,6 @@
         <meta-data
             android:name="com.kakao.sdk.AppKey"
             android:value="${KAKAO_API_KEY}" />
-
-        <service
-            android:name="com.familring.presentation.FamilringMessagingService"
-            android:exported="true">
-            <intent-filter>
-
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-
-        </service>
 
         <activity
             android:name="com.familring.presentation.MainActivity"
@@ -79,6 +70,16 @@
                     android:scheme="@string/KAKAO_REDIRECT_URI" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name="com.familring.presentation.FamilringMessagingService"
+            android:exported="true">
+            <intent-filter>
+
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+
+        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -75,7 +75,7 @@ fun CalendarTab(
     createAlbum: (Long, String) -> Unit = { _, _ -> },
     navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToModifyDaily: (DailyLife) -> Unit = {},
-    navigateToAlbum: (Long) -> Unit,
+    navigateToAlbum: (Long, Boolean) -> Unit,
 ) {
     val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
     var selectedItemIndex by remember { mutableIntStateOf(0) }
@@ -279,7 +279,7 @@ fun ScheduleTab(
     showDeleteDialog: (Long) -> Unit = {},
     createAlbum: (Long, String) -> Unit = { _, _ -> },
     navigateToModifySchedule: (Schedule) -> Unit = {},
-    navigateToAlbum: (Long) -> Unit = {},
+    navigateToAlbum: (Long, Boolean) -> Unit = { _, _ -> },
 ) {
     if (schedules.isEmpty()) {
         Column {
@@ -320,12 +320,12 @@ fun ScheduleItem(
     createAlbum: (Long, String) -> Unit = { _, _ -> },
     showDeleteDialog: (Long) -> Unit = {},
     navigateToModifySchedule: (Schedule) -> Unit = {},
-    navigateToAlbum: (Long) -> Unit = {},
+    navigateToAlbum: (Long, Boolean) -> Unit = { _, _ -> },
 ) {
     Box(
         modifier =
             modifier
-                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.albumId!!) }
+                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.albumId!!, false) }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
@@ -450,7 +450,7 @@ private fun CalendarTabPreview() {
         schedules = schedules,
         createAlbum = { _, _ -> },
         navigateToModifySchedule = {},
-        navigateToAlbum = {},
+        navigateToAlbum = { _, _ -> },
         showDeleteScheduleDialog = {},
         showDeleteDailyDialog = {},
     )
