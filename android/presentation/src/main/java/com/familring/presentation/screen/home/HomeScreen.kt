@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -52,6 +53,7 @@ import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
@@ -340,20 +342,22 @@ fun HomeScreen(
                     }
                     Spacer(modifier = Modifier.height(15.dp))
                     Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(15.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Surface(
-                            shape = RoundedCornerShape(23.dp),
+                        Box(
                             modifier =
                                 Modifier
                                     .weight(1f)
                                     .aspectRatio(1f)
-                                    .padding(end = 6.dp)
-                                    .padding(top = 12.dp)
+                                    .shadow(
+                                        elevation = 5.dp,
+                                        shape = RoundedCornerShape(23.dp),
+                                        spotColor = Gray01,
+                                        ambientColor = Gray01,
+                                    )
+                                    .background(color = Gray04, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToTimeCapsule() },
-                            color = Gray04,
-                            shadowElevation = 4.dp,
                         ) {
                             Column(
                                 modifier =
@@ -389,17 +393,19 @@ fun HomeScreen(
                                 }
                             }
                         }
-                        Surface(
-                            shape = RoundedCornerShape(23.dp),
+                        Box(
                             modifier =
                                 Modifier
                                     .weight(1f)
                                     .aspectRatio(1f)
-                                    .padding(start = 6.dp)
-                                    .padding(top = 12.dp)
+                                    .shadow(
+                                        elevation = 7.dp,
+                                        shape = RoundedCornerShape(23.dp),
+                                        spotColor = Black,
+                                        ambientColor = Gray01,
+                                    )
+                                    .background(color = Green02, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToInterest() },
-                            color = Green02,
-                            shadowElevation = 12.dp,
                         ) {
                             Column(
                                 modifier =

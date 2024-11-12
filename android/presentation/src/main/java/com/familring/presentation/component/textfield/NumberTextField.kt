@@ -36,6 +36,9 @@ fun NumberTextField(
     focusManager: FocusManager,
     maxLength: Int,
     borderColor: Color = Green03,
+    imeAction: ImeAction = ImeAction.Done,
+    onNext: (() -> Unit)? = null, // 다음 필드로 포커스 이동 콜백
+    onDone: (() -> Unit)? = null, // 완료 시 포커스 해제 콜백
 ) {
     val borderColor: Color = if (number.isEmpty()) Gray03 else borderColor
     val textColor: Color = if (number.isEmpty()) Gray03 else Black
@@ -73,13 +76,16 @@ fun NumberTextField(
         singleLine = true,
         keyboardOptions =
             KeyboardOptions(
-                imeAction = ImeAction.Done,
+                imeAction = imeAction,
                 keyboardType = KeyboardType.Number,
             ),
         keyboardActions =
             KeyboardActions(
                 onDone = {
-                    focusManager.clearFocus()
+                    onDone?.invoke()
+                },
+                onNext = {
+                    onNext?.invoke()
                 },
             ),
         shape = RoundedCornerShape(12.dp),
@@ -109,5 +115,6 @@ private fun NumberTextFieldPreview() {
         placeholder = "YYYY",
         focusManager = LocalFocusManager.current,
         maxLength = 4,
+        imeAction = ImeAction.Go,
     )
 }

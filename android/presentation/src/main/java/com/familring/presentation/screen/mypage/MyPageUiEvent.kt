@@ -18,6 +18,9 @@ sealed interface MyPageUiEvent {
     data object ColorUpdateSuccess : MyPageUiEvent
 
     @Immutable
+    data object FaceUpdateSuccess : MyPageUiEvent
+
+    @Immutable
     data class Error(
         val code: String,
         val message: String,
