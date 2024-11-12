@@ -365,15 +365,15 @@ async def classify_images(request: AnalysisRequest):
         # 현재 실행 중인 루프 가져오기
         loop = asyncio.get_running_loop()
         
-        # TCP 커넥터 설정 수정
+        # TCP 커넥터 설정 수정 - force_close 제거하고 keepalive 설정
         connector = aiohttp.TCPConnector(
             limit=5,
-            force_close=True,
             enable_cleanup_closed=True,  # 닫힌 연결 정리 활성화
-            keepalive_timeout=60  # keepalive 타임아웃 설정
+            keepalive_timeout=30,        # keepalive 타임아웃 설정
+            ttl_dns_cache=300            # DNS 캐시 TTL 설정
         )
         
-        # 타임아웃 설정 수정
+        # 타임아웃 설정
         timeout = aiohttp.ClientTimeout(
             total=60,
             connect=30,
@@ -385,7 +385,6 @@ async def classify_images(request: AnalysisRequest):
             timeout=timeout,
             loop=loop  # 명시적으로 loop 지정
         ) as session:
-            # 이미지 로드 함수 수정
             async def load_image_with_semaphore(url: str) -> tuple[str, Optional[np.ndarray]]:
                 async with image_semaphore:
                     try:
