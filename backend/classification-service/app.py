@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
-from typing import List, Dict, TypeVar, Generic, Optional, Tuple
+from typing import List, Dict, TypeVar, Generic, Optional
 from contextlib import asynccontextmanager
 import face_recognition
 import numpy as np
@@ -355,155 +355,100 @@ async def process_face_encodings(image):
         logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
         return []
 
-# 전역 변수로 세마포어 추가
-MAX_CONCURRENT_IMAGES = 3  # 동시 처리할 최대 이미지 수
-image_semaphore = asyncio.Semaphore(MAX_CONCURRENT_IMAGES)
-
 @app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
 async def classify_images(request: AnalysisRequest):
+    """
+    여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
+    """
     try:
-        # 현재 실행 중인 루프 가져오기
-        loop = asyncio.get_running_loop()
-        
-        # TCP 커넥터 설정 수정 - force_close 제거하고 keepalive 설정
-        connector = aiohttp.TCPConnector(
-            limit=5,
-            enable_cleanup_closed=True,  # 닫힌 연결 정리 활성화
-            keepalive_timeout=30,        # keepalive 타임아웃 설정
-            ttl_dns_cache=300            # DNS 캐시 TTL 설정
-        )
-        
-        # 타임아웃 설정
-        timeout = aiohttp.ClientTimeout(
-            total=60,
-            connect=30,
-            sock_read=30
-        )
-        
-        async with aiohttp.ClientSession(
-            connector=connector,
-            timeout=timeout,
-            loop=loop  # 명시적으로 loop 지정
-        ) as session:
-            async def load_image_with_semaphore(url: str) -> tuple[str, Optional[np.ndarray]]:
-                async with image_semaphore:
-                    try:
-                        async with session.get(url, raise_for_status=True) as response:
-                            content = await response.read()
-                            img = await load_image_from_url_async(url, session)
-                            # 메모리 해제
-                            del content
-                            return url, img
-                    except (aiohttp.ClientError, asyncio.TimeoutError) as e:
-                        logger.error(f"Error loading image {url}: {str(e)}")
-                        return url, None
-                    except Exception as e:
-                        logger.error(f"Unexpected error loading image {url}: {str(e)}")
-                        return url, None
+        async with aiohttp.ClientSession() as session:
+            # 인물 이미지 처리
+            people_images = []
+            for person in request.people:
+                img = await load_image_from_url_async(person.photoUrl, session)
+                if img is None:
+                    return BaseResponse.create(
+                        status_code=400,
+                        message=f"인물 이미지를 로드할 수 없습니다: {person.photoUrl}"
+                    )
+                people_images.append(img)
 
-            # 인물 이미지 먼저 처리
-            logger.info("인물 이미지 로드 시작")
-            people_results = await asyncio.gather(
-                *(load_image_with_semaphore(person.photoUrl) for person in request.people)
-            )
-            
-            # 유효하지 않은 인물 이미지 확인
-            invalid_people = [url for url, img in people_results if img is None]
-            if invalid_people:
-                return BaseResponse.create(
-                    status_code=400,
-                    message=f"다음 인물 이미지를 로드할 수 없습니다: {', '.join(invalid_people)}"
-                )
+            # 인물 얼굴 인코딩
+            people_encodings_list = []
+            for img in people_images:
+                encodings = await process_face_encodings(img)
+                if not encodings:
+                    logger.warning("인물 이미지에서 얼굴을 찾을 수 없습니다")
+                    encodings = []
+                people_encodings_list.append(encodings)
 
-            # 인물 인코딩 처리
-            logger.info("인물 얼굴 인코딩 시작")
-            people_encodings = {}
-            for (url, img), person in zip(people_results, request.people):
-                if img is not None:
-                    encodings = await process_face_encodings(img)
-                    if encodings and len(encodings) > 0:
-                        people_encodings[person.id] = encodings[0]
-                    # 메모리 해제
-                    del img
+            people_encodings = {
+                person.id: encodings[0] if encodings and len(encodings) > 0 else None
+                for person, encodings in zip(request.people, people_encodings_list)
+            }
 
-            if not people_encodings:
-                return BaseResponse.create(
-                    status_code=400,
-                    message="유효한 얼굴이 포함된 인물 이미지가 없습니다."
-                )
-
-            # 대상 이미지 처리 (배치 방식으로 변경)
-            logger.info("대상 이미지 처리 시작")
-            BATCH_SIZE = 5
+            # 대상 이미지를 배치로 나누어 처리
+            BATCH_SIZE = 10
             results = []
             
             for i in range(0, len(request.targetImages), BATCH_SIZE):
-                batch_urls = request.targetImages[i:i + BATCH_SIZE]
-                logger.info(f"배치 처리 시작: {i+1}-{min(i+BATCH_SIZE, len(request.targetImages))}번 이미지")
+                batch_urls = request.targetImages[i:i+BATCH_SIZE]
                 
-                # 배치 단위로 이미지 로드
-                batch_results = await asyncio.gather(
-                    *(load_image_with_semaphore(url) for url in batch_urls)
-                )
-                
-                # 배치 단위로 유사도 계산
-                for url, img in batch_results:
+                batch_images = []
+                for url in batch_urls:
+                    img = await load_image_from_url_async(url, session)
                     if img is None:
-                        results.append(SimilarityResponse(
-                            imageUrl=url,
-                            similarities={person_id: 0.0 for person_id in people_encodings.keys()},
-                            faceCount=0
-                        ))
+                        logger.warning(f"이미지 로드 실패: {url}")
                         continue
-                    
-                    # 얼굴 인코딩
-                    face_encodings = await process_face_encodings(img)
-                    
-                    # 유사도 계산
+                    batch_images.append((url, img))
+
+                for url, img in batch_images:
+                    target_encodings = await process_face_encodings(img)
+                    face_count = len(target_encodings)
                     max_similarities = {person_id: 0.0 for person_id in people_encodings.keys()}
-                    
-                    if face_encodings:
-                        # 벡터화된 연산으로 한 번에 계산
-                        person_encodings_array = np.array(list(people_encodings.values()))
-                        for face_encoding in face_encodings:
-                            distances = face_recognition.face_distance(person_encodings_array, face_encoding)
-                            similarities = 1 - distances
-                            for person_id, similarity in zip(people_encodings.keys(), similarities):
-                                max_similarities[person_id] = max(
-                                    max_similarities[person_id],
-                                    float(max(0, similarity))
-                                )
-                    
+
+                    if target_encodings:
+                        for target_encoding in target_encodings:
+                            for person_id, person_encoding in people_encodings.items():
+                                if person_encoding is not None:
+                                    try:
+                                        similarity = await asyncio.get_event_loop().run_in_executor(
+                                            THREAD_POOL,
+                                            lambda: face_recognition.face_distance([person_encoding], target_encoding)[0]
+                                        )
+                                        similarity = max(0, 1 - similarity)
+                                        max_similarities[person_id] = max(
+                                            max_similarities[person_id],
+                                            float(similarity)
+                                        )
+                                    except Exception as e:
+                                        logger.error(f"유사도 계산 중 에러: {str(e)}")
+                                        continue
+
                     results.append(SimilarityResponse(
                         imageUrl=url,
                         similarities=max_similarities,
-                        faceCount=len(face_encodings)
+                        faceCount=face_count
                     ))
-                    
-                    # 메모리 해제
-                    del img
-                    del face_encodings
-                
-                # 가비지 컬렉션 명시적 호출
-                import gc
-                gc.collect()
+
+                await asyncio.sleep(0.05)
 
             response = BaseResponse.create(
                 status_code=200,
                 message="얼굴 유사도 분석이 완료되었습니다.",
-                data=results
+                data=results if results else []
             )
 
-            logger.info("얼굴 유사도 분석 완료")
+            logger.info(f"Classification API 응답: {response.model_dump_json(exclude_none=True)}")
             return response
 
     except Exception as e:
-        error_msg = f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
-        logger.error(error_msg)
-        return BaseResponse.create(
+        error_response = BaseResponse.create(
             status_code=500,
-            message=error_msg
+            message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
         )
+        logger.error(f"Classification API 에러 응답: {error_response.model_dump_json(exclude_none=True)}")
+        return error_response
 
 @app.post("/face-recognition/face-count", response_model=BaseResponse[CountResponse])
 async def count_faces(file: UploadFile = File(...)):
@@ -561,10 +506,7 @@ if __name__ == "__main__":
     import uvicorn
     logger.info(f"Starting server on port {SERVER_PORT}")
     uvicorn.run(
-        app,
+        app, 
         host=SERVER_HOST,
         port=SERVER_PORT,
-        loop="auto",  # asyncio 이벤트 루프 정책 자동 설정
-        workers=1,    # 단일 워커로 실행
-        timeout_keep_alive=60,  # keepalive 타임아웃 설정
     )
