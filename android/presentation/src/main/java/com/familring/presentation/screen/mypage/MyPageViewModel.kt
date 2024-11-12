@@ -49,6 +49,22 @@ class MyPageViewModel
             }
         }
 
+        fun logOut() {
+            viewModelScope.launch {
+                userRepository.logOut().collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _event.emit(MyPageUiEvent.SignOutSuccess)
+                        }
+
+                        is ApiResponse.Error -> {
+                            _event.emit(MyPageUiEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
+            }
+        }
+
         fun updateEmotion(emotion: UserEmotionRequest) {
             viewModelScope.launch {
                 userRepository.updateEmotion(emotion).collectLatest { response ->

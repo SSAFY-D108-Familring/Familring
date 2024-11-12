@@ -38,6 +38,9 @@ interface UserApi {
     @DELETE("users")
     suspend fun signOut(): BaseResponse<Unit>
 
+    @POST("users/logout")
+    suspend fun logOut(): BaseResponse<Unit>
+
     @PATCH("users/emotion")
     suspend fun updateEmotion(
         @Body userEmotion: UserEmotionRequest,

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -61,6 +62,7 @@ fun MyPageRoute(
     navigateToLogin: () -> Unit,
     navigateToEditName: () -> Unit,
     navigateToEditColor: () -> Unit,
+    navigateToEditFace: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -68,7 +70,7 @@ fun MyPageRoute(
         viewModel.event.collectLatest { event ->
             when (event) {
                 is MyPageUiEvent.SignOutSuccess -> {
-                    showSnackBar("회원 탈퇴 완료")
+                    showSnackBar("패밀링을 이용해 주셔서 감사합니다 :)")
                     navigateToLogin()
                 }
 
@@ -87,11 +89,13 @@ fun MyPageRoute(
         modifier = modifier,
         uiState = uiState,
         signOut = viewModel::signOut,
+        logOut = viewModel::logOut,
         popUpBackStack = popUpBackStack,
         showSnackBar = showSnackBar,
         updateEmotion = viewModel::updateEmotion,
         navigateToEditName = navigateToEditName,
         navigateToEditColor = navigateToEditColor,
+        navigateToEditFace = navigateToEditFace,
     )
 }
 
@@ -100,11 +104,13 @@ fun HandleMyPageUi(
     modifier: Modifier = Modifier,
     uiState: MyPageUiState,
     signOut: () -> Unit = {},
+    logOut: () -> Unit = {},
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
     updateEmotion: (UserEmotionRequest) -> Unit = {},
     navigateToEditName: () -> Unit = {},
     navigateToEditColor: () -> Unit = {},
+    navigateToEditFace: () -> Unit = {},
 ) {
     when (uiState) {
         MyPageUiState.Loading -> LoadingDialog()
@@ -114,7 +120,9 @@ fun HandleMyPageUi(
                 popUpBackStack = popUpBackStack,
                 navigateToEditName = navigateToEditName,
                 navigateToEditColor = navigateToEditColor,
+                navigateToEditFace = navigateToEditFace,
                 signOut = signOut,
+                logOut = logOut,
                 showSnackBar = showSnackBar,
                 nickname = uiState.userNickname,
                 birthDate = uiState.userBirthDate,
@@ -134,7 +142,9 @@ fun MyPageScreen(
     popUpBackStack: () -> Unit = {},
     navigateToEditName: () -> Unit = {},
     navigateToEditColor: () -> Unit = {},
+    navigateToEditFace: () -> Unit = {},
     signOut: () -> Unit = {},
+    logOut: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
     updateEmotion: (UserEmotionRequest) -> Unit = {},
     nickname: String = "",
@@ -148,6 +158,7 @@ fun MyPageScreen(
     var showSignOutDialog by remember { mutableStateOf(false) }
     var showCodeDialog by remember { mutableStateOf(false) }
     var showEmotionDialog by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
@@ -169,7 +180,7 @@ fun MyPageScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.07f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             Box(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
@@ -219,7 +230,7 @@ fun MyPageScreen(
                     )
                 }
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.3f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.2f))
             Row(
                 modifier =
                     Modifier
@@ -237,7 +248,7 @@ fun MyPageScreen(
                 Icon(
                     modifier = Modifier.size(22.dp),
                     painter = painterResource(id = R.drawable.ic_navigate),
-                    contentDescription = "family_code",
+                    contentDescription = "emotion",
                 )
             }
             Spacer(modifier = Modifier.height(30.dp))
@@ -279,7 +290,7 @@ fun MyPageScreen(
                 Icon(
                     modifier = Modifier.size(22.dp),
                     painter = painterResource(id = R.drawable.ic_navigate),
-                    contentDescription = "family_code",
+                    contentDescription = "nickname",
                 )
             }
             Spacer(modifier = Modifier.height(30.dp))
@@ -300,19 +311,58 @@ fun MyPageScreen(
                 Icon(
                     modifier = Modifier.size(22.dp),
                     painter = painterResource(id = R.drawable.ic_navigate),
-                    contentDescription = "family_code",
+                    contentDescription = "profile_color",
                 )
             }
-            Spacer(modifier = Modifier.fillMaxHeight(0.4f))
-            Text(
+            Spacer(modifier = Modifier.height(30.dp))
+            Row(
                 modifier =
                     Modifier
-                        .padding(start = 15.dp)
-                        .noRippleClickable { showSignOutDialog = true },
-                text = "회원탈퇴",
-                style = Typography.bodyMedium,
-                color = Red01,
-            )
+                        .fillMaxWidth()
+                        .padding(horizontal = 15.dp)
+                        .noRippleClickable { navigateToEditFace() },
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "얼굴 사진 변경하기",
+                    style = Typography.bodyLarge.copy(fontSize = 20.sp),
+                    color = Black,
+                )
+                Icon(
+                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(id = R.drawable.ic_navigate),
+                    contentDescription = "face",
+                )
+            }
+            Spacer(modifier = Modifier.fillMaxHeight(0.5f))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text(
+                        modifier = Modifier.noRippleClickable { showLogoutDialog = true },
+                        text = "로그아웃",
+                        style = Typography.bodyMedium,
+                        color = Gray01,
+                    )
+                    VerticalDivider(
+                        modifier = Modifier.height(15.dp),
+                        thickness = 1.dp,
+                        color = Gray01,
+                    )
+                    Text(
+                        modifier = Modifier.noRippleClickable { showSignOutDialog = true },
+                        text = "회원탈퇴",
+                        style = Typography.bodyMedium,
+                        color = Red01,
+                    )
+                }
+            }
         }
     }
 
@@ -333,6 +383,28 @@ fun MyPageScreen(
                 },
                 onDismissClick = {
                     showSignOutDialog = false
+                },
+            )
+        }
+    }
+
+    if (showLogoutDialog) {
+        Box(
+            modifier =
+            Modifier
+                .fillMaxSize()
+                .background(color = Black.copy(alpha = 0.5f))
+                .noRippleClickable { showLogoutDialog = false },
+            contentAlignment = Alignment.Center,
+        ) {
+            TwoButtonTextDialog(
+                text = "로그아웃하시겠어요?",
+                onConfirmClick = {
+                    showLogoutDialog = false
+                    logOut()
+                },
+                onDismissClick = {
+                    showLogoutDialog = false
                 },
             )
         }
