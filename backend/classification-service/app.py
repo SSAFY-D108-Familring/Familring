@@ -403,12 +403,6 @@ async def classify_images(request: AnalysisRequest):
                     img = await load_image_from_url_async(url, session)
                     if img is None:
                         logger.warning(f"이미지 로드 실패: {url}")
-                        # 이미지 로드 실패시에도 결과 추가
-                        results.append(SimilarityResponse(
-                            imageUrl=url,
-                            similarities={person_id: 0.0 for person_id in people_encodings.keys()},
-                            faceCount=0
-                        ))
                         continue
                     batch_images.append((url, img))
 
@@ -416,12 +410,6 @@ async def classify_images(request: AnalysisRequest):
                 for url, img in batch_images:
                     target_encodings = await process_face_encodings(img)
                     face_count = len(target_encodings) if target_encodings else 0
-                    
-                    if face_count == 0:
-                        logger.warning(f"얼굴 검출 실패 또는 얼굴 없음: {url}")
-                    else:
-                        logger.info(f"검출된 얼굴 수: {face_count} - {url}")
-                        
                     max_similarities = {person_id: 0.0 for person_id in people_encodings.keys()}
 
                     if target_encodings:
@@ -438,7 +426,6 @@ async def classify_images(request: AnalysisRequest):
                                             max_similarities[person_id],
                                             float(similarity)
                                         )
-                                        logger.debug(f"유사도 계산 완료 - URL: {url}, Person ID: {person_id}, Similarity: {similarity}")
                                     except Exception as e:
                                         logger.error(f"유사도 계산 중 에러: {str(e)}")
                                         continue
@@ -451,6 +438,12 @@ async def classify_images(request: AnalysisRequest):
 
                 # 배치 처리 후 잠시 대기하여 메모리 정리 시간 확보
                 await asyncio.sleep(0.05)
+
+            if not results:
+                return BaseResponse.create(
+                    status_code=400,
+                    message="모든 이미지 처리에 실패했습니다."
+                )
 
             response = BaseResponse.create(
                 status_code=200,
@@ -495,22 +488,24 @@ async def count_faces(file: UploadFile = File(...)):
                 message="파일 크기가 너무 큽니다. 최대 20MB까지 허용됩니다."
             )
 
+        # load_image_from_bytes 직접 호출로 변경
         img = await load_image_from_bytes(file_content)
         
         if img is None:
-            logger.error("이미지 처리 실패")
             return BaseResponse.create(
                 status_code=400,
                 message="이미지를 처리할 수 없습니다."
             )
         
         face_encodings = await process_face_encodings(img)
-        face_count = len(face_encodings) if face_encodings is not None else 0
         
-        if face_count == 0:
-            logger.warning(f"얼굴 검출 실패 또는 얼굴 없음: {file.filename}")
-        else:
-            logger.info(f"검출된 얼굴 수: {face_count} - {file.filename}")
+        if face_encodings is None:
+            return BaseResponse.create(
+                status_code=400,
+                message="이미지에서 얼굴을 찾을 수 없습니다."
+            )
+        
+        face_count = len(face_encodings)
         
         response = BaseResponse.create(
             status_code=200,
