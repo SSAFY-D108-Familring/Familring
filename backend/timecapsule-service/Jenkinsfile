@@ -55,7 +55,7 @@ def deployToGreenIfStable(serviceName) {
 // 공통 함수: 기존 인스턴스를 Out-of-Service로 설정
 def markOutOfService(serviceName) {
     // Eureka 에서 인스턴스 ID를 가져와 Out-of-Service 상태로 전환
-    def instanceId = sh(script: "curl -s http://discovery-service:8761/eureka/apps//eureka/apps/TIMECAPSULE-SERVICE | jq '.application.instance[0].instanceId'", returnStdout: true).trim()
+    def instanceId = sh(script: "curl -s http://discovery-service:8761/eureka/apps/eureka/apps/TIMECAPSULE-SERVICE | jq '.application.instance[0].instanceId'", returnStdout: true).trim()
     sh "curl -X PUT 'http://discovery-service:8761/eureka/apps/eureka/apps/TIMECAPSULE-SERVICE/${instanceId}/status?value=OUT_OF_SERVICE'"
     echo "기존 ${serviceName} 인스턴스가 Out-of-Service 상태로 설정되었습니다."
 }
