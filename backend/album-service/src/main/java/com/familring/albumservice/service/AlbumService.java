@@ -250,4 +250,8 @@ public class AlbumService {
     public Album getAlbumByScheduleId(Long scheduleId) {
         return albumRepository.findByScheduleId(scheduleId).orElse(null);
     }
+
+    public void deletePersonAlbum(Long userId) {
+        albumRepository.deleteByUserId(userId);
+    }
 }

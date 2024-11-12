@@ -39,4 +39,10 @@ public class AlbumClientController {
         albumService.updatePersonAlbum(request);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "인물 앨범 이름을 수정했습니다."));
     }
+
+    @DeleteMapping
+    public ResponseEntity<BaseResponse<Void>> deletePersonAlbum(@RequestParam Long userId) {
+        albumService.deletePersonAlbum(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "인물 앨범을 삭제했습니다."));
+    }
 }

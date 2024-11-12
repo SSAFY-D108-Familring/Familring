@@ -277,12 +277,14 @@ public class UserServiceImpl implements UserService {
         userDao.updateUserFaceByUserId(user.getUserId(), newFace);
 
     }
+
     public void deleteFile(String fileName) {
         List<String> files = new ArrayList<>();
         files.add(fileName);
         fileServiceFeignClient.deleteFiles(files);
         log.info("[deleteFile] 파일={} 제거 완료", fileName);
     }
+
     public List<String> uploadFiles(MultipartFile image, String folderPath) {
         log.info("folderPath: {}", folderPath);
 
@@ -304,7 +306,11 @@ public class UserServiceImpl implements UserService {
                     UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
-        // 2. 회원 탈퇴 작업 시행
+
+        // 2. 인물 앨범 삭제
+        albumServiceFeignClient.deletePersonAlbum(userId);
+
+        // 3. 회원 탈퇴 작업 시행
         customUserDetailsService.deleteUser(user.getUserKakaoId());
     }
 }

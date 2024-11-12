@@ -16,4 +16,6 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     List<Album> findByUserIdIn(List<Long> userIds);
 
     Optional<Album> findByUserIdAndAlbumType(Long userId, AlbumType albumType);
+
+    void deleteByUserId(Long userId);
 }
