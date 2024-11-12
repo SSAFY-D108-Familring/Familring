@@ -50,13 +50,15 @@ def isContainerRunning(containerName) {
 }
 
 // 공통 함수: 컨테이너 중지 및 삭제
-// 공통 함수: 컨테이너 중지 및 삭제
 def stopAndRemoveContainer(containerName) {
     def containerId = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
     if (containerId) {
         // 중지
         echo "Stopping container ${containerName} with ID: ${containerId}"
         sh "docker stop ${containerId}"
+
+        // 중지 완료 대기
+        sleep(time: 2, unit: 'SECONDS')
 
         // 삭제
         echo "Removing container ${containerName} with ID: ${containerId}"
