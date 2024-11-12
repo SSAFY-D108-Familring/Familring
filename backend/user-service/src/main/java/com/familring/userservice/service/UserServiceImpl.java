@@ -314,3 +314,4 @@ public class UserServiceImpl implements UserService {
         customUserDetailsService.deleteUser(user.getUserKakaoId());
     }
 }
+
