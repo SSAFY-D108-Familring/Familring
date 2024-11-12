@@ -325,7 +325,7 @@ fun ScheduleItem(
     Box(
         modifier =
             modifier
-                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.albumId!!, false) }
+                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.albumId!!, true) }
                 .fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
