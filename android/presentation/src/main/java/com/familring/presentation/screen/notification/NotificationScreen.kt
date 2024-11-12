@@ -31,10 +31,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.notification.NotificationResponse
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
-import com.familring.presentation.theme.Green07
+import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun NotificationRoute(
@@ -43,6 +45,8 @@ fun NotificationRoute(
     viewModel: NotificationViewModel = hiltViewModel(),
 ) {
     val notificationListState = viewModel.notificationListState.collectAsStateWithLifecycle()
+    val notificationEvent =
+        viewModel.notificationEvent.collectAsStateWithLifecycle(initialValue = NotificationEvent.Loading)
 
     LaunchedEffect(Unit) {
         viewModel.getNotificationList()
@@ -51,6 +55,7 @@ fun NotificationRoute(
     NotificationScreen(
         modifier = modifier,
         navigateToHome = navigateToHome,
+        notificationEvent = notificationEvent.value,
         viewModel = viewModel,
         notificationListState = notificationListState.value,
     )
@@ -61,9 +66,27 @@ fun NotificationScreen(
     modifier: Modifier = Modifier,
     navigateToHome: () -> Unit = {},
     viewModel: NotificationViewModel,
+    notificationEvent: NotificationEvent,
     notificationListState: NotificationListState,
 ) {
+    LaunchedEffect(notificationEvent) {
+        when (notificationEvent) {
+            is NotificationEvent.Loading -> {
+                // 로딩
+            }
 
+            is NotificationEvent.Success -> {
+                viewModel.getNotificationList()
+            }
+
+            is NotificationEvent.Error -> {
+            }
+
+            null -> {
+                // 로딩
+            }
+        }
+    }
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -99,7 +122,12 @@ fun NotificationScreen(
                         contentPadding = PaddingValues(bottom = 30.dp),
                     ) {
                         items(notificationListState.notificationList.size) { index ->
-                            NotificationItem(notificationListState.notificationList[index])
+                            NotificationItem(
+                                notificationListState.notificationList[index],
+                                onNotificationClick = { notificationId ->
+                                    viewModel.readNotification(notificationId)
+                                },
+                            )
                         }
                     }
                 }
@@ -122,17 +150,26 @@ fun NotificationScreen(
 }
 
 @Composable
-fun NotificationItem(notification: NotificationResponse) {
+fun NotificationItem(
+    notification: NotificationResponse,
+    onNotificationClick: (Long) -> Unit = {},
+) {
     Box {
         ElevatedCard(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 21.dp),
+                    .padding(horizontal = 21.dp)
+                    .noRippleClickable { onNotificationClick(notification.notificationId) },
             shape = RoundedCornerShape(20.dp),
             colors =
                 CardDefaults.cardColors(
-                    containerColor = Green07,
+                    containerColor =
+                        if (notification.notificationIsRead) {
+                            Gray03
+                        } else {
+                            Green06
+                        },
                 ),
         ) {
             Row(
@@ -173,5 +210,6 @@ fun NotificationScreenPreview() {
     NotificationScreen(
         viewModel = hiltViewModel(),
         notificationListState = NotificationListState.Loading,
+        notificationEvent = NotificationEvent.Loading,
     )
 }

@@ -192,4 +192,14 @@ class UserRepositoryImpl
                     )
                 emit(response)
             }
+
+        override suspend fun readNotification(notificationId: Long): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.readNotification(notificationId) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
     }

@@ -7,5 +7,5 @@ data class NotificationResponse(
     val notificationType: String,
     val notificationTitle: String,
     val notificationMessage: String,
-    val notificationRead: Boolean,
+    val notificationIsRead: Boolean,
 )

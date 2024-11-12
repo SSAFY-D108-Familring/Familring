@@ -16,6 +16,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Part
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface UserApi {
@@ -64,4 +65,9 @@ interface UserApi {
 
     @GET("notifications")
     suspend fun getNotifications(): BaseResponse<List<NotificationResponse>>
+
+    @PATCH("notifications/{notificationId}")
+    suspend fun readNotification(
+        @Path("notificationId") notificationId: Long,
+    ): BaseResponse<Unit>
 }

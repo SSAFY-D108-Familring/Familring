@@ -36,4 +36,6 @@ interface UserRepository {
     ): Flow<ApiResponse<Unit>>
 
     suspend fun getNotifications(): Flow<ApiResponse<List<NotificationResponse>>>
+
+    suspend fun readNotification(notificationId: Long): Flow<ApiResponse<Unit>>
 }
