@@ -290,7 +290,7 @@ public class InterestService {
             throw new InterestAnswerNotFoundException();
         }
 
-        
+
         return InterestAnswerSelectedResponse.builder()
                 .userNickname(selectedUser.getUserNickname())
                 .content(content)

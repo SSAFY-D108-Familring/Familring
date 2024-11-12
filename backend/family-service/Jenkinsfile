@@ -14,19 +14,19 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
                     script {
-                        // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
-                        def newInstance = (activeInstance == 'family-service-blue') ? 'family-service-green' : 'family-service-blue'
+//                         // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
+//                         def newInstance = (activeInstance == 'family-service-blue') ? 'family-service-green' : 'family-service-blue'
 
                         dir('backend/family-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
+                            buildAndRunContainer('family-service') // 내부 네트워크에서만 통신
                         }
-
-                        // 새로운 인스턴스 실행 후 기존 인스턴스 삭제
-                        stopAndRemoveContainer(activeInstance)
-
-                        // 다음 배포를 위해 activeInstance 변수를 업데이트
-                        activeInstance = newInstance
+//
+//                         // 새로운 인스턴스 실행 후 기존 인스턴스 삭제
+//                         stopAndRemoveContainer(activeInstance)
+//
+//                         // 다음 배포를 위해 activeInstance 변수를 업데이트
+//                         activeInstance = newInstance
                     }
                 }
             }
