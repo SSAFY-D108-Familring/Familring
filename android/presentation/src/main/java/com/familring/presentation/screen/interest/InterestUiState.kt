@@ -7,10 +7,11 @@ data class InterestUiState(
     val interestStatus: Int = 0,
     val isWroteInterest: Boolean = true,
     val myInterest: String = "",
-    val isUploadMission: Boolean = false,
     val isFamilyWrote: Boolean = false,
     val wroteFamilyCount: Int = 0,
+    val isUploadMission: Boolean = false,
     val selectedInterest: SelectedInterest = SelectedInterest(),
     val leftMissionPeriod: Int = 0,
     val missions: List<Mission> = listOf(),
+    val isShareScreenLoading: Boolean = true,
 )

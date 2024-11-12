@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
@@ -54,10 +56,7 @@ class InterestViewModel
                                 }
 
                                 InterestState.MISSION -> {
-                                    checkUploadMission()
-                                    getSelectedInterest()
-                                    getLeftMissionPeriod()
-                                    getMissions()
+                                    getDataForShareDayScreen()
                                 }
                             }
                         }
@@ -299,6 +298,78 @@ class InterestViewModel
                             _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
                             Timber.d("code: ${result.code}, message: ${result.message}")
                         }
+                    }
+                }
+            }
+        }
+
+        private fun getDataForShareDayScreen() {
+            viewModelScope.launch {
+                combine(
+                    interestRepository.checkUploadMission(),
+                    interestRepository.getSelectedInterest(),
+                    interestRepository.getMissionPeriod(),
+                    interestRepository.getMissions(),
+                ) { isUploadMissionResponse, selectedInterestResponse, leftMissionPeriodResponse, missionsResponse ->
+                    var currentState = InterestUiState()
+                    currentState =
+                        when (isUploadMissionResponse) {
+                            is ApiResponse.Success -> {
+                                currentState.copy(
+                                    isUploadMission = isUploadMissionResponse.data,
+                                )
+                            }
+
+                            is ApiResponse.Error -> {
+                                currentState
+                            }
+                        }
+                    currentState =
+                        when (selectedInterestResponse) {
+                            is ApiResponse.Success -> {
+                                currentState.copy(
+                                    selectedInterest = selectedInterestResponse.data,
+                                )
+                            }
+
+                            is ApiResponse.Error -> {
+                                currentState
+                            }
+                        }
+                    currentState =
+                        when (leftMissionPeriodResponse) {
+                            is ApiResponse.Success -> {
+                                currentState.copy(
+                                    leftMissionPeriod = leftMissionPeriodResponse.data,
+                                )
+                            }
+
+                            is ApiResponse.Error -> {
+                                currentState
+                            }
+                        }
+                    currentState =
+                        when (missionsResponse) {
+                            is ApiResponse.Success -> {
+                                currentState.copy(
+                                    missions = missionsResponse.data,
+                                )
+                            }
+
+                            is ApiResponse.Error -> {
+                                currentState
+                            }
+                        }
+                    currentState
+                }.collect { updatedState ->
+                    _uiState.update {
+                        it.copy(
+                            isShareScreenLoading = false,
+                            isUploadMission = updatedState.isUploadMission,
+                            selectedInterest = updatedState.selectedInterest,
+                            leftMissionPeriod = updatedState.leftMissionPeriod,
+                            missions = updatedState.missions,
+                        )
                     }
                 }
             }
