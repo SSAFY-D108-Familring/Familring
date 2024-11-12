@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.question.QuestionList
 import com.familring.domain.repository.QuestionRepository
+import com.familring.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ class QuestionViewModel
     @Inject
     constructor(
         val questionRepository: QuestionRepository,
+        val userRepository: UserRepository,
     ) : ViewModel() {
         private val _questionState = MutableStateFlow<QuestionState>(QuestionState.Loading)
         val questionState = _questionState.asStateFlow()
@@ -174,6 +176,46 @@ class QuestionViewModel
                                 }
                             }
                         }
+                }
+            }
+        }
+
+        fun sendKnockNotification(
+            userId: String,
+            senderNickname: String,
+        ) {
+            viewModelScope.launch {
+                try {
+                    userRepository
+                        .sendKnockNotification(
+                            targetUserId = userId,
+                            senderNickname = senderNickname,
+                        ).collectLatest { response ->
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    _questionEvent.emit(QuestionEvent.Success)
+                                }
+
+                                is ApiResponse.Error -> {
+                                    _questionEvent.emit(
+                                        QuestionEvent.Error(
+                                            response.code,
+                                            response.message,
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                } catch (
+                    e: Exception,
+                ) {
+                    Timber.e(e)
+                    _questionEvent.emit(
+                        QuestionEvent.Error(
+                            code = "500",
+                            message = e.message ?: "알 수 없는 에러",
+                        ),
+                    )
                 }
             }
         }
