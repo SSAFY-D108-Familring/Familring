@@ -16,7 +16,7 @@ public interface AlbumServiceFeignClient {
     @PutMapping("/client/albums")
     BaseResponse<Void> updatePersonAlbumName(@RequestBody PersonAlbumUpdateRequest personAlbumUpdateRequest);
 
-    @DeleteMapping
+    @DeleteMapping("/client/albums")
     BaseResponse<Void> deletePersonAlbum(@RequestParam Long userId);
 }
 
