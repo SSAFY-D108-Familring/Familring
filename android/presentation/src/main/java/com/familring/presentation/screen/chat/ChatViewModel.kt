@@ -34,6 +34,7 @@ import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.WebSocketException
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import timber.log.Timber
+import java.time.Duration
 import java.time.LocalDateTime
 import javax.inject.Inject
 
@@ -128,7 +129,9 @@ class ChatViewModel
                                         HttpLoggingInterceptor().apply {
                                             level = HttpLoggingInterceptor.Level.BODY
                                         },
-                                    ).build()
+                                    ).callTimeout(Duration.ofMinutes(1))
+                                    .pingInterval(Duration.ofSeconds(10))
+                                    .build()
 
                             val client = StompClient(OkHttpWebSocketClient(okHttpclient))
                             stompSession =
