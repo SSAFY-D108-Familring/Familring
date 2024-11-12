@@ -50,7 +50,6 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import com.familring.presentation.util.rotateImage
 import com.familring.presentation.util.toFile
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -102,8 +101,8 @@ fun PictureScreen(
             when (event) {
                 is SignUpUiEvent.FaceSuccess -> {
                     showSnackBar("사용 가능한 사진이에요! :)")
-                    val rotatedFile = imgUri?.toFile(context)?.rotateImage(90f)
-                    rotatedFile?.let {
+                    val file = imgUri?.toFile(context)
+                    file?.let {
                         updatePicture(it)
                         faceSuccess = true
                     }
@@ -126,9 +125,7 @@ fun PictureScreen(
     LaunchedEffect(imgUri) {
         val file = imgUri?.toFile(context)
         if (file != null) {
-            // 이미지 90도 회전
-            val rotatedFile = file.rotateImage(90f)
-            getFaceCount(rotatedFile)
+            getFaceCount(file)
         }
     }
 

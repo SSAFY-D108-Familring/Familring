@@ -4,6 +4,7 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
+import com.familring.domain.model.chat.Chat
 import kotlinx.coroutines.flow.Flow
 
 interface FamilyRepository {
@@ -20,4 +21,9 @@ interface FamilyRepository {
     suspend fun isAvailableCode(code: String): Flow<ApiResponse<Boolean>>
 
     suspend fun getParentAvailable(code: String): Flow<ApiResponse<List<String>>>
+
+    suspend fun enterRoom(
+        roomId: Long,
+        userId: Long,
+    ): Flow<ApiResponse<List<Chat>>>
 }

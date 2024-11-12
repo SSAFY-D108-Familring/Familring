@@ -1,7 +1,6 @@
-package com.familring.domain.datasource
+package com.familring.domain.datastore
 
 import java.time.LocalDate
-import java.util.Date
 
 interface AuthDataStore {
     suspend fun saveKakaoId(kakaoId: String)
@@ -37,4 +36,12 @@ interface AuthDataStore {
     suspend fun saveEmotion(emotion: String)
 
     suspend fun getEmotion(): String?
+
+    suspend fun saveUserId(userId: Long)
+
+    suspend fun getUserId(): Long?
+
+    suspend fun saveFamilyId(familyId: Long)
+
+    suspend fun getFamilyId(): Long?
 }

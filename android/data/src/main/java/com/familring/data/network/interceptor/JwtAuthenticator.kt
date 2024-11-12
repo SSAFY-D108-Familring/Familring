@@ -3,7 +3,7 @@ package com.familring.data.network.interceptor
 import com.familring.data.exception.ApiException
 import com.familring.data.exception.RefreshTokenExpiredException
 import com.familring.data.network.api.AuthApi
-import com.familring.domain.datasource.TokenDataStore
+import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.JwtToken
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator

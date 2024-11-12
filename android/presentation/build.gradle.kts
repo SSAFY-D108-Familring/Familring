@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,12 +8,17 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
 }
 
+val properties = Properties()
+properties.load(rootProject.file("local.properties").inputStream())
+
 android {
     namespace = "com.familring.presentation"
     compileSdk = 34
 
     defaultConfig {
         minSdk = 27
+
+        buildConfigField("String", "SOCKET_URL", properties["SOCKET_URL"] as String)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -27,11 +34,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -99,4 +106,13 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+
+    // websocket
+    implementation(libs.krossbow.stomp.core)
+    implementation(libs.krossbow.websocket.okhttp)
+    implementation(libs.krossbow.stomp.moshi)
+
+    // moshi
+    implementation(libs.moshi)
+    implementation(libs.moshi.kotlin)
 }

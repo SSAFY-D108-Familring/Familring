@@ -26,7 +26,11 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.Yellow01
 
 @Composable
-fun MyMessage(message: String) {
+fun MyMessage(
+    message: String,
+    time: String,
+    unReadMembers: String,
+) {
     Box(
         modifier = Modifier.fillMaxWidth(),
         contentAlignment = Alignment.CenterEnd,
@@ -49,13 +53,13 @@ fun MyMessage(message: String) {
                             Modifier
                                 .fillMaxWidth()
                                 .padding(end = 2.dp),
-                        text = "2",
+                        text = unReadMembers,
                         style = Typography.titleSmall.copy(fontSize = 10.sp),
                         color = Green02,
                         textAlign = TextAlign.End,
                     )
                     Text(
-                        text = "17:20",
+                        text = time,
                         style = Typography.bodySmall.copy(fontSize = 12.sp),
                         color = Gray02,
                     )
