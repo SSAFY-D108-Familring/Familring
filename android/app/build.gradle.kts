@@ -67,6 +67,7 @@ fun getApiKey(key: String): String {
 dependencies {
     // hilt
     implementation(libs.hilt.android)
+    implementation(libs.firebase.messaging.ktx)
     kapt(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.v2.all)

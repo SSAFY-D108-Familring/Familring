@@ -56,4 +56,7 @@ dependencies {
 
     // Timber
     implementation(libs.timber)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 }

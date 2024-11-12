@@ -248,8 +248,8 @@ fun MainNavHost(
                     )
                 },
                 navigateToCreateAlbum = { navController.navigate(ScreenDestinations.Gallery.route) },
-                navigateToAlbum = { albumId ->
-                    navController.navigate(ScreenDestinations.Album.createRoute(albumId))
+                navigateToAlbum = { albumId, isNormal ->
+                    navController.navigate(ScreenDestinations.Album.createRoute(albumId, isNormal))
                 },
                 showSnackBar = showSnackBar,
             )
@@ -296,8 +296,8 @@ fun MainNavHost(
         ) {
             GalleryRoute(
                 modifier = modifier,
-                navigateToAlbum = { albumId ->
-                    navController.navigate(ScreenDestinations.Album.createRoute(albumId))
+                navigateToAlbum = { albumId, isNormal ->
+                    navController.navigate(ScreenDestinations.Album.createRoute(albumId, isNormal))
                 },
                 showSnackBar = showSnackBar,
             )
@@ -352,8 +352,11 @@ fun MainNavHost(
             arguments = ScreenDestinations.Album.arguments,
         ) { backStackEntry ->
             val albumId = backStackEntry.arguments?.getLong("albumId") ?: 0L
+            val isNormal = backStackEntry.arguments?.getBoolean("isNormal") ?: false
+
             AlbumRoute(
                 albumId = albumId,
+                isNormal = isNormal,
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
             )

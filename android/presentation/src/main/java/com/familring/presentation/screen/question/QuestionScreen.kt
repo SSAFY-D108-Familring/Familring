@@ -136,11 +136,12 @@ fun QuestionScreen(
                             ),
                     ) {
                         Icon(
-                            imageVector = if (answerContents[0].answerStatus) {
-                                Icons.Default.Edit
-                            } else {
-                                Icons.Default.Add
-                            },
+                            imageVector =
+                                if (answerContents[0].answerStatus) {
+                                    Icons.Default.Edit
+                                } else {
+                                    Icons.Default.Add
+                                },
                             contentDescription = if (answerContents[0].answerStatus) "edit_answer" else "write_answer",
                             tint = White,
                         )
@@ -261,6 +262,7 @@ fun QuestionScreen(
 fun FamilyListItem(
     questionAnswer: QuestionAnswer,
     showSnackBar: (String) -> Unit,
+    viewModel: QuestionViewModel = hiltViewModel(),
 ) {
     Column(
         modifier =
@@ -318,6 +320,10 @@ fun FamilyListItem(
                     color = Gray02,
                     modifier =
                         Modifier.noRippleClickable {
+                            viewModel.sendKnockNotification(
+                                userId = questionAnswer.userId.toString(),
+                                senderNickname = questionAnswer.userNickname,
+                            )
                             Timber.d("똑똑 누름 " + questionAnswer.userId)
                             showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
                         },

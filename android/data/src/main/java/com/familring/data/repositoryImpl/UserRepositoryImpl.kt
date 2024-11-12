@@ -7,6 +7,8 @@ import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.JwtToken
 import com.familring.domain.model.User
+import com.familring.domain.model.notification.KnockNotificationRequest
+import com.familring.domain.model.notification.NotificationResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserEmotionRequest
 import com.familring.domain.request.UserJoinRequest
@@ -145,6 +147,57 @@ class UserRepositoryImpl
                 val response =
                     emitApiResponse(
                         apiResponse = { api.updateColor(color) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun updateFCMToken(token: String): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateFCMToken(token) },
+                        default = Unit,
+                    )
+                if (response is ApiResponse.Success) {
+                    authDataSource.saveFCMToken(token)
+                }
+                emit(response)
+            }
+
+        override suspend fun sendKnockNotification(
+            targetUserId: String,
+            senderNickname: String,
+        ): Flow<ApiResponse<Unit>> =
+            flow {
+                val request =
+                    KnockNotificationRequest(
+                        targetUserId = targetUserId,
+                        senderNickname = senderNickname,
+                    )
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.sendKnockNotification(request) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun getNotifications(): Flow<ApiResponse<List<NotificationResponse>>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.getNotifications() },
+                        default = listOf(),
+                    )
+                emit(response)
+            }
+
+        override suspend fun readNotification(notificationId: Long): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.readNotification(notificationId) },
                         default = Unit,
                     )
                 emit(response)
