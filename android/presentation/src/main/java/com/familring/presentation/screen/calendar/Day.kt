@@ -37,6 +37,7 @@ import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toColor
 import com.familring.presentation.util.toLocalDate
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -103,15 +104,20 @@ fun Day(
         LazyColumn(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
-//            contentPadding = PaddingValues(1.dp),
         ) {
             val maxVisibleItems = 3
 
             items(daySchedule.schedules.take(maxVisibleItems)) { schedule ->
+                val isPrevConnected = schedule.startTime.toLocalDate().isBefore(daySchedule.date)
+                val isNextConnected = schedule.endTime.toLocalDate().isAfter(daySchedule.date)
+                val showText =
+                    daySchedule.date.dayOfWeek == DayOfWeek.SUNDAY || daySchedule.date == schedule.startTime.toLocalDate()
+
                 Schedule(
                     modifier = Modifier.fillMaxWidth(),
-                    isPrevConnected = schedule.startTime.toLocalDate().isBefore(daySchedule.date),
-                    isNextConnected = schedule.endTime.toLocalDate().isAfter(daySchedule.date),
+                    isPrevConnected = isPrevConnected,
+                    isNextConnected = isNextConnected,
+                    showText = showText,
                     schedule = schedule,
                 )
             }
@@ -142,6 +148,7 @@ fun Schedule(
     modifier: Modifier = Modifier,
     isPrevConnected: Boolean = false,
     isNextConnected: Boolean = false,
+    showText: Boolean = false,
     schedule: PreviewSchedule,
 ) {
     val background =
@@ -176,13 +183,14 @@ fun Schedule(
 
     Text(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
-                .then(background).padding(
+                .then(background)
+                .padding(
                     horizontal = 5.dp,
                     vertical = 3.dp,
                 ),
-        text = schedule.title,
+        text = if (showText) schedule.title else "",
         style = Typography.bodySmall.copy(fontSize = 8.sp),
         overflow = TextOverflow.Ellipsis,
         maxLines = 1,
@@ -202,6 +210,7 @@ private fun SchedulePreview() {
                 endTime = LocalDateTime.parse("2024-10-03T10:00:00"),
                 color = "0xFFFEE6C9",
             ),
+        showText = true,
     )
 }
 
