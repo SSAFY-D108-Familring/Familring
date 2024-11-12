@@ -120,6 +120,7 @@ public class AlbumService {
 
     @Transactional
     public void deleteAlbum(Long albumId, Long userId) {
+        log.info("{}: 앨범 삭제", albumId);
         Album album = albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
 
