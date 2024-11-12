@@ -1,5 +1,6 @@
 package com.familring.notificationservice.service;
 
+import com.familring.notificationservice.model.dto.request.NotificationRequest;
 import com.familring.notificationservice.model.dto.response.NotificationResponse;
 
 import java.util.List;
@@ -10,4 +11,7 @@ public interface NotificationService {
 
     // 알림 읽음 상태 변경
     void updateNotificationIsRead(Long userId, Long notificationId);
+
+    // 캘린더 알림
+    void calendarAlarm(NotificationRequest notificationRequest);
 }
