@@ -58,7 +58,7 @@
 
         fetchChatHistory(roomId, userId, currentPage, pageSize);
 
-        const socket = new SockJS('/ws-stomp');
+        const socket = new SockJS('/family/ws-stomp');
         stompClient = Stomp.over(socket);
 
         stompClient.connect(
