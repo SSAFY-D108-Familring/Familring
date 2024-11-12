@@ -64,17 +64,17 @@
         stompClient.connect(
             { "X-User-ID": userId },
             () => {
-                stompClient.subscribe(`/family/room/${roomId}`, (message) => {
+                stompClient.subscribe(`/room/${roomId}`, (message) => {
                     const parsedMessage = JSON.parse(message.body);
                     console.log("New message received:", parsedMessage);
                     displayMessageByType(parsedMessage);
                 });
 
-                stompClient.subscribe(`/family/room/${roomId}/readStatus`, () => {
+                stompClient.subscribe(`/room/${roomId}/readStatus`, () => {
                     fetchChatHistory(roomId, userId);
                 });
 
-                stompClient.subscribe(`/family/room/${roomId}/exit`, (message) => {
+                stompClient.subscribe(`/room/${roomId}/exit`, (message) => {
                     console.log("Exit message received:", message.body);
                     displayExitMessage(message.body);
                 });
