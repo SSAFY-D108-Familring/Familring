@@ -32,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -132,7 +133,7 @@ fun GalleryScreen(
     onUpdateAlbum: (Long, String) -> Unit = { _, _ -> },
     deleteAlbum: (Long) -> Unit = {},
 ) {
-    var privateGallerySelected by remember { mutableStateOf(true) }
+    var privateGallerySelected by rememberSaveable { mutableStateOf(true) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var albumname by remember { mutableStateOf("") }
 
@@ -434,16 +435,16 @@ fun GalleryItem(
                                 detectTapGestures(
                                     onLongPress = { showDialog = true },
                                     onTap = {
-                                        navigateToAlbum(album.id,true)
+                                        navigateToAlbum(album.id, true)
                                         Timber.d("짧터치")
-                                    }
+                                    },
                                 )
                             }
                         } else {
                             Modifier.noRippleClickable {
-                                navigateToAlbum(album.id,false)
+                                navigateToAlbum(album.id, false)
                             }
-                        }
+                        },
                     ),
             shape = RoundedCornerShape(18.dp),
         ) {
