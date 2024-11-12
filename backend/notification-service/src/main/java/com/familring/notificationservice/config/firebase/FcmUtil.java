@@ -10,6 +10,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 @Log4j2
@@ -26,6 +28,13 @@ public class FcmUtil {
             sendMessage(message); // 메시지 전송
         }
     }
+
+    // 여러 사용자에게 FCM 메시지를 비동기로 전송하는 메서드
+    @Async("taskExecutor") // 비동기 처리
+    public void multiFcmSend(List<UserInfoResponse> users, FcmMessage.FcmDto fcmDTO) {
+        users.forEach(user -> singleFcmSend(user, fcmDTO));
+    }
+
 
     // FCM 메시지를 생성하는 메서드
     public Message makeMessage(String title, String body, String token) { // FcmDTO의 title, body 사용

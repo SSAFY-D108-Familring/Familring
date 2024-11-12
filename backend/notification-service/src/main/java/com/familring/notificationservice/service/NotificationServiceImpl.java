@@ -1,5 +1,7 @@
 package com.familring.notificationservice.service;
 
+import com.familring.notificationservice.config.firebase.FcmMessage;
+import com.familring.notificationservice.config.firebase.FcmUtil;
 import com.familring.notificationservice.exception.notification.NotFoundNotificationException;
 import com.familring.notificationservice.model.dao.NotificationDao;
 import com.familring.notificationservice.model.dto.Notification;
@@ -25,6 +27,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationDao notificationDao;
     private final UserServiceFeignClient userServiceFeignClient;
+    private final FcmUtil fcmUtil;
 
     @Override
     public List<NotificationResponse> getAllNotification(Long userId) {
@@ -66,19 +69,24 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void calendarAlarm(NotificationRequest notificationRequest) {
-        // 알림 생성 -> 알림 수신 인원만큼 수행
+        // 1. 알림 생성 -> 알림 수신 인원만큼 수행
         for(Long userId : notificationRequest.getReceiverUserIds()) {
             Notification newNotification = Notification.builder()
                     .receiverUserId(userId)
                     .senderUserId(notificationRequest.getSenderUserId())
                     .destinationId(notificationRequest.getDestinationId())
                     .notificationType(NotificationType.MENTION_SCHEDULE)
-                    .notificationTitle("캘린더 알림")
+                    .notificationTitle("캘린더 언급 알림")
                     .notificationMessage(notificationRequest.getMessage())
                     .notificationCreatedAt(LocalDateTime.now())
                     .build();
 
             notificationDao.insertNotification(newNotification);
         }
+
+        // 2. 수신자들에게 알림 전송
+        List<UserInfoResponse> usersList = userServiceFeignClient.getAllUser(notificationRequest.getReceiverUserIds()).getData();
+        FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO("캘린더 언급 알림", notificationRequest.getMessage());
+        fcmUtil.multiFcmSend(usersList, fcmDto);
     }
 }
