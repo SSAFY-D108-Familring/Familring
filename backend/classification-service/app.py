@@ -31,9 +31,16 @@ SERVER_HOST = os.getenv('SERVER_HOST','0.0.0.0')
 INSTANCE_HOST = os.getenv('INSTANCE_HOST')
 SERVER_PORT = int(os.getenv('SERVER_PORT'))
 
-# CPU 코어 수에 기반한 스레드 풀 최적화
-CPU_COUNT = os.cpu_count() or 4
-THREAD_POOL = concurrent.futures.ThreadPoolExecutor(max_workers=CPU_COUNT * 2)
+# CPU 코어 수에 기반한 스레드 풀 최적화 (4코어 서버 기준)
+CPU_COUNT = 4  # 서버의 실제 코어 수
+THREAD_POOL = concurrent.futures.ThreadPoolExecutor(
+    max_workers=min(32, CPU_COUNT * 2),  # 최대 워커 수 제한
+    thread_name_prefix="face_recognition_worker"
+)
+
+# 전역 변수로 세마포어 설정
+MAX_CONCURRENT_IMAGES = min(4, CPU_COUNT)  # 4코어 서버에서는 4
+image_semaphore = asyncio.Semaphore(MAX_CONCURRENT_IMAGES)
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -302,15 +309,15 @@ async def load_image_from_bytes(file_content: bytes):
         logger.error(f"이미지 로드 실패: {str(e)}")
         return None
 
-async def process_face_encodings(image, loop=None):
+async def process_face_encodings(image):
     """비동기적으로 얼굴 인코딩 처리"""
     if image is None:
         logger.error("입력 이미지가 None입니다")
         return []
     
     try:
-        if loop is None:
-            loop = asyncio.get_running_loop()
+        # 현재 실행 중인 루프 가져오기
+        loop = asyncio.get_running_loop()
         
         # 이미지 크기 조정
         height, width = image.shape[:2]
@@ -327,7 +334,6 @@ async def process_face_encodings(image, loop=None):
             logger.info(f"이미지 크기 조정: {new_width}x{new_height} (scale: {scale:.2f})")
 
         # HOG로 얼굴 검출
-        logger.info("얼굴 검출 시도")
         face_locations = await loop.run_in_executor(
             THREAD_POOL,
             lambda: face_recognition.face_locations(image, model="hog", number_of_times_to_upsample=1)
@@ -337,21 +343,13 @@ async def process_face_encodings(image, loop=None):
             logger.warning("얼굴 검출 실패")
             return []
             
-        logger.info(f"검출된 얼굴 수: {len(face_locations)}")
-        
         # 얼굴 인코딩
-        logger.info("얼굴 인코딩 시작")
         face_encodings = await loop.run_in_executor(
             THREAD_POOL,
             lambda: face_recognition.face_encodings(image, face_locations, num_jitters=1)
         )
     
-        if face_encodings:
-            logger.info(f"얼굴 인코딩 완료: {len(face_encodings)}개")
-            return face_encodings
-        else:
-            logger.warning("얼굴 인코딩 실패")
-            return []
+        return face_encodings
             
     except Exception as e:
         logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
@@ -399,10 +397,8 @@ image_semaphore = asyncio.Semaphore(MAX_CONCURRENT_IMAGES)
 
 @app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
 async def classify_images(request: AnalysisRequest):
-    """
-    여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 병렬 분석합니다.
-    """
     try:
+        # 현재 실행 중인 루프 가져오기
         loop = asyncio.get_running_loop()
         connector = aiohttp.TCPConnector(limit=5, force_close=True)
         timeout = aiohttp.ClientTimeout(total=60)
@@ -421,8 +417,8 @@ async def classify_images(request: AnalysisRequest):
                             if img is None:
                                 return url, []
                             
-                            # 얼굴 인코딩 처리 (loop 전달)
-                            face_encodings = await process_face_encodings(img, loop)
+                            # 얼굴 인코딩 처리
+                            face_encodings = await process_face_encodings(img)
                             
                             # 메모리 해제
                             del content
@@ -579,4 +575,6 @@ if __name__ == "__main__":
         app, 
         host=SERVER_HOST,
         port=SERVER_PORT,
+        loop="auto",  # asyncio 이벤트 루프 정책 자동 설정
+        workers=1     # 단일 워커로 실행하여 루프 충돌 방지
     )
