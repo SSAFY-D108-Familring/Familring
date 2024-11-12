@@ -22,7 +22,7 @@ class OtherInterestViewModel
         private val _uiState = MutableStateFlow(OtherInterestUiStatus())
         val uiState = _uiState.asStateFlow()
 
-        private val _uiEvent = MutableSharedFlow<InterestUiEvent>()
+        private val _uiEvent = MutableSharedFlow<OtherInterestUiEvent>()
         val uiEvent = _uiEvent
 
         init {
@@ -42,7 +42,7 @@ class OtherInterestViewModel
                         }
 
                         is ApiResponse.Error -> {
-                            _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                            _uiEvent.emit(OtherInterestUiEvent.Error(result.code, result.message))
                             Timber.d("code: ${result.code}, message: ${result.message}")
                         }
                     }

@@ -316,6 +316,7 @@ fun MainNavHost(
                     navController.navigate(ScreenDestinations.OtherInterest.route)
                 },
                 onNavigateBack = navController::popBackStack,
+                onShowSnackBar = showSnackBar,
             )
         }
 

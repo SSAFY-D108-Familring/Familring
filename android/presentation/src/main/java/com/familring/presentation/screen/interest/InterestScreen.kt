@@ -46,21 +46,42 @@ fun InterestRoute(
     navigateToOtherInterest: () -> Unit,
     onNavigateBack: () -> Unit,
     interestViewModel: InterestViewModel = hiltViewModel(),
+    onShowSnackBar: (String) -> Unit,
 ) {
     val uiState by interestViewModel.uiState.collectAsStateWithLifecycle()
 
-    InterestScreen(
-        modifier = modifier,
-        state = uiState,
-        writeInterest = interestViewModel::createAnswer,
-        editInterest = interestViewModel::updateAnswer,
-        selectInterest = interestViewModel::selectInterest,
-        setPeriod = interestViewModel::setMissionPeriod,
-        shareImage = interestViewModel::postMission,
-        navigateToInterestList = navigateToInterestList,
-        navigateToOtherInterest = navigateToOtherInterest,
-        onNavigateBack = onNavigateBack,
-    )
+    LaunchedEffect(Unit) {
+        interestViewModel.uiEvent.collect { event ->
+            when (event) {
+                is InterestUiEvent.CreateSuccess -> {
+                    onShowSnackBar("관심사를 등록했어요")
+                }
+
+                is InterestUiEvent.EditSuccess -> {
+                    onShowSnackBar("관심사를 수정했어요")
+                }
+
+                is InterestUiEvent.Error -> {
+                    onShowSnackBar(event.message)
+                }
+            }
+        }
+    }
+
+    if (!uiState.isInterestScreenLoading) {
+        InterestScreen(
+            modifier = modifier,
+            state = uiState,
+            writeInterest = interestViewModel::createAnswer,
+            editInterest = interestViewModel::updateAnswer,
+            selectInterest = interestViewModel::selectInterest,
+            setPeriod = interestViewModel::setMissionPeriod,
+            shareImage = interestViewModel::postMission,
+            navigateToInterestList = navigateToInterestList,
+            navigateToOtherInterest = navigateToOtherInterest,
+            onNavigateBack = onNavigateBack,
+        )
+    }
 }
 
 @Composable

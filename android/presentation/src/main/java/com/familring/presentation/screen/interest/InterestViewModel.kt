@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -43,9 +42,11 @@ class InterestViewModel
                         is ApiResponse.Success -> {
                             _uiState.update {
                                 it.copy(
+                                    isInterestScreenLoading = false,
                                     interestStatus = result.data,
                                 )
                             }
+
                             when (result.data) {
                                 InterestState.WRITING -> {
                                     getAnswersCount()
@@ -98,6 +99,7 @@ class InterestViewModel
                 interestRepository.createAnswer(content).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
+                            _uiEvent.emit(InterestUiEvent.CreateSuccess)
                             getAnswerStatus()
                         }
 
@@ -115,6 +117,7 @@ class InterestViewModel
                 interestRepository.updateAnswer(content).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
+                            _uiEvent.emit(InterestUiEvent.EditSuccess)
                             getAnswerStatus()
                         }
 

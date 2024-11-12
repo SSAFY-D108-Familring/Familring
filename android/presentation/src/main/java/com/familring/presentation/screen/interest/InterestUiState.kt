@@ -4,6 +4,7 @@ import com.familring.domain.model.interest.Mission
 import com.familring.domain.model.interest.SelectedInterest
 
 data class InterestUiState(
+    val isInterestScreenLoading: Boolean = true,
     val interestStatus: Int = 0,
     val isWroteInterest: Boolean = true,
     val myInterest: String = "",
