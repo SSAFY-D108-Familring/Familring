@@ -58,7 +58,6 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Green02
-import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
@@ -67,12 +66,14 @@ import java.io.File
 @Composable
 fun AlbumRoute(
     albumId: Long,
+    isNormal: Boolean,
     modifier: Modifier,
     onNavigateBack: () -> Unit,
     viewModel: GalleryViewModel = hiltViewModel(),
 ) {
     AlbumScreen(
         albumId = albumId,
+        isNormal = isNormal,
         modifier = modifier,
         onNavigateBack = onNavigateBack,
         viewModel = viewModel,
@@ -82,6 +83,7 @@ fun AlbumRoute(
 @Composable
 fun AlbumScreen(
     albumId: Long,
+    isNormal: Boolean,
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {},
     viewModel: GalleryViewModel,
@@ -291,22 +293,37 @@ fun AlbumScreen(
                                 style = Typography.titleLarge.copy(fontSize = 26.sp),
                             )
                             Spacer(modifier = Modifier.fillMaxSize(0.01f))
-                            Text(
-                                text = "하단 버튼을 클릭해서\n우리 가족의 추억을 기록해봐요!",
-                                style =
-                                    Typography.bodyMedium.copy(
-                                        fontSize = 20.sp,
-                                        color = Gray02,
-                                    ),
-                                textAlign = TextAlign.Center,
-                            )
+                            if (isNormal) {
+                                Text(
+                                    text = "하단 버튼을 클릭해서\n우리 가족의 추억을 기록해봐요!",
+                                    style =
+                                        Typography.bodyMedium.copy(
+                                            fontSize = 20.sp,
+                                            color = Gray02,
+                                        ),
+                                    textAlign = TextAlign.Center,
+                                )
+                            } else {
+                                Text(
+                                    text = "아직 사진이 없어요!",
+                                    style =
+                                        Typography.bodyMedium.copy(
+                                            fontSize = 20.sp,
+                                            color = Gray02,
+                                        ),
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+
                             Spacer(modifier = Modifier.fillMaxSize(0.05f))
-                            RoundLongButton(
-                                backgroundColor = Green02,
-                                text = "사진 추가하기",
-                                enabled = !isLoading,
-                                onClick = onAddPhotoClick,
-                            )
+                            if (isNormal) {
+                                RoundLongButton(
+                                    backgroundColor = Green02,
+                                    text = "사진 추가하기",
+                                    enabled = !isLoading,
+                                    onClick = onAddPhotoClick,
+                                )
+                            }
                         }
                     } else {
                         LazyVerticalGrid(
@@ -316,7 +333,7 @@ fun AlbumScreen(
                             verticalArrangement = Arrangement.spacedBy(2.dp),
                             horizontalArrangement = Arrangement.spacedBy(2.dp),
                         ) {
-                            if (!isSelectionMode) {
+                            if (!isSelectionMode && isNormal) {
                                 item {
                                     AddPhotoButton(
                                         onClick = onAddPhotoClick,
@@ -449,6 +466,7 @@ fun AlbumScreenPreview() {
         albumId = 1L,
         modifier = Modifier,
         onNavigateBack = {},
+        isNormal = false,
         viewModel = hiltViewModel(),
     )
 }
