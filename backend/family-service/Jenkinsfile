@@ -1,15 +1,26 @@
-// 기존 family-service가 실행 중인 경우 이를 activeInstance로 설정, 없으면 family-service-blue를 기본값으로 사용
-def activeInstance = sh(script: "docker ps -a --filter 'name=family-service' --format '{{.Names}}'", returnStdout: true).trim() ?: 'family-service'
-
 pipeline {
     agent any
 
+    environment {
+        activeInstance = ''
+    }
+
     stages {
+        stage('Initialize') {
+            steps {
+                script {
+                    // 기존 family-service가 실행 중인 경우 이를 activeInstance로 설정, 없으면 family-service를 기본값으로 사용
+                    activeInstance = sh(script: "docker ps -a --filter 'name=family-service' --format '{{.Names}}'", returnStdout: true).trim() ?: 'family-service'
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
         stage('Build and Deploy Family Service') {
             steps {
                 withCredentials([file(credentialsId: 'family-application.yml', variable: 'application_yml')]) {
