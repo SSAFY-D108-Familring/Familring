@@ -109,7 +109,7 @@
 
     async function fetchChatHistory(roomId, userId) {
         try {
-            const response = await fetch(`/family/rooms/enter/${roomId}`, {  // '/family' 추가
+            const response = await fetch(`/rooms/enter/${roomId}`, {  // '/family' 추가
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
