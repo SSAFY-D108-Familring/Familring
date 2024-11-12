@@ -15,6 +15,7 @@ public class Notification {
     private Long notificationId;
     private Long receiverUserId;
     private Long senderUserId;
+    private String destinationId;
     private NotificationType notificationType;
     private String notificationTitle;
     private String notificationMessage;

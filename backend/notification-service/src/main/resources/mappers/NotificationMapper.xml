@@ -6,6 +6,7 @@
         <id property="notificationId" column="notification_id" />
         <result property="receiverUserId" column="receiver_user_id" />
         <result property="senderUserId" column="sender_user_id" />
+        <result property="destinationId" column="destination_id"/>
         <result property="notificationType" column="notification_type" />
         <result property="notificationTitle" column="notification_title" />
         <result property="notificationMessage" column="notification_message" />
@@ -33,5 +34,18 @@
         SET notification_is_read = 1, notification_read_at = NOW()
         WHERE notification_id = #{notificationId}
     </update>
+
+    <insert id="insertNotification" parameterType="com.familring.notificationservice.model.dto.Notification">
+        INSERT INTO notification(
+            receiver_user_id, sender_user_id, destination_id,
+            notification_type, notification_title, notification_message,
+            notification_is_read, notification_created_at
+        )
+        VALUES (
+                    #{receiverUserId}, #{senderUserId}, #{destinationId},
+                    #{notificationType}, #{notificationTitle}, #{notificationMessage},
+                    0, NOW()
+               )
+    </insert>
 
 </mapper>
