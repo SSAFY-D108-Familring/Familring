@@ -1,5 +1,6 @@
 package com.familring.notificationservice.config.firebase;
 
+import com.familring.notificationservice.exception.notification.NotFoundUserFcmTokenException;
 import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -25,7 +28,18 @@ public class FcmUtil {
             Message message = makeMessage(fcmDTO.getTitle(), fcmDTO.getBody(), fcmToken); // 메시지 생성
             sendMessage(message); // 메시지 전송
         }
+        // FCM 토큰이 없는 경우 로그 띄우기
+        else if (fcmToken == null) {
+            log.info("[singleFcmSend] userId={}에게 FCM 토큰이 없습니다.", user.getUserFcmToken());
+        }
     }
+
+    // 여러 사용자에게 FCM 메시지를 비동기로 전송하는 메서드
+    @Async("taskExecutor") // 비동기 처리
+    public void multiFcmSend(List<UserInfoResponse> users, FcmMessage.FcmDto fcmDTO) {
+        users.forEach(user -> singleFcmSend(user, fcmDTO));
+    }
+
 
     // FCM 메시지를 생성하는 메서드
     public Message makeMessage(String title, String body, String token) { // FcmDTO의 title, body 사용
