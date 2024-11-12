@@ -3,6 +3,7 @@ package com.familring.presentation.screen.mypage
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.repository.FaceRepository
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserEmotionRequest
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,6 +24,7 @@ class MyPageViewModel
     constructor(
         private val userRepository: UserRepository,
         private val familyRepository: FamilyRepository,
+        private val faceRepository: FaceRepository,
     ) : ViewModel() {
         private val _state = MutableStateFlow<MyPageUiState>(MyPageUiState.Loading)
         val state = _state.asStateFlow()
@@ -58,6 +61,42 @@ class MyPageViewModel
                         }
 
                         is ApiResponse.Error -> {
+                            _event.emit(MyPageUiEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
+            }
+        }
+
+        fun updateFace(face: File) {
+            viewModelScope.launch {
+                val currentState = _state.value
+                _state.value = MyPageUiState.Loading
+                faceRepository.getFaceCount(face).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            userRepository.updateFace(face).collectLatest { updateResponse ->
+                                when (updateResponse) {
+                                    is ApiResponse.Success -> {
+                                        _state.value = currentState
+                                        _event.emit(MyPageUiEvent.FaceUpdateSuccess)
+                                    }
+
+                                    is ApiResponse.Error -> {
+                                        _state.value = currentState
+                                        _event.emit(
+                                            MyPageUiEvent.Error(
+                                                updateResponse.code,
+                                                updateResponse.message,
+                                            ),
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _state.value = currentState
                             _event.emit(MyPageUiEvent.Error(response.code, response.message))
                         }
                     }

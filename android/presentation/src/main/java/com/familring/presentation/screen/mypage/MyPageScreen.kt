@@ -325,7 +325,7 @@ fun MyPageScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    text = "얼굴 사진 변경하기",
+                    text = "얼굴 사진 수정하기",
                     style = Typography.bodyLarge.copy(fontSize = 20.sp),
                     color = Black,
                 )

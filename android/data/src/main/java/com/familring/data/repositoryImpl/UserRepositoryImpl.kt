@@ -216,4 +216,15 @@ class UserRepositoryImpl
                     )
                 emit(response)
             }
+
+        override suspend fun updateFace(face: File): Flow<ApiResponse<Unit>> =
+            flow {
+                val image = face.toMultiPart(filename = "image")
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateFace(image) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
     }

@@ -433,7 +433,16 @@ fun MainNavHost(
         composable(
             route = ScreenDestinations.EditFace.route,
         ) {
-            EditFaceRoute(modifier = modifier)
+            val viewModel =
+                hiltViewModel<MyPageViewModel>(
+                    navController.getBackStackEntry(ScreenDestinations.MyPage.route),
+                )
+            EditFaceRoute(
+                modifier = modifier,
+                viewModel = viewModel,
+                showSnackBar = showSnackBar,
+                popUpBackStack = navController::popBackStack,
+            )
         }
     }
 }

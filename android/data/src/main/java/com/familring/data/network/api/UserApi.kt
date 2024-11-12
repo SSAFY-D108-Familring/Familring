@@ -56,6 +56,12 @@ interface UserApi {
         @Query("userColor") color: String,
     ): BaseResponse<Unit>
 
+    @Multipart
+    @PATCH("users/face")
+    suspend fun updateFace(
+        @Part image: MultipartBody.Part?,
+    ): BaseResponse<Unit>
+
     @PATCH("users/fcm-token")
     suspend fun updateFCMToken(
         @Query("fcmToken") token: String,
