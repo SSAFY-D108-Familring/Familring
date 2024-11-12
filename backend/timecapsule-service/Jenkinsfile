@@ -43,13 +43,43 @@ def deployToGreenIfStable(serviceName) {
 
     if (isGreenStable) {
         echo "Green 환경이 안정적입니다. 이전 버전 ${oldServiceName}은 중지됩니다."
-        markOutOfService(oldServiceName) // 기존 인스턴스 Out-of-Service 전환
-        stopAndRemoveContainer(oldServiceName) // 이전 버전 삭제
+
+
+        // Eureka에서 기존 서비스 상태 확인
+        def isOldServiceUp = checkEurekaServiceStatus(oldServiceName)
+
+        // 기존 인스턴스가 UP 상태일 경우에만 Out-of-Service로 전환하고 삭제
+        if (isOldServiceUp) {
+            echo "기존 서비스가 UP 상태이므로 Out-of-Service로 설정하고 삭제합니다."
+            markOutOfService(oldServiceName) // 기존 인스턴스 Out-of-Service 전환
+            stopAndRemoveContainer(oldServiceName) // 이전 버전 삭제
+        } else {
+            echo "기존 서비스가 UP 상태가 아니므로 삭제하지 않습니다."
+        }
+
+
     } else {
         echo "Green 환경이 불안정합니다. 배포 롤백을 수행합니다."
         stopAndRemoveContainer(newServiceName) // Green 중지
         buildAndRunContainer(oldServiceName) // 이전 Blue 버전 재배포
     }
+}
+
+def checkEurekaServiceStatus(serviceName) {
+    // Eureka에 등록된 서비스의 상태 확인
+    def eurekaUrl = "http://discovery-service:8761/eureka/apps/TIMECAPSULE-SERVICE"
+
+    // Eureka로부터 XML 응답을 받아옴
+    def response = sh(script: "curl -s ${eurekaUrl}", returnStdout: true).trim()
+
+    // 응답에서 status 값을 추출
+    def status = sh(script: "echo '${response}' | grep -oPm1 \"(?<=<status>)(.*?)(?=</status>)\"", returnStdout: true).trim()
+
+    // 상태가 'UP'인지를 확인
+    echo "Service ${serviceName} status: ${status}"
+
+    // 상태가 'UP'이면 true를 반환
+    return status == "UP"
 }
 
 // 공통 함수: 기존 인스턴스를 Out-of-Service로 설정
