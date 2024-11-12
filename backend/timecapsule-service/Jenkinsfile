@@ -31,10 +31,8 @@ def copyApplicationYaml(application_yml) {
 // 공통 함수: 컨테이너 중지 및 삭제
 def stopAndRemoveContainer(containerName) {
     def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
-    if (container) {
-        sh "docker stop ${container}"
-        sh "docker rm ${container}"
-    }
+    sh "docker stop ${container}"
+    sh "docker rm ${container}"
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
