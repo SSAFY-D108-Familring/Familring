@@ -1,5 +1,6 @@
 package com.familring.notificationservice.config.firebase;
 
+import com.familring.notificationservice.exception.notification.NotFoundUserFcmTokenException;
 import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -26,6 +27,11 @@ public class FcmUtil {
         if (fcmToken != null && !fcmToken.isEmpty()) {
             Message message = makeMessage(fcmDTO.getTitle(), fcmDTO.getBody(), fcmToken); // 메시지 생성
             sendMessage(message); // 메시지 전송
+        }
+        // FCM 토큰이 없는 경우 에러 발생
+        else if (fcmToken == null) {
+            log.info("[singleFcmSend] userId={}에게 FCM 토큰이 없습니다.", user.getUserFcmToken());
+            throw new NotFoundUserFcmTokenException();
         }
     }
 
