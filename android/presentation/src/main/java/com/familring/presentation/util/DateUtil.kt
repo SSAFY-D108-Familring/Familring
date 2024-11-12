@@ -46,3 +46,21 @@ fun isDateFormValid(
 
     return true
 }
+
+fun String.toTimeOnly(): String =
+    try {
+        val localDateTime = LocalDateTime.parse(this)
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        localDateTime.format(formatter)
+    } catch (e: Exception) {
+        ""
+    }
+
+fun String.toDateOnly(): String =
+    try {
+        val localDateTime = LocalDateTime.parse(this)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        localDateTime.format(formatter)
+    } catch (e: Exception) {
+        ""
+    }

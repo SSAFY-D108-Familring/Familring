@@ -34,6 +34,8 @@ fun OtherMessage(
     profileImg: String,
     color: String,
     message: String,
+    time: String,
+    unReadMembers: String,
 ) {
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -54,7 +56,7 @@ fun OtherMessage(
                         backgroundColor = color,
                     ),
                 size = 36,
-                paddingValue = 5
+                paddingValue = 5,
             )
             Spacer(modifier = Modifier.width(7.dp))
             Column(modifier = Modifier.wrapContentSize()) {
@@ -90,12 +92,12 @@ fun OtherMessage(
                 Column {
                     Text(
                         modifier = Modifier.padding(start = 2.dp),
-                        text = "2",
+                        text = unReadMembers,
                         style = Typography.titleSmall.copy(fontSize = 10.sp),
                         color = Green02,
                     )
                     Text(
-                        text = "17:20",
+                        text = time,
                         style = Typography.bodySmall.copy(fontSize = 12.sp),
                         color = Gray02,
                     )

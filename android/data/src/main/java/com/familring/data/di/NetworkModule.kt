@@ -7,7 +7,7 @@ import com.familring.data.network.interceptor.ErrorHandlingInterceptor
 import com.familring.data.network.interceptor.JwtAuthenticator
 import com.familring.data.network.interceptor.isJsonArray
 import com.familring.data.network.interceptor.isJsonObject
-import com.familring.domain.datasource.TokenDataStore
+import com.familring.domain.datastore.TokenDataStore
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializer
