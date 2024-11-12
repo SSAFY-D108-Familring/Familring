@@ -355,83 +355,90 @@ async def process_face_encodings(image):
         logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
         return []
 
-@app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
 async def classify_images(request: AnalysisRequest):
     """
-    여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
+    여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 병렬 분석합니다.
     """
     try:
         async with aiohttp.ClientSession() as session:
-            # 인물 이미지 처리
-            people_images = []
-            for person in request.people:
-                img = await load_image_from_url_async(person.photoUrl, session)
-                if img is None:
-                    return BaseResponse.create(
-                        status_code=400,
-                        message=f"인물 이미지를 로드할 수 없습니다: {person.photoUrl}"
-                    )
-                people_images.append(img)
+            # 인물 이미지 병렬 처리
+            people_load_tasks = [
+                load_image_from_url_async(person.photoUrl, session)
+                for person in request.people
+            ]
+            people_images = await asyncio.gather(*people_load_tasks)
+            
+            if None in people_images:
+                return BaseResponse.create(
+                    status_code=400,
+                    message="일부 인물 이미지를 로드할 수 없습니다."
+                )
 
-            # 인물 얼굴 인코딩
-            people_encodings_list = []
-            for img in people_images:
-                encodings = await process_face_encodings(img)
-                if not encodings:
-                    logger.warning("인물 이미지에서 얼굴을 찾을 수 없습니다")
-                    encodings = []
-                people_encodings_list.append(encodings)
+            # 인물 얼굴 인코딩 병렬 처리
+            people_encoding_tasks = [
+                process_face_encodings(img) for img in people_images
+            ]
+            people_encodings_list = await asyncio.gather(*people_encoding_tasks)
 
             people_encodings = {
                 person.id: encodings[0] if encodings and len(encodings) > 0 else None
                 for person, encodings in zip(request.people, people_encodings_list)
             }
 
-            # 대상 이미지를 배치로 나누어 처리
-            BATCH_SIZE = 10
-            results = []
+            # 대상 이미지 병렬 처리
+            target_load_tasks = [
+                load_image_from_url_async(url, session)
+                for url in request.targetImages
+            ]
+            target_images = await asyncio.gather(*target_load_tasks)
             
-            for i in range(0, len(request.targetImages), BATCH_SIZE):
-                batch_urls = request.targetImages[i:i+BATCH_SIZE]
-                
-                batch_images = []
-                for url in batch_urls:
-                    img = await load_image_from_url_async(url, session)
-                    if img is None:
-                        logger.warning(f"이미지 로드 실패: {url}")
-                        continue
-                    batch_images.append((url, img))
+            # 이미지와 URL 매핑 유지
+            valid_images = [
+                (url, img) for url, img in zip(request.targetImages, target_images)
+                if img is not None
+            ]
 
-                for url, img in batch_images:
-                    target_encodings = await process_face_encodings(img)
-                    face_count = len(target_encodings)
-                    max_similarities = {person_id: 0.0 for person_id in people_encodings.keys()}
+            # 대상 이미지 인코딩 병렬 처리
+            encoding_tasks = [
+                process_face_encodings(img) for _, img in valid_images
+            ]
+            target_encodings_list = await asyncio.gather(*encoding_tasks)
 
-                    if target_encodings:
-                        for target_encoding in target_encodings:
-                            for person_id, person_encoding in people_encodings.items():
-                                if person_encoding is not None:
-                                    try:
-                                        similarity = await asyncio.get_event_loop().run_in_executor(
-                                            THREAD_POOL,
-                                            lambda: face_recognition.face_distance([person_encoding], target_encoding)[0]
-                                        )
-                                        similarity = max(0, 1 - similarity)
-                                        max_similarities[person_id] = max(
-                                            max_similarities[person_id],
-                                            float(similarity)
-                                        )
-                                    except Exception as e:
-                                        logger.error(f"유사도 계산 중 에러: {str(e)}")
-                                        continue
+            results = []
+            for (url, _), target_encodings in zip(valid_images, target_encodings_list):
+                face_count = len(target_encodings)
+                max_similarities = {person_id: 0.0 for person_id in people_encodings.keys()}
 
-                    results.append(SimilarityResponse(
-                        imageUrl=url,
-                        similarities=max_similarities,
-                        faceCount=face_count
-                    ))
+                if target_encodings:
+                    # 각 대상 인코딩에 대한 유사도 계산을 병렬로 처리
+                    similarity_tasks = []
+                    for target_encoding in target_encodings:
+                        for person_id, person_encoding in people_encodings.items():
+                            if person_encoding is not None:
+                                task = asyncio.get_event_loop().run_in_executor(
+                                    THREAD_POOL,
+                                    lambda t=target_encoding, p=person_encoding: face_recognition.face_distance([p], t)[0]
+                                )
+                                similarity_tasks.append((person_id, task))
+                    
+                    # 모든 유사도 계산을 동시에 처리
+                    for person_id, task in similarity_tasks:
+                        try:
+                            similarity = await task
+                            similarity = max(0, 1 - similarity)
+                            max_similarities[person_id] = max(
+                                max_similarities[person_id],
+                                float(similarity)
+                            )
+                        except Exception as e:
+                            logger.error(f"유사도 계산 중 에러: {str(e)}")
+                            continue
 
-                await asyncio.sleep(0.05)
+                results.append(SimilarityResponse(
+                    imageUrl=url,
+                    similarities=max_similarities,
+                    faceCount=face_count
+                ))
 
             response = BaseResponse.create(
                 status_code=200,
