@@ -120,7 +120,6 @@ public class AlbumService {
 
     @Transactional
     public void deleteAlbum(Long albumId, Long userId) {
-        log.info("{}: 앨범 삭제", albumId);
         Album album = albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
 
@@ -133,6 +132,7 @@ public class AlbumService {
     }
 
     public Map<AlbumType, List<AlbumInfoResponse>> getAlbums(List<AlbumType> albumTypes, Long userId) {
+        log.info("{}: getAlbums", userId);
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
         List<Album> albums = albumQueryRepository.findByAlbumType(albumTypes, familyId);
         Map<AlbumType, List<AlbumInfoResponse>> classifiedAlbums = new HashMap<>();
@@ -152,6 +152,7 @@ public class AlbumService {
     }
 
     public AlbumResponse getPhotos(Long albumId, Long userId) {
+        log.info("{}: getPhotos", userId);
         Album album = albumRepository.findById(albumId).orElseThrow(AlbumNotFoundException::new);
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
 
