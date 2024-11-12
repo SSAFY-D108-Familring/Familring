@@ -95,3 +95,4 @@ public class AlbumController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "앨범 사진들을 성공적으로 삭제했습니다."));
     }
 }
+
