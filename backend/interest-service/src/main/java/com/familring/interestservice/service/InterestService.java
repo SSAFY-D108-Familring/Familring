@@ -383,15 +383,22 @@ public class InterestService {
         // 오늘
         LocalDate today = LocalDate.now();
 
-        InterestMission interestMission = InterestMission
-                .builder()
-                .userId(userId)
-                .interest(interest)
-                .photoUrl(photoUrl)
-                .createdAt(today)
-                .build();
+        // 미션 인증 판단
+        Optional<InterestMission> hasInterestMission = interestMissionRepository.findByInterestAndUserId(interest, userId);
 
-        interestMissionRepository.save(interestMission);
+        if (hasInterestMission.isEmpty()) {
+            InterestMission interestMission = InterestMission
+                    .builder()
+                    .userId(userId)
+                    .interest(interest)
+                    .photoUrl(photoUrl)
+                    .createdAt(today)
+                    .build();
+
+            interestMissionRepository.save(interestMission);
+        } else {
+            throw new AlreadyExistInterestMissionException();
+        }
     }
 
     private String getInterestPhotoPath(Long familyId) {
@@ -555,6 +562,26 @@ public class InterestService {
 
         // 기본적으로 작성하는 기간으로 반환
         return 0;
+    }
+
+    // 관심사 인증 유무 (내가 작성했는지 안했는지)
+    // 내가 작성했으면 true, 아니면 false
+    public boolean getInterestMissionMine(Long userId) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Optional<Interest> interestOptional = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId);
+
+        if (interestOptional.isEmpty()) {
+            throw new InterestNotFoundException();
+        } else {
+            Optional<InterestMission> interestMission = interestMissionRepository.findByInterestAndUserId(interestOptional.get(), userId);
+
+            return interestMission.isPresent(); // 있으면 true, 없으면 false
+        }
     }
 
 }

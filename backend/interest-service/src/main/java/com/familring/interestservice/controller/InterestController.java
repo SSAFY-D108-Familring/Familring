@@ -120,4 +120,11 @@ public class InterestController {
         int response = interestService.getInterestStatus(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 상태 관리 조회에 성공했습니다.", response));
     }
+
+    @GetMapping("/missions/mine")
+    @Operation(summary = "관심사 인증 유무 (내가 작성한)", description = "내가 작성했으면 true, 작성 안 했으면 false")
+    public ResponseEntity<BaseResponse<Boolean>> getInterestMissionMine(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        boolean response = interestService.getInterestMissionMine(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "내가 관심사 인증 했는지 안했는지 상태 관리 조회에 성공했습니다.", response));
+    }
 }
