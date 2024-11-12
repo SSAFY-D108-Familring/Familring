@@ -283,10 +283,7 @@ public class InterestService {
             selectedAnswerUserId = selectedAnswer.get().getUserId();
 
             // 선택된 답변의 사용자 정보 조회
-            selectedUser = familyMembers.stream()
-                    .filter(member -> member.getUserId().equals(selectedAnswerUserId))
-                    .findFirst()
-                    .orElseThrow(InterestAnswerNotFoundException::new);
+            selectedUser = userServiceFeignClient.getUser(selectedAnswerUserId).getData();
         } else {
             throw new InterestAnswerNotFoundException();
         }
