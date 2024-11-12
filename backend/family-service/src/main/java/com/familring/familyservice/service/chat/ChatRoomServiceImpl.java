@@ -64,7 +64,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             );
 
             // 투표인 경우
-            if (chat.getMessageType().equals(MessageType.VOTE)) {
+            if (chat.getMessageType().equals(MessageType.VOTE) || chat.getMessageType().equals(MessageType.VOTE_RESPONSE) || chat.getMessageType().equals(MessageType.VOTE_RESULT)) {
                 log.info("[findPagedChatByRoomId] 투표 찾기 voteId={}", chat.getVoteId());
                 Vote vote = voteRepository.findByVoteId(chat.getVoteId()).orElseThrow(() -> new VoteNotFoundException());
                 log.info("[findPagedChatByRoomId] 찾은 투표 voteTitle={}", vote.getVoteTitle());

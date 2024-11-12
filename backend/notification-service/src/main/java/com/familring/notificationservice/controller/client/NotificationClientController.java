@@ -21,10 +21,10 @@ public class NotificationClientController {
 
     private final NotificationService notificationService;
 
-    @PostMapping("/calendar")
-    public ResponseEntity<BaseResponse<Void>> calendarAlarm(NotificationRequest notificationRequest) {
-        notificationService.calendarAlarm(notificationRequest);
+    @PostMapping("/fcm")
+    public ResponseEntity<BaseResponse<Void>> alarmByFcm(NotificationRequest notificationRequest) {
+        notificationService.alarmByFcm(notificationRequest);
 
-        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "알림이 성공적으로 전송되었씁니다."));
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "알림이 성공적으로 전송되었습니다."));
     }
 }

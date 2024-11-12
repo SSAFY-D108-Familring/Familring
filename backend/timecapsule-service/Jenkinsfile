@@ -1,32 +1,56 @@
-// 파이프라인 변수 선언 (초기 값 설정)
-def activeInstance = 'timecapsule-service-blue'
+// 초기 상태의 activeInstance 변수를 빈 문자열로 선언
+def activeInstance = ''
 
 pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
+        stage('Initialize Active Instance') {
+            steps {
+                script {
+                    // 현재 활성화된 인스턴스가 'timecapsule-service'인지 확인하여 activeInstance에 설정
+                    activeInstance = sh(script: "docker ps --filter 'name=timecapsule-service' --format '{{.Names}}'", returnStdout: true).trim()
+
+                    // 활성화된 인스턴스가 없으면 기본값을 'timecapsule-service'로 설정
+                    if (!activeInstance) {
+                        activeInstance = 'timecapsule-service'
+                    }
+                }
+            }
+        }
+
         stage('Build and Deploy TimeCapsule Service') {
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
-                        // 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
-                        def newInstance = (activeInstance == 'timecapsule-service-blue') ? 'timecapsule-service-green' : 'timecapsule-service-blue'
+                        // 현재 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
+                        def newInstance = (activeInstance == 'timecapsule-service') ? 'timecapsule-service-green' : 'timecapsule-service'
 
-                        dir('backend/timecapsule-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
+                        // 만약 timecapsule-service가 이미 실행 중이면 새로운 인스턴스를 실행하고 기존 인스턴스를 중지 및 삭제
+                        if (isContainerRunning(activeInstance)) {
+                            dir('backend/timecapsule-service') {
+                                // 새로운 인스턴스 빌드 및 실행
+                                copyApplicationYaml(application_yml)
+                                buildAndRunContainer(newInstance)
+                            }
+                            // 새 인스턴스 실행 후 기존 인스턴스 삭제
+                            stopAndRemoveContainer(activeInstance)
+                            // 다음 배포를 위해 activeInstance 변수를 업데이트
+                            activeInstance = newInstance
+                        } else {
+                            // timecapsule-service가 실행 중이 아니므로 즉시 빌드 및 실행
+                            dir('backend/timecapsule-service') {
+                                copyApplicationYaml(application_yml)
+                                buildAndRunContainer(activeInstance)
+                            }
                         }
-
-                        // 새로운 인스턴스 실행 후 기존 인스턴스 삭제
-                        stopAndRemoveContainer(activeInstance)
-
-                        // 다음 배포를 위해 activeInstance 변수를 업데이트
-                        activeInstance = newInstance
                     }
                 }
             }
@@ -56,4 +80,9 @@ def buildAndRunContainer(serviceName) {
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
     sh "docker run --name ${serviceName} -d ${serviceName}"
+}
+
+def isContainerRunning(containerName) {
+    def container = sh(script: "docker ps --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    return container ? true : false
 }
