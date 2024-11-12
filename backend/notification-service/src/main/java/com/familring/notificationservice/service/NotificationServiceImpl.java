@@ -13,6 +13,7 @@ import com.familring.notificationservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -57,6 +58,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public void updateNotificationIsRead(Long userId, Long notificationId) {
         // 1. 해당하는 알림 찾기
         Notification notification = notificationDao.findNotificationByNotificationId(notificationId)
@@ -68,6 +70,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    @Transactional
     public void alarmByFcm(NotificationRequest notificationRequest) {
         // 1. 알림 생성 -> 알림 수신 인원만큼 수행
         log.info("[alarmByFcm] 알림 수신 인원 수 {}명", notificationRequest.getReceiverUserIds().size());
