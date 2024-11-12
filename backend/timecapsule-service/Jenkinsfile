@@ -1,6 +1,3 @@
-// 파이프라인 변수 선언 (초기 값 설정)
-def activeInstance = 'timecapsule-service'
-
 pipeline {
     agent any
 
@@ -10,25 +7,13 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build and Deploy TimeCapsule Service') {
+        stage('Build and Deploy Question Service') {
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
                         dir('backend/timecapsule-service') {
-                            // 현재 activeInstance가 실행 중인지 확인
-                            def isActiveRunning = isContainerRunning(activeInstance)
-                            def newInstance = isActiveRunning ? ((activeInstance == 'timecapsule-service') ? 'timecapsule-service-green' : 'timecapsule-service') : activeInstance
-
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
-
-                            // 기존 인스턴스가 실행 중인 경우에만 중지 및 삭제
-                            if (isActiveRunning) {
-                                stopAndRemoveContainer(activeInstance)
-                            }
-
-                            // 다음 배포를 위해 activeInstance 변수를 업데이트
-                            activeInstance = newInstance
+                            deployToGreenIfStable('timecapsule-service')
                         }
                     }
                 }
@@ -43,11 +28,52 @@ def copyApplicationYaml(application_yml) {
     sh "cp ${application_yml} src/main/resources/application.yml"
 }
 
-// 컨테이너 실행 중 확인 함수
-def isContainerRunning(containerName) {
-    def containerId = sh(script: "docker ps --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
-    return containerId ? true : false
+// 공통 함수: Green에 새로운 버전 배포 및 안정성 확인 후 전환
+def deployToGreenIfStable(serviceName) {
+    // 기존 버전 중지 및 삭제
+    def oldServiceName = "${serviceName}"
+    def newServiceName = "${serviceName}-green"
+
+    // Green 환경에 새로운 버전 배포
+    echo "새로운 버전 Green 배포 시작: ${newServiceName}"
+    buildAndRunContainer(newServiceName)
+
+    // 안정성 테스트 로직 (예: Health Check)
+    def isGreenStable = healthCheck(newServiceName)
+
+    if (isGreenStable) {
+        echo "Green 환경이 안정적입니다. 이전 버전 ${oldServiceName}은 중지됩니다."
+        stopAndRemoveContainer(oldServiceName) // 이전 버전 삭제
+    } else {
+        echo "Green 환경이 불안정합니다. 배포 롤백을 수행합니다."
+        stopAndRemoveContainer(newServiceName) // Green 중지
+        buildAndRunContainer(oldServiceName) // 이전 Blue 버전 재배포
+    }
 }
+
+// 공통 함수: 트래픽을 Green 환경으로 전환
+def switchTrafficToGreen() {
+    echo "트래픽이 Green 환경으로 전환되었습니다."
+}
+
+// 공통 함수: 현재 컨테이너의 안정성 확인 (Health Check)
+def healthCheck(containerName) {
+    // API Gateway를 통한 Health Check URL로 수정
+    def healthCheckUrl = "http://api-gateway-service:8000/timecapsules/actuator/health"
+    echo "Health Check URL: ${healthCheckUrl}"
+
+    // curl 명령을 통해 헬스 체크 요청을 보내고 응답 및 상태 확인
+    def response = sh(script: "curl -s ${healthCheckUrl}", returnStdout: true).trim()
+    def healthStatus = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${healthCheckUrl}", returnStdout: true).trim()
+
+    // 로그로 응답 및 상태 출력
+    echo "Health Check Response: ${response}"
+    echo "Health Check HTTP Status Code: ${healthStatus}"
+
+    // 헬스 체크 성공 여부 반환
+    return response.contains("UP") && healthStatus == "200" // 'UP' 문자열과 200 상태 코드가 있으면 통과
+}
+
 
 // 공통 함수: 컨테이너 중지 및 삭제
 def stopAndRemoveContainer(containerName) {
@@ -55,14 +81,18 @@ def stopAndRemoveContainer(containerName) {
     if (container) {
         sh "docker stop ${container}"
         sh "docker rm ${container}"
+        echo "컨테이너 ${containerName} (ID: ${container}) 중지 및 삭제 완료"
+    } else {
+        echo "중지할 컨테이너 ${containerName}이(가) 없습니다."
     }
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
 def buildAndRunContainer(serviceName) {
-    stopAndRemoveContainer(serviceName)
+    stopAndRemoveContainer(serviceName) // 동일한 이름의 컨테이너가 있으면 중지 및 삭제
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
     sh "docker run --name ${serviceName} -d ${serviceName}"
+    echo "새로운 컨테이너 ${serviceName} 실행 완료"
 }
