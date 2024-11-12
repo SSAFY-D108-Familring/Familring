@@ -281,6 +281,7 @@ fun VoicePlaybackUI(
                 },
             ) {
                 Icon(
+                    modifier = Modifier.fillMaxSize(),
                     painter =
                         if (isPlaying) {
                             painterResource(id = R.drawable.ic_pause)
@@ -306,6 +307,7 @@ fun VoicePlaybackUI(
             )
         }
         if (!isPlaying) {
+            Spacer(modifier = Modifier.height(10.dp))
             Row {
                 IconButton(onClick = {
                     voicePlayer.stopPlaying()
@@ -313,17 +315,20 @@ fun VoicePlaybackUI(
                     onDelete()
                 }) {
                     Icon(
+                        modifier = Modifier.fillMaxSize(),
                         imageVector = Icons.Default.Refresh,
                         contentDescription = "Refresh",
                         tint = Gray01,
                     )
                 }
+                Spacer(modifier = Modifier.width(10.dp))
                 IconButton(onClick = {
                     onSend()
                     voicePlayer.stopPlaying()
                     isPlaying = false
                 }) {
                     Icon(
+                        modifier = Modifier.fillMaxSize(),
                         painter = painterResource(id = R.drawable.ic_send),
                         contentDescription = "Send",
                         tint = Green02,
