@@ -136,11 +136,12 @@ fun QuestionScreen(
                             ),
                     ) {
                         Icon(
-                            imageVector = if (answerContents[0].answerStatus) {
-                                Icons.Default.Edit
-                            } else {
-                                Icons.Default.Add
-                            },
+                            imageVector =
+                                if (answerContents[0].answerStatus) {
+                                    Icons.Default.Edit
+                                } else {
+                                    Icons.Default.Add
+                                },
                             contentDescription = if (answerContents[0].answerStatus) "edit_answer" else "write_answer",
                             tint = White,
                         )
@@ -298,27 +299,27 @@ fun FamilyListItem(
             )
             Text(
                 text =
-                buildAnnotatedString {
-                    withStyle(
-                        style =
-                        SpanStyle(
-                            textDecoration = TextDecoration.Underline,
-                        ),
-                    ) {
-                        append("✊\uD83C\uDFFB 똑똑")
-                    }
-                },
+                    buildAnnotatedString {
+                        withStyle(
+                            style =
+                                SpanStyle(
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                        ) {
+                            append("✊\uD83C\uDFFB 똑똑")
+                        }
+                    },
                 style = Typography.headlineSmall.copy(fontSize = 18.sp),
                 color = Gray02,
                 modifier =
-                Modifier.noRippleClickable {
-                    viewModel.sendKnockNotification(
-                        userId = questionAnswer.userId.toString(),
-                        senderNickname = questionAnswer.userNickname,
-                    )
-                    Timber.d("똑똑 누름 " + questionAnswer.userId)
-                    showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
-                },
+                    Modifier.noRippleClickable {
+                        viewModel.sendKnockNotification(
+                            userId = questionAnswer.userId.toString(),
+                            senderNickname = questionAnswer.userNickname,
+                        )
+                        Timber.d("똑똑 누름 " + questionAnswer.userId)
+                        showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
+                    },
             )
         } else {
             Row {

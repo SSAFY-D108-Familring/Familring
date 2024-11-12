@@ -128,13 +128,13 @@ fun HomeScreen(
         mutableFloatStateOf(0f)
     }
     val size by animateFloatAsState(
-        targetValue = progress,
+        targetValue = progress / 100f,
         tween(delayMillis = 200, durationMillis = 1000, easing = LinearOutSlowInEasing),
         label = "",
     )
 
     LaunchedEffect(Unit) {
-        progress = familyInfo.familyCommunicationStatus.toFloat() / 100f
+        progress = familyInfo.familyCommunicationStatus.toFloat().coerceIn(0f, 100f)
     }
 
     val father = familyMembers.find { it.userRole == "F" }
@@ -208,7 +208,7 @@ fun HomeScreen(
                         style = Typography.headlineSmall.copy(fontSize = 18.sp),
                     )
                 }
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(25.dp))
                 Box(
                     modifier =
                         Modifier
@@ -234,11 +234,11 @@ fun HomeScreen(
                             Text(
                                 modifier = Modifier.padding(start = 15.dp),
                                 text =
-                                    if (progress > 0.69f) {
+                                    if (progress > 69f) { // 69% 초과
                                         "열심히 하셧고\n축하하고 ㅎㅎ🎄"
-                                    } else if (progress > 0.29f) {
+                                    } else if (progress > 29f) { // 29% 초과
                                         "소통을 조금만 더\n해주시고 ㅋㅋ\uD83C\uDF84"
-                                    } else {
+                                    } else { // 29% 이하
                                         "소통이 조금 더\n필요해요\uD83D\uDE30"
                                     },
                                 style = Typography.titleLarge.copy(fontSize = 24.sp),
@@ -271,9 +271,9 @@ fun HomeScreen(
                                                 .fillMaxHeight()
                                                 .clip(RoundedCornerShape(9.dp))
                                                 .background(
-                                                    if (progress > 0.69f) {
+                                                    if (progress > 69f) {
                                                         Green02
-                                                    } else if (progress > 0.29f) {
+                                                    } else if (progress > 29f) {
                                                         Green03
                                                     } else {
                                                         Green04
@@ -295,7 +295,7 @@ fun HomeScreen(
                                         contentAlignment = Alignment.CenterEnd,
                                     ) {
                                         Text(
-                                            text = "${(progress * 100).toInt()}",
+                                            text = "${progress.toInt()}",
                                             style = Typography.displaySmall.copy(fontSize = 8.sp),
                                             color = Color.Black,
                                         )
@@ -340,6 +340,7 @@ fun HomeScreen(
                             style = Typography.headlineSmall.copy(fontSize = 18.sp),
                         )
                     }
+                    Spacer(modifier = Modifier.height(15.dp))
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth(),
@@ -348,12 +349,13 @@ fun HomeScreen(
                             shape = RoundedCornerShape(23.dp),
                             modifier =
                                 Modifier
-                                    .weight(1f) // weight 사용
+                                    .weight(1f)
                                     .aspectRatio(1f)
-                                    .padding(end = 6.dp) // 카드 사이 간격
+                                    .padding(end = 6.dp)
                                     .padding(top = 12.dp)
                                     .noRippleClickable { navigateToTimeCapsule() },
                             color = Gray04,
+                            shadowElevation = 4.dp,
                         ) {
                             Column(
                                 modifier =
@@ -399,6 +401,7 @@ fun HomeScreen(
                                     .padding(top = 12.dp)
                                     .noRippleClickable { navigateToInterest() },
                             color = Green02,
+                            shadowElevation = 12.dp,
                         ) {
                             Column(
                                 modifier =

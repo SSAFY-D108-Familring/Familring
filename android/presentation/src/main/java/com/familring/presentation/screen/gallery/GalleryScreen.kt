@@ -63,7 +63,7 @@ import timber.log.Timber
 @Composable
 fun GalleryRoute(
     modifier: Modifier,
-    navigateToAlbum: (Long) -> Unit,
+    navigateToAlbum: (Long, Boolean) -> Unit,
     viewModel: GalleryViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
@@ -124,7 +124,7 @@ fun GalleryRoute(
 @Composable
 fun GalleryScreen(
     modifier: Modifier,
-    navigateToAlbum: (Long) -> Unit,
+    navigateToAlbum: (Long, Boolean) -> Unit,
     galleryUiState: GalleryUiState,
     isLoading: Boolean,
     onGalleryChange: (Boolean) -> Unit,
@@ -236,12 +236,15 @@ fun GalleryScreen(
                                 navigateToAlbum = navigateToAlbum,
                                 onUpdateAlbum = onUpdateAlbum,
                                 deleteAlbum = deleteAlbum,
+                                isNormal = privateGallerySelected,
                             )
                         }
-                        item {
-                            AddAlbumButton(onClick = {
-                                if (!isLoading) showBottomSheet = true
-                            })
+                        if (privateGallerySelected) {
+                            item {
+                                AddAlbumButton(onClick = {
+                                    if (!isLoading) showBottomSheet = true
+                                })
+                            }
                         }
                     }
                 }
@@ -340,14 +343,15 @@ fun GalleryScreen(
 @Composable
 fun GalleryItem(
     album: Album,
-    navigateToAlbum: (Long) -> Unit,
+    navigateToAlbum: (Long, Boolean) -> Unit,
     onUpdateAlbum: (Long, String) -> Unit,
     deleteAlbum: (Long) -> Unit,
+    isNormal: Boolean,
 ) {
     var showDialog by remember { mutableStateOf(false) }
     var updatedAlbumName by remember { mutableStateOf(album.albumName) }
 
-    if (showDialog) {
+    if (showDialog && isNormal) {
         ModalBottomSheet(
             containerColor = White,
             onDismissRequest = {
@@ -424,15 +428,23 @@ fun GalleryItem(
                 Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onLongPress = { showDialog = true },
-                            onTap = {
-                                navigateToAlbum(album.id)
-                                Timber.d("짧터치")
-                            },
-                        )
-                    },
+                    .then(
+                        if (isNormal) {
+                            Modifier.pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = { showDialog = true },
+                                    onTap = {
+                                        navigateToAlbum(album.id,true)
+                                        Timber.d("짧터치")
+                                    }
+                                )
+                            }
+                        } else {
+                            Modifier.noRippleClickable {
+                                navigateToAlbum(album.id,false)
+                            }
+                        }
+                    ),
             shape = RoundedCornerShape(18.dp),
         ) {
             AsyncImage(
@@ -497,7 +509,7 @@ fun AddAlbumButton(onClick: () -> Unit) {
 fun GalleryScreenPreview() {
     GalleryScreen(
         modifier = Modifier,
-        navigateToAlbum = {},
+        navigateToAlbum = { _, _ -> },
         galleryUiState = GalleryUiState.Loading,
         onGalleryChange = {},
         isLoading = false,

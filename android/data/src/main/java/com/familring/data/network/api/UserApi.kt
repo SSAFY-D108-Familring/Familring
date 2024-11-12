@@ -4,6 +4,7 @@ import com.familring.data.network.response.BaseResponse
 import com.familring.domain.model.JwtToken
 import com.familring.domain.model.User
 import com.familring.domain.model.notification.KnockNotificationRequest
+import com.familring.domain.model.notification.NotificationResponse
 import com.familring.domain.request.UserEmotionRequest
 import com.familring.domain.request.UserLoginRequest
 import okhttp3.MultipartBody
@@ -56,9 +57,11 @@ interface UserApi {
         @Query("fcmToken") token: String,
     ): BaseResponse<Unit>
 
-    // FCM 알림 전송을 위한 POST API 추가
     @POST("notifications/knock")
     suspend fun sendKnockNotification(
         @Body request: KnockNotificationRequest,
     ): BaseResponse<Unit>
+
+    @GET("notifications")
+    suspend fun getNotifications(): BaseResponse<List<NotificationResponse>>
 }

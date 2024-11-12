@@ -79,7 +79,7 @@ fun CalendarRoute(
     navigateToCreateDaily: () -> Unit,
     navigateToModifyDaily: (DailyLife) -> Unit,
     navigateToCreateAlbum: () -> Unit,
-    navigateToAlbum: (Long) -> Unit,
+    navigateToAlbum: (Long, Boolean) -> Unit,
     calendarViewModel: CalendarViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
@@ -120,7 +120,7 @@ fun CalendarScreen(
     navigateToCreateSchedule: () -> Unit = {},
     navigateToCreateDaily: () -> Unit = {},
     navigateToCreateAlbum: () -> Unit = {},
-    navigateToAlbum: (Long) -> Unit = {},
+    navigateToAlbum: (Long, Boolean) -> Unit = { _, _ -> },
     navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToModifyDaily: (DailyLife) -> Unit = {},
     showSnackBar: (String) -> Unit = {},

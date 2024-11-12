@@ -3,6 +3,7 @@ package com.familring.domain.repository
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.JwtToken
 import com.familring.domain.model.User
+import com.familring.domain.model.notification.NotificationResponse
 import com.familring.domain.request.UserEmotionRequest
 import com.familring.domain.request.UserJoinRequest
 import com.familring.domain.request.UserLoginRequest
@@ -33,4 +34,6 @@ interface UserRepository {
         targetUserId: String,
         senderNickname: String,
     ): Flow<ApiResponse<Unit>>
+
+    suspend fun getNotifications(): Flow<ApiResponse<List<NotificationResponse>>>
 }
