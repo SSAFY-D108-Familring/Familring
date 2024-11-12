@@ -1,5 +1,5 @@
-// 파이프라인 변수 선언 (초기 값 설정)
-def activeInstance = 'timecapsule-service'
+// 파이프라인 변수 선언 (초기 값 설정 없이 동적 확인)
+def activeInstance = ''
 
 pipeline {
     agent any
@@ -10,24 +10,32 @@ pipeline {
                 checkout scm
             }
         }
+        stage('Detect Active Instance') {
+            steps {
+                script {
+                    // 동적으로 현재 실행 중인 인스턴스를 감지
+                    activeInstance = isContainerRunning('timecapsule-service') ? 'timecapsule-service' :
+                                     (isContainerRunning('timecapsule-service-green') ? 'timecapsule-service-green' : 'timecapsule-service')
+                }
+            }
+        }
         stage('Build and Deploy TimeCapsule Service') {
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
                         dir('backend/timecapsule-service') {
-                            // 현재 activeInstance가 실행 중인지 확인
-                            def isActiveRunning = isContainerRunning(activeInstance)
-                            def newInstance = isActiveRunning ? ((activeInstance == 'timecapsule-service') ? 'timecapsule-service-green' : 'timecapsule-service') : activeInstance
+                            // Determine the new instance to deploy based on the currently active instance
+                            def newInstance = (activeInstance == 'timecapsule-service') ? 'timecapsule-service-green' : 'timecapsule-service'
 
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance) // 내부 네트워크에서만 통신
+                            buildAndRunContainer(newInstance) // Deploy the new instance
 
-                            // 기존 인스턴스가 실행 중인 경우에만 중지 및 삭제
-                            if (isActiveRunning) {
+                            // Stop and remove the old instance if it was running
+                            if (isContainerRunning(activeInstance)) {
                                 stopAndRemoveContainer(activeInstance)
                             }
 
-                            // 다음 배포를 위해 activeInstance 변수를 업데이트
+                            // Update activeInstance to newInstance for future deployments
                             activeInstance = newInstance
                         }
                     }
@@ -53,24 +61,14 @@ def isContainerRunning(containerName) {
 def stopAndRemoveContainer(containerName) {
     def containerId = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
     if (containerId) {
-        // 중지
-        echo "Stopping container ${containerName} with ID: ${containerId}"
         sh "docker stop ${containerId}"
-
-        // 중지 완료 대기
-        sleep(time: 2, unit: 'SECONDS')
-
-        // 삭제
-        echo "Removing container ${containerName} with ID: ${containerId}"
         sh "docker rm ${containerId}"
-    } else {
-        echo "No container found with the name: ${containerName}"
     }
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
 def buildAndRunContainer(serviceName) {
-    stopAndRemoveContainer(serviceName)
+    stopAndRemoveContainer(serviceName) // Ensure the target container is stopped before building
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
