@@ -228,10 +228,19 @@ public class AlbumService {
                 throw new InvalidAlbumRequestException();
             }
         });
+
         // DB에서 삭제
         photoRepository.deleteAll(photos);
-        // AWS S3에서 삭제
-        fileServiceFeignClient.deleteFiles(photos.stream().map(Photo::getPhotoUrl).toList());
+
+        // parentPhoto가 null인 사진들만 필터링하여 S3에서 삭제
+        List<String> originalPhotoUrls = photos.stream()
+                .filter(photo -> photo.getParentPhoto() == null)
+                .map(Photo::getPhotoUrl)
+                .toList();
+
+        if (!originalPhotoUrls.isEmpty()) {
+            fileServiceFeignClient.deleteFiles(originalPhotoUrls);
+        }
     }
 
     private String getAlbumPhotoPath(Long familyId) {
