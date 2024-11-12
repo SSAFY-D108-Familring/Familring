@@ -92,7 +92,7 @@ fun OtherMessage(
                 Column {
                     Text(
                         modifier = Modifier.padding(start = 2.dp),
-                        text = unReadMembers,
+                        text = if (unReadMembers != "0") unReadMembers else "",
                         style = Typography.titleSmall.copy(fontSize = 10.sp),
                         color = Green02,
                     )

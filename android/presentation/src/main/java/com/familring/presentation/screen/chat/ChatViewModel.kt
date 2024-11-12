@@ -16,6 +16,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -30,6 +31,7 @@ import org.hildan.krossbow.stomp.conversions.convertAndSend
 import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
 import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
+import org.hildan.krossbow.websocket.WebSocketException
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import timber.log.Timber
 import java.time.LocalDateTime
@@ -101,7 +103,7 @@ class ChatViewModel
                         }
 
                         is ApiResponse.Error -> {
-                            _state.value = ChatUiState.Error
+                            _state.value = ChatUiState.Error(response.message)
                             _event.emit(ChatUiEvent.Error(response.code, response.message))
                         }
                     }
@@ -111,35 +113,46 @@ class ChatViewModel
 
         private fun connectStomp() {
             viewModelScope.launch {
-                val token = tokenDataStore.getAccessToken()
+                var attempt = 0
+                isReconnecting = true // 재연결 시작 표시
 
-                if (token != null && familyId != null) {
-                    val okHttpclient =
-                        OkHttpClient
-                            .Builder()
-                            .addInterceptor(
-                                HttpLoggingInterceptor().apply {
-                                    level = HttpLoggingInterceptor.Level.BODY
-                                },
-                            ).build()
+                while (isReconnecting && attempt < maxRetries) {
+                    try {
+                        val token = tokenDataStore.getAccessToken()
 
-                    val client =
-                        StompClient(
-                            OkHttpWebSocketClient(okHttpclient),
-                        )
+                        if (token != null && familyId != null) {
+                            val okHttpclient =
+                                OkHttpClient
+                                    .Builder()
+                                    .addInterceptor(
+                                        HttpLoggingInterceptor().apply {
+                                            level = HttpLoggingInterceptor.Level.BODY
+                                        },
+                                    ).build()
 
-                    stompSession =
-                        client
-                            .connect(
-                                url = BuildConfig.SOCKET_URL,
-                                customStompConnectHeaders =
-                                    mapOf(
-                                        X_USER_ID to userId.toString(),
-                                    ),
-                            ).withMoshi(moshi)
+                            val client = StompClient(OkHttpWebSocketClient(okHttpclient))
+                            stompSession =
+                                client
+                                    .connect(
+                                        url = BuildConfig.SOCKET_URL,
+                                        customStompConnectHeaders = mapOf(X_USER_ID to userId.toString()),
+                                    ).withMoshi(moshi)
 
-                    subscribeMessages()
-                    subscribeReadStatus()
+                            isReconnecting = false // 성공적으로 연결된 경우 재연결 플래그 해제
+                            subscribeMessages()
+                            subscribeReadStatus()
+                            Timber.d("WebSocket connected successfully")
+                        }
+                    } catch (e: WebSocketException) {
+                        attempt++
+                        if (attempt < maxRetries) {
+                            delay(retryDelayMillis) // 재시도 전 대기
+                        } else {
+                            _state.value = ChatUiState.Error(message = "채팅 서버 연결에 실패했어요.")
+                            _event.emit(ChatUiEvent.Error(code = "ERROR", message = "채팅 연결 실패"))
+                            isReconnecting = false
+                        }
+                    }
                 }
             }
         }

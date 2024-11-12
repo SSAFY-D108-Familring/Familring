@@ -115,7 +115,9 @@ fun ChatRoute(
             )
         }
 
-        is ChatUiState.Error -> {}
+        is ChatUiState.Error -> {
+            showSnackBar(uiState.message)
+        }
     }
 
     DisposableEffect(Unit) {
@@ -198,7 +200,7 @@ fun ChatScreen(
                         context.getString(R.string.message_type) -> {
                             if (item.senderId == userId) {
                                 MyMessage(
-                                    message = item.content,
+                                    message = item.content!!,
                                     time = item.createdAt.toTimeOnly(),
                                     unReadMembers = item.unReadMembers.toString(),
                                 )
@@ -207,7 +209,7 @@ fun ChatScreen(
                                     nickname = item.sender.userNickname,
                                     profileImg = item.sender.userZodiacSign,
                                     color = item.sender.userColor,
-                                    message = item.content,
+                                    message = item.content!!,
                                     time = item.createdAt.toTimeOnly(),
                                     unReadMembers = item.unReadMembers.toString(),
                                 )
@@ -217,7 +219,12 @@ fun ChatScreen(
                         context.getString(R.string.vote_type) -> {
                             if (item.senderId == userId) {
                                 item.vote?.let {
-                                    VoteMessage(isOther = false, title = it.voteTitle)
+                                    VoteMessage(
+                                        isOther = false,
+                                        title = it.voteTitle,
+                                        unReadMembers = item.unReadMembers.toString(),
+                                        time = item.createdAt.toTimeOnly(),
+                                    )
                                 }
                             } else {
                                 item.vote?.let {
@@ -238,6 +245,11 @@ fun ChatScreen(
                                                 "반대",
                                             )
                                         },
+                                        unReadMembers = item.unReadMembers.toString(),
+                                        time = item.createdAt.toTimeOnly(),
+                                        nickname = item.sender.userNickname,
+                                        profileImg = item.sender.userZodiacSign,
+                                        color = item.sender.userColor,
                                     )
                                 }
                             }
@@ -246,7 +258,7 @@ fun ChatScreen(
                         context.getString(R.string.vote_response_type) -> {
                             item.vote?.let {
                                 VoteChatItem(
-                                    isOther = item.senderId == userId,
+                                    isOther = item.senderId != userId,
                                     title = it.voteTitle,
                                     select = item.responseOfVote,
                                     unReadMembers = item.unReadMembers.toString(),
