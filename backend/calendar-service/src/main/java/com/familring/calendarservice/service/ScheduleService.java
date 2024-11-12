@@ -49,7 +49,7 @@ public class ScheduleService {
 
         return schedules.stream().map(s -> {
             // 해당 일정으로 생성된 앨범이 있는지 확인
-            Long albumId = albumServiceFeignClient.getAlbumIdByScheduleId(s.getId()).getData(); // 일단은 미구현이므로 false
+            Long albumId = albumServiceFeignClient.getAlbumIdByScheduleId(s.getId()).getData();
 
             // 스케줄 DTO로 변환
             ScheduleResponse response = ScheduleResponse.builder().id(s.getId()).title(s.getTitle()).startTime(s.getStartTime())
