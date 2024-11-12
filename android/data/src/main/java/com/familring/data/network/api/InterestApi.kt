@@ -71,6 +71,6 @@ interface InterestApi {
     @GET("interests/missions")
     suspend fun getMissions(): BaseResponse<List<Mission>>
 
-    @GET("interest/missions/mine")
+    @GET("interests/missions/mine")
     suspend fun checkUploadMission(): BaseResponse<Boolean>
 }
