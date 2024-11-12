@@ -1,32 +1,52 @@
 // Pipeline variable declaration with initial value set to the actual blue instance name
-def activeInstance = 'timecapsule-service'
+def activeInstance = ''
 
 pipeline {
     agent any
 
     stages {
+        stage('Initialize Active Instance') {
+            steps {
+                script {
+                    // Check if 'timecapsule-service' is currently active; if so, set it as the activeInstance
+                    activeInstance = sh(script: "docker ps --filter 'name=timecapsule-service' --format '{{.Names}}'", returnStdout: true).trim()
+
+                    // If no active instance found, set activeInstance to 'timecapsule-service' by default
+                    if (!activeInstance) {
+                        activeInstance = 'timecapsule-service'
+                    }
+                }
+            }
+        }
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
+
         stage('Build and Deploy TimeCapsule Service') {
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
-                        // Choose a new instance based on the current active instance
+                        // Determine newInstance based on current active instance
                         def newInstance = (activeInstance == 'timecapsule-service') ? 'timecapsule-service-green' : 'timecapsule-service'
 
                         dir('backend/timecapsule-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer(newInstance) // Run only in the internal network
+                            // If the active instance is not already running, build and run it
+                            if (!isContainerRunning(activeInstance)) {
+                                copyApplicationYaml(application_yml)
+                                buildAndRunContainer(newInstance) // Run only in the internal network
+                            } else {
+                                echo "Using existing active instance: ${activeInstance}"
+                            }
                         }
 
-                        // Stop and remove the existing active instance
-                        stopAndRemoveContainer(activeInstance)
-
-                        // Update activeInstance for the next deployment
-                        activeInstance = newInstance
+                        // If a new instance was created, stop and remove the old instance
+                        if (activeInstance != newInstance) {
+                            stopAndRemoveContainer(activeInstance)
+                            activeInstance = newInstance
+                        }
                     }
                 }
             }
@@ -38,6 +58,12 @@ pipeline {
 def copyApplicationYaml(application_yml) {
     sh 'mkdir -p src/main/resources'
     sh "cp ${application_yml} src/main/resources/application.yml"
+}
+
+// Function to check if a container is running
+def isContainerRunning(containerName) {
+    def container = sh(script: "docker ps --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    return container ? true : false
 }
 
 // Function to stop and remove container
