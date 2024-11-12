@@ -1,4 +1,4 @@
-// Pipeline variable declaration with initial value set to the actual blue instance name
+// 초기 상태의 activeInstance 변수를 빈 문자열로 선언
 def activeInstance = ''
 
 pipeline {
@@ -8,10 +8,10 @@ pipeline {
         stage('Initialize Active Instance') {
             steps {
                 script {
-                    // Check if 'timecapsule-service' is currently active; if so, set it as the activeInstance
+                    // 현재 활성화된 인스턴스가 'timecapsule-service'인지 확인하여 activeInstance에 설정
                     activeInstance = sh(script: "docker ps --filter 'name=timecapsule-service' --format '{{.Names}}'", returnStdout: true).trim()
 
-                    // If no active instance found, set activeInstance to 'timecapsule-service' by default
+                    // 활성화된 인스턴스가 없으면 기본값을 'timecapsule-service'로 설정
                     if (!activeInstance) {
                         activeInstance = 'timecapsule-service'
                     }
@@ -29,24 +29,26 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {
-                        // Determine newInstance based on current active instance
+                        // 현재 활성화된 인스턴스를 기반으로 새로운 인스턴스 선택
                         def newInstance = (activeInstance == 'timecapsule-service') ? 'timecapsule-service-green' : 'timecapsule-service'
 
-                        // Only proceed to build and deploy if newInstance is different from activeInstance
-                        if (activeInstance != newInstance) {
+                        // 만약 timecapsule-service가 이미 실행 중이면 새로운 인스턴스를 실행하고 기존 인스턴스를 중지 및 삭제
+                        if (isContainerRunning(activeInstance)) {
                             dir('backend/timecapsule-service') {
-                                // Build and run the new instance
+                                // 새로운 인스턴스 빌드 및 실행
                                 copyApplicationYaml(application_yml)
                                 buildAndRunContainer(newInstance)
                             }
-
-                            // Stop and remove the old instance
+                            // 새 인스턴스 실행 후 기존 인스턴스 삭제
                             stopAndRemoveContainer(activeInstance)
-
-                            // Update activeInstance to newInstance
+                            // 다음 배포를 위해 activeInstance 변수를 업데이트
                             activeInstance = newInstance
                         } else {
-                            echo "Using existing active instance: ${activeInstance}"
+                            // timecapsule-service가 실행 중이 아니므로 즉시 빌드 및 실행
+                            dir('backend/timecapsule-service') {
+                                copyApplicationYaml(application_yml)
+                                buildAndRunContainer(activeInstance)
+                            }
                         }
                     }
                 }
@@ -55,39 +57,22 @@ pipeline {
     }
 }
 
-// Function to copy application.yml
+// 공통 함수: application.yml 복사
 def copyApplicationYaml(application_yml) {
     sh 'mkdir -p src/main/resources'
     sh "cp ${application_yml} src/main/resources/application.yml"
 }
 
-// Function to stop and remove container
+// 공통 함수: 컨테이너 중지 및 삭제
 def stopAndRemoveContainer(containerName) {
-    def containerId = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
-
-    if (containerId) {
-        // Stop the container
-        echo "Stopping container ${containerName} with ID: ${containerId}"
-        int stopStatus = sh(script: "docker stop ${containerId}", returnStatus: true)
-
-        if (stopStatus == 0) {
-            echo "Container ${containerName} stopped successfully."
-            // Remove the container
-            int rmStatus = sh(script: "docker rm ${containerId}", returnStatus: true)
-            if (rmStatus == 0) {
-                echo "Container ${containerName} removed successfully."
-            } else {
-                echo "Failed to remove container ${containerName}."
-            }
-        } else {
-            echo "Failed to stop container ${containerName}."
-        }
-    } else {
-        echo "No container found with the name: ${containerName}"
+    def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    if (container) {
+        sh "docker stop ${container}"
+        sh "docker rm ${container}"
     }
 }
 
-// Function to build and run container
+// 공통 함수: 컨테이너 빌드 및 실행
 def buildAndRunContainer(serviceName) {
     stopAndRemoveContainer(serviceName)
     sh 'chmod +x ./gradlew'
