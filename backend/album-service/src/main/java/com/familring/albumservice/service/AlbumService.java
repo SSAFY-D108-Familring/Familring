@@ -253,6 +253,7 @@ public class AlbumService {
         return albumRepository.findByScheduleId(scheduleId).orElse(null);
     }
 
+    @Transactional
     public void deletePersonAlbum(Long userId) {
         albumRepository.deleteByUserId(userId);
     }

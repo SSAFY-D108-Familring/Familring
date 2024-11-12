@@ -42,6 +42,7 @@ public class AlbumClientController {
 
     @DeleteMapping
     public ResponseEntity<BaseResponse<Void>> deletePersonAlbum(@RequestParam Long userId) {
+        log.info("{}: 인물 앨범 삭제 요청", userId);
         albumService.deletePersonAlbum(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "인물 앨범을 삭제했습니다."));
     }
