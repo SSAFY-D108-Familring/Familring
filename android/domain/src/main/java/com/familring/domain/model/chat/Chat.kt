@@ -6,7 +6,7 @@ data class Chat(
     val messageType: String,
     val senderId: Long,
     val sender: ChatUser,
-    val content: String,
+    val content: String? = "",
     val createdAt: String,
     val vote: Vote? = null,
     val responseOfVote: String,

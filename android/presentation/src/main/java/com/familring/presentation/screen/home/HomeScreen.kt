@@ -142,10 +142,8 @@ fun HomeScreen(
     val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
 
     Surface(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .background(White),
+        modifier = modifier.fillMaxSize(),
+        color = White,
     ) {
         Column(
             modifier =
