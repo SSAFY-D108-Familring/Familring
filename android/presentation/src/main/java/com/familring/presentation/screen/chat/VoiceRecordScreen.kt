@@ -2,6 +2,7 @@ package com.familring.presentation.screen.chat
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,14 +49,14 @@ import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
 import kotlinx.coroutines.delay
-import timber.log.Timber
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun VoiceRecordScreen(
     onDismiss: () -> Unit,
-    onRecordingComplete: (String) -> Unit,
+    onRecordingComplete: (Context, File) -> Unit,
     showSnackBar: (String) -> Unit,
     popUpBackStack: () -> Unit,
 ) {
@@ -63,7 +65,7 @@ fun VoiceRecordScreen(
     var isRecording by remember { mutableStateOf(false) }
     var recordedFilePath by remember { mutableStateOf<String?>(null) }
     var amplitudes by remember { mutableStateOf(listOf<Int>()) }
-    var recordingTime by remember { mutableStateOf(0L) }
+    var recordingTime by remember { mutableLongStateOf(0L) }
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -125,8 +127,11 @@ fun VoiceRecordScreen(
                     recordedFilePath = null
                 },
                 onSend = {
-                    onRecordingComplete(recordedFilePath!!)
-                    onDismiss()
+                    recordedFilePath?.let {
+                        val file = File(it)
+                        onRecordingComplete(context, file)
+                        onDismiss()
+                    }
                 },
                 showSnackBar = showSnackBar,
             )
@@ -239,7 +244,6 @@ fun VoicePlaybackUI(
     var totalDuration by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(isPlaying) {
-        Timber.d("isPlaying: $isPlaying")
         if (isPlaying) {
             totalDuration = voicePlayer.getTotalDuration()
         }
