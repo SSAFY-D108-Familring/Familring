@@ -356,7 +356,7 @@ async def process_face_encodings(image):
         return []
 
 # 전역 변수로 세마포어 추가
-MAX_CONCURRENT_IMAGES = 5  # 동시 처리할 최대 이미지 수
+MAX_CONCURRENT_IMAGES = 3  # 동시 처리할 최대 이미지 수
 image_semaphore = asyncio.Semaphore(MAX_CONCURRENT_IMAGES)
 
 @app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
