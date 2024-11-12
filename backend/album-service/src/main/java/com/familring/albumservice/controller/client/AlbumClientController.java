@@ -21,8 +21,8 @@ public class AlbumClientController {
 
     private final AlbumService albumService;
 
-    @GetMapping("/{scheduleId}")
-    public ResponseEntity<BaseResponse<Long>> getAlbumIdByScheduleId(@PathVariable Long scheduleId) {
+    @GetMapping
+    public ResponseEntity<BaseResponse<Long>> getAlbumIdByScheduleId(@RequestParam Long scheduleId) {
         Album album = albumService.getAlbumByScheduleId(scheduleId);
         Long albumId = album == null ? null : album.getId();
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정 ID로 앨범 ID를 조회했습니다.", albumId));
@@ -39,8 +39,4 @@ public class AlbumClientController {
         albumService.updatePersonAlbum(request);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "인물 앨범 이름을 수정했습니다."));
     }
-
-//    @DeleteMapping
-//    public ResponseEntity<BaseResponse<Void>> deletePersonAlbum(@RequestParam Long albumId) {
-//    }
 }
