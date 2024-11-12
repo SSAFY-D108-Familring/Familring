@@ -557,4 +557,24 @@ public class InterestService {
         return 0;
     }
 
+    // 관심사 인증 유무 (내가 작성했는지 안했는지)
+    // 내가 작성했으면 true, 아니면 false
+    public boolean getInterestMissionMine(Long userId) {
+
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Optional<Interest> interestOptional = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId);
+
+        if (interestOptional.isEmpty()) {
+            throw new InterestNotFoundException();
+        } else {
+            Optional<InterestMission> interestMission = interestMissionRepository.findByInterestAndUserId(interestOptional.get(), userId);
+
+            return interestMission.isPresent(); // 있으면 true, 없으면 false
+        }
+    }
+
 }
