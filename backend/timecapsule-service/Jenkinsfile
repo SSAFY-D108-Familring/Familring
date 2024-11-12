@@ -30,9 +30,14 @@ def copyApplicationYaml(application_yml) {
 
 // 공통 함수: Green에 새로운 버전 배포 및 안정성 확인 후 전환
 def deployToGreenIfStable(serviceName) {
-    // 기존 버전 중지 및 삭제
-    def oldServiceName = "${serviceName}"
-    def newServiceName = "green-${serviceName}"
+    // 현재 실행 중인 인스턴스를 확인하여 old/new 인스턴스 설정
+    def isGreenActive = sh(script: "docker ps --filter 'name=green-${serviceName}' --format '{{.ID}}'", returnStdout: true).trim()
+    def oldServiceName = isGreenActive ? "green-${serviceName}" : "${serviceName}"
+    def newServiceName = isGreenActive ? "${serviceName}" : "green-${serviceName}"
+
+//     // 기존 버전 중지 및 삭제
+//     def oldServiceName = "${serviceName}"
+//     def newServiceName = "green-${serviceName}"
 
     // Green 환경에 새로운 버전 배포
     echo "새로운 버전 Green 배포 시작: ${newServiceName}"
