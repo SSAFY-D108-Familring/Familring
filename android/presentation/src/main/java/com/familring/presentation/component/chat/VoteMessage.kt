@@ -32,11 +32,14 @@ import com.familring.presentation.theme.Pink01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow01
+import com.familring.presentation.util.noRippleClickable
 
 @Composable
 fun VoteMessage(
     isOther: Boolean,
     title: String,
+    onAgree: () -> Unit = {},
+    onDisagree: () -> Unit = {},
 ) {
     Box(
         modifier =
@@ -120,6 +123,7 @@ fun VoteMessage(
                                 modifier =
                                     Modifier
                                         .weight(1f)
+                                        .noRippleClickable { onAgree() }
                                         .clip(shape = RoundedCornerShape(5.dp))
                                         .background(color = Pink01),
                                 contentAlignment = Alignment.Center,
@@ -135,6 +139,7 @@ fun VoteMessage(
                                 modifier =
                                     Modifier
                                         .weight(1f)
+                                        .noRippleClickable { onDisagree() }
                                         .clip(shape = RoundedCornerShape(5.dp))
                                         .background(color = Blue01),
                                 contentAlignment = Alignment.Center,
@@ -157,5 +162,5 @@ fun VoteMessage(
 @Composable
 @Preview(showBackground = true)
 fun MyVoteMessagePreview() {
-    VoteMessage(isOther = false, title = "오늘 저녁 치킨 어때유?")
+    VoteMessage(isOther = true, title = "오늘 저녁 치킨 어때유?")
 }
