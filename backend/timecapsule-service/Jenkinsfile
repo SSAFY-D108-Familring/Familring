@@ -57,10 +57,9 @@ def switchTrafficToGreen() {
 }
 
 // 공통 함수: 현재 컨테이너의 안정성 확인 (Health Check)
-// 공통 함수: 현재 컨테이너의 안정성 확인 (Health Check)
 def healthCheck(containerName) {
     // API Gateway를 통한 Health Check URL로 수정
-    def healthCheckUrl = "http://localhost:8000/timecapsules/actuator/health"
+    def healthCheckUrl = "http://api-gateway-service:8000/timecapsules/actuator/health"
     echo "Health Check URL: ${healthCheckUrl}"
 
     // curl 명령을 통해 헬스 체크 요청을 보내고 응답 및 상태 확인
