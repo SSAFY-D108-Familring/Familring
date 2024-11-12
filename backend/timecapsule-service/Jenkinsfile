@@ -31,7 +31,7 @@ def copyApplicationYaml(application_yml) {
 // 공통 함수: Green에 새로운 버전 배포 및 안정성 확인 후 전환
 def deployToGreenIfStable(serviceName) {
     // 기존 버전 중지 및 삭제
-    def oldServiceName = "${serviceName}-blue"
+    def oldServiceName = "${serviceName}"
     def newServiceName = "${serviceName}-green"
 
     // Green 환경에 새로운 버전 배포
