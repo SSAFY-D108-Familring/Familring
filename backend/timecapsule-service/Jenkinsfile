@@ -66,12 +66,29 @@ def isContainerRunning(containerName) {
     return container ? true : false
 }
 
-// Function to stop and remove container
+// 정확한 인스턴스 관리를 위해 컨테이너 상태를 명확히 확인하며 실행
 def stopAndRemoveContainer(containerName) {
-    def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
-    if (container) {
-        sh "docker stop ${container}"
-        sh "docker rm ${container}"
+    def containerId = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+
+    if (containerId) {
+        // 중지 전 상태 출력
+        echo "Stopping container ${containerName} with ID: ${containerId}"
+        int stopStatus = sh(script: "docker stop ${containerId}", returnStatus: true)
+
+        if (stopStatus == 0) {
+            echo "Container ${containerName} stopped successfully."
+            // 삭제 전 상태 출력
+            int rmStatus = sh(script: "docker rm ${containerId}", returnStatus: true)
+            if (rmStatus == 0) {
+                echo "Container ${containerName} removed successfully."
+            } else {
+                echo "Failed to remove container ${containerName}."
+            }
+        } else {
+            echo "Failed to stop container ${containerName}."
+        }
+    } else {
+        echo "No container found with the name: ${containerName}"
     }
 }
 
