@@ -79,8 +79,8 @@ def healthCheck(containerName) {
 def stopAndRemoveContainer(containerName) {
     def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
     if (container) {
-        sh "docker stop ${container}"
-        sh "docker rm ${container}"
+        sh "docker stop ${containerName}"
+        sh "docker rm ${containerName}"
         echo "컨테이너 ${containerName} (ID: ${container}) 중지 및 삭제 완료"
     } else {
         echo "중지할 컨테이너 ${containerName}이(가) 없습니다."
