@@ -218,7 +218,9 @@ fun ChatScreen(
                     onValueChanged = {
                         inputMessage = it
                         scope.launch {
-                            lazyListState.animateScrollToItem(chatList.size - 1)
+                            if (chatList.isNotEmpty()) {
+                                lazyListState.animateScrollToItem(chatList.size - 1)
+                            }
                         }
                     },
                     sendMessage = {
