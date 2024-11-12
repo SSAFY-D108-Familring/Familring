@@ -43,7 +43,8 @@ class InterestViewModel
                             _uiState.update {
                                 it.copy(
                                     isInterestScreenLoading = false,
-                                    interestStatus = result.data,
+//                                    interestStatus = result.data,
+                                    interestStatus = 1,
                                 )
                             }
 

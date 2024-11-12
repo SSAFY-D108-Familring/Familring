@@ -64,7 +64,6 @@ fun WriteDayScreen(
                 .fillMaxSize()
                 .pointerInput(Unit) {
                     detectTapGestures(onTap = {
-                        // 키보드 내리기
                         focusManager.clearFocus()
                     })
                 },
