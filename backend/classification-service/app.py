@@ -302,14 +302,15 @@ async def load_image_from_bytes(file_content: bytes):
         logger.error(f"이미지 로드 실패: {str(e)}")
         return None
 
-async def process_face_encodings(image):
+async def process_face_encodings(image, loop=None):
     """비동기적으로 얼굴 인코딩 처리"""
     if image is None:
         logger.error("입력 이미지가 None입니다")
         return []
     
     try:
-        loop = asyncio.get_event_loop()
+        if loop is None:
+            loop = asyncio.get_running_loop()
         
         # 이미지 크기 조정
         height, width = image.shape[:2]
@@ -400,9 +401,9 @@ image_semaphore = asyncio.Semaphore(MAX_CONCURRENT_IMAGES)
 async def classify_images(request: AnalysisRequest):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 병렬 분석합니다.
-    인물 이미지와 대상 이미지를 동시에 처리하여 속도를 개선했습니다.
     """
     try:
+        loop = asyncio.get_running_loop()
         connector = aiohttp.TCPConnector(limit=5, force_close=True)
         timeout = aiohttp.ClientTimeout(total=60)
         
@@ -420,8 +421,8 @@ async def classify_images(request: AnalysisRequest):
                             if img is None:
                                 return url, []
                             
-                            # 얼굴 인코딩 처리
-                            face_encodings = await process_face_encodings(img)
+                            # 얼굴 인코딩 처리 (loop 전달)
+                            face_encodings = await process_face_encodings(img, loop)
                             
                             # 메모리 해제
                             del content
@@ -434,15 +435,23 @@ async def classify_images(request: AnalysisRequest):
 
             # 모든 이미지 동시 처리
             logger.info("모든 이미지 동시 처리 시작")
-            all_results = await asyncio.gather(
-                *(process_image(person.photoUrl) for person in request.people),
-                *(process_image(url) for url in request.targetImages)
-            )
+            tasks = []
+            for person in request.people:
+                tasks.append(process_image(person.photoUrl))
+            for url in request.targetImages:
+                tasks.append(process_image(url))
+                
+            all_results = await asyncio.gather(*tasks, return_exceptions=True)
             
             # 결과 분리
             people_count = len(request.people)
             people_results = all_results[:people_count]
             target_results = all_results[people_count:]
+            
+            # 에러 체크
+            for result in all_results:
+                if isinstance(result, Exception):
+                    raise result
             
             # 인물 인코딩 매핑
             people_encodings = {}
