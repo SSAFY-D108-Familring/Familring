@@ -13,4 +13,7 @@ sealed interface ChatUiState {
         val userId: Long = 0L,
         val chatList: List<Chat> = emptyList(),
     ) : ChatUiState
+
+    @Immutable
+    data object Error : ChatUiState
 }
