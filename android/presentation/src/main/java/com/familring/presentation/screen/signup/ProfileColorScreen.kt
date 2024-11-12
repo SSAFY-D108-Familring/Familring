@@ -41,7 +41,6 @@ import com.familring.presentation.theme.Pink01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.Yellow01
 import com.familring.presentation.util.toColorLongString
-import timber.log.Timber
 
 @Composable
 fun ProfileColorRoute(
@@ -50,7 +49,6 @@ fun ProfileColorRoute(
     popUpBackStack: () -> Unit,
     navigateToNickname: () -> Unit,
 ) {
-    Timber.d("viewModel: ${viewModel.state.value}")
     ProfileColorScreen(
         modifier = modifier,
         popUpBackStack = popUpBackStack,
