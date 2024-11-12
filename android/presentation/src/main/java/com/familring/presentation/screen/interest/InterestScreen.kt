@@ -134,14 +134,16 @@ fun InterestScreen(
                 }
 
                 InterestState.MISSION -> {
-                    ShareDayScreen(
-                        isUpload = state.isUploadMission,
-                        selectedInterest = state.selectedInterest,
-                        leftMissionPeriod = state.leftMissionPeriod,
-                        missions = state.missions,
-                        shareImage = shareImage,
-                        navigateToOtherInterest = navigateToOtherInterest,
-                    )
+                    if (!state.isShareScreenLoading) {
+                        ShareDayScreen(
+                            isUpload = state.isUploadMission,
+                            selectedInterest = state.selectedInterest,
+                            leftMissionPeriod = state.leftMissionPeriod,
+                            missions = state.missions,
+                            shareImage = shareImage,
+                            navigateToOtherInterest = navigateToOtherInterest,
+                        )
+                    }
                 }
             }
         }
