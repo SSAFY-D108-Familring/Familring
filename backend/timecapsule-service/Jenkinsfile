@@ -13,7 +13,7 @@ pipeline {
                     script {
                         dir('backend/timecapsule-service') {
                             copyApplicationYaml(application_yml)
-                            buildAndRunContainer('timecapsule-service')
+                            deployBlueGreenContainer('timecapsule-service')
                         }
                     }
                 }
@@ -28,18 +28,54 @@ def copyApplicationYaml(application_yml) {
     sh "cp ${application_yml} src/main/resources/application.yml"
 }
 
+// 공통 함수: Blue-Green 배포
+def deployBlueGreenContainer(serviceName) {
+    // 현재 실행 중인 버전을 확인하여 반대 버전으로 배포
+    def currentVersion = getCurrentVersion(serviceName)
+    def newVersion = (currentVersion == 'blue') ? 'green' : 'blue'
+
+    def newServiceName = "${serviceName}-${newVersion}"
+    def oldServiceName = "${serviceName}-${currentVersion}"
+
+    echo "현재 실행 중인 버전: ${currentVersion} -> 새로운 버전으로 전환: ${newVersion}"
+
+    // 새로운 버전의 컨테이너 빌드 및 실행
+    buildAndRunContainer(newServiceName)
+
+    // 새로운 버전이 성공적으로 실행되었으면 기존 버전 중지 및 삭제
+    stopAndRemoveContainer(oldServiceName)
+    echo "이전 버전 ${oldServiceName} 중지 및 삭제 완료, 현재 실행 중인 버전: ${newServiceName}"
+}
+
+// 공통 함수: 현재 실행 중인 버전 확인
+def getCurrentVersion(serviceName) {
+    def blueContainer = sh(script: "docker ps -a --filter 'name=${serviceName}-blue' --format '{{.ID}}'", returnStdout: true).trim()
+    def greenContainer = sh(script: "docker ps -a --filter 'name=${serviceName}-green' --format '{{.ID}}'", returnStdout: true).trim()
+
+    def currentVersion = blueContainer ? 'blue' : 'green'
+    echo "getCurrentVersion: 현재 실행 중인 버전은 ${currentVersion} 입니다."
+
+    return currentVersion
+}
+
 // 공통 함수: 컨테이너 중지 및 삭제
 def stopAndRemoveContainer(containerName) {
     def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
-    sh "docker stop ${container}"
-    sh "docker rm ${container}"
+    if (container) {
+        sh "docker stop ${container}"
+        sh "docker rm ${container}"
+        echo "컨테이너 ${containerName} (ID: ${container}) 중지 및 삭제 완료"
+    } else {
+        echo "중지할 컨테이너 ${containerName}이(가) 없습니다."
+    }
 }
 
 // 공통 함수: 컨테이너 빌드 및 실행
 def buildAndRunContainer(serviceName) {
-    stopAndRemoveContainer(serviceName)
+    stopAndRemoveContainer(serviceName) // 동일한 이름의 컨테이너가 있으면 중지 및 삭제
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
     sh "docker run --name ${serviceName} -d ${serviceName}"
+    echo "새로운 컨테이너 ${serviceName} 실행 완료"
 }
