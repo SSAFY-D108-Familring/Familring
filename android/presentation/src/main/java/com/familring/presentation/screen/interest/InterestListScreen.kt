@@ -53,8 +53,7 @@ fun InterestListRoute(
     interestListViewModel: InterestListViewModel = hiltViewModel(),
 ) {
     val uiState by interestListViewModel.uiState.collectAsStateWithLifecycle()
-    val selectedInterests =
-        interestListViewModel.getSelectInterestsPagination().collectAsLazyPagingItems()
+    val selectedInterests = interestListViewModel.selectedInterests.collectAsLazyPagingItems()
 
     InterestListScreen(
         modifier = modifier,
@@ -71,7 +70,6 @@ fun InterestListScreen(
     detailInterests: List<Mission> = listOf(),
     interestList: LazyPagingItems<SelectedInterest>,
     getInterestDetails: (Long) -> Unit = {},
-    clickItem: (Long) -> Unit = {},
     popUpBackStack: () -> Unit,
 ) {
     var showDialog by remember { mutableStateOf(false) }
@@ -210,7 +208,7 @@ fun InterestListItem(
                     Modifier
                         .wrapContentSize()
                         .noRippleClickable {
-                            clickItem(selectedInterest.interestId) // 여기에 이제 관심사 id
+                            clickItem(selectedInterest.interestId)
                         },
                 verticalAlignment = Alignment.CenterVertically,
             ) {

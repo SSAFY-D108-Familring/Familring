@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.interest
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,7 +71,7 @@ fun InterestScreen(
     editInterest: (String) -> Unit = {},
     selectInterest: () -> Unit = {},
     setPeriod: (LocalDate) -> Unit = {},
-    shareImage: (MultipartBody. Part?) -> Unit = {},
+    shareImage: (MultipartBody.Part?) -> Unit = {},
     navigateToOtherInterest: () -> Unit = {},
     navigateToInterestList: () -> Unit = {},
     onNavigateBack: () -> Unit = {},

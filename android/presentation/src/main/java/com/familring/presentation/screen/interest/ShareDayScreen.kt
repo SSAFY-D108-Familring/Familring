@@ -145,6 +145,18 @@ fun ShareDayScreen(
                         )
                     },
                 )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    modifier =
+                        Modifier.noRippleClickable {
+                            navigateToOtherInterest()
+                        },
+                    text = "선정되지 못한 관심사 알아보기",
+                    style = Typography.bodyMedium,
+                    color = Gray01,
+                    textDecoration = TextDecoration.Underline,
+                )
+                Spacer(modifier = Modifier.height(35.dp))
             }
         }
     } else {
