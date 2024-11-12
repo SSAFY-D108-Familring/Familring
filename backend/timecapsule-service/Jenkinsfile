@@ -57,11 +57,24 @@ def switchTrafficToGreen() {
 }
 
 // 공통 함수: 현재 컨테이너의 안정성 확인 (Health Check)
+// 공통 함수: 현재 컨테이너의 안정성 확인 (Health Check)
 def healthCheck(containerName) {
     // API Gateway를 통한 Health Check URL로 수정
-    def healthStatus = sh(script: "curl -s http://localhost:8000/timecapsules/actuator/health | grep 'UP'", returnStatus: true)
-    return healthStatus == 0 // 0이면 Health Check 통과
+    def healthCheckUrl = "http://localhost:8000/timecapsules/actuator/health"
+    echo "Health Check URL: ${healthCheckUrl}"
+
+    // curl 명령을 통해 헬스 체크 요청을 보내고 응답 및 상태 확인
+    def response = sh(script: "curl -s ${healthCheckUrl}", returnStdout: true).trim()
+    def healthStatus = sh(script: "curl -s -o /dev/null -w '%{http_code}' ${healthCheckUrl}", returnStdout: true).trim()
+
+    // 로그로 응답 및 상태 출력
+    echo "Health Check Response: ${response}"
+    echo "Health Check HTTP Status Code: ${healthStatus}"
+
+    // 헬스 체크 성공 여부 반환
+    return response.contains("UP") && healthStatus == "200" // 'UP' 문자열과 200 상태 코드가 있으면 통과
 }
+
 
 // 공통 함수: 컨테이너 중지 및 삭제
 def stopAndRemoveContainer(containerName) {
