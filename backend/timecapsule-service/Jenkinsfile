@@ -43,7 +43,7 @@ def deployToGreenIfStable(serviceName) {
 
     if (isGreenStable) {
         echo "Green 환경이 안정적입니다. 이전 버전 ${oldServiceName}은 중지됩니다."
-        switchTrafficToGreen(oldServiceName, newServiceName)
+ //       switchTrafficToGreen(oldServiceName, newServiceName)
 
 //         markOutOfService(oldServiceName) // 기존 인스턴스 Out-of-Service 전환
         stopAndRemoveContainer(oldServiceName) // 이전 버전 삭제
