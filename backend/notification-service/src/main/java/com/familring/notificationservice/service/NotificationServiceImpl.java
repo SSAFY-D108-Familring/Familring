@@ -68,7 +68,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void calendarAlarm(NotificationRequest notificationRequest) {
+    public void alarmByFcm(NotificationRequest notificationRequest) {
         // 1. 알림 생성 -> 알림 수신 인원만큼 수행
         for(Long userId : notificationRequest.getReceiverUserIds()) {
             Notification newNotification = Notification.builder()

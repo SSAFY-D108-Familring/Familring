@@ -28,10 +28,9 @@ public class FcmUtil {
             Message message = makeMessage(fcmDTO.getTitle(), fcmDTO.getBody(), fcmToken); // 메시지 생성
             sendMessage(message); // 메시지 전송
         }
-        // FCM 토큰이 없는 경우 에러 발생
+        // FCM 토큰이 없는 경우 로그 띄우기
         else if (fcmToken == null) {
             log.info("[singleFcmSend] userId={}에게 FCM 토큰이 없습니다.", user.getUserFcmToken());
-            throw new NotFoundUserFcmTokenException();
         }
     }
 
