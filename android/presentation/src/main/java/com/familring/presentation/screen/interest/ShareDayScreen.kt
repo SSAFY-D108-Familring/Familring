@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.interest
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,11 +22,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.familring.domain.model.interest.Mission
+import com.familring.domain.model.interest.SelectedInterest
+import com.familring.domain.util.toMultiPart
 import com.familring.presentation.R
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.theme.Black
@@ -37,20 +40,27 @@ import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import com.familring.presentation.util.toFile
+import okhttp3.MultipartBody
 
 @Composable
 fun ShareDayScreen(
     isUpload: Boolean = false,
-    shareImage: (Uri) -> Unit = {},
+    selectedInterest: SelectedInterest = SelectedInterest(),
+    leftMissionPeriod: Int = 0,
+    missions: List<Mission> = emptyList(),
+    shareImage: (MultipartBody.Part?) -> Unit = {},
     navigateToOtherInterest: () -> Unit = {},
 ) {
+    val context = LocalContext.current
+
     if (!isUpload) {
         val singlePhotoPickerLauncher =
             rememberLauncherForActivityResult(
                 contract = ActivityResultContracts.PickVisualMedia(),
                 onResult = { uri ->
                     uri?.let {
-                        shareImage(uri)
+                        shareImage(uri.toFile(context = context).toMultiPart("image"))
                     }
                 },
             )
@@ -71,7 +81,7 @@ fun ShareDayScreen(
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 Text(
-                    text = "엘지 트윈스!",
+                    text = "${selectedInterest.interest}!",
                     style = Typography.titleSmall.copy(fontSize = 22.sp),
                     color = Green03,
                 )
@@ -112,7 +122,7 @@ fun ShareDayScreen(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "7",
+                        text = leftMissionPeriod.toString(),
                         style = Typography.titleMedium.copy(fontSize = 22.sp),
                         color = Green02,
                     )
@@ -138,15 +148,7 @@ fun ShareDayScreen(
             }
         }
     } else {
-        val items =
-            listOf(
-                "" to "나갱이의 인증샷",
-                "" to "승주니의 인증샷",
-                "" to "현지니의 인증샷",
-                "" to "엄마미의 인증샷",
-                "" to "아빵이의 인증샷",
-            )
-        val pagerState = rememberPagerState(pageCount = { items.size })
+        val pagerState = rememberPagerState(pageCount = { missions.size })
 
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -165,7 +167,7 @@ fun ShareDayScreen(
                 )
                 Spacer(modifier = Modifier.width(3.dp))
                 Text(
-                    text = "엘지 트윈스!",
+                    text = "${selectedInterest.interest}!",
                     style = Typography.titleSmall.copy(fontSize = 22.sp),
                     color = Green03,
                 )
@@ -192,13 +194,14 @@ fun ShareDayScreen(
                     contentPadding = PaddingValues(horizontal = 35.dp),
                 ) { page ->
                     SharePagerItem(
-                        imgUrl = items[page].first,
-                        username = items[page].second,
+                        imgUrl = missions[page].missionImgUrl,
+                        username = missions[page].userNickname,
+                        zodiacImg = missions[page].profileImgUrl,
                     )
                 }
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
-                    text = "4명이 관심사 공유에 참여했어요!",
+                    text = "${missions.size}명이 관심사 공유에 참여했어요!",
                     style = Typography.bodyMedium,
                 )
                 Spacer(modifier = Modifier.weight(1f))

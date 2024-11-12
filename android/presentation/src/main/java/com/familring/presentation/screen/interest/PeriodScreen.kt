@@ -28,11 +28,12 @@ import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
+import java.time.LocalDate
 
 @Composable
 fun PeriodScreen(
     modifier: Modifier = Modifier,
-    savePeriod: () -> Unit = {},
+    setPeriod: (LocalDate) -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
@@ -95,7 +96,9 @@ fun PeriodScreen(
             Spacer(modifier = Modifier.weight(1f))
             RoundLongButton(
                 text = "인증 기간 지정하기",
-                onClick = savePeriod,
+                onClick = {
+                    setPeriod(LocalDate.of(year.toInt(), month.toInt(), date.toInt()))
+                },
             )
             Spacer(modifier = Modifier.weight(1f))
         }

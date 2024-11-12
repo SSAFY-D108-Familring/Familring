@@ -1,11 +1,16 @@
 package com.familring.presentation.screen.interest
 
+import com.familring.domain.model.interest.Mission
+import com.familring.domain.model.interest.SelectedInterest
+
 data class InterestUiState(
     val interestStatus: Int = 0,
     val isWroteInterest: Boolean = true,
-    val interest: String = "",
+    val myInterest: String = "",
     val isUploadMission: Boolean = false,
     val isFamilyWrote: Boolean = false,
     val wroteFamilyCount: Int = 0,
-    val selectedInterest: String = "",
+    val selectedInterest: SelectedInterest = SelectedInterest(),
+    val leftMissionPeriod: Int = 0,
+    val missions: List<Mission> = listOf(),
 )
