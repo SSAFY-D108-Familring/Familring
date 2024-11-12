@@ -228,6 +228,35 @@ public class InterestService {
 
     }
 
+    public void createInterestAnswerSelected(Long userId) {
+        // 가족 조회
+        Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
+        Long familyId = family.getFamilyId();
+
+        // 가장 최근 관심사 찾기
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
+        log.info("interest : " + interest.getId());
+
+        // 답변한 가족 구성원 리스트 중에 selected 인 경우 InterestAnswer 반환
+        Optional<InterestAnswer> interestAnswer = interestAnswerRepository.findSelectedAnswersByFamilyIdAndInterest(familyId, interest);
+
+        // 답변한 가족 구성원 리스트 생성 및 모든 답변 return
+        List<InterestAnswer> interestAnswerList = interestAnswerRepository.findByFamilyIdAndInterest(familyId, interest);
+        log.info("interestAnswer size : " + interestAnswerList.size());
+
+        // 랜덤으로 선택하여 selected 상태 업데이트
+        // 만약 그 반환된 값이 null 이 아닌 경우 그때만 변경사항 저장
+        if (interestAnswer.isEmpty()) {
+            Random random = new Random();
+            InterestAnswer selectedAnswer = interestAnswerList.get(random.nextInt(interestAnswerList.size()));
+            selectedAnswer.updateSelected(true);
+            interestAnswerRepository.save(selectedAnswer);  // 변경 사항을 저장
+            return;
+        }
+
+        throw new AlreadyExistSelectInterestAnswerException();
+    }
+
     // 선택된 관심사 조회
     public InterestAnswerSelectedResponse getInterestAnswerSelected(Long userId) {
 
@@ -242,33 +271,29 @@ public class InterestService {
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
         // 답변한 가족 구성원 리스트 생성 및 모든 답변의 selected 상태 확인
-        List<InterestAnswer> interestAnswers = familyMembers.stream()
-                .map(member -> interestAnswerRepository.findByUserIdAndInterest(member.getUserId(), interest))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        // 답변한 가족 구성원 리스트 중에 selected 인 경우 InterestAnswer 반환
+        Optional<InterestAnswer> selectedAnswer = interestAnswerRepository.findSelectedAnswersByFamilyIdAndInterest(familyId, interest);
 
-        boolean hasSelectedAnswer = interestAnswers.stream().anyMatch(InterestAnswer::isSelected);
-
-        // 랜덤으로 선택하여 selected 상태 업데이트
-        if (!hasSelectedAnswer && !interestAnswers.isEmpty()) {
-            InterestAnswer selectedAnswer = interestAnswers.get(new Random().nextInt(interestAnswers.size()));
-            selectedAnswer.updateSelected(true);
-            interestAnswerRepository.save(selectedAnswer);  // 변경 사항을 저장
+        String content = "";
+        Long selectedAnswerUserId;
+        UserInfoResponse selectedUser;
+        if (selectedAnswer.isPresent()) {
+            content = selectedAnswer.get().getContent();
+            selectedAnswerUserId = selectedAnswer.get().getUserId();
 
             // 선택된 답변의 사용자 정보 조회
-            UserInfoResponse selectedUser = familyMembers.stream()
-                    .filter(member -> member.getUserId().equals(selectedAnswer.getUserId()))
+            selectedUser = familyMembers.stream()
+                    .filter(member -> member.getUserId().equals(selectedAnswerUserId))
                     .findFirst()
-                    .orElseThrow(AlreadyExistSelectInterestAnswerException::new);
-
-            return InterestAnswerSelectedResponse.builder()
-                    .userNickname(selectedUser.getUserNickname())
-                    .content(selectedAnswer.getContent())
-                    .build();
+                    .orElseThrow(InterestAnswerNotFoundException::new);
+        } else {
+            throw new InterestAnswerNotFoundException();
         }
 
-        throw new AlreadyExistSelectInterestAnswerException();
+        return InterestAnswerSelectedResponse.builder()
+                .userNickname(selectedUser.getUserNickname())
+                .content(content)
+                .build();
 
     }
 

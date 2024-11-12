@@ -15,5 +15,9 @@ public interface NotificationDao {
     // notificationId에 해당하는 Notification 반환
     Optional<Notification> findNotificationByNotificationId(@Param("notificationId") Long notificationId);
 
+    // 알림 여부 변경
     void updateNotificationIsReadByNotificationId(@Param("notificationId") Long notificationId);
+
+    // 알림 생성
+    void insertNotification(Notification newNotification);
 }

@@ -58,8 +58,15 @@ public class InterestController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "내가 작성했던 관심사 조회에 성공했습니다.", response));
     }
 
+    @PostMapping("/answers/selected")
+    @Operation(summary = "관심사 선정", description = "관심사 선정하기 (답변 작성한 가족 구성원 중에 랜덤으로 돌려서 선정)")
+    public ResponseEntity<BaseResponse<Void>> createInterestAnswerSelected (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
+        interestService.createInterestAnswerSelected(userId);
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "관심사 선정에 성공했습니다."));
+    }
+
     @GetMapping("/answers/selected")
-    @Operation(summary = "선정된 관심사 조회", description = "선정된 관심사 조회 (답변을 작성한 가족 구성원 중에 랜덤으로 돌려서 선정)")
+    @Operation(summary = "선정된 관심사 조회", description = "선정된 관심사 조회")
     public ResponseEntity<BaseResponse<InterestAnswerSelectedResponse>> getInterestAnswerSelected (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         InterestAnswerSelectedResponse response = interestService.getInterestAnswerSelected(userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "선정된 관심사 조회에 성공했습니다.", response));

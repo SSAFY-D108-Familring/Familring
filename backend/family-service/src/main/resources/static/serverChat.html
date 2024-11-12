@@ -58,23 +58,23 @@
 
         fetchChatHistory(roomId, userId, currentPage, pageSize);
 
-        const socket = new SockJS('/ws-stomp');
+        const socket = new SockJS('/family/ws-stomp');
         stompClient = Stomp.over(socket);
 
         stompClient.connect(
             { "X-User-ID": userId },
             () => {
-                stompClient.subscribe(`/room/${roomId}`, (message) => {
+                stompClient.subscribe(`/family/room/${roomId}`, (message) => {
                     const parsedMessage = JSON.parse(message.body);
                     console.log("New message received:", parsedMessage);
                     displayMessageByType(parsedMessage);
                 });
 
-                stompClient.subscribe(`/room/${roomId}/readStatus`, () => {
+                stompClient.subscribe(`/family/room/${roomId}/readStatus`, () => {
                     fetchChatHistory(roomId, userId);
                 });
 
-                stompClient.subscribe(`/room/${roomId}/exit`, (message) => {
+                stompClient.subscribe(`/family/room/${roomId}/exit`, (message) => {
                     console.log("Exit message received:", message.body);
                     displayExitMessage(message.body);
                 });
