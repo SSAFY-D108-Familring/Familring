@@ -31,6 +31,8 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import okhttp3.MultipartBody
+import java.time.LocalDate
 
 object InterestState {
     const val WRITING = 0
@@ -53,6 +55,9 @@ fun InterestRoute(
         state = uiState,
         writeInterest = interestViewModel::createAnswer,
         editInterest = interestViewModel::updateAnswer,
+        selectInterest = interestViewModel::selectInterest,
+        setPeriod = interestViewModel::setMissionPeriod,
+        shareImage = interestViewModel::postMission,
         navigateToInterestList = navigateToInterestList,
         navigateToOtherInterest = navigateToOtherInterest,
         onNavigateBack = onNavigateBack,
@@ -62,15 +67,17 @@ fun InterestRoute(
 @Composable
 fun InterestScreen(
     modifier: Modifier = Modifier,
-    navigateToInterestList: () -> Unit = {},
-    navigateToOtherInterest: () -> Unit = {},
-    onNavigateBack: () -> Unit = {},
     state: InterestUiState = InterestUiState(),
     writeInterest: (String) -> Unit = {},
     editInterest: (String) -> Unit = {},
-    shareImage: (Uri) -> Unit = {},
+    selectInterest: () -> Unit = {},
+    setPeriod: (LocalDate) -> Unit = {},
+    shareImage: (MultipartBody. Part?) -> Unit = {},
+    navigateToOtherInterest: () -> Unit = {},
+    navigateToInterestList: () -> Unit = {},
+    onNavigateBack: () -> Unit = {},
 ) {
-    var showDialog by remember { mutableStateOf(state.wroteFamilyCount >= 2) }
+    var showDialog by remember { mutableStateOf(state.isFamilyWrote && state.wroteFamilyCount >= 2) }
 
     LaunchedEffect(state.wroteFamilyCount) {
         if (state.wroteFamilyCount >= 2) {
@@ -112,7 +119,7 @@ fun InterestScreen(
                     WriteDayScreen(
                         modifier = Modifier.imePadding(),
                         isWroteInterest = state.isWroteInterest,
-                        interest = state.interest,
+                        interest = state.myInterest,
                         isFamilyWrote = state.isFamilyWrote,
                         writeInterest = writeInterest,
                         editInterest = editInterest,
@@ -122,15 +129,17 @@ fun InterestScreen(
 
                 InterestState.NO_PERIOD -> {
                     ResultScreen(
-                        result = state.interest,
-                        nickname = "나갱",
-                        navigateToPeriod = navigateToOtherInterest,
+                        selectedInterest = state.selectedInterest,
+                        setPeriod = setPeriod,
                     )
                 }
 
                 InterestState.MISSION -> {
                     ShareDayScreen(
                         isUpload = state.isUploadMission,
+                        selectedInterest = state.selectedInterest,
+                        leftMissionPeriod = state.leftMissionPeriod,
+                        missions = state.missions,
                         shareImage = shareImage,
                         navigateToOtherInterest = navigateToOtherInterest,
                     )
@@ -139,7 +148,6 @@ fun InterestScreen(
         }
 
         if (showDialog) {
-            // Dialog로 감싸서 다이얼로그가 오버레이되도록 함
             Dialog(
                 onDismissRequest = { },
                 properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -147,7 +155,7 @@ fun InterestScreen(
                 InterestSelectDialog(
                     count = state.wroteFamilyCount,
                     selectInterest = {
-                        // 관심사 선택 및 화면 이동 작업
+                        selectInterest()
                         showDialog = false
                     },
                     closeDialog = { showDialog = false },

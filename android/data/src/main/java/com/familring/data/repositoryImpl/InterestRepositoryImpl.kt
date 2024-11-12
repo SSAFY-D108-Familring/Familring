@@ -91,11 +91,21 @@ class InterestRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun getSelectedAnswer(): Flow<ApiResponse<SelectedInterest>> =
+        override suspend fun selectInterest(): Flow<ApiResponse<Unit>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { interestApi.getSelectedAnswer() },
+                        apiResponse = { interestApi.selectInterest() },
+                        default = Unit,
+                    )
+                emit(apiResponse)
+            }
+
+        override suspend fun getSelectedInterest(): Flow<ApiResponse<SelectedInterest>> =
+            flow {
+                val apiResponse =
+                    emitApiResponse(
+                        apiResponse = { interestApi.getSelectedInterest() },
                         default = SelectedInterest(),
                     )
                 emit(apiResponse)
@@ -137,6 +147,16 @@ class InterestRepositoryImpl
                     emitApiResponse(
                         apiResponse = { interestApi.getMissions() },
                         default = listOf(),
+                    )
+                emit(apiResponse)
+            }
+
+        override suspend fun checkUploadMission(): Flow<ApiResponse<Boolean>> =
+            flow {
+                val apiResponse =
+                    emitApiResponse(
+                        apiResponse = { interestApi.checkUploadMission() },
+                        default = false,
                     )
                 emit(apiResponse)
             }

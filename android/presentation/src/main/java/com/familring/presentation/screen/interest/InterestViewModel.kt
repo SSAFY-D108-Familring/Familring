@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.InterestRepository
+import com.familring.domain.request.InterestPeriodRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +12,9 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
 import timber.log.Timber
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +34,7 @@ class InterestViewModel
             getAnswerStatus()
         }
 
-        fun getInterestStatus() {
+        private fun getInterestStatus() {
             viewModelScope.launch {
                 interestRepository.getInterestStatus().collect { result ->
                     when (result) {
@@ -41,8 +44,21 @@ class InterestViewModel
                                     interestStatus = result.data,
                                 )
                             }
-                            if (result.data == InterestState.WRITING) {
-                                getAnswersCount()
+                            when (result.data) {
+                                InterestState.WRITING -> {
+                                    getAnswersCount()
+                                }
+
+                                InterestState.NO_PERIOD -> {
+                                    getSelectedInterest()
+                                }
+
+                                InterestState.MISSION -> {
+                                    checkUploadMission()
+                                    getSelectedInterest()
+                                    getLeftMissionPeriod()
+                                    getMissions()
+                                }
                             }
                         }
 
@@ -55,7 +71,7 @@ class InterestViewModel
             }
         }
 
-        fun getAnswerStatus() {
+        private fun getAnswerStatus() {
             viewModelScope.launch {
                 interestRepository.getAnswerStatus().collect { result ->
                     when (result) {
@@ -63,7 +79,7 @@ class InterestViewModel
                             _uiState.update {
                                 it.copy(
                                     isWroteInterest = result.data.isWroteInterest,
-                                    interest = result.data.content,
+                                    myInterest = result.data.content,
                                     isFamilyWrote = result.data.isFamilyWrote,
                                 )
                             }
@@ -123,6 +139,158 @@ class InterestViewModel
                                         result.data.count { member ->
                                             member.interest.isNotEmpty() and member.interest.isNotBlank()
                                         },
+                                )
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            if (result.code == "I0001") {
+                                _uiState.update {
+                                    it.copy(
+                                        wroteFamilyCount = 0,
+                                    )
+                                }
+                            } else {
+                                Timber.d("code: ${result.code}, message: ${result.message}")
+                                _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        fun selectInterest() {
+            viewModelScope.launch {
+                interestRepository.selectInterest().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            //
+                        }
+
+                        is ApiResponse.Error -> {
+                            _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                            Timber.d("code: ${result.code}, message: ${result.message}")
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun getSelectedInterest() {
+            viewModelScope.launch {
+                interestRepository.getSelectedInterest().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    selectedInterest = result.data,
+                                )
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                            Timber.d("code: ${result.code}, message: ${result.message}")
+                        }
+                    }
+                }
+            }
+        }
+
+        fun setMissionPeriod(endDate: LocalDate) {
+            viewModelScope.launch {
+                interestRepository
+                    .setMissionPeriod(InterestPeriodRequest(endDate))
+                    .collect { result ->
+                        when (result) {
+                            is ApiResponse.Success -> {
+                                getInterestStatus()
+                            }
+
+                            is ApiResponse.Error -> {
+                                _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                                Timber.d("code: ${result.code}, message: ${result.message}")
+                            }
+                        }
+                    }
+            }
+        }
+
+        private fun getLeftMissionPeriod() {
+            viewModelScope.launch {
+                interestRepository.getMissionPeriod().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    leftMissionPeriod = result.data,
+                                )
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                            Timber.d("code: ${result.code}, message: ${result.message}")
+                        }
+                    }
+                }
+            }
+        }
+
+        fun postMission(imageMultiPart: MultipartBody.Part?) {
+            viewModelScope.launch {
+                interestRepository
+                    .uploadMission(imageMultiPart)
+                    .collect { result ->
+                        when (result) {
+                            is ApiResponse.Success -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isUploadMission = true,
+                                    )
+                                }
+                                getMissions()
+                            }
+
+                            is ApiResponse.Error -> {
+                                _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                                Timber.d("code: ${result.code}, message: ${result.message}")
+                            }
+                        }
+                    }
+            }
+        }
+
+        private fun getMissions() {
+            viewModelScope.launch {
+                interestRepository.getMissions().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    missions = result.data,
+                                )
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            _uiEvent.emit(InterestUiEvent.Error(result.code, result.message))
+                            Timber.d("code: ${result.code}, message: ${result.message}")
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun checkUploadMission() {
+            viewModelScope.launch {
+                interestRepository.checkUploadMission().collect { result ->
+                    when (result) {
+                        is ApiResponse.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    isUploadMission = result.data,
                                 )
                             }
                         }
