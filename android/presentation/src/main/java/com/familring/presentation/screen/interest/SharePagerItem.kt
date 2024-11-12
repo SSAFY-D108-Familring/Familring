@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,11 +51,13 @@ fun SharePagerItem(
             AsyncImage(
                 modifier =
                     Modifier
+                        .fillMaxWidth(0.8f)
                         .fillMaxHeight(0.83f)
-                        .padding(top = 15.dp, start = 15.dp, end = 15.dp),
+                        .padding(top = 20.dp)
+                        .clip(shape = RoundedCornerShape(12.dp)),
                 model = imgUrl,
                 contentDescription = "share_img",
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.FillWidth,
             )
             Spacer(modifier = Modifier.weight(1f))
             Row(
