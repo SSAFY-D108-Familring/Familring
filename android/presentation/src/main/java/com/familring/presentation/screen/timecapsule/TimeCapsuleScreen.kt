@@ -150,7 +150,7 @@ fun TimeCapsuleScreen(
         }
 
         BackHandler(enabled = true) {
-            if (state.writingStatus == WRITING_TIME_CAPSULE) {
+            if (state.writingStatus == WRITING_TIME_CAPSULE && selectedItemIndex == 0) {
                 showDialog = true
             } else {
                 popUpBackStack()

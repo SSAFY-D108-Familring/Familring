@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -33,22 +34,25 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toFile
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 
 @Composable
@@ -59,31 +63,69 @@ fun PictureRoute(
     showSnackBar: (String) -> Unit,
     navigateToCount: () -> Unit,
 ) {
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
+
     PictureScreen(
         modifier = modifier,
+        uiEvent = viewModel.event,
         popUpBackStack = popUpBackStack,
         showSnackBar = showSnackBar,
         navigateToCount = navigateToCount,
         updatePicture = viewModel::updateFace,
+        getFaceCount = viewModel::getFaceCount,
     )
+
+    if (uiState.isLoading) {
+        LoadingDialog(
+            loadingMessage = "얼굴을 인식하고 있어요...",
+        )
+    }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PictureScreen(
     modifier: Modifier = Modifier,
+    uiEvent: SharedFlow<SignUpUiEvent>,
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
     navigateToCount: () -> Unit = {},
     updatePicture: (File) -> Unit = {},
+    getFaceCount: (File) -> Unit = {},
 ) {
     val context = LocalContext.current
     var imgUri by remember { mutableStateOf<Uri?>(null) }
+    var faceSuccess by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiEvent) {
+        uiEvent.collectLatest { event ->
+            when (event) {
+                is SignUpUiEvent.FaceSuccess -> {
+                    showSnackBar("사용 가능한 사진이에요! :)")
+                    val file = imgUri?.toFile(context)
+                    file?.let {
+                        updatePicture(it)
+                        faceSuccess = true
+                    }
+                }
+
+                is SignUpUiEvent.FaceFail -> {
+                    showSnackBar("분석하기에 올바르지 않은 사진이에요. 다시 한 번 촬영해 주세요!")
+                    faceSuccess = false
+                }
+
+                is SignUpUiEvent.Error -> {
+                    showSnackBar(event.message)
+                }
+
+                else -> {}
+            }
+        }
+    }
 
     LaunchedEffect(imgUri) {
         val file = imgUri?.toFile(context)
         if (file != null) {
-            updatePicture(file)
+            getFaceCount(file)
         }
     }
 
@@ -154,8 +196,8 @@ fun PictureScreen(
             Box(
                 modifier =
                     Modifier
-                        .fillMaxWidth(0.6f)
-                        .aspectRatio(3f / 4f)
+                        .fillMaxWidth(0.9f)
+                        .aspectRatio(1f)
                         .background(color = Gray04, shape = RoundedCornerShape(12.dp))
                         .clickable {
                             when (PackageManager.PERMISSION_GRANTED) {
@@ -171,7 +213,7 @@ fun PictureScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 if (imgUri != null) {
-                    GlideImage(
+                    AsyncImage(
                         modifier =
                             Modifier
                                 .matchParentSize()
@@ -181,12 +223,23 @@ fun PictureScreen(
                         contentDescription = "daily",
                     )
                 } else {
-                    Icon(
-                        modifier = Modifier.size(60.dp),
-                        painter = painterResource(id = R.drawable.ic_camera),
-                        contentDescription = "ic_camera",
-                        tint = Gray01,
-                    )
+                    Column(
+                        modifier = Modifier.wrapContentSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(50.dp),
+                            painter = painterResource(id = R.drawable.ic_camera),
+                            contentDescription = "ic_camera",
+                            tint = Gray02,
+                        )
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Text(
+                            text = "여기를 클릭해 사진을 촬영해 주세요",
+                            style = Typography.bodyMedium,
+                            color = Gray02,
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.fillMaxHeight(0.2f))
@@ -199,14 +252,8 @@ fun PictureScreen(
                         showSnackBar("사진을 다시 한 번 촬영해 주세요!")
                     }
                 },
-                enabled = imgUri != null,
+                enabled = faceSuccess,
             )
         }
     }
-}
-
-@Preview
-@Composable
-fun PicturePreview() {
-    PictureScreen()
 }

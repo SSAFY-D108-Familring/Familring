@@ -27,9 +27,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.CustomDropdownMenu
 import com.familring.presentation.component.CustomDropdownMenuStyles
-import com.familring.presentation.component.dialog.LoadingDialog
-import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
@@ -45,6 +45,12 @@ fun FamilyInfoRoute(
     navigateToHome: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        if (uiState.familyCode.isNotBlank()) {
+            viewModel.getParentAvailable(uiState.familyCode)
+        }
+    }
 
     LaunchedEffect(viewModel.event) {
         viewModel.event.collect { event ->
@@ -75,6 +81,7 @@ fun FamilyInfoRoute(
         popUpBackStack = popUpBackStack,
         updateRole = viewModel::updateRole,
         join = viewModel::join,
+        parents = uiState.parents,
     )
 
     if (uiState.isLoading) {
@@ -88,8 +95,27 @@ fun FamilyInfoScreen(
     popUpBackStack: () -> Unit = {},
     updateRole: (String) -> Unit = {},
     join: () -> Unit = {},
+    parents: List<String> = listOf(),
 ) {
-    var role by remember { mutableStateOf("M") }
+    val roleList = listOf("엄마", "아빠", "딸", "아들").filter { it !in parents }
+    var role by remember { mutableStateOf("") }
+    val menuList: List<Pair<String, () -> Unit>> =
+        roleList.map { item ->
+            item to {
+                role =
+                    when (item) {
+                        "엄마" -> "M"
+
+                        "아빠" -> "F"
+
+                        "딸" -> "D"
+
+                        "아들" -> "S"
+
+                        else -> role
+                    }
+            }
+        }
 
     LaunchedEffect(role) {
         updateRole(role)
@@ -140,13 +166,7 @@ fun FamilyInfoScreen(
             )
             Spacer(modifier = Modifier.height(15.dp))
             CustomDropdownMenu(
-                menuItems =
-                    listOf(
-                        "엄마" to { role = "M" },
-                        "아빠" to { role = "F" },
-                        "딸" to { role = "D" },
-                        "아들" to { role = "S" },
-                    ),
+                menuItems = menuList,
                 styles = CustomDropdownMenuStyles(),
                 cornerRadius = 10,
                 iconDrawable = R.drawable.ic_arrow_down,

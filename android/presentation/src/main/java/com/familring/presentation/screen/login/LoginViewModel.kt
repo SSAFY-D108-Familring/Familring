@@ -3,7 +3,7 @@ package com.familring.presentation.screen.login
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.familring.domain.datasource.AuthDataStore
+import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserLoginRequest

@@ -9,11 +9,11 @@ import java.io.File
 
 fun String.toRequestBody() = this.toRequestBody("application/json".toMediaType())
 
-fun File?.toMultiPart() =
+fun File?.toMultiPart(filename: String) =
     run {
         this?.let {
             val requestFile = it.asRequestBody("image/*".toMediaTypeOrNull())
-            MultipartBody.Part.createFormData("image", it.name, requestFile)
+            MultipartBody.Part.createFormData(filename, it.name, requestFile)
         } ?: run {
             null
         }

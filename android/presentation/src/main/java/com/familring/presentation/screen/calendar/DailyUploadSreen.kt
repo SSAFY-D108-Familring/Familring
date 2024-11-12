@@ -252,13 +252,13 @@ fun DailyUploadScreen(
                     if (!isModify) {
                         createDaily(
                             textFieldState.text.toString(),
-                            imgUri?.toFile(context).toMultiPart(),
+                            imgUri?.toFile(context).toMultiPart(filename = "image"),
                         )
                     } else {
                         modifyDaily(
                             targetDaily.dailyId,
                             textFieldState.text.toString(),
-                            imgUri?.toFile(context).toMultiPart(),
+                            imgUri?.toFile(context).toMultiPart(filename = "image"),
                         )
                     }
                 },
