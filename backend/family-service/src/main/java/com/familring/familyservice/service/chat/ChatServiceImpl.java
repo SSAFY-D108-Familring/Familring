@@ -93,7 +93,9 @@ public class ChatServiceImpl implements ChatService {
                     .isCompleted(false)
                     .createdAt(now)
                     .voteResult(new HashMap<>())
-                    .choices(new HashMap<>())
+                    .choices(new HashMap<>() {{
+                        put(user.getUserId(), "agree"); // 투표 생성자를 찬성으로 등록
+                    }})
                     .roomId(roomId)
                     .senderId(chatRequest.getSenderId())
                     .build();
