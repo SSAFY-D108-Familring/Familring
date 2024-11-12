@@ -5,6 +5,13 @@ pipeline {
     agent any
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
         stage('Initialize Active Instance') {
             steps {
                 script {
@@ -16,12 +23,6 @@ pipeline {
                         activeInstance = 'timecapsule-service'
                     }
                 }
-            }
-        }
-
-        stage('Checkout') {
-            steps {
-                checkout scm
             }
         }
 
