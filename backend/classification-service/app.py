@@ -355,6 +355,7 @@ async def process_face_encodings(image):
         logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
         return []
 
+@app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
 async def classify_images(request: AnalysisRequest):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 병렬 분석합니다.
