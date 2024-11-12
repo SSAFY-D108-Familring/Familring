@@ -15,5 +15,7 @@ sealed interface ChatUiState {
     ) : ChatUiState
 
     @Immutable
-    data object Error : ChatUiState
+    data class Error(
+        val message: String,
+    ) : ChatUiState
 }
