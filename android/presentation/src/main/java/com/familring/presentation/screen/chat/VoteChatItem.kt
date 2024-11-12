@@ -93,7 +93,13 @@ fun VoteChatItem(
                     Spacer(modifier = Modifier.height(8.dp))
                     Image(
                         modifier = Modifier.size(80.dp),
-                        painter = painterResource(id = R.drawable.img_agree),
+                        painter = if (select == "찬성") {
+                            painterResource(id = R.drawable.img_agree)
+                        } else {
+                            painterResource(
+                                id = R.drawable.img_disagree,
+                            )
+                        },
                         contentDescription = "agree",
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -155,7 +161,14 @@ fun VoteChatItem(
                         Spacer(modifier = Modifier.height(8.dp))
                         Image(
                             modifier = Modifier.size(80.dp),
-                            painter = painterResource(id = R.drawable.img_agree),
+                            painter =
+                                if (select == "찬성") {
+                                    painterResource(id = R.drawable.img_agree)
+                                } else {
+                                    painterResource(
+                                        id = R.drawable.img_disagree,
+                                    )
+                                },
                             contentDescription = "agree",
                         )
                         Spacer(modifier = Modifier.height(8.dp))
