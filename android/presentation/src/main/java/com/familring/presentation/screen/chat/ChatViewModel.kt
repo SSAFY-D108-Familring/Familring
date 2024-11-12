@@ -7,6 +7,7 @@ import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.chat.Chat
+import com.familring.domain.model.chat.FileUploadRequest
 import com.familring.domain.model.chat.SendMessage
 import com.familring.domain.model.chat.VoteResponse
 import com.familring.domain.repository.FamilyRepository
@@ -32,6 +33,7 @@ import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
 import timber.log.Timber
+import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -130,7 +132,6 @@ class ChatViewModel
                                 url = BuildConfig.SOCKET_URL,
                                 customStompConnectHeaders = mapOf(X_USER_ID to userId.toString()),
                             ).withMoshi(moshi)
-
 
                     subscribeMessages()
                     subscribeReadStatus()
@@ -239,6 +240,48 @@ class ChatViewModel
                             voteId = voteId,
                             messageType = context.getString(R.string.vote_response_type),
                             responseOfVote = responseOfVote,
+                        ),
+                )
+            }
+        }
+
+        fun uploadVoice(
+            context: Context,
+            file: File,
+        ) {
+            viewModelScope.launch {
+                familyRepository
+                    .uploadVoice(
+                        request = FileUploadRequest(roomId = familyId.toString()),
+                        voice = file,
+                    ).collectLatest { response ->
+                        when (response) {
+                            is ApiResponse.Success -> {
+                                sendVoiceMessage(context, response.data)
+                            }
+
+                            is ApiResponse.Error -> {
+                                _event.emit(ChatUiEvent.Error(response.code, response.message))
+                            }
+                        }
+                    }
+            }
+        }
+
+        fun sendVoiceMessage(
+            context: Context,
+            voiceUrl: String,
+        ) {
+            viewModelScope.launch {
+                stompSession.withMoshi(moshi).convertAndSend(
+                    headers = StompSendHeaders(destination = SEND_URL),
+                    body =
+                        SendMessage(
+                            roomId = familyId.toString(),
+                            senderId = userId.toString(),
+                            content = voiceUrl,
+                            createdAt = LocalDateTime.now().toString(),
+                            messageType = context.getString(R.string.voice_type),
                         ),
                 )
             }

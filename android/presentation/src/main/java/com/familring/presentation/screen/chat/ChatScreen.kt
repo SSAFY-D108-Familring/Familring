@@ -57,6 +57,7 @@ import com.familring.presentation.component.chat.ChatInputBar
 import com.familring.presentation.component.chat.DateDivider
 import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
+import com.familring.presentation.component.chat.VoiceMessage
 import com.familring.presentation.component.chat.VoteMessage
 import com.familring.presentation.component.chat.VoteResultMessage
 import com.familring.presentation.component.dialog.LoadingDialog
@@ -73,6 +74,7 @@ import com.familring.presentation.util.toDateOnly
 import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun ChatRoute(
@@ -110,6 +112,7 @@ fun ChatRoute(
                 sendMessage = viewModel::sendMessage,
                 sendVoteMessage = viewModel::sendVoteMessage,
                 sendVoteResponse = viewModel::sendVoteResponse,
+                sendVoiceMessage = viewModel::uploadVoice,
             )
         }
 
@@ -136,6 +139,7 @@ fun ChatScreen(
     sendMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteResponse: (Context, String, String) -> Unit = { _, _, _ -> },
+    sendVoiceMessage: (Context, File) -> Unit = { _, _ -> },
 ) {
     var inputMessage by remember { mutableStateOf("") }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -275,11 +279,25 @@ fun ChatScreen(
                         context.getString(R.string.vote_result_type) -> {
                             item.vote?.let {
                                 VoteResultMessage(
-                                    isOther = item.senderId == userId,
+                                    isOther = item.senderId != userId,
                                     title = it.voteTitle,
                                     voteResult = it.voteResult,
                                     unReadMembers = item.unReadMembers.toString(),
                                     time = item.createdAt.toTimeOnly(),
+                                    nickname = item.sender.userNickname,
+                                    profileImg = item.sender.userZodiacSign,
+                                    color = item.sender.userColor,
+                                )
+                            }
+                        }
+
+                        context.getString(R.string.voice_type) -> {
+                            item.content?.let {
+                                VoiceMessage(
+                                    isOther = item.senderId != userId,
+                                    filePath = it,
+                                    time = item.createdAt.toTimeOnly(),
+                                    unReadMembers = item.unReadMembers.toString(),
                                     nickname = item.sender.userNickname,
                                     profileImg = item.sender.userZodiacSign,
                                     color = item.sender.userColor,
@@ -386,9 +404,7 @@ fun ChatScreen(
                 "voice" -> {
                     VoiceRecordScreen(
                         onDismiss = { showBottomSheet = false },
-                        onRecordingComplete = {
-                            // 음성 메시지 전송 api 호출
-                        },
+                        onRecordingComplete = sendVoiceMessage,
                         showSnackBar = showSnackBar,
                         popUpBackStack = { clickedItem = "" },
                     )
