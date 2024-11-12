@@ -90,7 +90,7 @@ fun VoteMessage(
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxWidth(0.6f)
+                            .fillMaxWidth(0.7f)
                             .clip(shape = RoundedCornerShape(13.dp))
                             .background(color = White)
                             .border(width = 1.dp, color = Gray03, shape = RoundedCornerShape(13.dp)),
@@ -171,7 +171,7 @@ fun VoteMessage(
                     Box(
                         modifier =
                             Modifier
-                                .fillMaxWidth(0.6f)
+                                .fillMaxWidth(0.7f)
                                 .clip(shape = RoundedCornerShape(13.dp))
                                 .background(color = White)
                                 .border(
@@ -241,7 +241,7 @@ fun VoteMessage(
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             Text(
-                                                modifier = Modifier.padding(vertical = 8.dp),
+                                                modifier = Modifier.padding(vertical = 10.dp),
                                                 text = "반대",
                                                 style = Typography.headlineSmall.copy(fontSize = 14.sp),
                                             )
@@ -257,7 +257,7 @@ fun VoteMessage(
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             Text(
-                                                modifier = Modifier.padding(vertical = 8.dp),
+                                                modifier = Modifier.padding(vertical = 10.dp),
                                                 text = "찬성",
                                                 style = Typography.headlineSmall.copy(fontSize = 14.sp),
                                             )

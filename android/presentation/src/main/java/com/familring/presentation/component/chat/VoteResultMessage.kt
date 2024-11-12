@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.model.Profile
 import com.familring.presentation.R
-import com.familring.presentation.component.OverlappingProfileLazyRow
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.theme.Blue02
 import com.familring.presentation.theme.Gray01
@@ -45,8 +44,6 @@ fun VoteResultMessage(
     isOther: Boolean,
     title: String,
     voteResult: Map<String, Int>,
-    agreeList: List<Profile> = listOf(),
-    disagreeList: List<Profile> = listOf(),
     time: String,
     unReadMembers: String,
     nickname: String = "",
@@ -161,44 +158,39 @@ fun VoteResultMessage(
                                 modifier = Modifier.wrapContentSize(),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text(
-                                    text = "찬성",
-                                    style = Typography.bodySmall,
-                                    color = Gray01,
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-                                OverlappingProfileLazyRow(
-                                    profiles = agreeList,
-                                    profileSize = 25,
-                                )
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(
-                                    text = "${agreeList.size}명",
-                                    style = Typography.bodySmall,
-                                    color = Gray01,
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(5.dp))
-                            Row(
-                                modifier = Modifier.wrapContentSize(),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = "반대",
-                                    style = Typography.bodySmall,
-                                    color = Gray01,
-                                )
-                                Spacer(modifier = Modifier.width(5.dp))
-                                OverlappingProfileLazyRow(
-                                    profiles = disagreeList,
-                                    profileSize = 25,
-                                )
-                                Spacer(modifier = Modifier.width(3.dp))
-                                Text(
-                                    text = "${disagreeList.size}명",
-                                    style = Typography.bodySmall,
-                                    color = Gray01,
-                                )
+                                Row(
+                                    modifier = Modifier.wrapContentSize(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = "찬성",
+                                        style = Typography.bodySmall,
+                                        color = Gray01,
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = "${voteResult["찬성"] ?: 0}명",
+                                        style = Typography.displaySmall,
+                                        color = Gray01,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Row(
+                                    modifier = Modifier.wrapContentSize(),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        text = "반대",
+                                        style = Typography.bodySmall,
+                                        color = Gray01,
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = "${voteResult["반대"] ?: 0}명",
+                                        style = Typography.displaySmall,
+                                        color = Gray01,
+                                    )
+                                }
                             }
                             Spacer(modifier = Modifier.height(20.dp))
                         }
@@ -305,44 +297,39 @@ fun VoteResultMessage(
                                     modifier = Modifier.wrapContentSize(),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(
-                                        text = "찬성",
-                                        style = Typography.bodySmall,
-                                        color = Gray01,
-                                    )
-                                    Spacer(modifier = Modifier.width(5.dp))
-                                    OverlappingProfileLazyRow(
-                                        profiles = agreeList,
-                                        profileSize = 25,
-                                    )
-                                    Spacer(modifier = Modifier.width(3.dp))
-                                    Text(
-                                        text = "${agreeList.size}명",
-                                        style = Typography.bodySmall,
-                                        color = Gray01,
-                                    )
-                                }
-                                Spacer(modifier = Modifier.height(5.dp))
-                                Row(
-                                    modifier = Modifier.wrapContentSize(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        text = "반대",
-                                        style = Typography.bodySmall,
-                                        color = Gray01,
-                                    )
-                                    Spacer(modifier = Modifier.width(5.dp))
-                                    OverlappingProfileLazyRow(
-                                        profiles = disagreeList,
-                                        profileSize = 25,
-                                    )
-                                    Spacer(modifier = Modifier.width(3.dp))
-                                    Text(
-                                        text = "${disagreeList.size}명",
-                                        style = Typography.bodySmall,
-                                        color = Gray01,
-                                    )
+                                    Row(
+                                        modifier = Modifier.wrapContentSize(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text(
+                                            text = "찬성",
+                                            style = Typography.bodySmall,
+                                            color = Gray01,
+                                        )
+                                        Spacer(modifier = Modifier.width(5.dp))
+                                        Text(
+                                            text = "${voteResult["찬성"] ?: 0}명",
+                                            style = Typography.displaySmall,
+                                            color = Gray01,
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Row(
+                                        modifier = Modifier.wrapContentSize(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Text(
+                                            text = "반대",
+                                            style = Typography.bodySmall,
+                                            color = Gray01,
+                                        )
+                                        Spacer(modifier = Modifier.width(5.dp))
+                                        Text(
+                                            text = "${voteResult["반대"] ?: 0}명",
+                                            style = Typography.displaySmall,
+                                            color = Gray01,
+                                        )
+                                    }
                                 }
                                 Spacer(modifier = Modifier.height(20.dp))
                             }
@@ -383,30 +370,9 @@ fun VoteResultMessage(
 @Composable
 fun VoteResultMessagePreview() {
     VoteResultMessage(
-        isOther = true,
+        isOther = false,
         title = "오늘 저녁 치킨 어때유?",
         voteResult = mapOf("찬성" to 3, "반대" to 2),
-        agreeList =
-            listOf(
-                Profile(
-                    nickname = "나갱",
-                    zodiacImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/닭.png",
-                    backgroundColor = "0xFFFFE1E1",
-                ),
-                Profile(
-                    nickname = "ㅇㅇ",
-                    zodiacImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/양.png",
-                    backgroundColor = "0xFFC9D0FF",
-                ),
-            ),
-        disagreeList =
-            listOf(
-                Profile(
-                    nickname = "ㅁㄴㅇㄹ",
-                    zodiacImgUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/소.png",
-                    backgroundColor = "0xFF949494",
-                ),
-            ),
         time = "15:00",
         unReadMembers = "3",
         nickname = "나갱",
