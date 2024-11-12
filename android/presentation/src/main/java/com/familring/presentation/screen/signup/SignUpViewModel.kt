@@ -2,7 +2,7 @@ package com.familring.presentation.screen.signup
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.familring.domain.datasource.AuthDataStore
+import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FaceRepository
 import com.familring.domain.repository.FamilyRepository

@@ -47,7 +47,9 @@ fun FamilyInfoRoute(
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.getParentAvailable(uiState.familyCode)
+        if (uiState.familyCode.isNotBlank()) {
+            viewModel.getParentAvailable(uiState.familyCode)
+        }
     }
 
     LaunchedEffect(viewModel.event) {

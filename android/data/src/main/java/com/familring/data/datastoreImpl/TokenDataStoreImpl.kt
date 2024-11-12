@@ -4,7 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.familring.domain.datasource.TokenDataStore
+import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.JwtToken
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

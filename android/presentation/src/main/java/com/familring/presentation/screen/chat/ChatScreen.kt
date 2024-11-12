@@ -31,9 +31,9 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,13 +46,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.familring.domain.model.ChatItem
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.familring.domain.model.chat.Chat
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.chat.ChatInputBar
+import com.familring.presentation.component.chat.DateDivider
 import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
@@ -62,19 +66,41 @@ import com.familring.presentation.theme.Green05
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import com.familring.presentation.util.toDateOnly
+import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.launch
 
 @Composable
 fun ChatRoute(
     modifier: Modifier,
+    viewModel: ChatViewModel = hiltViewModel(),
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
-    ChatScreen(
-        modifier = modifier,
-        popUpBackStack = popUpBackStack,
-        showSnackBar = showSnackBar,
-    )
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    when (val uiState = state) {
+        is ChatUiState.Loading -> {
+            LoadingDialog(loadingMessage = "이전 대화 내용을 불러오고 있어요...")
+        }
+
+        is ChatUiState.Success -> {
+            ChatScreen(
+                modifier = modifier,
+                chatList = uiState.chatList,
+                userId = uiState.userId,
+                popUpBackStack = popUpBackStack,
+                showSnackBar = showSnackBar,
+                sendMessage = viewModel::sendMessage,
+            )
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.disconnect()
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,47 +109,20 @@ fun ChatScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    chatList: List<Chat> = listOf(),
+    userId: Long = 0L,
+    sendMessage: (String) -> Unit = {},
 ) {
-    val myId = 1L
-    val chatList =
-        remember {
-            mutableStateListOf(
-                ChatItem(
-                    userId = 1,
-                    message = "잘들 지내시는가",
-                    nickname = "나갱이",
-                    profileImg = "",
-                    color = "0xFF949494",
-                ),
-                ChatItem(
-                    userId = 2,
-                    message = "나경이 저녁 먹었니?",
-                    nickname = "엄마미",
-                    profileImg = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/닭.png",
-                    color = "0xFFFFE1E1",
-                ),
-                ChatItem(
-                    userId = 3,
-                    message = "밥 잘 챙겨먹구 다녀",
-                    nickname = "아빵이",
-                    profileImg = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/원숭이.png",
-                    color = "0xFFC9D0FF",
-                ),
-                ChatItem(
-                    userId = 3,
-                    message = "요즘은 뭐하고 지내 안 심심해?",
-                    nickname = "아빵이",
-                    profileImg = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/원숭이.png",
-                    color = "0xFFC9D0FF",
-                ),
-            )
-        }
-
     var inputMessage by remember { mutableStateOf("") }
     var showBottomSheet by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        if (chatList.isNotEmpty()) {
+            lazyListState.animateScrollToItem(chatList.size - 1)
+        }
+    }
     LaunchedEffect(chatList.size) {
         if (chatList.isNotEmpty()) {
             lazyListState.animateScrollToItem(chatList.size - 1)
@@ -147,6 +146,7 @@ fun ChatScreen(
                 },
                 onNavigationClick = popUpBackStack,
             )
+            Spacer(modifier = Modifier.height(12.dp))
             LazyColumn(
                 modifier =
                     Modifier
@@ -155,16 +155,34 @@ fun ChatScreen(
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(chatList.size) { index ->
-                    val item = chatList[index]
-                    if (item.userId == myId) {
-                        MyMessage(message = item.message)
+                items(chatList.reversed().size) { index ->
+                    val item = chatList.reversed()[index]
+                    var prevDate = ""
+                    if (index > 0) {
+                        prevDate = chatList.reversed()[index - 1].createdAt.toDateOnly()
+                    }
+                    val currentDate = item.createdAt.toDateOnly()
+
+                    if (prevDate != "" && currentDate != prevDate) {
+                        DateDivider(date = currentDate)
+                    } else if (index == 0) {
+                        DateDivider(date = currentDate)
+                    }
+
+                    if (item.senderId == userId) {
+                        MyMessage(
+                            message = item.content,
+                            time = item.createdAt.toTimeOnly(),
+                            unReadMembers = item.unReadMembers.toString(),
+                        )
                     } else {
                         OtherMessage(
-                            nickname = item.nickname,
-                            profileImg = item.profileImg,
-                            color = item.color,
-                            message = item.message,
+                            nickname = item.sender.userNickname,
+                            profileImg = item.sender.userZodiacSign,
+                            color = item.sender.userColor,
+                            message = item.content,
+                            time = item.createdAt.toTimeOnly(),
+                            unReadMembers = item.unReadMembers.toString(),
                         )
                     }
                 }
@@ -200,11 +218,13 @@ fun ChatScreen(
                     onValueChanged = {
                         inputMessage = it
                         scope.launch {
-                            lazyListState.animateScrollToItem(chatList.size - 1)
+                            if (chatList.isNotEmpty()) {
+                                lazyListState.animateScrollToItem(chatList.size - 1)
+                            }
                         }
                     },
                     sendMessage = {
-                        chatList.add(ChatItem(userId = 1, message = it))
+                        sendMessage(inputMessage)
                         inputMessage = ""
                     },
                 )
