@@ -1,6 +1,7 @@
 package com.familring.questionservice.controller;
 
 import com.familring.common_module.dto.BaseResponse;
+import com.familring.questionservice.dto.request.KnockRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
 import com.familring.questionservice.dto.response.QuestionResponse;
@@ -46,6 +47,14 @@ public class QuestionController {
     public ResponseEntity<BaseResponse<QuestionListResponse>> getAllQuestions(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestParam int pageNo, @RequestParam String order) {
         QuestionListResponse response = questionService.getAllQuestions(userId, pageNo, order);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "작성했던 모든 랜덤 질문 조회에 성공했습니다.", response));
+    }
+
+    @PostMapping("/knock")
+    @Operation(summary = "똑똑", description = "랜덤 질문 미응답자에게 알림 전송")
+    public ResponseEntity<BaseResponse<Void>> fcmToUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestBody KnockRequest knockRequest) {
+        questionService.fcmToUser(userId, knockRequest);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "똑똑 알림이 성공적으로 전송되었습니다."));
     }
 
 }

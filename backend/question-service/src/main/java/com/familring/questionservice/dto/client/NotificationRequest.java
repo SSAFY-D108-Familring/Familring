@@ -1,4 +1,4 @@
-package com.familring.notificationservice.model.dto.request;
+package com.familring.questionservice.dto.client;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationRequest {
-    private List<Long> receiverUserIds; // 알림 받는 사람들 Id
+    // 알림 받는 사람들 Id
+    private List<Long> receiverUserIds;
     private Long senderUserId;          // 알림 전송하는 사람 Id
     private String destinationId;       // 알림으로 이동할 Id
     private String title;               // 알림 title
