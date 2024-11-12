@@ -165,7 +165,7 @@ class InterestViewModel
                 interestRepository.selectInterest().collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
-                            //
+                            getInterestStatus()
                         }
 
                         is ApiResponse.Error -> {
