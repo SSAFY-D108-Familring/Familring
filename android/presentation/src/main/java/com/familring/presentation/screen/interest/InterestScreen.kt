@@ -111,10 +111,10 @@ fun InterestRoute(
                             R.drawable.img_tutorial_interest_third,
                             R.drawable.img_tutorial_interest_fourth,
                         ),
-                    title = "관심사 공유 미리보기  \uD83D\uDD0D",
+                    title = "관심사 공유 미리보기 \uD83D\uDD0D",
                     subTitle =
                         "가족들의 최근 관심사를 알아보고\n" +
-                            "체험한 후 인증하며 가까워질 수 있어요 !",
+                            "체험한 후 인증하며 가까워질 수 있어요!",
                 )
             }
         }

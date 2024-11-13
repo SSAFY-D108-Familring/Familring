@@ -2,6 +2,7 @@ package com.familring.presentation.screen.chat
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.chat.Chat
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.TutorialScreen
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.chat.ChatInputBar
 import com.familring.presentation.component.chat.DateDivider
@@ -63,6 +67,7 @@ import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green04
 import com.familring.presentation.theme.Green05
@@ -74,6 +79,7 @@ import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatRoute(
     modifier: Modifier,
@@ -82,6 +88,9 @@ fun ChatRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showTutorial by remember { mutableStateOf(true) }
 
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectLatest { event ->
@@ -106,11 +115,34 @@ fun ChatRoute(
                 chatList = uiState.chatList,
                 userId = uiState.userId,
                 popUpBackStack = popUpBackStack,
+                showTutorial = { showTutorial = true },
                 showSnackBar = showSnackBar,
                 sendMessage = viewModel::sendMessage,
                 sendVoteMessage = viewModel::sendVoteMessage,
                 sendVoteResponse = viewModel::sendVoteResponse,
             )
+
+            if (showTutorial) {
+                ModalBottomSheet(
+                    containerColor = White,
+                    onDismissRequest = { showTutorial = false },
+                    sheetState = sheetState,
+                ) {
+                    TutorialScreen(
+                        imageLists =
+                            listOf(
+                                R.drawable.img_tutorial_chat_first,
+                                R.drawable.img_tutorial_chat_second,
+                                R.drawable.img_tutorial_chat_third,
+                                R.drawable.img_tutorial_chat_fourth,
+                            ),
+                        title = "관심사 공유 미리보기 \uD83D\uDD0D",
+                        subTitle =
+                            "가족들의 최근 관심사를 알아보고\n" +
+                                "체험한 후 인증하며 가까워질 수 있어요!",
+                    )
+                }
+            }
         }
 
         is ChatUiState.Error -> {
@@ -133,6 +165,7 @@ fun ChatScreen(
     showSnackBar: (String) -> Unit = {},
     chatList: List<Chat> = listOf(),
     userId: Long = 0L,
+    showTutorial: () -> Unit = {},
     sendMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteResponse: (Context, String, String) -> Unit = { _, _, _ -> },
@@ -171,6 +204,22 @@ fun ChatScreen(
                     Text(
                         text = "채팅",
                         style = Typography.headlineMedium.copy(fontSize = 22.sp),
+                    )
+                },
+                tutorialIcon = {
+                    Icon(
+                        modifier =
+                            Modifier
+                                .size(20.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Gray03,
+                                    shape = CircleShape,
+                                ).padding(2.dp)
+                                .noRippleClickable { showTutorial() },
+                        painter = painterResource(id = R.drawable.ic_question),
+                        contentDescription = "ic_question",
+                        tint = Gray03,
                     )
                 },
                 onNavigationClick = popUpBackStack,
