@@ -240,10 +240,11 @@ fun VoicePlaybackUI(
     val voicePlayer = remember { VoicePlayer() }
     var isPlaying by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
-    
+
     DisposableEffect(Unit) {
         onDispose {
             voicePlayer.stopPlaying()
+            isPlaying = false
         }
     }
 
