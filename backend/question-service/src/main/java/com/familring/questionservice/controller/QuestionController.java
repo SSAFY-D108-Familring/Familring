@@ -49,7 +49,7 @@ public class QuestionController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "작성했던 모든 랜덤 질문 조회에 성공했습니다.", response));
     }
 
-    @PostMapping("/knock")
+    @PostMapping("/knock-knock")
     @Operation(summary = "똑똑", description = "랜덤 질문 미응답자에게 알림 전송")
     public ResponseEntity<BaseResponse<Void>> fcmToUser(@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId, @RequestBody KnockRequest knockRequest) {
         questionService.fcmToUser(userId, knockRequest);
