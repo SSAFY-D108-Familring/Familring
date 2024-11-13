@@ -53,6 +53,7 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -88,6 +89,7 @@ fun HomeRoute(
     when (val state = homeState) {
         is HomeState.Loading -> {
             Timber.tag("nakyung").d("홈화면 로딩중")
+            LoadingDialog(loadingMessage = "홈 화면을 불러오고 있어요...")
         }
 
         is HomeState.Success -> {
@@ -232,19 +234,33 @@ fun HomeScreen(
                     ) {
                         Image(
                             modifier = Modifier.size(147.dp),
-                            painter = painterResource(id = R.drawable.img_tree_status_three),
+                            painter =
+                                painterResource(
+                                    id =
+                                        if (progress > 75) {
+                                            R.drawable.img_tree_status_four
+                                        } else if (progress > 50) {
+                                            R.drawable.img_tree_status_three
+                                        } else if (progress > 25) {
+                                            R.drawable.img_tree_status_two
+                                        } else {
+                                            R.drawable.img_tree_status_one
+                                        },
+                                ),
                             contentDescription = "tree_img",
                         )
                         Column {
                             Text(
                                 modifier = Modifier.padding(start = 15.dp),
                                 text =
-                                    if (progress > 69f) { // 69% 초과
+                                    if (progress > 75f) {
                                         "열심히 하셧고\n축하하고 ㅎㅎ🎄"
-                                    } else if (progress > 29f) { // 29% 초과
+                                    } else if (progress > 50) {
+                                        "지금처럼 쭉\n정진하시고 ㅋ"
+                                    } else if (progress > 25f) {
                                         "소통을 조금만 더\n해주시고 ㅋㅋ\uD83C\uDF84"
-                                    } else { // 29% 이하
-                                        "소통이 조금 더\n필요해요\uD83D\uDE30"
+                                    } else {
+                                        "소통이 ㅠㅠ지금\n부족해요\uD83D\uDE30"
                                     },
                                 style = Typography.titleLarge.copy(fontSize = 24.sp),
                                 color = Green02,
@@ -466,7 +482,10 @@ fun HomeScreen(
                 }
                 Spacer(modifier = Modifier.height(15.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(10.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(10.dp),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -490,7 +509,10 @@ fun HomeScreen(
             }
             Spacer(modifier = Modifier.height(12.dp))
             LazyRow(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
@@ -510,7 +532,10 @@ fun FamilyCard(user: User) {
     ElevatedCard(
         shape = RoundedCornerShape(18.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = Modifier.width(124.dp).aspectRatio(1f),
+        modifier =
+            Modifier
+                .width(124.dp)
+                .aspectRatio(1f),
     ) {
         Column(
             modifier =
@@ -578,16 +603,21 @@ fun FamilyCard(user: User) {
 fun EmptyCard() {
     Box {
         ElevatedCard(
-            shape = RoundedCornerShape(15.dp),
+            shape = RoundedCornerShape(18.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            modifier =
+                Modifier
+                    .width(124.dp)
+                    .aspectRatio(1f),
         ) {
             Column(
-                modifier =
-                    Modifier
-                        .background(color = Green06)
-                        .padding(horizontal = 22.dp)
-                        .padding(vertical = 12.dp),
+                Modifier
+                    .aspectRatio(1f)
+                    .background(color = Green06)
+                    .padding(horizontal = 22.dp)
+                    .padding(vertical = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
                 Text(
                     text = "우리가좍",
@@ -596,11 +626,11 @@ fun EmptyCard() {
                 )
                 Spacer(modifier = Modifier.fillMaxSize(0.01f))
                 Image(
-                    painter = painterResource(id = R.drawable.img_chicken),
+                    painter = painterResource(id = R.drawable.img_rabbit),
                     contentDescription = "chicken_img",
                     modifier =
                         Modifier
-                            .size(65.dp)
+                            .size(51.dp)
                             .aspectRatio(1f)
                             .alpha(0.3f),
                 )
