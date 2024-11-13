@@ -22,6 +22,8 @@ interface UserRepository {
 
     suspend fun signOut(): Flow<ApiResponse<Unit>>
 
+    suspend fun logOut(): Flow<ApiResponse<Unit>>
+
     suspend fun updateEmotion(emotion: UserEmotionRequest): Flow<ApiResponse<Unit>>
 
     suspend fun updateNickname(nickname: String): Flow<ApiResponse<Unit>>
@@ -38,4 +40,6 @@ interface UserRepository {
     suspend fun getNotifications(): Flow<ApiResponse<List<NotificationResponse>>>
 
     suspend fun readNotification(notificationId: Long): Flow<ApiResponse<Unit>>
+
+    suspend fun updateFace(face: File): Flow<ApiResponse<Unit>>
 }

@@ -119,10 +119,12 @@ sealed class ScreenDestinations(
     data object Album : ScreenDestinations(route = "Album") {
         override val route: String
             get() = "Album/{albumId}/{isNormal}"
-        val arguments = listOf(
-            navArgument("albumId") { type = NavType.LongType },
-            navArgument("isNormal") { type = NavType.BoolType }
-        )
+        val arguments =
+            listOf(
+                navArgument("albumId") { type = NavType.LongType },
+                navArgument("isNormal") { type = NavType.BoolType },
+            )
+
         fun createRoute(
             albumId: Long,
             isNormal: Boolean,
@@ -163,6 +165,9 @@ sealed class ScreenDestinations(
 
         fun createRoute(questionId: Long) = "pastQuestion/$questionId"
     }
+
+    // 얼분사 사진 수정
+    data object EditFace : ScreenDestinations(route = "EditFace")
 }
 
 // Schedule 전달 위한 NavType 정의
