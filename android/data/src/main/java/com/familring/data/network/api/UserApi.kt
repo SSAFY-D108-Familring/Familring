@@ -53,11 +53,6 @@ interface UserApi {
         @Query("userColor") color: String,
     ): BaseResponse<Unit>
 
-    @PATCH("users/fcm-token")
-    suspend fun updateFCMToken(
-        @Query("fcmToken") token: String,
-    ): BaseResponse<Unit>
-
     @POST("notifications/knock")
     suspend fun sendKnockNotification(
         @Body request: KnockNotificationRequest,
@@ -69,5 +64,10 @@ interface UserApi {
     @PATCH("notifications/{notificationId}")
     suspend fun readNotification(
         @Path("notificationId") notificationId: Long,
+    ): BaseResponse<Unit>
+
+    @POST("users/fcm")
+    suspend fun updateFcmToken(
+        @Query("fcmToken") token: String,
     ): BaseResponse<Unit>
 }

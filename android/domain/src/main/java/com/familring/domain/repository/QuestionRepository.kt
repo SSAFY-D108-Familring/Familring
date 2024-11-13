@@ -16,4 +16,9 @@ interface QuestionRepository {
         pageNo: Int,
         order: String,
     ): Flow<ApiResponse<QuestionList>>
+
+    suspend fun knockKnock(
+        questionId: Long,
+        receiverId: Long,
+    ): Flow<ApiResponse<Unit>>
 }

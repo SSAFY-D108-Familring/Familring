@@ -27,6 +27,8 @@ import com.familring.presentation.screen.calendar.ScheduleCreateRoute
 import com.familring.presentation.screen.chat.ChatRoute
 import com.familring.presentation.screen.gallery.AlbumRoute
 import com.familring.presentation.screen.gallery.GalleryRoute
+import com.familring.presentation.screen.gallery.GalleryViewModel
+import com.familring.presentation.screen.gallery.PhotoRoute
 import com.familring.presentation.screen.home.HomeRoute
 import com.familring.presentation.screen.interest.InterestListRoute
 import com.familring.presentation.screen.interest.InterestRoute
@@ -353,12 +355,37 @@ fun MainNavHost(
         ) { backStackEntry ->
             val albumId = backStackEntry.arguments?.getLong("albumId") ?: 0L
             val isNormal = backStackEntry.arguments?.getBoolean("isNormal") ?: false
+            val viewModel = hiltViewModel<GalleryViewModel>(
+                navController.getBackStackEntry(ScreenDestinations.Gallery.route),
+            )
 
             AlbumRoute(
                 albumId = albumId,
                 isNormal = isNormal,
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
+                onPhotoClick = { albumId, photoUrl ->
+                    navController.navigate(ScreenDestinations.Photo.createRoute(albumId, photoUrl))
+                },
+                viewModel = viewModel
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.Photo.route,
+            arguments = ScreenDestinations.Photo.arguments,
+        ) { backStackEntry ->
+            val albumId = backStackEntry.arguments?.getLong("albumId") ?: 0L
+            val photoUrl = backStackEntry.arguments?.getString("photoUrl") ?: ""
+            val viewModel = hiltViewModel<GalleryViewModel>(
+                navController.getBackStackEntry(ScreenDestinations.Gallery.route)
+            )
+            PhotoRoute(
+                albumId = albumId,
+                photoUrl = photoUrl,
+                modifier = modifier,
+                onNavigateBack = navController::popBackStack,
+                viewModel = viewModel
             )
         }
 

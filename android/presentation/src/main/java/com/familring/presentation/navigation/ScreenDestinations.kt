@@ -9,6 +9,7 @@ import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.LocalDateTimeAdapter
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import java.net.URLEncoder
 import java.time.LocalDateTime
 
 /*
@@ -119,14 +120,31 @@ sealed class ScreenDestinations(
     data object Album : ScreenDestinations(route = "Album") {
         override val route: String
             get() = "Album/{albumId}/{isNormal}"
-        val arguments = listOf(
-            navArgument("albumId") { type = NavType.LongType },
-            navArgument("isNormal") { type = NavType.BoolType }
-        )
+        val arguments =
+            listOf(
+                navArgument("albumId") { type = NavType.LongType },
+                navArgument("isNormal") { type = NavType.BoolType },
+            )
+
         fun createRoute(
             albumId: Long,
             isNormal: Boolean,
         ) = "Album/$albumId/$isNormal"
+    }
+
+    data object Photo : ScreenDestinations(route = "Photo") {
+        override val route: String
+            get() = "Photo/{albumId}/{photoUrl}"
+        val arguments =
+            listOf(
+                navArgument("albumId") { type = NavType.LongType },
+                navArgument("photoUrl") { type = NavType.StringType },
+            )
+
+        fun createRoute(
+            albumId: Long,
+            photoUrl: String,
+        ) = "Photo/$albumId/${URLEncoder.encode(photoUrl, "UTF-8")}"
     }
 
     // 관심사 공유

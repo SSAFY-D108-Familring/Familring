@@ -260,7 +260,12 @@ fun QuestionScreen(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         items(answerContents.size) { answer ->
-                            FamilyListItem(answerContents[answer], showSnackBar, answer)
+                            FamilyListItem(
+                                answerContents[answer],
+                                showSnackBar,
+                                answer,
+                                questionId = questionId,
+                            )
                         }
                     }
                 }
@@ -275,6 +280,7 @@ fun FamilyListItem(
     showSnackBar: (String) -> Unit,
     answer: Int,
     viewModel: QuestionViewModel = hiltViewModel(),
+    questionId: Long,
 ) {
     Column(
         modifier =
@@ -309,6 +315,30 @@ fun FamilyListItem(
                 style = Typography.displaySmall.copy(fontSize = 18.sp),
                 color = Black,
             )
+            Text(
+                text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style =
+                                SpanStyle(
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                        ) {
+                            append("✊\uD83C\uDFFB 똑똑")
+                        }
+                    },
+                style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                color = Gray02,
+                modifier =
+                    Modifier.noRippleClickable {
+                        viewModel.knockKnock(
+                            questionId,
+                            questionAnswer.userId,
+                        )
+                        Timber.d("똑똑 누름 " + questionAnswer.userId)
+                        showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
+                    },
+            )
         } else {
             Row {
                 Text(
@@ -316,32 +346,32 @@ fun FamilyListItem(
                     style = Typography.displaySmall.copy(fontSize = 18.sp),
                     color = Gray02,
                 )
-                if (answer != 0) {
-                    Text(
-                        text =
-                            buildAnnotatedString {
-                                withStyle(
-                                    style =
-                                        SpanStyle(
-                                            textDecoration = TextDecoration.Underline,
-                                        ),
-                                ) {
-                                    append("✊\uD83C\uDFFB 똑똑")
-                                }
-                            },
-                        style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                        color = Gray02,
-                        modifier =
-                            Modifier.noRippleClickable {
-                                viewModel.sendKnockNotification(
-                                    userId = questionAnswer.userId.toString(),
-                                    senderNickname = questionAnswer.userNickname,
-                                )
-                                Timber.d("똑똑 누름 " + questionAnswer.userId)
-                                showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
-                            },
-                    )
-                }
+//                if (answer != 0) {
+                Text(
+                    text =
+                        buildAnnotatedString {
+                            withStyle(
+                                style =
+                                    SpanStyle(
+                                        textDecoration = TextDecoration.Underline,
+                                    ),
+                            ) {
+                                append("✊\uD83C\uDFFB 똑똑")
+                            }
+                        },
+                    style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                    color = Gray02,
+                    modifier =
+                        Modifier.noRippleClickable {
+                            viewModel.knockKnock(
+                                questionId,
+                                questionAnswer.userId,
+                            )
+                            Timber.d("똑똑 누름 " + questionAnswer.userId)
+                            showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
+                        },
+                )
+//                }
             }
         }
     }

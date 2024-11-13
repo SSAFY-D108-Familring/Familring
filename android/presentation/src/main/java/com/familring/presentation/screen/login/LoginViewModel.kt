@@ -7,6 +7,8 @@ import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserLoginRequest
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -31,6 +33,7 @@ class LoginViewModel
     constructor(
         private val userRepository: UserRepository,
         private val authDataStore: AuthDataStore,
+        private val firebaseMessaging: FirebaseMessaging,
     ) : ViewModel() {
         private val _loginState = MutableStateFlow<LoginState>(LoginState.Loading)
         val loginState = _loginState.asStateFlow()
@@ -40,6 +43,7 @@ class LoginViewModel
 
         init {
             autoLogin()
+            updateFCMToken()
         }
 
         private fun autoLogin() {
@@ -70,6 +74,20 @@ class LoginViewModel
                 } else {
                     _loginEvent.emit(LoginEvent.None)
                     _loginState.value = LoginState.Init
+                }
+            }
+        }
+
+        fun updateFCMToken() {
+            viewModelScope.launch {
+                val kakaoId = authDataStore.getKakaoId()
+                if (kakaoId != null) {
+                    try {
+                        val fcmToken = Tasks.await(firebaseMessaging.token)
+                        userRepository.updateFCMToken(fcmToken)
+                    } catch (e: Exception) {
+                        Timber.e(e, "FCM 토큰 업데이트 실패")
+                    }
                 }
             }
         }

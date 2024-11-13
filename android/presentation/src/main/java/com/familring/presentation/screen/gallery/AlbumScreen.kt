@@ -70,6 +70,7 @@ fun AlbumRoute(
     isNormal: Boolean,
     modifier: Modifier,
     onNavigateBack: () -> Unit,
+    onPhotoClick: (Long, String) -> Unit,
     viewModel: GalleryViewModel = hiltViewModel(),
 ) {
     AlbumScreen(
@@ -77,6 +78,7 @@ fun AlbumRoute(
         isNormal = isNormal,
         modifier = modifier,
         onNavigateBack = onNavigateBack,
+        onPhotoClick = onPhotoClick,
         viewModel = viewModel,
     )
 }
@@ -87,6 +89,7 @@ fun AlbumScreen(
     isNormal: Boolean,
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {},
+    onPhotoClick: (Long, String) -> Unit = { _, _ -> },
     viewModel: GalleryViewModel,
 ) {
     val context = LocalContext.current
@@ -370,6 +373,8 @@ fun AlbumScreen(
                                                 } else {
                                                     selectedPhotos + photo.id
                                                 }
+                                        } else {
+                                            onPhotoClick(albumId, photo.photoUrl)
                                         }
                                     },
                                 )
