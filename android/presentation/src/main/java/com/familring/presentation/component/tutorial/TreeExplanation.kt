@@ -116,7 +116,7 @@ fun TreeExplanation(onClose: () -> Unit = {}) {
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Image(
                                     painter =
-                                        painterResource(id = R.drawable.img_tree_status),
+                                        painterResource(id = R.drawable.img_tree_status_one),
                                     contentDescription = "level_one",
                                 )
                                 Spacer(modifier = Modifier.height(3.dp))
@@ -141,7 +141,7 @@ fun TreeExplanation(onClose: () -> Unit = {}) {
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Image(
                                     painter =
-                                        painterResource(id = R.drawable.img_tree_status_one),
+                                        painterResource(id = R.drawable.img_tree_status_two),
                                     contentDescription = "level_one",
                                 )
                                 Spacer(modifier = Modifier.height(3.dp))
@@ -191,7 +191,7 @@ fun TreeExplanation(onClose: () -> Unit = {}) {
                                 Spacer(modifier = Modifier.height(3.dp))
                                 Image(
                                     painter =
-                                        painterResource(id = R.drawable.img_tree_status_three),
+                                        painterResource(id = R.drawable.img_tree_status_four),
                                     contentDescription = "level_one",
                                 )
                                 Spacer(modifier = Modifier.height(3.dp))
