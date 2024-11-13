@@ -9,54 +9,6 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy Config Server') {
-            when {
-                changeset "backend/config-service/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/config-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('config-service', 8888)
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Build and Deploy Discovery Server') {
-            when {
-                changeset "backend/discovery-service/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/discovery-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('discovery-service', 8761)
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Build and Deploy API Gateway') {
-            when {
-                changeset "backend/api-gateway/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/api-gateway') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('api-gateway-service', 8000)
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Build and Deploy File Service') {
             when {
                 changeset "backend/file-service/**"
@@ -130,12 +82,5 @@ def buildAndRunContainer(serviceName, port = null) {
     sh 'chmod +x ./gradlew'
     sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
-
-    if (port) {
-        // 포트 매핑이 필요한 경우
-        sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
-    } else {
-        // 포트 매핑이 필요하지 않은 경우
-        sh "docker run --name ${serviceName} -d ${serviceName}"
-    }
+    sh "docker run --name ${serviceName} -d ${serviceName}"
 }

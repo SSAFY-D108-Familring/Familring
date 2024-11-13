@@ -41,22 +41,6 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy API Gateway') {
-            when {
-                changeset "backend/api-gateway/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/api-gateway') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('api-gateway-service', 8000)
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Notification') {
             steps{
                 echo 'jenkins notification!'

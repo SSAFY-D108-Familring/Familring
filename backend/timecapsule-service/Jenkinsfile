@@ -9,54 +9,6 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy Config Server') {
-            when {
-                changeset "backend/config-service/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/config-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('config-service', 8888)
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Build and Deploy Discovery Server') {
-            when {
-                changeset "backend/discovery-service/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/discovery-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('discovery-service', 8761)
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Build and Deploy API Gateway') {
-            when {
-                changeset "backend/api-gateway/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/api-gateway') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('api-gateway-service', 8000)
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Build and Deploy TimeCapsule Service') {
             when {
                 changeset "backend/timecapsule-service/**"

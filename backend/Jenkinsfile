@@ -1,0 +1,185 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build and Deploy Config Server') {
+            when {
+                changeset "backend/config-service/**"
+            }
+            steps {
+                withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
+                    script {
+                        dir('backend/config-service') {
+                            copyApplicationYaml(application_yml)
+                            buildAndRunContainer('config-service', 8888)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build and Deploy Discovery Server') {
+            when {
+                changeset "backend/discovery-service/**"
+            }
+            steps {
+                withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
+                    script {
+                        dir('backend/discovery-service') {
+                            copyApplicationYaml(application_yml)
+                            buildAndRunContainer('discovery-service', 8761)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build and Deploy API Gateway') {
+            when {
+                changeset "backend/api-gateway/**"
+            }
+            steps {
+                withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
+                    script {
+                        dir('backend/api-gateway') {
+                            copyApplicationYaml(application_yml)
+                            buildAndRunContainer('api-gateway-service', 8000)
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build and Deploy Services') {
+            parallel {
+                stage('Build and Deploy Classification Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/classification-service')) {
+                                build job: 'classification-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Album Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/album-service')) {
+                                build job: 'album-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Calendar Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/calendar-service')) {
+                                build job: 'calendar-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy User Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/user-service')) {
+                                build job: 'user-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Family Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/family-service')) {
+                                build job: 'family-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy File Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/file-service')) {
+                                build job: 'file-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Interest Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/interest-service')) {
+                                build job: 'interest-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Notification Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/notification-service')) {
+                                build job: 'notification-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Build and Deploy Question Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/question-service')) {
+                                build job: 'question-service', propagate: false
+                            }
+                        }
+                    }
+                }
+                stage('Deploy Timecapsule Service') {
+                    steps {
+                        script {
+                            if (hasChanges('backend/timecapsule-service')) {
+                                build job: 'timecapsule-service', propagate: false
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 공통 함수: application.yml 복사
+def copyApplicationYaml(application_yml) {
+    sh 'mkdir -p src/main/resources'
+    sh "cp ${application_yml} src/main/resources/application.yml"
+}
+
+// 공통 함수: 컨테이너 중지 및 삭제
+def stopAndRemoveContainer(containerName) {
+    def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
+    if (container) {
+        sh "docker stop ${containerName}"
+        sh "docker rm ${containerName}"
+    }
+}
+
+// 공통 함수: 컨테이너 빌드 및 실행
+def buildAndRunContainer(serviceName, port) {
+    stopAndRemoveContainer(serviceName)
+    sh 'chmod +x ./gradlew'
+    sh './gradlew clean build -x test'
+    sh "docker build -t ${serviceName} ."
+    sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
+}
+
+// 변경 사항 확인 함수
+def hasChanges(String path) {
+    def changes = sh(script: "git diff --name-only HEAD^ HEAD | grep '^${path}'", returnStatus: true)
+    return changes == 0
+}
+
