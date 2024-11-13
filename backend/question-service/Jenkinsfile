@@ -58,6 +58,9 @@ pipeline {
         }
 
         stage('Build and Deploy Question Service') {
+            when {
+                changeset "backend/question-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'question-application.yml', variable: 'application_yml')]) {
                     script {

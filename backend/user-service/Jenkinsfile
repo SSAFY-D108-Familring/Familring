@@ -58,6 +58,9 @@ pipeline {
         }
 
         stage('Build and Deploy User Service') {
+            when {
+                changeset "backend/user-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
                     script {

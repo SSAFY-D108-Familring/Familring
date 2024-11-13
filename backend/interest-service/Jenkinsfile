@@ -58,6 +58,9 @@ pipeline {
         }
 
         stage('Build and Deploy Interest Service') {
+            when {
+                changeset "backend/interest-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'interest-application.yml', variable: 'application_yml')]) {
                     script {

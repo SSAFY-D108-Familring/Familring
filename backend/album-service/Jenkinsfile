@@ -58,6 +58,9 @@ pipeline {
         }
 
         stage('Build and Deploy Album Service') {
+            when {
+                changeset "backend/album-service/**"
+            }
             steps {
                 withCredentials([file(credentialsId: 'album-application.yml', variable: 'application_yml')]) {
                     script {
