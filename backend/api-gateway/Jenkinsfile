@@ -10,9 +10,9 @@ pipeline {
         }
 
         stage('Build and Deploy Config Server') {
-            when {
-                changeset "backend/config-service/**"
-            }
+//             when {
+//                 changeset "backend/config-service/**"
+//             }
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {
@@ -26,9 +26,9 @@ pipeline {
         }
 
         stage('Build and Deploy Discovery Server') {
-            when {
-                changeset "backend/discovery-service/**"
-            }
+//             when {
+//                 changeset "backend/discovery-service/**"
+//             }
             steps {
                 withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
                     script {
@@ -42,9 +42,9 @@ pipeline {
         }
 
         stage('Build and Deploy API Gateway') {
-            when {
-                changeset "backend/api-gateway/**"
-            }
+//             when {
+//                 changeset "backend/api-gateway/**"
+//             }
             steps {
                 withCredentials([file(credentialsId: 'api-gateway-application.yml', variable: 'application_yml')]) {
                     script {
