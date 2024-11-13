@@ -54,7 +54,6 @@ import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
 import com.familring.presentation.component.dialog.LoadingDialog
-import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -385,7 +384,7 @@ fun HomeScreen(
                                     Modifier
                                         .fillMaxSize()
                                         .padding(horizontal = 15.dp)
-                                        .padding(top = 21.dp),
+                                        .padding(top = 15.dp),
                                 horizontalAlignment = Alignment.Start,
                             ) {
                                 Column(
@@ -409,7 +408,11 @@ fun HomeScreen(
                                     Image(
                                         painter = painterResource(id = R.drawable.img_timecap),
                                         contentDescription = "img_timecap",
-                                        modifier = Modifier.padding(bottom = 8.dp),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth(0.6f)
+                                                .aspectRatio(1f)
+                                                .padding(bottom = 8.dp),
                                     )
                                 }
                             }
@@ -432,7 +435,7 @@ fun HomeScreen(
                                     Modifier
                                         .fillMaxSize()
                                         .padding(horizontal = 15.dp)
-                                        .padding(top = 21.dp),
+                                        .padding(top = 15.dp),
                                 horizontalAlignment = Alignment.Start,
                             ) {
                                 Column(
@@ -458,7 +461,11 @@ fun HomeScreen(
                                     Image(
                                         painter = painterResource(id = R.drawable.img_interest),
                                         contentDescription = "img_interest",
-                                        modifier = Modifier.padding(bottom = 15.dp),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth(0.55f)
+                                                .aspectRatio(1f)
+                                                .padding(bottom = 15.dp),
                                     )
                                 }
                             }
