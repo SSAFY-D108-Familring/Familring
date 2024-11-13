@@ -6,6 +6,7 @@ import com.familring.domain.model.ErrorResponse
 import com.google.gson.Gson
 import okhttp3.Interceptor
 import okhttp3.Response
+import timber.log.Timber
 import java.io.IOException
 
 class ErrorHandlingInterceptor : Interceptor {
@@ -15,6 +16,8 @@ class ErrorHandlingInterceptor : Interceptor {
             val response = chain.proceed(request)
             if (response.isSuccessful) return response
             val errorBody = response.body?.string() ?: return response
+
+            Timber.d("errorBody: $errorBody")
 
             val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
 

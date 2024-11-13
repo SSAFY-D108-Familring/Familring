@@ -185,6 +185,7 @@ fun LoginScreen(
                 contentDescription = "img_kakao_login",
                 modifier =
                     Modifier
+                        .fillMaxWidth(0.9f)
                         .padding(bottom = 50.dp)
                         .noRippleClickable {
                             activity?.let {

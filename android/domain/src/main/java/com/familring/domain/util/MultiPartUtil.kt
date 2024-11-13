@@ -18,3 +18,13 @@ fun File?.toMultiPart(filename: String) =
             null
         }
     }
+
+fun File?.toVoiceMultiPart(filename: String) =
+    run {
+        this?.let {
+            val requestFile = it.asRequestBody("audio/mp4".toMediaTypeOrNull())
+            MultipartBody.Part.createFormData(filename, it.name, requestFile)
+        } ?: run {
+            null
+        }
+    }

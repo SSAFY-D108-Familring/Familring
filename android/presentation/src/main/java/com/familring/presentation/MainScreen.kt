@@ -357,9 +357,10 @@ fun MainNavHost(
         ) { backStackEntry ->
             val albumId = backStackEntry.arguments?.getLong("albumId") ?: 0L
             val isNormal = backStackEntry.arguments?.getBoolean("isNormal") ?: false
-            val viewModel = hiltViewModel<GalleryViewModel>(
-                navController.getBackStackEntry(ScreenDestinations.Gallery.route),
-            )
+            val viewModel =
+                hiltViewModel<GalleryViewModel>(
+                    navController.getBackStackEntry(ScreenDestinations.Gallery.route),
+                )
 
             AlbumRoute(
                 albumId = albumId,
@@ -369,7 +370,7 @@ fun MainNavHost(
                 onPhotoClick = { albumId, photoUrl ->
                     navController.navigate(ScreenDestinations.Photo.createRoute(albumId, photoUrl))
                 },
-                viewModel = viewModel
+                viewModel = viewModel,
             )
         }
 
@@ -379,15 +380,16 @@ fun MainNavHost(
         ) { backStackEntry ->
             val albumId = backStackEntry.arguments?.getLong("albumId") ?: 0L
             val photoUrl = backStackEntry.arguments?.getString("photoUrl") ?: ""
-            val viewModel = hiltViewModel<GalleryViewModel>(
-                navController.getBackStackEntry(ScreenDestinations.Gallery.route)
-            )
+            val viewModel =
+                hiltViewModel<GalleryViewModel>(
+                    navController.getBackStackEntry(ScreenDestinations.Gallery.route),
+                )
             PhotoRoute(
                 albumId = albumId,
                 photoUrl = photoUrl,
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
-                viewModel = viewModel
+                viewModel = viewModel,
             )
         }
 
