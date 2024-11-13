@@ -32,7 +32,9 @@ class InterestListViewModel
         private val _uiEvent = MutableSharedFlow<InterestUiEvent>()
         val uiEvent = _uiEvent.asSharedFlow()
 
-        fun getSelectInterestsPagination(): Flow<PagingData<SelectedInterest>> =
+        val selectedInterests = getSelectInterestsPagination().cachedIn(viewModelScope)
+
+        private fun getSelectInterestsPagination(): Flow<PagingData<SelectedInterest>> =
             Pager(
                 config =
                     PagingConfig(
