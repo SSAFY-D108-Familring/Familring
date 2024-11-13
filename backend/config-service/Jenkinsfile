@@ -10,9 +10,6 @@ pipeline {
         }
 
         stage('Build and Deploy Config Server') {
-            when {
-                changeset "backend/config-service/**"
-            }
             steps {
                 withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
                     script {

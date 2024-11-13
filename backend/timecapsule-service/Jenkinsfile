@@ -10,9 +10,6 @@ pipeline {
         }
 
         stage('Build and Deploy TimeCapsule Service') {
-            when {
-                changeset "backend/timecapsule-service/**"
-            }
             steps {
                 withCredentials([file(credentialsId: 'timecapsule-application.yml', variable: 'application_yml')]) {
                     script {

@@ -9,26 +9,7 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy Config Server') {
-            when {
-                changeset "backend/config-service/**"
-            }
-            steps {
-                withCredentials([file(credentialsId: 'config-application.yml', variable: 'application_yml')]) {
-                    script {
-                        dir('backend/config-service') {
-                            copyApplicationYaml(application_yml)
-                            buildAndRunContainer('config-service', 8888)
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Build and Deploy Discovery Server') {
-            when {
-                changeset "backend/discovery-service/**"
-            }
             steps {
                 withCredentials([file(credentialsId: 'discovery-application.yml', variable: 'application_yml')]) {
                     script {

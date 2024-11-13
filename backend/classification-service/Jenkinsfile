@@ -9,9 +9,6 @@ pipeline {
         }
 
         stage('Build and Deploy Classification Service') {
-            when {
-                changeset "backend/classification-service/**"
-            }
             steps {
                 withCredentials([file(credentialsId: 'classification-service.env', variable: 'ENV_FILE')]) {
                     script {

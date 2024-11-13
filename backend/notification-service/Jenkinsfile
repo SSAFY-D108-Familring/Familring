@@ -9,9 +9,6 @@ pipeline {
         }
 
         stage('Build and Deploy Notification Service') {
-            when {
-                changeset "backend/notification-service/**"
-            }
             steps {
                 withCredentials([file(credentialsId: 'notification-application.yml', variable: 'application_yml'),
                 file(credentialsId: 'familring-firebase-key.json', variable: 'firebase_key')
