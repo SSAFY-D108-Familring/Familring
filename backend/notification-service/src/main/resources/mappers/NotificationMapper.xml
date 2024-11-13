@@ -16,10 +16,10 @@
     </resultMap>
 
 
-    <select id="findAllByReceiverId" parameterType="long" resultMap="notificationInfo">
+    <select id="findNotificationByReceiverIdAndNotificationIsReadFalse" parameterType="long" resultMap="notificationInfo">
         SELECT *
         FROM notification
-        WHERE receiver_user_id = #{userId}
+        WHERE receiver_user_id = #{userId} AND notification_is_read = 0
     </select>
 
     <select id="findNotificationByNotificationId" resultMap="notificationInfo">

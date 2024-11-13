@@ -5,7 +5,6 @@ import com.familring.notificationservice.config.firebase.FcmUtil;
 import com.familring.notificationservice.exception.notification.NotFoundNotificationException;
 import com.familring.notificationservice.model.dao.NotificationDao;
 import com.familring.notificationservice.model.dto.Notification;
-import com.familring.notificationservice.model.dto.NotificationType;
 import com.familring.notificationservice.model.dto.request.NotificationRequest;
 import com.familring.notificationservice.model.dto.response.NotificationResponse;
 import com.familring.notificationservice.model.dto.response.UserInfoResponse;
@@ -15,7 +14,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -31,13 +29,13 @@ public class NotificationServiceImpl implements NotificationService {
     private final FcmUtil fcmUtil;
 
     @Override
-    public List<NotificationResponse> getAllNotification(Long userId) {
+    public List<NotificationResponse> getUnReadNotification(Long userId) {
         // 1. 회원 정보 찾기
         UserInfoResponse user = userServiceFeignClient.getUser(userId).getData();
         log.info("[getAllNotification] 찾은 사용자 정보 userNickname={}", user.getUserNickname());
 
         // 2. 회원의 알림 찾기
-        List<NotificationResponse> notificationResponseList = Optional.ofNullable(notificationDao.findAllByReceiverId(user.getUserId()))
+        List<NotificationResponse> notificationResponseList = Optional.ofNullable(notificationDao.findNotificationByReceiverIdAndNotificationIsReadFalse(user.getUserId()))
                 .orElse(Collections.emptyList()) // null일 경우 빈 리스트로 처리
                 .stream()
                 .map(notification -> NotificationResponse.builder()
@@ -52,7 +50,7 @@ public class NotificationServiceImpl implements NotificationService {
                         .build())
                 .collect(Collectors.toList());
 
-            log.info("[getAllNotification] 메시지 내용={}", notificationResponseList.get(0).getNotificationMessage());
+            log.info("[getAllNotification] 안 읽은 알림 개수={}", notificationResponseList.size());
 
         return notificationResponseList;
     }
@@ -79,7 +77,7 @@ public class NotificationServiceImpl implements NotificationService {
                     .receiverUserId(userId)
                     .senderUserId(notificationRequest.getSenderUserId())
                     .destinationId(notificationRequest.getDestinationId())
-                    .notificationType(NotificationType.MENTION_SCHEDULE)
+                    .notificationType(notificationRequest.getNotificationType())
                     .notificationTitle(notificationRequest.getTitle())
                     .notificationMessage(notificationRequest.getMessage())
                     .build();
