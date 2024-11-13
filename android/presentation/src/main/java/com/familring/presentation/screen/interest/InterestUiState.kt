@@ -5,6 +5,9 @@ import com.familring.domain.model.interest.SelectedInterest
 
 data class InterestUiState(
     val isInterestScreenLoading: Boolean = true,
+    val isWritingScreenLoading: Boolean = true,
+    val isResultScreenLoading: Boolean = true,
+    val isShareScreenLoading: Boolean = true,
     val interestStatus: Int = 0,
     val isWroteInterest: Boolean = true,
     val myInterest: String = "",
@@ -14,5 +17,4 @@ data class InterestUiState(
     val selectedInterest: SelectedInterest = SelectedInterest(),
     val leftMissionPeriod: Int = 0,
     val missions: List<Mission> = listOf(),
-    val isShareScreenLoading: Boolean = true,
 )

@@ -136,22 +136,26 @@ fun InterestScreen(
 
             when (state.interestStatus) {
                 InterestState.WRITING -> {
-                    WriteDayScreen(
-                        modifier = Modifier.imePadding(),
-                        isWroteInterest = state.isWroteInterest,
-                        interest = state.myInterest,
-                        isFamilyWrote = state.isFamilyWrote,
-                        writeInterest = writeInterest,
-                        editInterest = editInterest,
-                        navigateToOtherInterest = navigateToOtherInterest,
-                    )
+                    if (!state.isWritingScreenLoading) {
+                        WriteDayScreen(
+                            modifier = Modifier.imePadding(),
+                            isWroteInterest = state.isWroteInterest,
+                            interest = state.myInterest,
+                            isFamilyWrote = state.isFamilyWrote,
+                            writeInterest = writeInterest,
+                            editInterest = editInterest,
+                            navigateToOtherInterest = navigateToOtherInterest,
+                        )
+                    }
                 }
 
                 InterestState.NO_PERIOD -> {
-                    ResultScreen(
-                        selectedInterest = state.selectedInterest,
-                        setPeriod = setPeriod,
-                    )
+                    if (!state.isResultScreenLoading) {
+                        ResultScreen(
+                            selectedInterest = state.selectedInterest,
+                            setPeriod = setPeriod,
+                        )
+                    }
                 }
 
                 InterestState.MISSION -> {
