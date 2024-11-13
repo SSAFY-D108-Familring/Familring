@@ -62,7 +62,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/classification-service')) {
-                                build job: 'classification-service', propagate: false
+                                build job: 'classification-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -71,7 +71,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/album-service')) {
-                                build job: 'album-service', propagate: false
+                                build job: 'album-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -80,7 +80,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/calendar-service')) {
-                                build job: 'calendar-service', propagate: false
+                                build job: 'calendar-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -89,7 +89,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/user-service')) {
-                                build job: 'user-service', propagate: false
+                                build job: 'user-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -98,7 +98,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/family-service')) {
-                                build job: 'family-service', propagate: false
+                                build job: 'family-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -107,7 +107,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/file-service')) {
-                                build job: 'file-service', propagate: false
+                                build job: 'file-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -116,7 +116,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/interest-service')) {
-                                build job: 'interest-service', propagate: false
+                                build job: 'interest-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -125,7 +125,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/notification-service')) {
-                                build job: 'notification-service', propagate: false
+                                build job: 'notification-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -134,7 +134,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/question-service')) {
-                                build job: 'question-service', propagate: false
+                                build job: 'question-service', propagate: false, wait: false
                             }
                         }
                     }
@@ -143,7 +143,7 @@ pipeline {
                     steps {
                         script {
                             if (hasChanges('backend/timecapsule-service')) {
-                                build job: 'timecapsule-service', propagate: false
+                                build job: 'timecapsule-service', propagate: false, wait: false
                             }
                         }
                     }

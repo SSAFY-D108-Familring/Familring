@@ -84,3 +84,4 @@ def buildAndRunContainer(serviceName, port = null) {
     sh "docker build -t ${serviceName} ."
     sh "docker run --name ${serviceName} -d ${serviceName}"
 }
+
