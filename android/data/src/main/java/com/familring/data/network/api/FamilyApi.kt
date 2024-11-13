@@ -49,7 +49,7 @@ interface FamilyApi {
         @Path("roomId") roomId: Long,
         @Header("X-User-ID") userId: Long,
         @Query("page") page: Int? = 0,
-        @Query("size") size: Int? = 100,
+        @Query("size") size: Int? = 50,
     ): BaseResponse<List<Chat>>
 
     @Multipart

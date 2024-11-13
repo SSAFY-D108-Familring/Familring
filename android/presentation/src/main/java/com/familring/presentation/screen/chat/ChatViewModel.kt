@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -69,8 +70,6 @@ class ChatViewModel
         private var currentPlayer: VoicePlayer? by mutableStateOf(null)
         var currentPath: String? by mutableStateOf(null)
 
-        var messages = enterRoom().cachedIn(viewModelScope)
-
         private val _state = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
         val state = _state.asStateFlow()
         private val _event = MutableSharedFlow<ChatUiEvent>()
@@ -81,36 +80,11 @@ class ChatViewModel
             connectStomp()
         }
 
-        fun pauseCurrentPlaying() {
-            currentPath?.let {
-                currentPlayer?.apply {
-                    pause()
-                }
-                currentPlayer = null
-                currentPath = null
-            }
-        }
-
-        fun setCurrentPlayer(
-            player: VoicePlayer,
-            filePath: String,
-        ) {
-            currentPlayer = player
-            currentPath = filePath
-        }
-
-        fun removePlayer() {
-            currentPlayer = null
-            currentPath = null
-        }
-
         private fun loadUserData() {
             viewModelScope.launch {
                 userId = authDataStore.getUserId()
                 familyId = authDataStore.getFamilyId()
 
-                messages = enterRoom().cachedIn(viewModelScope)
-//                enterRoom()
                 _state.value = ChatUiState.Success(userId = userId!!)
             }
         }
@@ -119,7 +93,7 @@ class ChatViewModel
             Pager(
                 config =
                     PagingConfig(
-                        pageSize = 100,
+                        pageSize = 50,
                         enablePlaceholders = false,
                     ),
             ) {
@@ -161,21 +135,6 @@ class ChatViewModel
             viewModelScope.launch {
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId"))
-                    .collect { message ->
-                        val chatMessage = moshi.adapter(Chat::class.java).fromJson(message.bodyAsText)
-                        chatMessage?.let {
-                            updateChatListWithNewMessage(it)
-                        }
-                    }
-            }
-        }
-
-        // 새로운 메시지 업데이트
-        private fun updateChatListWithNewMessage(chatMessage: Chat) {
-            val currentState = _state.value
-            if (currentState is ChatUiState.Success) {
-                val updatedChatList = listOf(chatMessage) + currentState.chatList
-                _state.value = currentState.copy(chatList = updatedChatList)
             }
         }
 
@@ -185,8 +144,7 @@ class ChatViewModel
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL"))
                     .collect {
-                        messages = enterRoom().cachedIn(viewModelScope)
-//                        enterRoom()
+                        enterRoom()
                     }
             }
         }
@@ -195,7 +153,6 @@ class ChatViewModel
             try {
                 viewModelScope.launch {
                     stompSession.disconnect()
-                    Timber.d("WebSocket disconnected")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -301,6 +258,29 @@ class ChatViewModel
                         ),
                 )
             }
+        }
+
+        fun pauseCurrentPlaying() {
+            currentPath?.let {
+                currentPlayer?.apply {
+                    pause()
+                }
+                currentPlayer = null
+                currentPath = null
+            }
+        }
+
+        fun setCurrentPlayer(
+            player: VoicePlayer,
+            filePath: String,
+        ) {
+            currentPlayer = player
+            currentPath = filePath
+        }
+
+        fun removePlayer() {
+            currentPlayer = null
+            currentPath = null
         }
 
         companion object {
