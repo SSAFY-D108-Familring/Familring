@@ -48,6 +48,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import com.familring.domain.model.chat.Chat
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
@@ -84,6 +86,7 @@ fun ChatRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val chatList = viewModel.messages.collectAsLazyPagingItems()
 
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectLatest { event ->
@@ -105,7 +108,7 @@ fun ChatRoute(
         is ChatUiState.Success -> {
             ChatScreen(
                 modifier = modifier,
-                chatList = uiState.chatList,
+                chatList = chatList,
                 userId = uiState.userId,
                 popUpBackStack = popUpBackStack,
                 showSnackBar = showSnackBar,
@@ -138,7 +141,7 @@ fun ChatScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    chatList: List<Chat> = listOf(),
+    chatList: LazyPagingItems<Chat>? = null,
     userId: Long = 0L,
     sendMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
@@ -157,13 +160,17 @@ fun ChatScreen(
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
-        if (chatList.isNotEmpty()) {
-            lazyListState.animateScrollToItem(chatList.size - 1)
+        chatList?.let {
+            if (chatList.itemCount > 0) {
+                lazyListState.animateScrollToItem(0)
+            }
         }
     }
-    LaunchedEffect(chatList.size) {
-        if (chatList.isNotEmpty()) {
-            lazyListState.animateScrollToItem(chatList.size - 1)
+    LaunchedEffect(chatList?.itemCount) {
+        chatList?.let {
+            if (chatList.itemCount > 0) {
+                lazyListState.animateScrollToItem(0)
+            }
         }
     }
 
@@ -195,125 +202,127 @@ fun ChatScreen(
                         .padding(horizontal = 15.dp),
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                reverseLayout = true,
             ) {
-                items(chatList.reversed().size) { index ->
-                    val item = chatList.reversed()[index]
-                    var prevDate = ""
-                    if (index > 0) {
-                        prevDate = chatList.reversed()[index - 1].createdAt.toDateOnly()
-                    }
-                    val currentDate = item.createdAt.toDateOnly()
+                val pagingToList = chatList?.itemSnapshotList
+                pagingToList?.let {
+                    items(pagingToList.size) { index ->
+                        val listItem = pagingToList[index]
+                        listItem?.let { item ->
+                            // 현재 메시지 날짜
+                            val currentDate = item.createdAt.toDateOnly()
 
-                    if (prevDate != "" && currentDate != prevDate) {
-                        DateDivider(date = currentDate)
-                    } else if (index == 0) {
-                        DateDivider(date = currentDate)
-                    }
-
-                    when (item.messageType) {
-                        context.getString(R.string.message_type) -> {
-                            if (item.senderId == userId) {
-                                MyMessage(
-                                    message = item.content!!,
-                                    time = item.createdAt.toTimeOnly(),
-                                    unReadMembers = item.unReadMembers.toString(),
-                                )
-                            } else {
-                                OtherMessage(
-                                    nickname = item.sender.userNickname,
-                                    profileImg = item.sender.userZodiacSign,
-                                    color = item.sender.userColor,
-                                    message = item.content!!,
-                                    time = item.createdAt.toTimeOnly(),
-                                    unReadMembers = item.unReadMembers.toString(),
-                                )
+                            // 첫 번째 메시지이거나, 이전 메시지와 날짜가 다르면 날짜 구분선 추가
+                            if (index == 0 || currentDate != pagingToList.getOrNull(index + 1)?.createdAt?.toDateOnly()) {
+                                DateDivider(date = currentDate)
                             }
-                        }
 
-                        context.getString(R.string.vote_type) -> {
-                            if (item.senderId == userId) {
-                                item.vote?.let {
-                                    VoteMessage(
-                                        isOther = false,
-                                        title = it.voteTitle,
-                                        unReadMembers = item.unReadMembers.toString(),
-                                        time = item.createdAt.toTimeOnly(),
-                                    )
+                            when (item.messageType) {
+                                context.getString(R.string.message_type) -> {
+                                    if (item.senderId == userId) {
+                                        MyMessage(
+                                            message = item.content!!,
+                                            time = item.createdAt.toTimeOnly(),
+                                            unReadMembers = item.unReadMembers.toString(),
+                                        )
+                                    } else {
+                                        OtherMessage(
+                                            nickname = item.sender.userNickname,
+                                            profileImg = item.sender.userZodiacSign,
+                                            color = item.sender.userColor,
+                                            message = item.content!!,
+                                            time = item.createdAt.toTimeOnly(),
+                                            unReadMembers = item.unReadMembers.toString(),
+                                        )
+                                    }
                                 }
-                            } else {
-                                item.vote?.let {
-                                    VoteMessage(
-                                        isOther = true,
-                                        title = it.voteTitle,
-                                        onAgree = {
-                                            sendVoteResponse(
-                                                context,
-                                                it.voteId,
-                                                "찬성",
+
+                                context.getString(R.string.vote_type) -> {
+                                    if (item.senderId == userId) {
+                                        item.vote?.let {
+                                            VoteMessage(
+                                                isOther = false,
+                                                title = it.voteTitle,
+                                                unReadMembers = item.unReadMembers.toString(),
+                                                time = item.createdAt.toTimeOnly(),
                                             )
-                                        },
-                                        onDisagree = {
-                                            sendVoteResponse(
-                                                context,
-                                                it.voteId,
-                                                "반대",
+                                        }
+                                    } else {
+                                        item.vote?.let {
+                                            VoteMessage(
+                                                isOther = true,
+                                                title = it.voteTitle,
+                                                onAgree = {
+                                                    sendVoteResponse(
+                                                        context,
+                                                        it.voteId,
+                                                        "찬성",
+                                                    )
+                                                },
+                                                onDisagree = {
+                                                    sendVoteResponse(
+                                                        context,
+                                                        it.voteId,
+                                                        "반대",
+                                                    )
+                                                },
+                                                unReadMembers = item.unReadMembers.toString(),
+                                                time = item.createdAt.toTimeOnly(),
+                                                nickname = item.sender.userNickname,
+                                                profileImg = item.sender.userZodiacSign,
+                                                color = item.sender.userColor,
                                             )
-                                        },
-                                        unReadMembers = item.unReadMembers.toString(),
-                                        time = item.createdAt.toTimeOnly(),
-                                        nickname = item.sender.userNickname,
-                                        profileImg = item.sender.userZodiacSign,
-                                        color = item.sender.userColor,
-                                    )
+                                        }
+                                    }
                                 }
-                            }
-                        }
 
-                        context.getString(R.string.vote_response_type) -> {
-                            item.vote?.let {
-                                VoteChatItem(
-                                    isOther = item.senderId != userId,
-                                    title = it.voteTitle,
-                                    select = item.responseOfVote,
-                                    unReadMembers = item.unReadMembers.toString(),
-                                    time = item.createdAt.toTimeOnly(),
-                                    nickname = item.sender.userNickname,
-                                    profileImg = item.sender.userZodiacSign,
-                                    color = item.sender.userColor,
-                                )
-                            }
-                        }
+                                context.getString(R.string.vote_response_type) -> {
+                                    item.vote?.let {
+                                        VoteChatItem(
+                                            isOther = item.senderId != userId,
+                                            title = it.voteTitle,
+                                            select = item.responseOfVote,
+                                            unReadMembers = item.unReadMembers.toString(),
+                                            time = item.createdAt.toTimeOnly(),
+                                            nickname = item.sender.userNickname,
+                                            profileImg = item.sender.userZodiacSign,
+                                            color = item.sender.userColor,
+                                        )
+                                    }
+                                }
 
-                        context.getString(R.string.vote_result_type) -> {
-                            item.vote?.let {
-                                VoteResultMessage(
-                                    isOther = item.senderId != userId,
-                                    title = it.voteTitle,
-                                    voteResult = it.voteResult,
-                                    unReadMembers = item.unReadMembers.toString(),
-                                    time = item.createdAt.toTimeOnly(),
-                                    nickname = item.sender.userNickname,
-                                    profileImg = item.sender.userZodiacSign,
-                                    color = item.sender.userColor,
-                                )
-                            }
-                        }
+                                context.getString(R.string.vote_result_type) -> {
+                                    item.vote?.let {
+                                        VoteResultMessage(
+                                            isOther = item.senderId != userId,
+                                            title = it.voteTitle,
+                                            voteResult = it.voteResult,
+                                            unReadMembers = item.unReadMembers.toString(),
+                                            time = item.createdAt.toTimeOnly(),
+                                            nickname = item.sender.userNickname,
+                                            profileImg = item.sender.userZodiacSign,
+                                            color = item.sender.userColor,
+                                        )
+                                    }
+                                }
 
-                        context.getString(R.string.voice_type) -> {
-                            item.content?.let {
-                                VoiceMessage(
-                                    isOther = item.senderId != userId,
-                                    filePath = it,
-                                    time = item.createdAt.toTimeOnly(),
-                                    unReadMembers = item.unReadMembers.toString(),
-                                    nickname = item.sender.userNickname,
-                                    profileImg = item.sender.userZodiacSign,
-                                    color = item.sender.userColor,
-                                    pauseCurrentPlaying = pauseCurrentPlaying,
-                                    setCurrentPlayer = setCurrentPlayer,
-                                    currentPath = currentPath,
-                                    removePlayer = removePlayer,
-                                )
+                                context.getString(R.string.voice_type) -> {
+                                    item.content?.let {
+                                        VoiceMessage(
+                                            isOther = item.senderId != userId,
+                                            filePath = it,
+                                            time = item.createdAt.toTimeOnly(),
+                                            unReadMembers = item.unReadMembers.toString(),
+                                            nickname = item.sender.userNickname,
+                                            profileImg = item.sender.userZodiacSign,
+                                            color = item.sender.userColor,
+                                            pauseCurrentPlaying = pauseCurrentPlaying,
+                                            setCurrentPlayer = setCurrentPlayer,
+                                            currentPath = currentPath,
+                                            removePlayer = removePlayer,
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -350,8 +359,10 @@ fun ChatScreen(
                     onValueChanged = {
                         inputMessage = it
                         scope.launch {
-                            if (chatList.isNotEmpty()) {
-                                lazyListState.animateScrollToItem(chatList.size - 1)
+                            chatList?.let {
+                                if (chatList.itemCount > 0) {
+                                    lazyListState.animateScrollToItem(0)
+                                }
                             }
                         }
                     },

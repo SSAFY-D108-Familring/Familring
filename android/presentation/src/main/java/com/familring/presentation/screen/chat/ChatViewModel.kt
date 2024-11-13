@@ -6,6 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
@@ -19,7 +23,7 @@ import com.familring.presentation.R
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -60,11 +64,12 @@ class ChatViewModel
                 .add(LocalDateTimeAdapter())
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
-        private lateinit var chatList: List<Chat>
 
         // 재생 중인 파일
         private var currentPlayer: VoicePlayer? by mutableStateOf(null)
         var currentPath: String? by mutableStateOf(null)
+
+        var messages = enterRoom().cachedIn(viewModelScope)
 
         private val _state = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
         val state = _state.asStateFlow()
@@ -73,6 +78,7 @@ class ChatViewModel
 
         init {
             loadUserData()
+            connectStomp()
         }
 
         fun pauseCurrentPlaying() {
@@ -100,45 +106,25 @@ class ChatViewModel
 
         private fun loadUserData() {
             viewModelScope.launch {
-                val userIdJob = async { authDataStore.getUserId() }
-                val familyIdJob = async { authDataStore.getFamilyId() }
+                userId = authDataStore.getUserId()
+                familyId = authDataStore.getFamilyId()
 
-                userId = userIdJob.await()
-                familyId = familyIdJob.await()
-
-                if (userId != null && familyId != null) {
-                    enterRoom(userId = userId!!, roomId = familyId!!)
-                    connectStomp()
-                }
+                messages = enterRoom().cachedIn(viewModelScope)
+//                enterRoom()
+                _state.value = ChatUiState.Success(userId = userId!!)
             }
         }
 
-        private fun enterRoom(
-            roomId: Long,
-            userId: Long,
-        ) {
-            viewModelScope.launch {
-                familyRepository.enterRoom(roomId, userId).collectLatest { response ->
-                    when (response) {
-                        is ApiResponse.Success -> {
-                            chatList = response.data
-                            val currentState = _state.value
-
-                            if (currentState is ChatUiState.Success) {
-                                _state.value = currentState.copy(chatList = chatList)
-                            } else {
-                                _state.value = ChatUiState.Success(userId = userId, chatList = chatList)
-                            }
-                        }
-
-                        is ApiResponse.Error -> {
-                            _state.value = ChatUiState.Error(response.message)
-                            _event.emit(ChatUiEvent.Error(response.code, response.message))
-                        }
-                    }
-                }
-            }
-        }
+        fun enterRoom(): Flow<PagingData<Chat>> =
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 100,
+                        enablePlaceholders = false,
+                    ),
+            ) {
+                ChatPageSource(familyRepository, authDataStore)
+            }.flow.cachedIn(viewModelScope)
 
         private fun connectStomp() {
             viewModelScope.launch {
@@ -199,9 +185,8 @@ class ChatViewModel
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL"))
                     .collect {
-                        if (familyId != null && userId != null) {
-                            enterRoom(roomId = familyId!!, userId = userId!!)
-                        }
+                        messages = enterRoom().cachedIn(viewModelScope)
+//                        enterRoom()
                     }
             }
         }
@@ -299,7 +284,7 @@ class ChatViewModel
             }
         }
 
-        fun sendVoiceMessage(
+        private fun sendVoiceMessage(
             context: Context,
             voiceUrl: String,
         ) {

@@ -14,6 +14,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface FamilyApi {
     @GET("family/code")
@@ -47,6 +48,8 @@ interface FamilyApi {
     suspend fun enterRoom(
         @Path("roomId") roomId: Long,
         @Header("X-User-ID") userId: Long,
+        @Query("page") page: Int? = 0,
+        @Query("size") size: Int? = 100,
     ): BaseResponse<List<Chat>>
 
     @Multipart
