@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     stages {
-    
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -65,6 +65,40 @@ pipeline {
                             copyApplicationYaml(application_yml)
                             buildAndRunContainer('timecapsule-service') // 내부 네트워크에서만 통신
                         }
+                    }
+                }
+            }
+        }
+
+        stage('Notification') {
+            steps{
+                echo 'jenkins notification!'
+            }
+            post {
+                success {
+                    script {
+                        // 마지막 커밋을 푸시한 사용자 정보 가져오기
+                        def user = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
+                        def serviceName = env.JOB_NAME  // 현재 빌드 중인 서비스 이름
+
+                        // Mattermost로 성공 메시지 전송
+                        mattermostSend(
+                            color: 'good',
+                            message: "✅ ${serviceName} 빌드 성공 - ${user}님이 푸시한 커밋입니다.",
+                        )
+                    }
+                }
+                failure {
+                    script {
+                        // 마지막 커밋을 푸시한 사용자 정보 가져오기
+                        def user = sh(script: 'git log -1 --pretty=format:"%an"', returnStdout: true).trim()
+                        def serviceName = env.JOB_NAME
+
+                        // Mattermost로 실패 메시지 전송
+                        mattermostSend(
+                            color: 'danger',
+                            message: "❌ ${serviceName} 빌드 실패 - ${user}님이 푸시한 커밋입니다.",
+                        )
                     }
                 }
             }
