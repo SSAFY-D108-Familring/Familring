@@ -10,4 +10,5 @@ data class CalendarUiState(
     val previewDailies: List<PreviewDaily> = listOf(),
     val detailedSchedule: List<Schedule> = listOf(),
     val detailedDailies: List<DailyLife> = listOf(),
+    val isReadTutorial: Boolean = true,
 )

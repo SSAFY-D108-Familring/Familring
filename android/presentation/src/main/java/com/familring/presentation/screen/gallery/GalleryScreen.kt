@@ -113,7 +113,10 @@ fun GalleryRoute(
         deleteAlbum = { albumId ->
             viewModel.deleteAlbum(albumId)
         },
-        showTutorial = { showTutorial = true },
+        showTutorial = {
+            showTutorial = true
+            viewModel.setReadTutorialState(false)
+        },
     )
 
     LaunchedEffect(galleryUiEvent) {
@@ -142,10 +145,13 @@ fun GalleryRoute(
         LoadingDialog(loadingMessage = "앨범 생성중...")
     }
 
-    if (showTutorial) {
+    if (showTutorial) { // && !galleryUiState.isReadTutorial
         ModalBottomSheet(
             containerColor = White,
-            onDismissRequest = { showTutorial = false },
+            onDismissRequest = {
+                showTutorial = false
+                viewModel.setReadTutorial()
+            },
             sheetState = sheetState,
         ) {
             TutorialScreen(

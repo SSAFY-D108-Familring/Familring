@@ -11,4 +11,5 @@ data class TimeCapsuleUiState(
     val writers: List<Profile> = listOf(),
     val currentPageNo: Int = 0,
     val timeCapsules: List<TimeCapsule> = listOf(),
+    val isReadTutorial: Boolean = true,
 )

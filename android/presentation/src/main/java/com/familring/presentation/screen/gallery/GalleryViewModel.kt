@@ -2,6 +2,7 @@ package com.familring.presentation.screen.gallery
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.datastore.TutorialDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.gallery.AlbumType
 import com.familring.domain.repository.GalleryRepository
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
@@ -20,7 +22,8 @@ import javax.inject.Inject
 class GalleryViewModel
     @Inject
     constructor(
-        val galleryRepository: GalleryRepository,
+        private val galleryRepository: GalleryRepository,
+        private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
         private val _galleryUiState = MutableStateFlow<GalleryUiState>(GalleryUiState.Loading)
         val galleryUiState = _galleryUiState.asStateFlow()
@@ -33,6 +36,41 @@ class GalleryViewModel
 
         private var currentAlbumTypes: List<AlbumType> =
             listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON)
+
+        init {
+            getReadTutorial()
+        }
+
+        private fun getReadTutorial() {
+//            viewModelScope.launch {
+//                _galleryUiState.update {
+//                    it.copy(
+//                        isReadTutorial = tutorialDataStore.getAlbumReadTutorial(),
+//                    )
+//                }
+//            }
+        }
+
+        fun setReadTutorial() {
+            viewModelScope.launch {
+                tutorialDataStore.setAlbumReadTutorial(true)
+//                _uiState.update {
+//                    it.copy(
+//                        isReadTutorial = true,
+//                    )
+//                }
+            }
+        }
+
+        fun setReadTutorialState(isRead: Boolean) {
+//            viewModelScope.launch {
+//                _galleryUiState.update {
+//                    it.copy(
+//                        isReadTutorial = isRead,
+//                    )
+//                }
+//            }
+        }
 
         fun getAlbums(albumTypes: List<AlbumType>) {
             currentAlbumTypes = albumTypes
