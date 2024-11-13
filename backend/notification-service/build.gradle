@@ -18,6 +18,9 @@ dependencies {
     implementation group: 'com.google.firebase', name: 'firebase-admin', version: '9.3.0'
     // myBatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+    // Monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 dependencyManagement {
