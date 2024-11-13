@@ -1,11 +1,9 @@
 package com.familring.notificationservice.config.firebase;
 
-import com.familring.notificationservice.exception.notification.NotFoundUserFcmTokenException;
 import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Async;
@@ -43,13 +41,6 @@ public class FcmUtil {
 
     // FCM 메시지를 생성하는 메서드
     public Message makeMessage(String title, String body, String token) { // FcmDTO의 title, body 사용
-        // 알림 객체 생성
-//        Notification notification =
-//                Notification.builder()
-//                        .setTitle(title)    // 제목 설정
-//                        .setBody(body)      // 본문 설정
-//                        .build();
-
         // 메시지 객체 생성
         return Message.builder()
                 .setToken(token)                // FCM 토큰 설정

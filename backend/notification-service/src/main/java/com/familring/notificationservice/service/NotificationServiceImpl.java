@@ -5,6 +5,8 @@ import com.familring.notificationservice.config.firebase.FcmUtil;
 import com.familring.notificationservice.exception.notification.NotFoundNotificationException;
 import com.familring.notificationservice.model.dao.NotificationDao;
 import com.familring.notificationservice.model.dto.Notification;
+import com.familring.notificationservice.model.dto.NotificationType;
+import com.familring.notificationservice.model.dto.request.MentionRequest;
 import com.familring.notificationservice.model.dto.request.NotificationRequest;
 import com.familring.notificationservice.model.dto.request.UnReadCountRequest;
 import com.familring.notificationservice.model.dto.response.NotificationResponse;
@@ -12,6 +14,7 @@ import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import com.familring.notificationservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.checkerframework.checker.units.qual.N;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +57,16 @@ public class NotificationServiceImpl implements NotificationService {
             log.info("[getAllNotification] 안 읽은 알림 개수={}", notificationResponseList.size());
 
         return notificationResponseList;
+    }
+
+    @Override
+    public void notificationToFamily(Long userId, MentionRequest mentionRequest) {
+        log.info("[notificationToFamily] 알림 수신자={}, 알림 발신자={}", mentionRequest.getReceiverId(), userId);;
+        // 수신자에게 알림 전송
+        UserInfoResponse usersList = userServiceFeignClient.getUser(userId).getData();
+        FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO("사랑의 한마디", mentionRequest.getMention());
+        fcmUtil.singleFcmSend(usersList, fcmDto);
+        log.info("[notificationToFamily] 알림 전송 완료");
     }
 
     @Override
