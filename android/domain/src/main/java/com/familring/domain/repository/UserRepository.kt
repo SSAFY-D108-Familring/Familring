@@ -30,8 +30,6 @@ interface UserRepository {
 
     suspend fun updateColor(color: String): Flow<ApiResponse<Unit>>
 
-    suspend fun updateFCMToken(token: String): Flow<ApiResponse<Unit>>
-
     suspend fun sendKnockNotification(
         targetUserId: String,
         senderNickname: String,
@@ -40,6 +38,8 @@ interface UserRepository {
     suspend fun getNotifications(): Flow<ApiResponse<List<NotificationResponse>>>
 
     suspend fun readNotification(notificationId: Long): Flow<ApiResponse<Unit>>
+
+    suspend fun updateFCMToken(token: String): Flow<ApiResponse<Unit>>
 
     suspend fun updateFace(face: File): Flow<ApiResponse<Unit>>
 }

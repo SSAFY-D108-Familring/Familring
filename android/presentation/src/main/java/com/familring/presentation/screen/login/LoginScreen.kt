@@ -17,12 +17,14 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,13 +38,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.MainActivity
 import com.familring.presentation.R
-import com.familring.presentation.theme.Black
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.FamilringTheme
-import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
-import timber.log.Timber
 
 @Composable
 fun LoginRoute(
@@ -53,16 +53,6 @@ fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-
-    LaunchedEffect(viewModel.loginEvent) {
-        viewModel.loginEvent.collect { event ->
-            when (event) {
-                is LoginEvent.LoginSuccess -> navigateToHome()
-                is LoginEvent.Error -> showSnackBar("패밀링에 오신걸 환영합니다")
-            }
-        }
-    }
 
     LoginScreen(
         modifier = modifier,
@@ -70,8 +60,8 @@ fun LoginRoute(
         navigateToHome = navigateToHome,
         showSnackBar = showSnackBar,
         loginState = loginState,
+        viewModel = viewModel,
         resetState = viewModel::resetState,
-        isLoading = isLoading,
         handleKakaoLogin = { activity -> viewModel.handleKakaoLogin(activity) },
     )
 }
@@ -81,25 +71,58 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     loginState: LoginState,
     resetState: () -> Unit = {},
-    isLoading: Boolean,
     navigateToFirst: () -> Unit = {},
     navigateToHome: () -> Unit = {},
+    viewModel: LoginViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit = {},
     handleKakaoLogin: (Activity) -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
 
+    val loginEvent by viewModel.loginEvent.collectAsStateWithLifecycle(initialValue = LoginEvent.None)
+
+    var isLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(loginEvent) {
+        when (loginEvent) {
+            is LoginEvent.None -> {
+                isLoading = false
+                showSnackBar("패밀링에 오신걸 환영합니다")
+            }
+
+            is LoginEvent.Loading -> isLoading = true
+
+            is LoginEvent.LoginSuccess -> {
+                isLoading = false
+                navigateToHome()
+            }
+
+            is LoginEvent.Error -> {
+                isLoading = false
+                showSnackBar("잠시후 다시 시도해주세요")
+            }
+        }
+    }
+
     LaunchedEffect(loginState) {
         when (loginState) {
+            is LoginState.Init -> {
+                isLoading = false
+            }
+
             is LoginState.Success -> navigateToHome()
             is LoginState.NoRegistered -> {
                 navigateToFirst()
                 resetState()
             }
 
-            is LoginState.Error -> showSnackBar(loginState.errorMessage)
-            is LoginState.Loading -> Timber.tag("login").d("로그인 로딩중")
+            is LoginState.Error -> {
+                showSnackBar(loginState.errorMessage)
+                isLoading = false
+            }
+
+            is LoginState.Loading -> isLoading = true
         }
     }
 
@@ -172,15 +195,7 @@ fun LoginScreen(
         }
     }
     if (isLoading) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(color = Black.copy(alpha = 0.7f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgressIndicator(color = Green02)
-        }
+        LoadingDialog(loadingMessage = "로그인 시도 중..")
     }
 }
 
@@ -366,7 +381,10 @@ fun LoginScreenPreview() {
     FamilringTheme {
         LoginScreen(
             loginState = LoginState.Loading,
-            isLoading = false,
+            navigateToFirst = {},
+            navigateToHome = {},
+            showSnackBar = {},
+            resetState = {},
         )
     }
 }

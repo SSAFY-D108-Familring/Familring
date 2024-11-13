@@ -10,6 +10,7 @@ import com.familring.data.network.api.QuestionApi
 import com.familring.data.network.api.ScheduleApi
 import com.familring.data.network.api.TimeCapsuleApi
 import com.familring.data.network.api.UserApi
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

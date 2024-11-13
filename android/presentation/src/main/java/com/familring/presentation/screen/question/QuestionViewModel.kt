@@ -180,42 +180,27 @@ class QuestionViewModel
             }
         }
 
-        fun sendKnockNotification(
-            userId: String,
-            senderNickname: String,
+        fun knockKnock(
+            questionId: Long,
+            receiverId: Long,
         ) {
             viewModelScope.launch {
-                try {
-                    userRepository
-                        .sendKnockNotification(
-                            targetUserId = userId,
-                            senderNickname = senderNickname,
-                        ).collectLatest { response ->
-                            when (response) {
-                                is ApiResponse.Success -> {
-                                    _questionEvent.emit(QuestionEvent.Success)
-                                }
-
-                                is ApiResponse.Error -> {
-                                    _questionEvent.emit(
-                                        QuestionEvent.Error(
-                                            response.code,
-                                            response.message,
-                                        ),
-                                    )
-                                }
-                            }
+                questionRepository.knockKnock(questionId, receiverId).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _questionEvent.emit(QuestionEvent.Success)
                         }
-                } catch (
-                    e: Exception,
-                ) {
-                    Timber.e(e)
-                    _questionEvent.emit(
-                        QuestionEvent.Error(
-                            code = "500",
-                            message = e.message ?: "알 수 없는 에러",
-                        ),
-                    )
+
+                        is ApiResponse.Error -> {
+                            _questionEvent.emit(
+                                QuestionEvent.Error(
+                                    response.code,
+                                    response.message,
+                                ),
+                            )
+                            Timber.d("code: ${response.code}, message: ${response.message}")
+                        }
+                    }
                 }
             }
         }

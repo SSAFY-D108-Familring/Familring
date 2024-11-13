@@ -47,6 +47,7 @@ android {
 dependencies {
     implementation(libs.hilt.android)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.messaging.ktx)
     kapt(libs.hilt.compiler)
     implementation(libs.bundles.network)
     implementation(libs.datastore.preferences)

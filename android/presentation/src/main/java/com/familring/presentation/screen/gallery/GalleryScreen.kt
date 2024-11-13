@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
@@ -50,6 +49,7 @@ import com.familring.domain.model.gallery.AlbumType
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
@@ -69,9 +69,9 @@ fun GalleryRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val galleryUiState by viewModel.galleryUiState.collectAsStateWithLifecycle()
-    val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Loading)
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Init)
 
+    var showLoading by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.getAlbums(listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON))
     }
@@ -80,7 +80,6 @@ fun GalleryRoute(
         modifier = modifier,
         navigateToAlbum = navigateToAlbum,
         galleryUiState = galleryUiState,
-        isLoading = isLoading,
         onGalleryChange = { isNormal ->
             viewModel.getAlbums(
                 if (isNormal) {
@@ -106,18 +105,28 @@ fun GalleryRoute(
 
     LaunchedEffect(galleryUiEvent) {
         when (galleryUiEvent) {
+            is GalleryUiEvent.Init -> {
+                showLoading = false
+            }
+
             is GalleryUiEvent.Loading -> {
-                // 로딩중
+                showLoading = true
             }
 
             is GalleryUiEvent.Success -> {
+                showLoading = false
                 showSnackBar("앨범이 생성되었습니다")
             }
 
             is GalleryUiEvent.Error -> {
+                showLoading = false
                 showSnackBar("에러가 발생했습니다")
             }
         }
+    }
+
+    if (showLoading) {
+        LoadingDialog(loadingMessage = "앨범 생성중...")
     }
 }
 
@@ -127,7 +136,6 @@ fun GalleryScreen(
     modifier: Modifier,
     navigateToAlbum: (Long, Boolean) -> Unit,
     galleryUiState: GalleryUiState,
-    isLoading: Boolean,
     onGalleryChange: (Boolean) -> Unit,
     onGalleryCreate: (String, AlbumType) -> Unit = { _, _ -> },
     onUpdateAlbum: (Long, String) -> Unit = { _, _ -> },
@@ -136,6 +144,7 @@ fun GalleryScreen(
     var privateGallerySelected by rememberSaveable { mutableStateOf(true) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var albumname by remember { mutableStateOf("") }
+    var showLoading by remember { mutableStateOf(false) }
 
     LaunchedEffect(privateGallerySelected) {
         onGalleryChange(privateGallerySelected)
@@ -178,7 +187,7 @@ fun GalleryScreen(
                                     },
                                 RoundedCornerShape(30.dp),
                             ).noRippleClickable {
-                                if (!isLoading) privateGallerySelected = true
+                                privateGallerySelected = true
                             }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (privateGallerySelected) White else Color.Black,
                 )
@@ -200,7 +209,7 @@ fun GalleryScreen(
                                     },
                                 RoundedCornerShape(30.dp),
                             ).noRippleClickable {
-                                if (!isLoading) privateGallerySelected = false
+                                privateGallerySelected = false
                             }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (!privateGallerySelected) White else Color.Black,
                 )
@@ -208,15 +217,11 @@ fun GalleryScreen(
             Spacer(modifier = Modifier.fillMaxSize(0.04f))
             when (galleryUiState) {
                 is GalleryUiState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator(color = Green02)
-                    }
+                    showLoading = true
                 }
 
                 is GalleryUiState.Success -> {
+                    showLoading = false
                     LazyVerticalGrid(
                         modifier = Modifier.padding(16.dp),
                         columns = GridCells.Fixed(2),
@@ -243,7 +248,7 @@ fun GalleryScreen(
                         if (privateGallerySelected) {
                             item {
                                 AddAlbumButton(onClick = {
-                                    if (!isLoading) showBottomSheet = true
+                                    showBottomSheet = true
                                 })
                             }
                         }
@@ -251,6 +256,7 @@ fun GalleryScreen(
                 }
 
                 is GalleryUiState.Error -> {
+                    showLoading = false
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -284,13 +290,12 @@ fun GalleryScreen(
                                     .background(Color.Transparent)
                                     .padding(horizontal = 26.dp),
                             value = albumname,
-                            onValueChange = { if (!isLoading) albumname = it },
+                            onValueChange = { albumname = it },
                             textStyle =
                                 Typography.titleSmall.copy(
                                     color = if (albumname.isEmpty()) Gray03 else Color.Black,
                                     fontSize = 24.sp,
                                 ),
-                            enabled = !isLoading,
                             decorationBox = { innerTextField ->
                                 Box {
                                     if (albumname.isEmpty()) {
@@ -309,7 +314,7 @@ fun GalleryScreen(
                         RoundLongButton(
                             backgroundColor = Brown01,
                             text = "생성하기",
-                            enabled = !isLoading && albumname.isNotEmpty(),
+                            enabled = albumname.isNotEmpty(),
                             onClick = {
                                 Timber.d("생성하기")
                                 if (privateGallerySelected) {
@@ -325,17 +330,8 @@ fun GalleryScreen(
                 }
             }
         }
-    }
-
-    if (isLoading) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f)),
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgressIndicator(color = Green02)
+        if (showLoading) {
+            LoadingDialog(loadingMessage = "앨범 로딩중...")
         }
     }
 }
@@ -513,6 +509,5 @@ fun GalleryScreenPreview() {
         navigateToAlbum = { _, _ -> },
         galleryUiState = GalleryUiState.Loading,
         onGalleryChange = {},
-        isLoading = false,
     )
 }

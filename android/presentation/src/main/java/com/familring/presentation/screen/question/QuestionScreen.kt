@@ -27,6 +27,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -51,6 +54,7 @@ import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
 import com.familring.presentation.component.ZodiacBackgroundProfile
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
@@ -70,7 +74,7 @@ fun QuestionRoute(
     viewModel: QuestionViewModel = hiltViewModel(),
 ) {
     val questionState by viewModel.questionState.collectAsStateWithLifecycle()
-
+    var isLoading by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         viewModel.refresh()
     }
@@ -78,9 +82,11 @@ fun QuestionRoute(
     when (val state = questionState) {
         is QuestionState.Loading -> {
             Timber.tag("nakyung").d("질문화면 로딩중")
+            isLoading = true
         }
 
         is QuestionState.Success -> {
+            isLoading = false
             QuestionScreen(
                 modifier = modifier,
                 navigateToQuestionList = navigateToQuestionList,
@@ -93,6 +99,7 @@ fun QuestionRoute(
         }
 
         is QuestionState.Error -> {
+            isLoading = false
             QuestionScreen(
                 modifier = modifier,
                 navigateToQuestionList = navigateToQuestionList,
@@ -100,6 +107,10 @@ fun QuestionRoute(
                 showSnackBar = showSnackBar,
             )
         }
+    }
+
+    if (isLoading) {
+        LoadingDialog(loadingMessage = "질문 로딩중...")
     }
 }
 
@@ -249,7 +260,12 @@ fun QuestionScreen(
                         verticalArrangement = Arrangement.spacedBy(20.dp),
                     ) {
                         items(answerContents.size) { answer ->
-                            FamilyListItem(answerContents[answer], showSnackBar)
+                            FamilyListItem(
+                                answerContents[answer],
+                                showSnackBar,
+                                answer,
+                                questionId = questionId,
+                            )
                         }
                     }
                 }
@@ -262,7 +278,9 @@ fun QuestionScreen(
 fun FamilyListItem(
     questionAnswer: QuestionAnswer,
     showSnackBar: (String) -> Unit,
+    answer: Int,
     viewModel: QuestionViewModel = hiltViewModel(),
+    questionId: Long,
 ) {
     Column(
         modifier =
@@ -297,6 +315,30 @@ fun FamilyListItem(
                 style = Typography.displaySmall.copy(fontSize = 18.sp),
                 color = Black,
             )
+            Text(
+                text =
+                    buildAnnotatedString {
+                        withStyle(
+                            style =
+                                SpanStyle(
+                                    textDecoration = TextDecoration.Underline,
+                                ),
+                        ) {
+                            append("✊\uD83C\uDFFB 똑똑")
+                        }
+                    },
+                style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                color = Gray02,
+                modifier =
+                    Modifier.noRippleClickable {
+                        viewModel.knockKnock(
+                            questionId,
+                            questionAnswer.userId,
+                        )
+                        Timber.d("똑똑 누름 " + questionAnswer.userId)
+                        showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
+                    },
+            )
         } else {
             Row {
                 Text(
@@ -304,6 +346,7 @@ fun FamilyListItem(
                     style = Typography.displaySmall.copy(fontSize = 18.sp),
                     color = Gray02,
                 )
+//                if (answer != 0) {
                 Text(
                     text =
                         buildAnnotatedString {
@@ -320,14 +363,15 @@ fun FamilyListItem(
                     color = Gray02,
                     modifier =
                         Modifier.noRippleClickable {
-                            viewModel.sendKnockNotification(
-                                userId = questionAnswer.userId.toString(),
-                                senderNickname = questionAnswer.userNickname,
+                            viewModel.knockKnock(
+                                questionId,
+                                questionAnswer.userId,
                             )
                             Timber.d("똑똑 누름 " + questionAnswer.userId)
                             showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
                         },
                 )
+//                }
             }
         }
     }
