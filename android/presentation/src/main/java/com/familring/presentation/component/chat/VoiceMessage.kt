@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -195,17 +194,10 @@ fun MessagePlayerUI(
     val voicePlayer = remember { VoicePlayer() }
     var isPlaying by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
-    var totalDuration by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(currentPath) {
         if (currentPath != filePath) {
             isPlaying = false
-        }
-    }
-
-    LaunchedEffect(isPlaying) {
-        if (isPlaying) {
-            totalDuration = voicePlayer.getTotalDuration()
         }
     }
 
@@ -236,11 +228,12 @@ fun MessagePlayerUI(
                         pauseCurrentPlaying()
                         progress = 0f
                     }
+                    isPlaying = true
                     setCurrentPlayer(voicePlayer, filePath)
                     voicePlayer.playMessage(
                         filePath = filePath,
-                        onProgressUpdate = { current ->
-                            progress = current / totalDuration.toFloat()
+                        onProgressUpdate = { current, total ->
+                            progress = current / total.toFloat()
                         },
                         onComplete = {
                             isPlaying = false
@@ -252,7 +245,6 @@ fun MessagePlayerUI(
                         onError = {
                         },
                     )
-                    isPlaying = true
                 }
             },
         ) {

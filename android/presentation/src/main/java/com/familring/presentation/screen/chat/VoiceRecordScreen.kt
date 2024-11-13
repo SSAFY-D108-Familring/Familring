@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +38,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -241,13 +239,6 @@ fun VoicePlaybackUI(
     val voicePlayer = remember { VoicePlayer() }
     var isPlaying by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
-    var totalDuration by remember { mutableIntStateOf(0) }
-
-    LaunchedEffect(isPlaying) {
-        if (isPlaying) {
-            totalDuration = voicePlayer.getTotalDuration()
-        }
-    }
 
     Column(
         modifier =
@@ -269,8 +260,8 @@ fun VoicePlaybackUI(
                     } else {
                         voicePlayer.playMessage(
                             filePath = filePath,
-                            onProgressUpdate = { current ->
-                                progress = current / totalDuration.toFloat()
+                            onProgressUpdate = { current, total ->
+                                progress = current / total.toFloat()
                             },
                             onComplete = {
                                 isPlaying = false
