@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +53,7 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
+import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
@@ -143,6 +145,8 @@ fun HomeScreen(
     val mother = familyMembers.find { it.userRole == "M" }
     val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
 
+    var showTreeExplanation by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -212,6 +216,7 @@ fun HomeScreen(
                 Box(
                     modifier =
                         Modifier
+                            .noRippleClickable { showTreeExplanation = true }
                             .border(
                                 width = 1.dp,
                                 color = Gray03,
@@ -227,7 +232,7 @@ fun HomeScreen(
                     ) {
                         Image(
                             modifier = Modifier.size(147.dp),
-                            painter = painterResource(id = R.drawable.img_tree_status_two),
+                            painter = painterResource(id = R.drawable.img_tree_status_three),
                             contentDescription = "tree_img",
                         )
                         Column {
@@ -355,8 +360,7 @@ fun HomeScreen(
                                         shape = RoundedCornerShape(23.dp),
                                         spotColor = Gray01,
                                         ambientColor = Gray01,
-                                    )
-                                    .background(color = Gray04, shape = RoundedCornerShape(23.dp))
+                                    ).background(color = Gray04, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToTimeCapsule() },
                         ) {
                             Column(
@@ -403,8 +407,7 @@ fun HomeScreen(
                                         shape = RoundedCornerShape(23.dp),
                                         spotColor = Black,
                                         ambientColor = Gray01,
-                                    )
-                                    .background(color = Green02, shape = RoundedCornerShape(23.dp))
+                                    ).background(color = Green02, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToInterest() },
                         ) {
                             Column(
@@ -496,6 +499,9 @@ fun HomeScreen(
                 }
             }
         }
+    }
+    if (showTreeExplanation) {
+        TreeExplanation(onClose = { showTreeExplanation = false })
     }
 }
 
