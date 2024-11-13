@@ -44,10 +44,12 @@ class LoginViewModel
 
         private fun autoLogin() {
             viewModelScope.launch {
-                authDataStore.getKakaoId()?.let {
+                val kakaoId = authDataStore.getKakaoId()
+                if (kakaoId != null) {
                     try {
+                        _loginEvent.emit(LoginEvent.Loading)
                         userRepository
-                            .login(UserLoginRequest(userKakaoId = it))
+                            .login(UserLoginRequest(userKakaoId = kakaoId))
                             .collectLatest { response ->
                                 when (response) {
                                     is ApiResponse.Success -> {
@@ -65,6 +67,9 @@ class LoginViewModel
                         Timber.e(e, "서버 통신 중 오류 발생")
                         _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${e.message}"))
                     }
+                } else {
+                    _loginEvent.emit(LoginEvent.None)
+                    _loginState.value = LoginState.Init
                 }
             }
         }

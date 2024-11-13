@@ -53,7 +53,6 @@ fun LoginRoute(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
-    val loginEvent by viewModel.loginEvent.collectAsStateWithLifecycle(initialValue = LoginEvent.None)
 
     LoginScreen(
         modifier = modifier,
@@ -61,8 +60,8 @@ fun LoginRoute(
         navigateToHome = navigateToHome,
         showSnackBar = showSnackBar,
         loginState = loginState,
+        viewModel = viewModel,
         resetState = viewModel::resetState,
-        loginEvent = loginEvent,
         handleKakaoLogin = { activity -> viewModel.handleKakaoLogin(activity) },
     )
 }
@@ -74,12 +73,14 @@ fun LoginScreen(
     resetState: () -> Unit = {},
     navigateToFirst: () -> Unit = {},
     navigateToHome: () -> Unit = {},
-    loginEvent: LoginEvent,
+    viewModel: LoginViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit = {},
     handleKakaoLogin: (Activity) -> Unit = {},
 ) {
     val context = LocalContext.current
     val activity = context as? MainActivity
+
+    val loginEvent by viewModel.loginEvent.collectAsStateWithLifecycle(initialValue = LoginEvent.None)
 
     var isLoading by remember { mutableStateOf(false) }
 
@@ -106,6 +107,10 @@ fun LoginScreen(
 
     LaunchedEffect(loginState) {
         when (loginState) {
+            is LoginState.Init -> {
+                isLoading = false
+            }
+
             is LoginState.Success -> navigateToHome()
             is LoginState.NoRegistered -> {
                 navigateToFirst()
@@ -119,9 +124,6 @@ fun LoginScreen(
 
             is LoginState.Loading -> isLoading = true
         }
-    }
-    if (isLoading) {
-        LoadingDialog(loadingMessage = "로그인 시도 중..")
     }
 
     Surface(
@@ -192,6 +194,9 @@ fun LoginScreen(
                         },
             )
         }
+    }
+    if (isLoading) {
+        LoadingDialog(loadingMessage = "로그인 시도 중..")
     }
 }
 
@@ -380,7 +385,6 @@ fun LoginScreenPreview() {
             navigateToFirst = {},
             navigateToHome = {},
             showSnackBar = {},
-            loginEvent = LoginEvent.None,
             resetState = {},
         )
     }
