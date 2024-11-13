@@ -7,6 +7,8 @@ interface AuthDataStore {
 
     suspend fun saveFCMToken(fcmToken: String)
 
+    suspend fun getFCMToken(): String?
+
     suspend fun getKakaoId(): String?
 
     suspend fun deleteAuthData()
