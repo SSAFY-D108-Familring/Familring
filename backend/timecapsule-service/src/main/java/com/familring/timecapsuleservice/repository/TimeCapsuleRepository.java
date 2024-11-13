@@ -14,6 +14,8 @@ import java.util.Optional;
 @Repository
 public interface TimeCapsuleRepository extends JpaRepository<TimeCapsule, Integer> {
 
+    Optional<TimeCapsule> findByFamilyId(Long familyId);
+
     @Query("SELECT t FROM TimeCapsule t WHERE t.startDate <= :currentDate AND t.endDate >= :currentDate AND t.familyId = :familyId")
     Optional<TimeCapsule> findTimeCapsuleWithinDateRangeAndFamilyId(@Param("currentDate") LocalDate currentDate, @Param("familyId") Long familyId);
 

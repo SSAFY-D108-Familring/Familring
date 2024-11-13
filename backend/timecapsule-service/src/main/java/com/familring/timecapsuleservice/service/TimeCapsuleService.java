@@ -20,31 +20,37 @@ import com.familring.timecapsuleservice.repository.TimeCapsuleAnswerRepository;
 import com.familring.timecapsuleservice.repository.TimeCapsuleRepository;
 import com.familring.timecapsuleservice.service.client.FamilyServiceFeignClient;
 import com.familring.timecapsuleservice.service.client.UserServiceFeignClient;
+import com.familring.timecapsuleservice.service.job.TimeCapsuleNotificationJob;
 import lombok.RequiredArgsConstructor;
+
+import lombok.extern.slf4j.Slf4j;
+import org.quartz.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.Date;
 
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class TimeCapsuleService {
 
     private final TimeCapsuleRepository timeCapsuleRepository;
     private final TimeCapsuleAnswerRepository timeCapsuleAnswerRepository;
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final UserServiceFeignClient userServiceFeignClient;
+    private final Scheduler notificationScheduler;
 
     // 상태 관리 (3가지 상태로 구분)
     public TimeCapsuleStatusResponse getTimeCapsuleStatus(Long userId) {
@@ -135,6 +141,30 @@ public class TimeCapsuleService {
                     .startDate(LocalDate.now())
                     .endDate(timeCapsuleCreateRequest.getDate())
                     .build();
+
+            // Job 설정
+            JobDetail jobDetail = JobBuilder.newJob(TimeCapsuleNotificationJob.class)
+                    .withIdentity("timeCapsuleNotificationJob_" + timeCapsule.getId())
+                    .usingJobData("userId", userId)
+                    .usingJobData("timeCapsuleId", timeCapsule.getId())
+                    .build();
+
+            // LocalDate를 Date로 변환
+            Date triggerStartDate = Date.from(timeCapsuleCreateRequest.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+            // 지정된 endDate에 Job이 실행되도록 트리거 생성
+            Trigger trigger = TriggerBuilder.newTrigger()
+                    .withIdentity("timeCapsuleNotificationTrigger_" + timeCapsule.getId())
+                    .startAt(triggerStartDate)
+                    .build();
+
+            try {
+                notificationScheduler.scheduleJob(jobDetail, trigger);
+                log.info("스케쥴러 성공");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         } else { // 만약에 타임캡슐이 이미 있을 경우 throw
             throw new AlreadyExistTimeCapsuleException();
         }
