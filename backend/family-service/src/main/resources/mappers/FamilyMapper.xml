@@ -94,11 +94,9 @@
 
     <update id="updateFamilyCommunicationStatusByFamilyId">
         UPDATE family
-        SET family_communication_status =
-                LEAST(GREATEST(family_communication_status + #{amount}, 0), 100)
+        SET family_communication_status = #{newStatus}
         WHERE family_id = #{familyId}
     </update>
-
 
     <delete id="deleteFamily_UserByFamilyIdAndUserId">
         DELETE FROM family_user

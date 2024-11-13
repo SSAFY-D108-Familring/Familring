@@ -276,12 +276,12 @@ public class FamilyServiceImpl implements FamilyService {
         // 1. 가족 찾기
         Family family = familyDao.findFamilyByFamilyId(familyStatusRequest.getFamilyId())
                 .orElseThrow(() -> new FamilyNotFoundException());
-        log.info("before: {}", family.getFamilyCommunicationStatus());
+        int currentStatus = family.getFamilyCommunicationStatus();
+        log.info("[updateFamilyStatus] 이전 가족 상태: {}", currentStatus);
 
         // 2. 가족 상태 변경
-        familyDao.updateFamilyCommunicationStatusByFamilyId(familyStatusRequest.getFamilyId(), familyStatusRequest.getAmount());
-
-        // 3. 로그 확인
-        log.info("after: {}", family.getFamilyCommunicationStatus());
+        int newStatus = Math.max(0, Math.min(100, currentStatus + familyStatusRequest.getAmount()));
+        familyDao.updateFamilyCommunicationStatusByFamilyId(familyStatusRequest.getFamilyId(), newStatus);
+        log.info("[updateFamilyStatus] 이후 가족 상태: {}", newStatus);
     }
 }
