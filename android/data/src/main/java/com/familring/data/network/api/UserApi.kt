@@ -38,6 +38,9 @@ interface UserApi {
     @DELETE("users")
     suspend fun signOut(): BaseResponse<Unit>
 
+    @POST("users/logout")
+    suspend fun logOut(): BaseResponse<Unit>
+
     @PATCH("users/emotion")
     suspend fun updateEmotion(
         @Body userEmotion: UserEmotionRequest,
@@ -51,6 +54,12 @@ interface UserApi {
     @PATCH("users/color")
     suspend fun updateColor(
         @Query("userColor") color: String,
+    ): BaseResponse<Unit>
+
+    @Multipart
+    @PATCH("users/face")
+    suspend fun updateFace(
+        @Part image: MultipartBody.Part?,
     ): BaseResponse<Unit>
 
     @POST("notifications/knock")

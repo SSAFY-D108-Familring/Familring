@@ -56,7 +56,7 @@ fun GrayBigTextField(
         value = keyword,
         onValueChange = { newValue ->
             if (newValue.length <= maxLength) {
-                onValueChange(newValue)
+                onValueChange(newValue.uppercase())
             }
         },
         singleLine = true,

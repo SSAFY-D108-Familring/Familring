@@ -35,6 +35,7 @@ import com.familring.presentation.screen.interest.InterestRoute
 import com.familring.presentation.screen.interest.OtherInterestRoute
 import com.familring.presentation.screen.login.LoginRoute
 import com.familring.presentation.screen.mypage.EditColorRoute
+import com.familring.presentation.screen.mypage.EditFaceRoute
 import com.familring.presentation.screen.mypage.EditNameRoute
 import com.familring.presentation.screen.mypage.MyPageRoute
 import com.familring.presentation.screen.mypage.MyPageViewModel
@@ -408,6 +409,9 @@ fun MainNavHost(
                 navigateToEditColor = {
                     navController.navigate(ScreenDestinations.EditColor.route)
                 },
+                navigateToEditFace = {
+                    navController.navigate(ScreenDestinations.EditFace.route)
+                },
             )
         }
 
@@ -449,6 +453,21 @@ fun MainNavHost(
             val questionId = backStackEntry.arguments?.getLong("questionId") ?: 0L
             PastQuestionRoute(
                 questionId = questionId,
+                popUpBackStack = navController::popBackStack,
+            )
+        }
+
+        composable(
+            route = ScreenDestinations.EditFace.route,
+        ) {
+            val viewModel =
+                hiltViewModel<MyPageViewModel>(
+                    navController.getBackStackEntry(ScreenDestinations.MyPage.route),
+                )
+            EditFaceRoute(
+                modifier = modifier,
+                viewModel = viewModel,
+                showSnackBar = showSnackBar,
                 popUpBackStack = navController::popBackStack,
             )
         }

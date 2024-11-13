@@ -181,6 +181,9 @@ sealed class ScreenDestinations(
 
         fun createRoute(questionId: Long) = "pastQuestion/$questionId"
     }
+
+    // 얼분사 사진 수정
+    data object EditFace : ScreenDestinations(route = "EditFace")
 }
 
 // Schedule 전달 위한 NavType 정의

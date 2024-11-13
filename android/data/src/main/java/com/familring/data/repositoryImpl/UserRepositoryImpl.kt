@@ -122,6 +122,20 @@ class UserRepositoryImpl
                 emit(response)
             }
 
+        override suspend fun logOut(): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.logOut() },
+                        default = Unit,
+                    )
+                if (response is ApiResponse.Success) {
+                    tokenDataStore.deleteJwtToken()
+                    authDataSource.deleteAuthData()
+                }
+                emit(response)
+            }
+
         override suspend fun updateEmotion(emotion: UserEmotionRequest): Flow<ApiResponse<Unit>> =
             flow {
                 val response =
@@ -200,6 +214,17 @@ class UserRepositoryImpl
                 if (response is ApiResponse.Success) {
                     authDataSource.saveFCMToken(token)
                 }
+                emit(response)
+            }
+
+        override suspend fun updateFace(face: File): Flow<ApiResponse<Unit>> =
+            flow {
+                val image = face.toMultiPart(filename = "image")
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateFace(image) },
+                        default = Unit,
+                    )
                 emit(response)
             }
     }
