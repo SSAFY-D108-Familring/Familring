@@ -9,6 +9,7 @@ import com.familring.domain.model.JwtToken
 import com.familring.domain.model.User
 import com.familring.domain.model.notification.KnockNotificationRequest
 import com.familring.domain.model.notification.NotificationResponse
+import com.familring.domain.model.notification.SendMentionNotificationRequest
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserEmotionRequest
 import com.familring.domain.request.UserJoinRequest
@@ -223,6 +224,26 @@ class UserRepositoryImpl
                 val response =
                     emitApiResponse(
                         apiResponse = { api.updateFace(image) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
+
+        override suspend fun sendMentionNotification(
+            receiverId: Long,
+            mention: String,
+        ): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = {
+                            api.sendMentionNotification(
+                                SendMentionNotificationRequest(
+                                    receiverId,
+                                    mention,
+                                ),
+                            )
+                        },
                         default = Unit,
                     )
                 emit(response)

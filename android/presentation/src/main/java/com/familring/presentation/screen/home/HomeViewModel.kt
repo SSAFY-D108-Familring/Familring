@@ -4,8 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FamilyRepository
+import com.familring.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -17,9 +20,13 @@ class HomeViewModel
     @Inject
     constructor(
         private val familyRepository: FamilyRepository,
+        private val userRepository: UserRepository,
     ) : ViewModel() {
         private val _homeState = MutableStateFlow<HomeState>(HomeState.Loading)
         val homeState = _homeState.asStateFlow()
+
+        private val _homeEvent = MutableSharedFlow<HomeEvent>()
+        val homeEvent = _homeEvent.asSharedFlow()
 
         private val _refreshTrigger = MutableStateFlow(0) // 실시간으로 받아오기 위해 필요하고
 
@@ -73,6 +80,30 @@ class HomeViewModel
                                 familyMembers = updateState.familyMembers,
                                 familyInfo = updateState.familyInfo,
                             )
+                    }
+                }
+            }
+        }
+
+        fun sendMentionNotification(
+            receiverId: Long,
+            mention: String,
+        ) {
+            viewModelScope.launch {
+                userRepository.sendMentionNotification(receiverId, mention).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _homeEvent.emit(HomeEvent.Success)
+                        }
+
+                        is ApiResponse.Error -> {
+                            _homeEvent.emit(
+                                HomeEvent.Error(
+                                    code = response.code,
+                                    message = response.message,
+                                ),
+                            )
+                        }
                     }
                 }
             }

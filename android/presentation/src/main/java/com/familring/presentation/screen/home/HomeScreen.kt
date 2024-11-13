@@ -79,6 +79,7 @@ fun HomeRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
+    val homeEvent by viewModel.homeEvent.collectAsStateWithLifecycle(initialValue = HomeEvent.None)
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
@@ -101,6 +102,8 @@ fun HomeRoute(
                 navigateToInterest = navigateToInterest,
                 navigateToMyPage = navigateToMyPage,
                 showSnackBar = showSnackBar,
+                homeEvent = homeEvent,
+                viewModel = viewModel,
             )
         }
 
@@ -111,6 +114,8 @@ fun HomeRoute(
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
                 showSnackBar = showSnackBar,
+                homeEvent = homeEvent,
+                viewModel = viewModel,
             )
             showSnackBar(state.errorMessage)
         }
@@ -127,6 +132,8 @@ fun HomeScreen(
     navigateToInterest: () -> Unit = {},
     navigateToMyPage: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    homeEvent: HomeEvent,
+    viewModel: HomeViewModel,
 ) {
     var progress by remember {
         mutableFloatStateOf(0f)
@@ -139,6 +146,15 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         progress = familyInfo.familyCommunicationStatus.toFloat().coerceIn(0f, 100f)
+    }
+
+    LaunchedEffect(homeEvent) {
+        when (homeEvent) {
+            is HomeEvent.Success -> {
+                showSnackBar("알림을 성공적으로 전송했습니다")
+            }
+            else -> {}
+        }
     }
 
     val father = familyMembers.find { it.userRole == "F" }
@@ -371,8 +387,7 @@ fun HomeScreen(
                                         shape = RoundedCornerShape(23.dp),
                                         spotColor = Gray01,
                                         ambientColor = Gray01,
-                                    )
-                                    .background(color = Gray04, shape = RoundedCornerShape(23.dp))
+                                    ).background(color = Gray04, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToTimeCapsule() },
                         ) {
                             Column(
@@ -419,8 +434,7 @@ fun HomeScreen(
                                         shape = RoundedCornerShape(23.dp),
                                         spotColor = Black,
                                         ambientColor = Gray01,
-                                    )
-                                    .background(color = Green02, shape = RoundedCornerShape(23.dp))
+                                    ).background(color = Green02, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToInterest() },
                         ) {
                             Column(
@@ -487,7 +501,9 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (mother != null) {
-                        FamilyCard(mother)
+                        FamilyCard(mother, onCardClick = {
+                            viewModel.sendMentionNotification(it, "MOTHER")
+                        })
                     } else {
                         EmptyCard()
                     }
@@ -498,7 +514,9 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     if (father != null) {
-                        FamilyCard(father)
+                        FamilyCard(father, onCardClick = {
+                            viewModel.sendMentionNotification(it, "FATHER")
+                        })
                     } else {
                         EmptyCard()
                     }
@@ -514,7 +532,9 @@ fun HomeScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp),
             ) {
                 items(children.size) { index ->
-                    FamilyCard(children[index])
+                    FamilyCard(children[index], onCardClick = {
+                        viewModel.sendMentionNotification(it, "CHILD")
+                    })
                 }
             }
         }
@@ -522,14 +542,20 @@ fun HomeScreen(
 }
 
 @Composable
-fun FamilyCard(user: User) {
+fun FamilyCard(
+    user: User,
+    onCardClick: (Long) -> Unit = {},
+) {
     ElevatedCard(
         shape = RoundedCornerShape(18.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier =
             Modifier
                 .width(124.dp)
-                .aspectRatio(1f),
+                .aspectRatio(1f)
+                .noRippleClickable {
+                    onCardClick(user.userId)
+                },
     ) {
         Column(
             modifier =
@@ -661,5 +687,7 @@ fun HomeScreenPreview() {
         navigateToTimeCapsule = {},
         navigateToInterest = {},
         showSnackBar = {},
+        homeEvent = HomeEvent.None,
+        viewModel = hiltViewModel(),
     )
 }
