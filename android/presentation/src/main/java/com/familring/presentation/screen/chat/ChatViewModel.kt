@@ -87,8 +87,6 @@ class ChatViewModel
             viewModelScope.launch {
                 userId = authDataStore.getUserId()
                 familyId = authDataStore.getFamilyId()
-
-                _state.value = ChatUiState.Success(userId = userId!!)
             }
         }
 
@@ -137,6 +135,7 @@ class ChatViewModel
             viewModelScope.launch {
                 val pagingData = enterRoom().first()
                 _chatPagingData.value = pagingData
+                _state.value = ChatUiState.Success(userId = userId!!)
             }
         }
 
