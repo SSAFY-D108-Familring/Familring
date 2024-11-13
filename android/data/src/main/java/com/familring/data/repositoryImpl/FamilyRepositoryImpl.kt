@@ -8,9 +8,15 @@ import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
 import com.familring.domain.model.chat.Chat
+import com.familring.domain.model.chat.FileUploadRequest
 import com.familring.domain.repository.FamilyRepository
+import com.familring.domain.util.toVoiceMultiPart
+import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import javax.inject.Inject
 
 class FamilyRepositoryImpl
@@ -76,6 +82,23 @@ class FamilyRepositoryImpl
                             )
                         },
                         default = listOf(),
+                    )
+                emit(response)
+            }
+
+        override suspend fun uploadVoice(
+            request: FileUploadRequest,
+            voice: File,
+        ): Flow<ApiResponse<String>> =
+            flow {
+                val file = voice.toVoiceMultiPart(filename = "voice")
+                val requestBody =
+                    Gson().toJson(request).toRequestBody("application/json".toMediaTypeOrNull())
+
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.uploadVoice(requestBody, file) },
+                        default = "",
                     )
                 emit(response)
             }

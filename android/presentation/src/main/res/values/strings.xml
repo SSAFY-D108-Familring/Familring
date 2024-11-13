@@ -3,4 +3,5 @@
     <string name="vote_type">VOTE</string>
     <string name="vote_response_type">VOTE_RESPONSE</string>
     <string name="vote_result_type">VOTE_RESULT</string>
+    <string name="voice_type">VOICE</string>
 </resources>
