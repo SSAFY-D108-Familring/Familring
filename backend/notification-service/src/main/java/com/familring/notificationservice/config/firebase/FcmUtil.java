@@ -44,15 +44,14 @@ public class FcmUtil {
     // FCM 메시지를 생성하는 메서드
     public Message makeMessage(String title, String body, String token) { // FcmDTO의 title, body 사용
         // 알림 객체 생성
-        Notification notification =
-                Notification.builder()
-                        .setTitle(title)    // 제목 설정
-                        .setBody(body)      // 본문 설정
-                        .build();
+//        Notification notification =
+//                Notification.builder()
+//                        .setTitle(title)    // 제목 설정
+//                        .setBody(body)      // 본문 설정
+//                        .build();
 
         // 메시지 객체 생성
         return Message.builder()
-                .setNotification(notification)  // 알림 설정
                 .setToken(token)                // FCM 토큰 설정
                 .putData("title", title)        // 데이터에 제목 추가
                 .putData("body", body)          // 데이터에 본문 추가
