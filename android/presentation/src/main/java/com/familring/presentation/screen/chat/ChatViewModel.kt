@@ -1,6 +1,9 @@
 package com.familring.presentation.screen.chat
 
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.datastore.AuthDataStore
@@ -48,6 +51,7 @@ class ChatViewModel
     ) : ViewModel() {
         private var userId: Long? = 0L
         private var familyId: Long? = 0L
+
         private lateinit var stompSession: StompSession
         private val moshi: Moshi =
             Moshi
@@ -58,6 +62,10 @@ class ChatViewModel
                 .build()
         private lateinit var chatList: List<Chat>
 
+        // 재생 중인 파일
+        private var currentPlayer: VoicePlayer? by mutableStateOf(null)
+        var currentPath: String? by mutableStateOf(null)
+
         private val _state = MutableStateFlow<ChatUiState>(ChatUiState.Loading)
         val state = _state.asStateFlow()
         private val _event = MutableSharedFlow<ChatUiEvent>()
@@ -65,6 +73,29 @@ class ChatViewModel
 
         init {
             loadUserData()
+        }
+
+        fun pauseCurrentPlaying() {
+            currentPath?.let {
+                currentPlayer?.apply {
+                    pause()
+                }
+                currentPlayer = null
+                currentPath = null
+            }
+        }
+
+        fun setCurrentPlayer(
+            player: VoicePlayer,
+            filePath: String,
+        ) {
+            currentPlayer = player
+            currentPath = filePath
+        }
+
+        fun removePlayer() {
+            currentPlayer = null
+            currentPath = null
         }
 
         private fun loadUserData() {

@@ -58,6 +58,7 @@ import com.familring.presentation.component.chat.DateDivider
 import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
 import com.familring.presentation.component.chat.VoiceMessage
+import com.familring.presentation.component.chat.VoteChatItem
 import com.familring.presentation.component.chat.VoteMessage
 import com.familring.presentation.component.chat.VoteResultMessage
 import com.familring.presentation.component.dialog.LoadingDialog
@@ -113,6 +114,10 @@ fun ChatRoute(
                 sendVoteMessage = viewModel::sendVoteMessage,
                 sendVoteResponse = viewModel::sendVoteResponse,
                 sendVoiceMessage = viewModel::uploadVoice,
+                pauseCurrentPlaying = viewModel::pauseCurrentPlaying,
+                setCurrentPlayer = viewModel::setCurrentPlayer,
+                currentPath = viewModel.currentPath,
+                removePlayer = viewModel::removePlayer,
             )
         }
 
@@ -140,6 +145,10 @@ fun ChatScreen(
     sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteResponse: (Context, String, String) -> Unit = { _, _, _ -> },
     sendVoiceMessage: (Context, File) -> Unit = { _, _ -> },
+    pauseCurrentPlaying: () -> Unit = {},
+    setCurrentPlayer: (VoicePlayer, String) -> Unit = { _, _ -> },
+    currentPath: String? = null,
+    removePlayer: () -> Unit = {},
 ) {
     var inputMessage by remember { mutableStateOf("") }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -301,6 +310,10 @@ fun ChatScreen(
                                     nickname = item.sender.userNickname,
                                     profileImg = item.sender.userZodiacSign,
                                     color = item.sender.userColor,
+                                    pauseCurrentPlaying = pauseCurrentPlaying,
+                                    setCurrentPlayer = setCurrentPlayer,
+                                    currentPath = currentPath,
+                                    removePlayer = removePlayer,
                                 )
                             }
                         }
@@ -347,6 +360,7 @@ fun ChatScreen(
                         sendMessage(context, inputMessage)
                         inputMessage = ""
                     },
+                    enabled = inputMessage.isNotBlank(),
                 )
             }
         }
@@ -499,5 +513,5 @@ fun ChatScreen(
 @Preview
 @Composable
 fun ChatScreenPreview() {
-    ChatScreen()
+//    ChatScreen()
 }

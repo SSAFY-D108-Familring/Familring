@@ -42,9 +42,9 @@ import com.familring.presentation.screen.chat.VoicePlayer
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
-import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow01
 
 @Composable
@@ -56,6 +56,10 @@ fun VoiceMessage(
     nickname: String = "",
     profileImg: String = "",
     color: String = "",
+    pauseCurrentPlaying: () -> Unit = {},
+    setCurrentPlayer: (VoicePlayer, String) -> Unit = { _, _ -> },
+    currentPath: String? = null,
+    removePlayer: () -> Unit = {},
 ) {
     if (!isOther) {
         Box(
@@ -94,10 +98,14 @@ fun VoiceMessage(
                     width = 0.6f,
                     iconColor = Brown01,
                     backgroundColor = Yellow01,
-                    lineColor = White,
-                    trackColor = Brown01,
+                    lineColor = Brown01,
+                    trackColor = Gray03,
                     topStart = 15,
                     bottomEnd = 0,
+                    pauseCurrentPlaying = pauseCurrentPlaying,
+                    setCurrentPlayer = setCurrentPlayer,
+                    currentPath = currentPath,
+                    removePlayer = removePlayer,
                 )
             }
         }
@@ -135,10 +143,14 @@ fun VoiceMessage(
                         width = 0.65f,
                         iconColor = Yellow01,
                         backgroundColor = Brown01,
-                        lineColor = White,
-                        trackColor = Yellow01,
+                        lineColor = Yellow01,
+                        trackColor = Gray01,
                         topStart = 0,
                         bottomEnd = 15,
+                        pauseCurrentPlaying = pauseCurrentPlaying,
+                        setCurrentPlayer = setCurrentPlayer,
+                        currentPath = currentPath,
+                        removePlayer = removePlayer,
                     )
                 }
                 Spacer(modifier = Modifier.width(7.dp))
@@ -175,11 +187,21 @@ fun MessagePlayerUI(
     trackColor: Color,
     topStart: Int,
     bottomEnd: Int,
+    pauseCurrentPlaying: () -> Unit,
+    setCurrentPlayer: (VoicePlayer, String) -> Unit,
+    currentPath: String? = null,
+    removePlayer: () -> Unit = {},
 ) {
     val voicePlayer = remember { VoicePlayer() }
     var isPlaying by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
     var totalDuration by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(currentPath) {
+        if (currentPath != filePath) {
+            isPlaying = false
+        }
+    }
 
     LaunchedEffect(isPlaying) {
         if (isPlaying) {
@@ -210,6 +232,11 @@ fun MessagePlayerUI(
                     voicePlayer.pause()
                     isPlaying = false
                 } else {
+                    if (currentPath != filePath) {
+                        pauseCurrentPlaying()
+                        progress = 0f
+                    }
+                    setCurrentPlayer(voicePlayer, filePath)
                     voicePlayer.playMessage(
                         filePath = filePath,
                         onProgressUpdate = { current ->
@@ -218,6 +245,9 @@ fun MessagePlayerUI(
                         onComplete = {
                             isPlaying = false
                             progress = 0f
+                            if (currentPath == filePath) {
+                                removePlayer()
+                            }
                         },
                         onError = {
                         },
@@ -227,7 +257,7 @@ fun MessagePlayerUI(
             },
         ) {
             Icon(
-                modifier = Modifier.fillMaxSize(0.8f),
+                modifier = Modifier.fillMaxSize(0.7f),
                 painter =
                     if (isPlaying) {
                         painterResource(id = R.drawable.ic_pause)
@@ -240,7 +270,6 @@ fun MessagePlayerUI(
                 tint = iconColor,
             )
         }
-        Spacer(modifier = Modifier.width(10.dp))
         LinearProgressIndicator(
             progress = { progress },
             color = lineColor,
@@ -258,7 +287,7 @@ fun MessagePlayerUI(
 @Preview(showBackground = true)
 fun VoiceMessagePreview() {
     VoiceMessage(
-        isOther = false,
+        isOther = true,
         filePath = "",
         time = "13:00",
         unReadMembers = "3",

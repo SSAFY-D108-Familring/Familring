@@ -63,7 +63,7 @@ class VoicePlayer {
                 override fun run() {
                     if (mediaPlayer != null && mp.isPlaying) {
                         onProgressUpdate(mp.currentPosition)
-                        handler?.postDelayed(this, 50)
+                        handler?.postDelayed(this, 100)
                     }
                 }
             },
@@ -78,6 +78,7 @@ class VoicePlayer {
                 it.release()
             }
         }
+        currentMessageUrl = null
     }
 
     fun pause() {
@@ -91,6 +92,4 @@ class VoicePlayer {
     }
 
     fun getTotalDuration(): Int = mediaPlayer?.duration ?: 0
-
-    fun isPlayingMessage(messageUrl: String) = playing && currentMessageUrl == messageUrl
 }
