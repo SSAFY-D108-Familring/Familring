@@ -166,19 +166,6 @@ class UserRepositoryImpl
                 emit(response)
             }
 
-        override suspend fun updateFCMToken(token: String): Flow<ApiResponse<Unit>> =
-            flow {
-                val response =
-                    emitApiResponse(
-                        apiResponse = { api.updateFCMToken(token) },
-                        default = Unit,
-                    )
-                if (response is ApiResponse.Success) {
-                    authDataSource.saveFCMToken(token)
-                }
-                emit(response)
-            }
-
         override suspend fun sendKnockNotification(
             targetUserId: String,
             senderNickname: String,
@@ -214,6 +201,19 @@ class UserRepositoryImpl
                         apiResponse = { api.readNotification(notificationId) },
                         default = Unit,
                     )
+                emit(response)
+            }
+
+        override suspend fun updateFCMToken(token: String): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.updateFcmToken(token) },
+                        default = Unit,
+                    )
+                if (response is ApiResponse.Success) {
+                    authDataSource.saveFCMToken(token)
+                }
                 emit(response)
             }
 

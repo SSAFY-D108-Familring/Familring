@@ -6,6 +6,9 @@ import androidx.compose.runtime.Stable
 @Stable
 sealed interface GalleryUiEvent {
     @Immutable
+    data object Init : GalleryUiEvent
+
+    @Immutable
     data object Loading : GalleryUiEvent
 
     @Immutable

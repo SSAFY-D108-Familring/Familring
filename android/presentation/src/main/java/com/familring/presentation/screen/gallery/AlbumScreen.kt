@@ -53,6 +53,7 @@ import com.familring.domain.model.gallery.Photo
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.button.RoundLongButton
+import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
@@ -69,6 +70,7 @@ fun AlbumRoute(
     isNormal: Boolean,
     modifier: Modifier,
     onNavigateBack: () -> Unit,
+    onPhotoClick: (Long, String) -> Unit,
     viewModel: GalleryViewModel = hiltViewModel(),
 ) {
     AlbumScreen(
@@ -76,6 +78,7 @@ fun AlbumRoute(
         isNormal = isNormal,
         modifier = modifier,
         onNavigateBack = onNavigateBack,
+        onPhotoClick = onPhotoClick,
         viewModel = viewModel,
     )
 }
@@ -86,16 +89,17 @@ fun AlbumScreen(
     isNormal: Boolean,
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {},
+    onPhotoClick: (Long, String) -> Unit = { _, _ -> },
     viewModel: GalleryViewModel,
 ) {
     val context = LocalContext.current
     val photoUiState by viewModel.photoUiState.collectAsStateWithLifecycle()
-    val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Loading)
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Init)
 
     var isSelectionMode by remember { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<Long>()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val permission =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -152,35 +156,41 @@ fun AlbumScreen(
         }
 
     val onAddPhotoClick = {
-        if (!isLoading) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    context,
-                    permission,
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    multiplePhotoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                    )
-                }
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                permission,
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                multiplePhotoPickerLauncher.launch(
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                )
+            }
 
-                else -> {
-                    permissionLauncher.launch(permission)
-                }
+            else -> {
+                permissionLauncher.launch(permission)
             }
         }
     }
 
     LaunchedEffect(galleryUiEvent) {
         when (galleryUiEvent) {
+            is GalleryUiEvent.Init -> {
+                isLoading = false
+            }
+
+            is GalleryUiEvent.Loading -> {
+                isLoading = true
+            }
+
             is GalleryUiEvent.Success -> {
+                isLoading = false
                 Toast.makeText(context, "성공적으로 반영되었습니다", Toast.LENGTH_SHORT).show()
             }
 
             is GalleryUiEvent.Error -> {
+                isLoading = false
                 Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
             }
-
-            else -> {}
         }
     }
 
@@ -189,6 +199,18 @@ fun AlbumScreen(
     }
 
     Surface(modifier = modifier.fillMaxSize(), color = White) {
+        if (isLoading) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(color = Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center,
+            ) {
+                LoadingDialog(loadingMessage = "사진 로딩중...")
+            }
+            return@Surface
+        }
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 title = {
@@ -320,7 +342,6 @@ fun AlbumScreen(
                                 RoundLongButton(
                                     backgroundColor = Green02,
                                     text = "사진 추가하기",
-                                    enabled = !isLoading,
                                     onClick = onAddPhotoClick,
                                 )
                             }
@@ -345,13 +366,15 @@ fun AlbumScreen(
                                     photo = state.photoList[index],
                                     selected = state.photoList[index].id in selectedPhotos,
                                     onPhotoClick = { photo ->
-                                        if (isSelectionMode && !isLoading) {
+                                        if (isSelectionMode) {
                                             selectedPhotos =
                                                 if (photo.id in selectedPhotos) {
                                                     selectedPhotos - photo.id
                                                 } else {
                                                     selectedPhotos + photo.id
                                                 }
+                                        } else {
+                                            onPhotoClick(albumId, photo.photoUrl)
                                         }
                                     },
                                 )
@@ -382,19 +405,6 @@ fun AlbumScreen(
                         showDeleteDialog = false
                     },
                 )
-            }
-        }
-
-        if (isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(color = Black.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                // 로딩추가
-                CircularProgressIndicator(color = Green02)
             }
         }
     }

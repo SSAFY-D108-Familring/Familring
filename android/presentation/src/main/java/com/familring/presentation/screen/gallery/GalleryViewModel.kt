@@ -31,9 +31,6 @@ class GalleryViewModel
         private val _photoUiState = MutableStateFlow<PhotoUiState>(PhotoUiState.Loading)
         val photoUiState = _photoUiState.asStateFlow()
 
-        private val _isLoading = MutableStateFlow(false)
-        val isLoading = _isLoading.asStateFlow()
-
         private var currentAlbumTypes: List<AlbumType> =
             listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON)
 
@@ -84,31 +81,26 @@ class GalleryViewModel
             albumType: AlbumType,
         ) {
             viewModelScope.launch {
-                _isLoading.value = true
-                try {
-                    galleryRepository
-                        .createAlbum(scheduleId, albumName, albumType.name)
-                        .collectLatest { response ->
-                            when (response) {
-                                is ApiResponse.Success -> {
-                                    _galleryUiEvent.emit(GalleryUiEvent.Success)
-                                    loadAlbums()
-                                }
+                galleryRepository
+                    .createAlbum(scheduleId, albumName, albumType.name)
+                    .collectLatest { response ->
+                        when (response) {
+                            is ApiResponse.Success -> {
+                                _galleryUiEvent.emit(GalleryUiEvent.Success)
+                                loadAlbums()
+                            }
 
-                                is ApiResponse.Error -> {
-                                    _galleryUiEvent.emit(
-                                        GalleryUiEvent.Error(
-                                            response.code,
-                                            response.message,
-                                        ),
-                                    )
-                                    Timber.d("code: ${response.code}, message: ${response.message}")
-                                }
+                            is ApiResponse.Error -> {
+                                _galleryUiEvent.emit(
+                                    GalleryUiEvent.Error(
+                                        response.code,
+                                        response.message,
+                                    ),
+                                )
+                                Timber.d("code: ${response.code}, message: ${response.message}")
                             }
                         }
-                } finally {
-                    _isLoading.value = false
-                }
+                    }
             }
         }
 
@@ -193,27 +185,22 @@ class GalleryViewModel
             photos: List<File>,
         ) {
             viewModelScope.launch {
-                _isLoading.value = true
-                try {
-                    galleryRepository.uploadPhotos(albumId, photos).collectLatest { response ->
-                        when (response) {
-                            is ApiResponse.Success -> {
-                                _galleryUiEvent.emit(GalleryUiEvent.Success)
-                                getOneAlbum(albumId)
-                            }
+                galleryRepository.uploadPhotos(albumId, photos).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _galleryUiEvent.emit(GalleryUiEvent.Success)
+                            getOneAlbum(albumId)
+                        }
 
-                            is ApiResponse.Error -> {
-                                _galleryUiEvent.emit(
-                                    GalleryUiEvent.Error(
-                                        response.code,
-                                        response.message,
-                                    ),
-                                )
-                            }
+                        is ApiResponse.Error -> {
+                            _galleryUiEvent.emit(
+                                GalleryUiEvent.Error(
+                                    response.code,
+                                    response.message,
+                                ),
+                            )
                         }
                     }
-                } finally {
-                    _isLoading.value = false
                 }
             }
         }

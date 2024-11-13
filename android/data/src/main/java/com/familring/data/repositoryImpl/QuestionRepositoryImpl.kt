@@ -3,6 +3,7 @@ package com.familring.data.repositoryImpl
 import com.familring.data.network.api.QuestionApi
 import com.familring.data.network.response.emitApiResponse
 import com.familring.domain.model.ApiResponse
+import com.familring.domain.model.question.KnockRequest
 import com.familring.domain.model.question.QuestionList
 import com.familring.domain.model.question.QuestionResponse
 import com.familring.domain.repository.QuestionRepository
@@ -59,4 +60,19 @@ class QuestionRepositoryImpl
                     )
                 emit(response)
             }
+
+        override suspend fun knockKnock(
+            questionId: Long,
+            receiverId: Long,
+        ): Flow<ApiResponse<Unit>> =
+            flow {
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.knockKnock(KnockRequest(questionId, receiverId)) },
+                        default = Unit,
+                    )
+                emit(response)
+            }
+
+
     }
