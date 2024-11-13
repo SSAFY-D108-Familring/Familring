@@ -1,6 +1,7 @@
 package com.familring.presentation.component
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.theme.White
 
 @Composable
 fun TutorialScreen(
@@ -44,9 +46,11 @@ fun TutorialScreen(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .background(color = White)
+                .padding(bottom = 20.dp),
     ) {
         Text(
+            modifier = Modifier.padding(start = 30.dp),
             text = title,
             style = Typography.titleLarge.copy(fontSize = 25.sp),
         )
