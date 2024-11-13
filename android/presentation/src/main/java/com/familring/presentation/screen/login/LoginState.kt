@@ -7,6 +7,9 @@ import javax.annotation.concurrent.Immutable
 @Stable
 sealed interface LoginState {
     @Immutable
+    data object Init : LoginState
+
+    @Immutable
     data object Loading : LoginState
 
     @Immutable

@@ -131,10 +131,11 @@ fun PastQuestionScreen(
                                                 text = "${state.questionId}번째 질문",
                                                 textAlign = TextAlign.Center,
                                                 style = Typography.bodySmall,
+                                                color = White,
                                                 modifier =
                                                     Modifier
                                                         .background(
-                                                            color = Green01,
+                                                            color = Green02,
                                                             shape = RoundedCornerShape(8.dp),
                                                         ).padding(horizontal = 15.dp, vertical = 8.dp),
                                             )
@@ -162,7 +163,7 @@ fun PastQuestionScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 items(state.answerContents.size) { index ->
-                                    FamilyListItem(state.answerContents[index], {})
+                                    FamilyListItem(state.answerContents[index],{},index, questionId = questionId)
                                 }
                             }
                         }

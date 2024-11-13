@@ -33,6 +33,12 @@ class AuthDataStoreImpl
             }
         }
 
+        override suspend fun getFCMToken(): String? =
+            dataStore.data
+                .map { prefs ->
+                    prefs[FCM_TOKEN_KEY]
+                }.first()
+
         override suspend fun deleteAuthData() {
             dataStore.edit { prefs ->
                 prefs.remove(KAKAO_ID_KEY)

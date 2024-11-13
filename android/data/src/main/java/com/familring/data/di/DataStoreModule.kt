@@ -10,6 +10,7 @@ import com.familring.data.datastoreImpl.AuthDataStoreImpl
 import com.familring.data.datastoreImpl.TokenDataStoreImpl
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,4 +37,8 @@ object DataStoreModule {
     @Singleton
     @Provides
     fun provideAuthDataStore(dataStore: DataStore<Preferences>): AuthDataStore = AuthDataStoreImpl(dataStore)
+
+    @Singleton
+    @Provides
+    fun provideFriebaseMessaging(): FirebaseMessaging = FirebaseMessaging.getInstance()
 }
