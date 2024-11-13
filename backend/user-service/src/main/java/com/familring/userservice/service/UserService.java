@@ -1,9 +1,6 @@
 package com.familring.userservice.service;
 
-import com.familring.userservice.model.dto.request.FileUploadRequest;
-import com.familring.userservice.model.dto.request.UserEmotionRequest;
-import com.familring.userservice.model.dto.request.UserJoinRequest;
-import com.familring.userservice.model.dto.request.UserLoginRequest;
+import com.familring.userservice.model.dto.request.*;
 import com.familring.userservice.model.dto.response.JwtTokenResponse;
 import com.familring.userservice.model.dto.response.UserInfoResponse;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +42,9 @@ public interface UserService {
 
     // 회원 얼굴 변경
     void updateFace(Long userId, MultipartFile image);
+
+    // 회원 안읽음 알림 개수 변경
+    void updateUserUnReadCount(UnReadCountRequest unReadCountRequest);
 
     // 회원 탈퇴
     void deleteUser(Long userId);

@@ -13,8 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NotificationRequest {
-    // 알림 받는 사람들 Id
-    private List<Long> receiverUserIds;
+    private NotificationType notificationType;      // 알림 발생지
+    private List<Long> receiverUserIds; // 알림 받는 사람들 Id
     private Long senderUserId;          // 알림 전송하는 사람 Id
     private String destinationId;       // 알림으로 이동할 Id
     private String title;               // 알림 title

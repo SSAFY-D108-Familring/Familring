@@ -6,6 +6,7 @@ import com.familring.notificationservice.exception.notification.NotFoundNotifica
 import com.familring.notificationservice.model.dao.NotificationDao;
 import com.familring.notificationservice.model.dto.Notification;
 import com.familring.notificationservice.model.dto.request.NotificationRequest;
+import com.familring.notificationservice.model.dto.request.UnReadCountRequest;
 import com.familring.notificationservice.model.dto.response.NotificationResponse;
 import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import com.familring.notificationservice.service.client.UserServiceFeignClient;
@@ -64,7 +65,15 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 2. 알림 읽음 여부 수정
         notificationDao.updateNotificationIsReadByNotificationId(notificationId);
-        log.info("[] 알림 읽음 완료={}", notification.isNotificationIsRead());
+        log.info("[updateNotificationIsRead] 알림 읽음 완료={}", notification.isNotificationIsRead());
+        
+        // 3. 알림 수신자 안읽음 알림 개수 감소
+        UnReadCountRequest unReadCountRequest = UnReadCountRequest.builder()
+                .userId(userId)
+                .amount(-1)
+                .build();
+        userServiceFeignClient.updateUserUnReadCount(unReadCountRequest);
+        log.info("[updateNotificationIsRead] 알림 수신자 안읽음 알림 개수 감소 처리 완료");
     }
 
     @Override
@@ -73,6 +82,7 @@ public class NotificationServiceImpl implements NotificationService {
         // 1. 알림 생성 -> 알림 수신 인원만큼 수행
         log.info("[alarmByFcm] 알림 수신 인원 수 {}명", notificationRequest.getReceiverUserIds().size());
         for(Long userId : notificationRequest.getReceiverUserIds()) {
+            // 1-1. 알림 객체 생성
             Notification newNotification = Notification.builder()
                     .receiverUserId(userId)
                     .senderUserId(notificationRequest.getSenderUserId())
@@ -83,11 +93,20 @@ public class NotificationServiceImpl implements NotificationService {
                     .build();
 
             notificationDao.insertNotification(newNotification);
+
+            // 1-2. 알림 수신자 안읽음 알림 개수 증가
+            UnReadCountRequest unReadCountRequest = UnReadCountRequest.builder()
+                    .userId(userId)
+                    .amount(1)
+                    .build();
+            userServiceFeignClient.updateUserUnReadCount(unReadCountRequest);
+            log.info("[alarmByFcm] 알림 수신자 안읽음 알림 개수 증가 처리 완료");
         }
 
         // 2. 수신자들에게 알림 전송
         List<UserInfoResponse> usersList = userServiceFeignClient.getAllUser(notificationRequest.getReceiverUserIds()).getData();
         FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO("캘린더 언급 알림", notificationRequest.getMessage());
         fcmUtil.multiFcmSend(usersList, fcmDto);
+        log.info("[alarmByFcm] 알림 전송 완료");
     }
 }

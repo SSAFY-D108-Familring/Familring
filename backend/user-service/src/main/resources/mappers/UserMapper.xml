@@ -16,6 +16,7 @@
         <result column="user_color" property="userColor"/>
         <result column="user_emotion" property="userEmotion"/>
         <result column="user_fcm_token" property="userFcmToken"/>
+        <result column="user_un_read_count" property="userUnReadCount"/>
         <result column="user_created_at" property="userCreatedAt"/>
         <result column="user_modified_at" property="userModifiedAt"/>
         <result column="user_is_lunar" property="userIsLunar" javaType="boolean"/>
@@ -27,13 +28,13 @@
         INSERT INTO user (
             user_kakao_id, user_password, user_nickname, user_birth_date,
             user_zodiac_sign, user_role, user_face, user_color,
-            user_emotion, user_created_at, user_modified_at,
+            user_emotion, user_un_read_count, user_created_at, user_modified_at,
             user_is_lunar, user_is_deleted, user_is_admin
         )
         VALUES (
                    #{userKakaoId}, #{userPassword}, #{userNickname}, #{userBirthDate},
                    #{userZodiacSign}, #{userRole}, #{userFace}, #{userColor},
-                   #{userEmotion}, NOW(), NOW(),
+                   #{userEmotion}, 0, NOW(), NOW(),
                    #{userIsLunar}, #{userIsDeleted}, #{userIsAdmin}
                )
     </insert>
@@ -80,9 +81,15 @@
         WHERE user_id = #{userId}
     </update>
 
-    <update id="updateUserFaceByUserId">
+    <update id="updateUserFaceByUserId" >
         UPDATE user
         SET user_face = #{userNewFace}, user_modified_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateUserUnReadCountByUserId">
+        UPDATE user
+        SET user_un_read_count = user_un_read_count + #{amount}, user_modified_at = NOW()
         WHERE user_id = #{userId}
     </update>
 

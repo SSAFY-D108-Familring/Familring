@@ -3,10 +3,7 @@ package com.familring.questionservice.service;
 import com.familring.questionservice.domain.Question;
 import com.familring.questionservice.domain.QuestionAnswer;
 import com.familring.questionservice.domain.QuestionFamily;
-import com.familring.questionservice.dto.client.Family;
-import com.familring.questionservice.dto.client.FamilyStatusRequest;
-import com.familring.questionservice.dto.client.NotificationRequest;
-import com.familring.questionservice.dto.client.UserInfoResponse;
+import com.familring.questionservice.dto.client.*;
 import com.familring.questionservice.dto.request.KnockRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerCreateRequest;
 import com.familring.questionservice.dto.request.QuestionAnswerUpdateRequest;
@@ -331,6 +328,7 @@ public class QuestionService {
 
         // 알림 전송 객체 생성
         NotificationRequest request = NotificationRequest.builder()
+                .notificationType(NotificationType.KNOCK)
                 .receiverUserIds(new ArrayList<>(){{
                     add(knockRequest.getReceiverId()); // 알림 보낼 사용자 Id
                 }})

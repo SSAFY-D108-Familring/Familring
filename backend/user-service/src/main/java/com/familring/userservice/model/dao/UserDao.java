@@ -30,7 +30,10 @@ public interface UserDao {
     void updateUserColorByUserId(@Param("userId") Long userId,@Param("userColor") String userColor);
 
     // 회원 얼굴 사진 변경
-    void updateUserFaceByUserId(@Param("userId")Long userId,@Param("userNewFace") String newFace);
+    void updateUserFaceByUserId(@Param("userId") Long userId,@Param("userNewFace") String newFace);
+
+    // 회원 안읽음 알림 수 변경
+    void updateUserUnReadCountByUserId(@Param("userId") Long userId, @Param("amount") int amount);
     
     // 회원 탈퇴
     void deleteUser(UserDeleteRequest deleteRequest);

@@ -30,6 +30,7 @@ public class UserDto implements UserDetails {
     private String userColor;
     private String userEmotion;
     private String userFcmToken;
+    private Integer userUnReadCount;
     private LocalDateTime userCreatedAt;
     private LocalDateTime userModifiedAt;
     private boolean userIsLunar;

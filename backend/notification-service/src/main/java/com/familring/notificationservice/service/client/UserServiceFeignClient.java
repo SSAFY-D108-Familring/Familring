@@ -1,6 +1,7 @@
 package com.familring.notificationservice.service.client;
 
 import com.familring.common_module.dto.BaseResponse;
+import com.familring.notificationservice.model.dto.request.UnReadCountRequest;
 import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,4 +18,7 @@ public interface UserServiceFeignClient {
 
     @GetMapping("/client/users/{userId}")
     BaseResponse<UserInfoResponse> getUser(@PathVariable Long userId);
+
+    @PostMapping("/client/users/unread-count")
+    BaseResponse<Void> updateUserUnReadCount(@RequestBody UnReadCountRequest unReadCountRequest);
 }

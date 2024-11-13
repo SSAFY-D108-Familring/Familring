@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
                 .userColor(user.getUserColor())
                 .userEmotion(user.getUserEmotion())
                 .userFcmToken(user.getUserFcmToken())
+                .userUnReadCount(user.getUserUnReadCount())
                 .build();
 
         // 3. 응답
@@ -231,6 +232,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateUserNickname(Long userId, String userNickname) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
@@ -246,6 +248,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateUserColor(Long userId, String userColor) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
@@ -259,6 +262,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateFace(Long userId, MultipartFile image) {
         // 1. 사용자 정보 찾기
         UserDto user = userDao.findUserByUserId(userId)
@@ -277,6 +281,31 @@ public class UserServiceImpl implements UserService {
         // 4. DB 변경
         userDao.updateUserFaceByUserId(user.getUserId(), newFace);
 
+    }
+
+    @Override
+    @Transactional
+    public void updateUserUnReadCount(UnReadCountRequest unReadCountRequest) {
+        // 1. 사용자 정보 찾기
+        UserDto user = userDao.findUserByUserId(unReadCountRequest.getUserId())
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + unReadCountRequest.getUserId() + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+        log.info("[updateUserUnReadCount] 찾은 회원 userId={}", user.getUserId());
+
+        // 2. 알림 수 변경
+        int currentCount = user.getUserUnReadCount();
+        int requestedAmount = unReadCountRequest.getAmount();
+        int newAmount = requestedAmount;
+
+        if (currentCount + requestedAmount < 0) { // 현재 알림 개수가 0보다 클 경우에만 감소 가능
+            newAmount = -currentCount; // 현재 알림 수만큼만 감소시켜 0에 도달하도록 조정
+        }
+
+        log.info("[updateUserUnReadCount] 변경 전 알림 개수: {}개", currentCount);
+        userDao.updateUserUnReadCountByUserId(unReadCountRequest.getUserId(), newAmount);
+        log.info("[updateUserUnReadCount] 변경 후 알림 개수: {}개", currentCount + newAmount);
     }
 
     @Override
