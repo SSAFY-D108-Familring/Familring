@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +36,8 @@ fun SharePagerItem(
     zodiacImg: String = "",
     imgUrl: String = "",
 ) {
+    var isImageLoaded by remember { mutableStateOf(false) }
+
     Box(
         modifier =
             Modifier
@@ -48,17 +54,25 @@ fun SharePagerItem(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            AsyncImage(
-                modifier =
-                    Modifier
-                        .fillMaxWidth(0.8f)
-                        .fillMaxHeight(0.83f)
-                        .padding(top = 20.dp)
-                        .clip(shape = RoundedCornerShape(12.dp)),
-                model = imgUrl,
-                contentDescription = "share_img",
-                contentScale = ContentScale.FillWidth,
-            )
+            Column {
+                AsyncImage(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(0.8f)
+                            .fillMaxHeight(0.83f)
+                            .padding(top = 20.dp)
+                            .clip(shape = RoundedCornerShape(12.dp)),
+                    model = imgUrl,
+                    contentDescription = "share_img",
+                    contentScale = ContentScale.FillWidth,
+                    onLoading = {
+                        isImageLoaded = false
+                    },
+                    onSuccess = {
+                        isImageLoaded = true
+                    },
+                )
+            }
             Spacer(modifier = Modifier.weight(1f))
             Row(
                 modifier = Modifier.fillMaxWidth(),

@@ -31,8 +31,7 @@ class InterestViewModel
         val uiEvent = _uiEvent.asSharedFlow()
 
         init {
-            getInterestStatus()
-            getAnswerStatus()
+            getDataForInterestScreen()
         }
 
         private fun getInterestStatus() {
@@ -42,9 +41,7 @@ class InterestViewModel
                         is ApiResponse.Success -> {
                             _uiState.update {
                                 it.copy(
-                                    isInterestScreenLoading = false,
-//                                    interestStatus = result.data,
-                                    interestStatus = 1,
+                                    interestStatus = result.data,
                                 )
                             }
 
@@ -133,11 +130,13 @@ class InterestViewModel
 
         private fun getAnswersCount() {
             viewModelScope.launch {
+                _uiState.update { it.copy(isWritingScreenLoading = true) }
                 interestRepository.getAnswers().collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _uiState.update {
                                 it.copy(
+                                    isWritingScreenLoading = false,
                                     wroteFamilyCount =
                                         result.data.count { member ->
                                             member.interest.isNotEmpty() and member.interest.isNotBlank()
@@ -182,11 +181,13 @@ class InterestViewModel
 
         private fun getSelectedInterest() {
             viewModelScope.launch {
+                _uiState.update { it.copy(isResultScreenLoading = true) }
                 interestRepository.getSelectedInterest().collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _uiState.update {
                                 it.copy(
+                                    isResultScreenLoading = false,
                                     selectedInterest = result.data,
                                 )
                             }
@@ -307,8 +308,72 @@ class InterestViewModel
             }
         }
 
+        private fun getDataForInterestScreen() {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isInterestScreenLoading = true) }
+                combine(
+                    interestRepository.getInterestStatus(),
+                    interestRepository.getAnswerStatus(),
+                ) { statusResponse, answerResponse ->
+                    var currentState = InterestUiState()
+                    currentState =
+                        when (statusResponse) {
+                            is ApiResponse.Success -> {
+                                when (statusResponse.data) {
+                                    InterestState.WRITING -> {
+                                        getAnswersCount()
+                                    }
+
+                                    InterestState.NO_PERIOD -> {
+                                        getSelectedInterest()
+                                    }
+
+                                    InterestState.MISSION -> {
+                                        getDataForShareDayScreen()
+                                    }
+                                }
+                                currentState.copy(
+                                    interestStatus = statusResponse.data,
+                                )
+                            }
+
+                            is ApiResponse.Error -> {
+                                currentState
+                            }
+                        }
+
+                    currentState =
+                        when (answerResponse) {
+                            is ApiResponse.Success -> {
+                                currentState.copy(
+                                    isWroteInterest = answerResponse.data.isWroteInterest,
+                                    myInterest = answerResponse.data.content,
+                                    isFamilyWrote = answerResponse.data.isFamilyWrote,
+                                )
+                            }
+
+                            is ApiResponse.Error -> {
+                                currentState
+                            }
+                        }
+                    currentState
+                }.collect { updatedState ->
+                    _uiState.update {
+                        it.copy(
+                            isInterestScreenLoading = false,
+                            interestStatus = updatedState.interestStatus,
+                            isWroteInterest = updatedState.isWroteInterest,
+                            myInterest = updatedState.myInterest,
+                            isFamilyWrote = updatedState.isFamilyWrote,
+                        )
+                    }
+                }
+            }
+        }
+
         private fun getDataForShareDayScreen() {
             viewModelScope.launch {
+                _uiState.update { it.copy(isShareScreenLoading = true) }
                 combine(
                     interestRepository.checkUploadMission(),
                     interestRepository.getSelectedInterest(),
