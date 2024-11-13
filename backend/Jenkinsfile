@@ -163,8 +163,8 @@ def copyApplicationYaml(application_yml) {
 def stopAndRemoveContainer(containerName) {
     def container = sh(script: "docker ps -a --filter 'name=${containerName}' --format '{{.ID}}'", returnStdout: true).trim()
     if (container) {
-        sh "docker stop ${container}"
-        sh "docker rm ${container}"
+        sh "docker stop ${containerName}"
+        sh "docker rm ${containerName}"
     }
 }
 
