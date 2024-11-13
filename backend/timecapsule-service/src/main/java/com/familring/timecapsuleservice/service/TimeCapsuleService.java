@@ -11,10 +11,7 @@ import com.familring.timecapsuleservice.dto.response.TimeCapsuleAnswerItem;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleItem;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleListResponse;
 import com.familring.timecapsuleservice.dto.response.TimeCapsuleStatusResponse;
-import com.familring.timecapsuleservice.exception.AlreadyExistTimeCapsuleAnswerException;
-import com.familring.timecapsuleservice.exception.AlreadyExistTimeCapsuleException;
-import com.familring.timecapsuleservice.exception.ExpiredTimeCapsuleAnswerException;
-import com.familring.timecapsuleservice.exception.TimeCapsuleNotFoundException;
+import com.familring.timecapsuleservice.exception.*;
 import com.familring.timecapsuleservice.exception.client.FamilyNotFoundException;
 import com.familring.timecapsuleservice.repository.TimeCapsuleAnswerRepository;
 import com.familring.timecapsuleservice.repository.TimeCapsuleRepository;
@@ -162,7 +159,7 @@ public class TimeCapsuleService {
                 notificationScheduler.scheduleJob(jobDetail, trigger);
                 log.info("스케쥴러 성공");
             } catch (Exception e) {
-                e.printStackTrace();
+                throw new FailedCreateTimeCapsuleException();
             }
 
         } else { // 만약에 타임캡슐이 이미 있을 경우 throw
