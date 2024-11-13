@@ -1,4 +1,4 @@
-package com.familring.questionservice.dto.client;
+package com.familring.timecapsuleservice.dto.client;
 
 public enum NotificationType {
     KNOCK,              // 랜덤 질문 노크
