@@ -111,27 +111,33 @@ fun CalendarRoute(
         navigateToAlbum = navigateToAlbum,
         navigateToModifySchedule = navigateToModifySchedule,
         navigateToModifyDaily = navigateToModifyDaily,
-        showTutorial = { showTutorial = true },
+        showTutorial = {
+            showTutorial = true
+            calendarViewModel.setReadTutorialState(false)
+        },
         showSnackBar = showSnackBar,
     )
 
-    if (showTutorial) {
+    if (showTutorial && !uiState.isReadTutorial) {
         ModalBottomSheet(
             containerColor = White,
-            onDismissRequest = { showTutorial = false },
+            onDismissRequest = {
+                showTutorial = false
+                calendarViewModel.setReadTutorial()
+            },
             sheetState = sheetState,
         ) {
             TutorialScreen(
                 imageLists =
-                listOf(
-                    R.drawable.img_tutorial_calendar_first,
-                    R.drawable.img_tutorial_calendar_second,
-                    R.drawable.img_tutorial_calendar_third,
-                    R.drawable.img_tutorial_calendar_fourth,
-                ),
+                    listOf(
+                        R.drawable.img_tutorial_calendar_first,
+                        R.drawable.img_tutorial_calendar_second,
+                        R.drawable.img_tutorial_calendar_third,
+                        R.drawable.img_tutorial_calendar_fourth,
+                    ),
                 title = "공유 캘린더 미리보기 \uD83D\uDD0D",
                 subTitle =
-                "가족 구성원 모두의 일정을 한눈에 관리하고\n" +
+                    "가족 구성원 모두의 일정을 한눈에 관리하고\n" +
                         "개인의 일상을 모두 볼 수 있도록 공유하세요!",
             )
         }
@@ -351,17 +357,18 @@ fun CalendarScreen(
                         color = Black,
                         style = Typography.titleLarge.copy(fontSize = 30.sp),
                     )
-                },tutorialIcon = {
+                },
+                tutorialIcon = {
                     Icon(
                         modifier =
-                        Modifier
-                            .size(20.dp)
-                            .border(
-                                width = 2.dp,
-                                color = Gray03,
-                                shape = CircleShape,
-                            ).padding(2.dp)
-                            .noRippleClickable { showTutorial() },
+                            Modifier
+                                .size(20.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Gray03,
+                                    shape = CircleShape,
+                                ).padding(2.dp)
+                                .noRippleClickable { showTutorial() },
                         painter = painterResource(id = R.drawable.ic_question),
                         contentDescription = "ic_question",
                         tint = Gray03,
@@ -533,7 +540,6 @@ private fun createDaySchedules(
             }
         DaySchedule(date, schedules, dailies)
     }
-
 
 private fun calcOrder(previewSchedules: List<PreviewSchedule>): List<PreviewSchedule> {
     val occupyList = MutableList<LocalDate?>(3) { null }

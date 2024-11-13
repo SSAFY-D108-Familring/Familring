@@ -82,15 +82,21 @@ fun TimeCapsuleRoute(
         navigateToCreate = navigateToCreate,
         state = uiState,
         timeCapsules = timeCapsules,
-        showTutorial = { showTutorial = true },
+        showTutorial = {
+            showTutorial = true
+            timeCapsuleViewModel.setReadTutorialState(false)
+        },
         getTimeCapsuleStatus = timeCapsuleViewModel::getTimeCapsuleStatus,
         createTimeCapsuleAnswer = timeCapsuleViewModel::createTimeCapsuleAnswer,
     )
 
-    if (showTutorial) {
+    if (showTutorial && !uiState.isReadTutorial) {
         ModalBottomSheet(
             containerColor = White,
-            onDismissRequest = { showTutorial = false },
+            onDismissRequest = {
+                showTutorial = false
+                timeCapsuleViewModel.setReadTutorial()
+            },
             sheetState = sheetState,
         ) {
             TutorialScreen(

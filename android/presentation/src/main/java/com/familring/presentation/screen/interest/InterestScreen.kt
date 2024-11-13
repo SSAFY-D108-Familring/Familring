@@ -91,16 +91,22 @@ fun InterestRoute(
             selectInterest = interestViewModel::selectInterest,
             setPeriod = interestViewModel::setMissionPeriod,
             shareImage = interestViewModel::postMission,
-            showTutorial = { showTutorial = true },
+            showTutorial = {
+                showTutorial = true
+                interestViewModel.setReadTutorialState(false)
+            },
             navigateToInterestList = navigateToInterestList,
             navigateToOtherInterest = navigateToOtherInterest,
             onNavigateBack = onNavigateBack,
         )
 
-        if (showTutorial) {
+        if (showTutorial && !uiState.isReadTutorial) {
             ModalBottomSheet(
                 containerColor = White,
-                onDismissRequest = { showTutorial = false },
+                onDismissRequest = {
+                    showTutorial = false
+                    interestViewModel.setReadTutorial()
+                },
                 sheetState = sheetState,
             ) {
                 TutorialScreen(
