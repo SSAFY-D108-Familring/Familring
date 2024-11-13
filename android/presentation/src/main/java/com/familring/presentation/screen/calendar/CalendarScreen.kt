@@ -70,6 +70,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.PriorityQueue
 
 @Composable
 fun CalendarRoute(
@@ -375,6 +376,7 @@ fun CalendarScreen(
                         .padding(horizontal = 5.dp),
             ) { page ->
                 val month = remember(page) { today.plusMonths(page.toLong() - (pageCount / 2)) }
+                val orderedPreviewSchedules = calcOrder(state.previewSchedules)
                 if (page in pagerState.currentPage - 1..pagerState.currentPage + 1) { // 성능 개선 용
                     MonthGrid(
                         modifier =
@@ -384,7 +386,7 @@ fun CalendarScreen(
                         daySchedules =
                             createDaySchedules(
                                 month,
-                                state.previewSchedules,
+                                orderedPreviewSchedules,
                                 state.previewDailies,
                             ),
                         onDayClick = { daySchedule ->
@@ -483,6 +485,38 @@ private fun createDaySchedules(
             }
         DaySchedule(date, schedules, dailies)
     }
+
+
+private fun calcOrder(previewSchedules: List<PreviewSchedule>): List<PreviewSchedule> {
+    val occupyList = MutableList<LocalDate?>(3) { null }
+
+    val pq = PriorityQueue<PreviewSchedule>()
+    previewSchedules.forEach(
+        pq::add,
+    )
+
+    while (pq.isNotEmpty()) {
+        val currentSchedule = pq.poll()
+
+        for (i in 0..2) {
+            val endTime = occupyList[i]
+
+            if (endTime == null) {
+                currentSchedule.order = i
+                occupyList[i] = currentSchedule.endTime.toLocalDate()
+                break
+            }
+
+            if (endTime.isBefore(currentSchedule.startTime.toLocalDate())) {
+                currentSchedule.order = i
+                occupyList[i] = currentSchedule.endTime.toLocalDate()
+                break
+            }
+        }
+    }
+    previewSchedules.forEach(::println)
+    return previewSchedules
+}
 
 @Preview
 @Composable
