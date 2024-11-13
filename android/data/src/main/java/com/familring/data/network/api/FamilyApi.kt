@@ -50,7 +50,7 @@ interface FamilyApi {
     ): BaseResponse<List<Chat>>
 
     @Multipart
-    @POST("family/voice")
+    @POST("users/voice")
     suspend fun uploadVoice(
         @Part("fileUploadRequest") request: RequestBody,
         @Part voice: MultipartBody.Part?,
