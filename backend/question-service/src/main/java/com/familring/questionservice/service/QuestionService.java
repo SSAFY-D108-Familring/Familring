@@ -56,8 +56,7 @@ public class QuestionService {
     }
 
     // 매일 9시에 자동으로 질문 생성
-//    @Scheduled(cron = "0 0 9 * * ?")
-    @Scheduled(cron = "0 27 12 * * ?")
+    @Scheduled(cron = "0 0 9 * * ?")
     public void scheduledCreateQuestion() {
         // 모든 가족 조회
         List<Long> allFamilyIds = familyServiceFeignClient.getAllFamilyId().getData();
@@ -85,6 +84,7 @@ public class QuestionService {
             // QuestionFamily 업데이트
             questionFamily.updateQuestion(nextQuestion);
             questionFamilyRepository.save(questionFamily);
+            log.info("nextQuestionId : " + nextQuestionId);
 
             // 모두 답변했을 때는 포인트 증가
             FamilyStatusRequest familyStatusRequest = FamilyStatusRequest
@@ -93,6 +93,38 @@ public class QuestionService {
                     .amount(10)
                     .build();
             familyServiceFeignClient.updateFamilyStatus(familyStatusRequest);
+
+            // 가족 구성원 모두에게 전송
+            // 1. 가족 구성원 찾기
+            List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberListByFamilyId(familyId).getData();
+
+            List<Long> familyMemberIds = new ArrayList<>();
+            for (UserInfoResponse familyMember : familyMembers) {
+                // 사용자 조회 - 수신자
+                UserInfoResponse receiver = userServiceFeignClient.getUser(familyMember.getUserId()).getData();
+                log.info("[fcmToUser] receiver userId={}", receiver.getUserId());
+
+                familyMemberIds.add(familyMember.getUserId());
+            }
+
+            // 알림 메시지 생성
+            String message = "오늘의 랜덤 질문이 도착했어요 \uD83E\uDD14";
+            log.info("[fcmToUser] message={}", message);
+
+            // 알림 전송 객체 생성
+            NotificationRequest request = NotificationRequest.builder()
+                    .notificationType(NotificationType.RANDOM_QUESTION)
+                    .receiverUserIds(familyMemberIds)
+                    .senderUserId(null)
+                    .destinationId(nextQuestionId.toString())
+                    .title("랜덤 질문 생성 알림")
+                    .message(message)
+                    .build();
+
+            // 알림 전송
+            log.info("[fcmToUser] 알림 보낼 사람 수: {}명", request.getReceiverUserIds().size());
+            notificationServiceFeignClient.alarmByFcm(request);
+
         } else {
             // 모두 답변 안했을 때는 답변 안했던 인원수 만큼 포인트 감소
             int cnt = count(familyId, currentQuestionId);
