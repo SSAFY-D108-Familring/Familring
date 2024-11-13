@@ -1,5 +1,6 @@
 package com.familring.userservice.service;
 
+import com.familring.userservice.model.dto.request.FileUploadRequest;
 import com.familring.userservice.model.dto.request.UserEmotionRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
@@ -29,6 +30,9 @@ public interface UserService {
 
     // 로그아웃
     void logout(Long userId);
+
+    // 음성 메시지 업로드
+    String uploadVoiceFile(Long userId, FileUploadRequest fileUploadRequest, MultipartFile voice);
 
     // 회원 기분 설정
     void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);

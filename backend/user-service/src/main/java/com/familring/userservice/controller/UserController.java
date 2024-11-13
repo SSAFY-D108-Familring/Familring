@@ -1,6 +1,7 @@
 package com.familring.userservice.controller;
 
 import com.familring.common_module.dto.BaseResponse;
+import com.familring.userservice.model.dto.request.FileUploadRequest;
 import com.familring.userservice.model.dto.request.UserEmotionRequest;
 import com.familring.userservice.model.dto.request.UserJoinRequest;
 import com.familring.userservice.model.dto.request.UserLoginRequest;
@@ -78,6 +79,17 @@ public class UserController {
         userService.logout(userId);
 
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "회원이 성공적으로 로그아웃되었습니다."));
+    }
+
+    @PostMapping(value = "/voice", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "음성 파일 업로드", description = "음성 파일을 S3에 저장한 후 url 반환")
+    public ResponseEntity<BaseResponse<String>> uploadVoiceFile
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @RequestPart("fileUploadRequest") FileUploadRequest fileUploadRequest,
+             @RequestPart(value = "voice", required = false) MultipartFile voice) {
+        String responseUrl = userService.uploadVoiceFile(userId, fileUploadRequest, voice);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "음성 파일을 S3에 성공적으로 업로드했습니다.", responseUrl));
     }
 
     @PatchMapping("/emotion")

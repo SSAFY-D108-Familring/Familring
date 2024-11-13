@@ -2,6 +2,7 @@ package com.familring.userservice.service;
 
 import com.familring.userservice.config.jwt.JwtTokenProvider;
 import com.familring.userservice.config.redis.RedisService;
+import com.familring.userservice.exception.file.NoContentVoiceException;
 import com.familring.userservice.exception.token.InvalidRefreshTokenException;
 import com.familring.userservice.exception.user.AlreadyUserException;
 import com.familring.userservice.model.dao.UserDao;
@@ -278,6 +279,40 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    @Transactional
+    public void deleteUser(Long userId) {
+        // 1. 회원 정보 찾기
+        UserDto user = userDao.findUserByUserId(userId)
+                .orElseThrow(() -> {
+                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
+                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
+                });
+
+        // 2. 인물 앨범 삭제
+        albumServiceFeignClient.deletePersonAlbum(userId);
+
+        // 3. 회원 탈퇴 작업 시행
+        customUserDetailsService.deleteUser(user.getUserKakaoId());
+    }
+
+    @Override
+    public String uploadVoiceFile(Long userId, FileUploadRequest fileUploadRequest, MultipartFile voice) {
+        // 음성 파일 처리
+        if(voice == null) {
+            log.debug("[uploadVoiceFile] 파일이 첨부되지 않은 경우 에러 처리");
+            throw new NoContentVoiceException();
+        }
+
+        // 음성 파일 저장
+        String folderPath = "chat-voice/" + fileUploadRequest.getRoomId() + "/" + userId; // chat-voice/roomId/userId
+        log.info("[uploadVoiceFile] S3 내 폴더 Path={}", folderPath);
+        String voiceUrl = uploadFiles(voice, folderPath).get(0);
+        log.info("[uploadVoiceFile] 업로드 된 파일 URL={}", voiceUrl);
+
+        return voiceUrl;
+    }
+
     public void deleteFile(String fileName) {
         List<String> files = new ArrayList<>();
         files.add(fileName);
@@ -295,23 +330,6 @@ public class UserServiceImpl implements UserService {
         List<String> response = fileServiceFeignClient.uploadFiles(faceFiles, folderPath).getData();
 
         return response;
-    }
-
-    @Override
-    @Transactional
-    public void deleteUser(Long userId) {
-        // 1. 회원 정보 찾기
-        UserDto user = userDao.findUserByUserId(userId)
-                .orElseThrow(() -> {
-                    UsernameNotFoundException usernameNotFoundException = new UsernameNotFoundException("UserId(" + userId + ")로 회원을 찾을 수 없습니다.");
-                    return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
-                });
-
-        // 2. 인물 앨범 삭제
-        albumServiceFeignClient.deletePersonAlbum(userId);
-
-        // 3. 회원 탈퇴 작업 시행
-        customUserDetailsService.deleteUser(user.getUserKakaoId());
     }
 }
 

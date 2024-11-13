@@ -12,6 +12,9 @@ public enum ErrorDetail {
     NO_CONTENT_USER_IMAGE("U0002", HttpStatus.BAD_REQUEST, "이미지가 존재하지 않습니다."),
     ALREADY_USER("U0003", HttpStatus.CONFLICT, "회원이 이미 존재합니다."),
 
+    // File
+    NO_CONTENT_VOICE("F0001", HttpStatus.NO_CONTENT, "음성 파일을 찾을 수 없습니다."),
+
     //Token
     EMPTY_AUTHORIZATION_HEADER("T0001", HttpStatus.UNAUTHORIZED, "인증 헤더가 존재하지 않습니다."),
     EMPTY_SUBJECT("T0002", HttpStatus.UNAUTHORIZED, "JWT 토큰의 사용자 정보가 존재하지 않습니다."),

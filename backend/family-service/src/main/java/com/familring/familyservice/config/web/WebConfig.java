@@ -40,17 +40,5 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/")
                 .setCachePeriod(3600);
-
-        // API 경로를 정적 리소스에서 제외
-        registry.addResourceHandler("/family/**")
-                .addResourceLocations("classpath:/static/")
-                .setCachePeriod(3600)
-                .resourceChain(true)
-                .addResolver(new PathResourceResolver() {
-                    @Override
-                    protected Resource getResource(String resourcePath, Resource location) throws IOException {
-                        return null; // 정적 리소스 경로에 대한 모든 요청을 무시
-                    }
-                });
     }
 }
