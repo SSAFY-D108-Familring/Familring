@@ -25,7 +25,9 @@ interface InterestRepository {
 
     suspend fun getAnswerStatus(): Flow<ApiResponse<AnswerStatus>>
 
-    suspend fun getSelectedAnswer(): Flow<ApiResponse<SelectedInterest>>
+    suspend fun selectInterest(): Flow<ApiResponse<Unit>>
+
+    suspend fun getSelectedInterest(): Flow<ApiResponse<SelectedInterest>>
 
     suspend fun setMissionPeriod(endDate: InterestPeriodRequest): Flow<ApiResponse<Unit>>
 
@@ -34,4 +36,6 @@ interface InterestRepository {
     suspend fun uploadMission(image: MultipartBody.Part?): Flow<ApiResponse<Unit>>
 
     suspend fun getMissions(): Flow<ApiResponse<List<Mission>>>
+
+    suspend fun checkUploadMission(): Flow<ApiResponse<Boolean>>
 }

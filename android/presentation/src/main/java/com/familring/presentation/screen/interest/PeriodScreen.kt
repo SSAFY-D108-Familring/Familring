@@ -1,12 +1,14 @@
 package com.familring.presentation.screen.interest
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,11 +31,13 @@ import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
+import com.familring.presentation.util.isDateFormValid
+import java.time.LocalDate
 
 @Composable
 fun PeriodScreen(
     modifier: Modifier = Modifier,
-    savePeriod: () -> Unit = {},
+    setPeriod: (LocalDate) -> Unit = {},
 ) {
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
@@ -40,7 +45,16 @@ fun PeriodScreen(
 
     val focusManager = LocalFocusManager.current
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                }.imePadding(),
+    ) {
         Text(
             modifier = Modifier.padding(start = 15.dp),
             text = "관심사를 인증할 수 있는",
@@ -95,7 +109,17 @@ fun PeriodScreen(
             Spacer(modifier = Modifier.weight(1f))
             RoundLongButton(
                 text = "인증 기간 지정하기",
-                onClick = savePeriod,
+                onClick = {
+                    setPeriod(LocalDate.of(year.toInt(), month.toInt(), date.toInt()))
+                },
+                enabled =
+                    isDateFormValid(year, month, date) &&
+                        LocalDate
+                            .of(
+                                year.toInt(),
+                                month.toInt(),
+                                date.toInt(),
+                            ).isAfter(LocalDate.now()),
             )
             Spacer(modifier = Modifier.weight(1f))
         }

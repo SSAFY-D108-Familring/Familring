@@ -38,10 +38,10 @@ fun OtherInterestRoute(
     LaunchedEffect(Unit) {
         otherInterestViewModel.uiEvent.collect { event ->
             when (event) {
-                is InterestUiEvent.Success -> {
+                is OtherInterestUiEvent.Success -> {
                 }
 
-                is InterestUiEvent.Error -> {
+                is OtherInterestUiEvent.Error -> {
                     onShowSnackBar(event.code)
                 }
             }

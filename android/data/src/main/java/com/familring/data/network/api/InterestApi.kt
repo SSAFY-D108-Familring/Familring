@@ -48,23 +48,29 @@ interface InterestApi {
     @GET("interests/answers/status")
     suspend fun getAnswerStatus(): BaseResponse<AnswerStatus>
 
-    @GET("interests/answers/selected")
-    suspend fun getSelectedAnswer(): BaseResponse<SelectedInterest>
+    @POST("interests/answers/selected")
+    suspend fun selectInterest(): BaseResponse<Unit>
 
-    @POST("interests/mission/period")
+    @GET("interests/answers/selected")
+    suspend fun getSelectedInterest(): BaseResponse<SelectedInterest>
+
+    @POST("interests/missions/period")
     suspend fun setMissionPeriod(
         @Body endDate: InterestPeriodRequest,
     ): BaseResponse<Unit>
 
-    @GET("interests/mission/period")
+    @GET("interests/missions/period")
     suspend fun getMissionPeriod(): BaseResponse<Int>
 
     @Multipart
-    @POST("interests/mission")
+    @POST("interests/missions")
     suspend fun uploadMission(
         @Part image: MultipartBody.Part?,
     ): BaseResponse<Unit>
 
-    @GET("interests/mission")
+    @GET("interests/missions")
     suspend fun getMissions(): BaseResponse<List<Mission>>
+
+    @GET("interests/missions/mine")
+    suspend fun checkUploadMission(): BaseResponse<Boolean>
 }
