@@ -40,7 +40,6 @@ import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
 import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
-import timber.log.Timber
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
@@ -66,6 +65,9 @@ class ChatViewModel
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
 
+        private val _chatPagingData = MutableStateFlow<PagingData<Chat>>(PagingData.empty())
+        val chatPagingData = _chatPagingData.asStateFlow()
+
         // 재생 중인 파일
         private var currentPlayer: VoicePlayer? by mutableStateOf(null)
         var currentPath: String? by mutableStateOf(null)
@@ -78,6 +80,7 @@ class ChatViewModel
         init {
             loadUserData()
             connectStomp()
+            getChatList()
         }
 
         private fun loadUserData() {
@@ -89,7 +92,7 @@ class ChatViewModel
             }
         }
 
-        fun enterRoom(): Flow<PagingData<Chat>> =
+        private fun enterRoom(): Flow<PagingData<Chat>> =
             Pager(
                 config =
                     PagingConfig(
@@ -130,6 +133,13 @@ class ChatViewModel
             }
         }
 
+        private fun getChatList() {
+            viewModelScope.launch {
+                val pagingData = enterRoom().first()
+                _chatPagingData.value = pagingData
+            }
+        }
+
         // 메시지 구독
         private fun subscribeMessages() {
             viewModelScope.launch {
@@ -144,7 +154,7 @@ class ChatViewModel
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL"))
                     .collect {
-                        enterRoom()
+                        getChatList()
                     }
             }
         }

@@ -74,7 +74,6 @@ import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toDateOnly
 import com.familring.presentation.util.toTimeOnly
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -87,7 +86,7 @@ fun ChatRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val chatList = viewModel.enterRoom().collectAsLazyPagingItems()
+    val chatList = viewModel.chatPagingData.collectAsLazyPagingItems()
 
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectLatest { event ->
@@ -142,7 +141,7 @@ fun ChatScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    chatList: LazyPagingItems<Chat>? = null,
+    chatList: LazyPagingItems<Chat>,
     userId: Long = 0L,
     sendMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
