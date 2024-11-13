@@ -11,7 +11,7 @@ pipeline {
 
         stage('Build and Deploy User Service') {
             steps {
-                withCredentials([file(credentialsId: 'calendar-application.yml', variable: 'application_yml')]) {
+                withCredentials([file(credentialsId: 'user-application.yml', variable: 'application_yml')]) {
                     script {
                         dir('backend/user-service') {
                             copyApplicationYaml(application_yml)
