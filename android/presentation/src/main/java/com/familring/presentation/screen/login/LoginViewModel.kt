@@ -14,6 +14,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -79,12 +80,26 @@ class LoginViewModel
         }
 
         fun updateFCMToken() {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.IO) {
                 val kakaoId = authDataStore.getKakaoId()
                 if (kakaoId != null) {
                     try {
                         val fcmToken = Tasks.await(firebaseMessaging.token)
-                        userRepository.updateFCMToken(fcmToken)
+                        val savedToken = authDataStore.getFCMToken()
+                        if (savedToken != fcmToken) {
+                            userRepository.updateFCMToken(fcmToken).collectLatest { response ->
+                                when (response) {
+                                    is ApiResponse.Success -> {
+                                        Timber.d("FCM 토큰 업데이트 성공")
+                                        authDataStore.saveFCMToken(fcmToken)
+                                    }
+
+                                    is ApiResponse.Error -> {
+                                        Timber.e("FCM 토큰 업데이트 실패: " + response.message)
+                                    }
+                                }
+                            }
+                        }
                     } catch (e: Exception) {
                         Timber.e(e, "FCM 토큰 업데이트 실패")
                     }
@@ -141,6 +156,7 @@ class LoginViewModel
                                 token != null ->
                                     continuation.resume(token) {
                                         Timber.tag(TAG).d("카카오톡 로그인 성공")
+                                        updateFCMToken()
                                     }
                             }
                         }
@@ -170,6 +186,7 @@ class LoginViewModel
                                 token != null ->
                                     continuation.resume(token) {
                                         Timber.tag(TAG).d("카카오 계정 로그인 성공")
+                                        updateFCMToken()
                                     }
                             }
                         }
@@ -214,7 +231,7 @@ class LoginViewModel
                                         when (response) {
                                             is ApiResponse.Success -> {
                                                 Timber.tag(TAG).d("서버 로그인 성공: " + response.data)
-
+                                                updateFCMToken()
                                                 _loginState.value =
                                                     LoginState.Success(token, user.id)
                                                 _loginEvent.emit(LoginEvent.LoginSuccess)
