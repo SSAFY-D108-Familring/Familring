@@ -163,7 +163,7 @@ fun PastQuestionScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 items(state.answerContents.size) { index ->
-                                    FamilyListItem(state.answerContents[index],{},index)
+                                    FamilyListItem(state.answerContents[index],{},index, questionId = questionId)
                                 }
                             }
                         }
