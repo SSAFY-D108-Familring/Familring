@@ -295,17 +295,7 @@ public class UserServiceImpl implements UserService {
         log.info("[updateUserUnReadCount] 찾은 회원 userId={}", user.getUserId());
 
         // 2. 알림 수 변경
-        int currentCount = user.getUserUnReadCount();
-        int requestedAmount = unReadCountRequest.getAmount();
-        int newAmount = requestedAmount;
-
-        if (currentCount + requestedAmount < 0) { // 현재 알림 개수가 0보다 클 경우에만 감소 가능
-            newAmount = -currentCount; // 현재 알림 수만큼만 감소시켜 0에 도달하도록 조정
-        }
-
-        log.info("[updateUserUnReadCount] 변경 전 알림 개수: {}개", currentCount);
-        userDao.updateUserUnReadCountByUserId(unReadCountRequest.getUserId(), newAmount);
-        log.info("[updateUserUnReadCount] 변경 후 알림 개수: {}개", currentCount + newAmount);
+        userDao.updateUserUnReadCountByUserId(unReadCountRequest.getUserId(), unReadCountRequest.getAmount());
     }
 
     @Override
