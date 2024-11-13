@@ -47,7 +47,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,6 +60,8 @@ import com.familring.presentation.component.chat.ChatInputBar
 import com.familring.presentation.component.chat.DateDivider
 import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
+import com.familring.presentation.component.chat.VoiceMessage
+import com.familring.presentation.component.chat.VoteChatItem
 import com.familring.presentation.component.chat.VoteMessage
 import com.familring.presentation.component.chat.VoteResultMessage
 import com.familring.presentation.component.dialog.LoadingDialog
@@ -78,6 +79,7 @@ import com.familring.presentation.util.toDateOnly
 import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,6 +122,11 @@ fun ChatRoute(
                 sendMessage = viewModel::sendMessage,
                 sendVoteMessage = viewModel::sendVoteMessage,
                 sendVoteResponse = viewModel::sendVoteResponse,
+                sendVoiceMessage = viewModel::uploadVoice,
+                pauseCurrentPlaying = viewModel::pauseCurrentPlaying,
+                setCurrentPlayer = viewModel::setCurrentPlayer,
+                currentPath = viewModel.currentPath,
+                removePlayer = viewModel::removePlayer,
             )
 
             if (showTutorial) {
@@ -169,6 +176,11 @@ fun ChatScreen(
     sendMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteResponse: (Context, String, String) -> Unit = { _, _, _ -> },
+    sendVoiceMessage: (Context, File) -> Unit = { _, _ -> },
+    pauseCurrentPlaying: () -> Unit = {},
+    setCurrentPlayer: (VoicePlayer, String) -> Unit = { _, _ -> },
+    currentPath: String? = null,
+    removePlayer: () -> Unit = {},
 ) {
     var inputMessage by remember { mutableStateOf("") }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -324,7 +336,7 @@ fun ChatScreen(
                         context.getString(R.string.vote_result_type) -> {
                             item.vote?.let {
                                 VoteResultMessage(
-                                    isOther = item.senderId == userId,
+                                    isOther = item.senderId != userId,
                                     title = it.voteTitle,
                                     voteResult = it.voteResult,
                                     unReadMembers = item.unReadMembers.toString(),
@@ -332,6 +344,24 @@ fun ChatScreen(
                                     nickname = item.sender.userNickname,
                                     profileImg = item.sender.userZodiacSign,
                                     color = item.sender.userColor,
+                                )
+                            }
+                        }
+
+                        context.getString(R.string.voice_type) -> {
+                            item.content?.let {
+                                VoiceMessage(
+                                    isOther = item.senderId != userId,
+                                    filePath = it,
+                                    time = item.createdAt.toTimeOnly(),
+                                    unReadMembers = item.unReadMembers.toString(),
+                                    nickname = item.sender.userNickname,
+                                    profileImg = item.sender.userZodiacSign,
+                                    color = item.sender.userColor,
+                                    pauseCurrentPlaying = pauseCurrentPlaying,
+                                    setCurrentPlayer = setCurrentPlayer,
+                                    currentPath = currentPath,
+                                    removePlayer = removePlayer,
                                 )
                             }
                         }
@@ -378,6 +408,7 @@ fun ChatScreen(
                         sendMessage(context, inputMessage)
                         inputMessage = ""
                     },
+                    enabled = inputMessage.isNotBlank(),
                 )
             }
         }
@@ -435,9 +466,7 @@ fun ChatScreen(
                 "voice" -> {
                     VoiceRecordScreen(
                         onDismiss = { showBottomSheet = false },
-                        onRecordingComplete = {
-                            // 음성 메시지 전송 api 호출
-                        },
+                        onRecordingComplete = sendVoiceMessage,
                         showSnackBar = showSnackBar,
                         popUpBackStack = { clickedItem = "" },
                     )
@@ -527,10 +556,4 @@ fun ChatScreen(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun ChatScreenPreview() {
-    ChatScreen()
 }

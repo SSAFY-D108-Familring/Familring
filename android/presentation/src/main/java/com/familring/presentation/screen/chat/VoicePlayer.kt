@@ -14,7 +14,7 @@ class VoicePlayer {
 
     fun playMessage(
         filePath: String,
-        onProgressUpdate: (Int) -> Unit,
+        onProgressUpdate: (Int, Int) -> Unit,
         onComplete: () -> Unit,
         onError: (String) -> Unit,
     ) {
@@ -55,14 +55,14 @@ class VoicePlayer {
 
     private fun startProgressUpdate(
         mp: MediaPlayer,
-        onProgressUpdate: (Int) -> Unit,
+        onProgressUpdate: (Int, Int) -> Unit,
     ) {
         handler = Handler(Looper.getMainLooper())
         handler?.post(
             object : Runnable {
                 override fun run() {
                     if (mediaPlayer != null && mp.isPlaying) {
-                        onProgressUpdate(mp.currentPosition)
+                        onProgressUpdate(mp.currentPosition, mp.duration)
                         handler?.postDelayed(this, 50)
                     }
                 }
@@ -78,6 +78,7 @@ class VoicePlayer {
                 it.release()
             }
         }
+        currentMessageUrl = null
     }
 
     fun pause() {
@@ -89,8 +90,4 @@ class VoicePlayer {
             }
         }
     }
-
-    fun getTotalDuration(): Int = mediaPlayer?.duration ?: 0
-
-    fun isPlayingMessage(messageUrl: String) = playing && currentMessageUrl == messageUrl
 }

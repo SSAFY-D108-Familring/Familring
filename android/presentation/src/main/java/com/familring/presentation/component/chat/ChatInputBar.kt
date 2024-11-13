@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
@@ -33,12 +34,13 @@ fun ChatInputBar(
     value: String,
     onValueChanged: (String) -> Unit,
     sendMessage: (String) -> Unit,
+    enabled: Boolean,
 ) {
     OutlinedTextField(
         modifier =
-        modifier
-            .fillMaxWidth()
-            .height(50.dp),
+            modifier
+                .fillMaxWidth()
+                .height(50.dp),
         value = value,
         onValueChange = onValueChanged,
         placeholder = {
@@ -66,11 +68,14 @@ fun ChatInputBar(
             ),
         textStyle = Typography.displayMedium.copy(fontSize = 16.sp),
         trailingIcon = {
-            IconButton(onClick = { sendMessage(value) }) {
+            IconButton(
+                onClick = { sendMessage(value) },
+                enabled = enabled,
+            ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_send),
                     contentDescription = "Send",
-                    tint = Green02,
+                    tint = if (enabled) Green02 else Gray03,
                 )
             }
         },
@@ -87,5 +92,6 @@ fun ChatInputBarPreview() {
             text = it
         },
         sendMessage = {},
+        enabled = false,
     )
 }

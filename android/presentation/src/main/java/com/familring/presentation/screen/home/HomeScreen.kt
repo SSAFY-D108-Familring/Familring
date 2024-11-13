@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,6 +54,7 @@ import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
 import com.familring.presentation.component.dialog.LoadingDialog
+import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
@@ -145,6 +147,8 @@ fun HomeScreen(
     val mother = familyMembers.find { it.userRole == "M" }
     val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
 
+    var showTreeExplanation by remember { mutableStateOf(false) }
+
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -214,6 +218,7 @@ fun HomeScreen(
                 Box(
                     modifier =
                         Modifier
+                            .noRippleClickable { showTreeExplanation = true }
                             .border(
                                 width = 1.dp,
                                 color = Gray03,
@@ -233,13 +238,13 @@ fun HomeScreen(
                                 painterResource(
                                     id =
                                         if (progress > 75) {
-                                            R.drawable.img_tree_status_two
+                                            R.drawable.img_tree_status_four
                                         } else if (progress > 50) {
-                                            R.drawable.img_tree_status_oneplus
+                                            R.drawable.img_tree_status_three
                                         } else if (progress > 25) {
-                                            R.drawable.img_tree_status_one
+                                            R.drawable.img_tree_status_two
                                         } else {
-                                            R.drawable.img_tree_status
+                                            R.drawable.img_tree_status_one
                                         },
                                 ),
                             contentDescription = "tree_img",
@@ -371,8 +376,7 @@ fun HomeScreen(
                                         shape = RoundedCornerShape(23.dp),
                                         spotColor = Gray01,
                                         ambientColor = Gray01,
-                                    )
-                                    .background(color = Gray04, shape = RoundedCornerShape(23.dp))
+                                    ).background(color = Gray04, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToTimeCapsule() },
                         ) {
                             Column(
@@ -380,7 +384,7 @@ fun HomeScreen(
                                     Modifier
                                         .fillMaxSize()
                                         .padding(horizontal = 15.dp)
-                                        .padding(top = 21.dp),
+                                        .padding(top = 15.dp),
                                 horizontalAlignment = Alignment.Start,
                             ) {
                                 Column(
@@ -404,7 +408,11 @@ fun HomeScreen(
                                     Image(
                                         painter = painterResource(id = R.drawable.img_timecap),
                                         contentDescription = "img_timecap",
-                                        modifier = Modifier.padding(bottom = 8.dp),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth(0.6f)
+                                                .aspectRatio(1f)
+                                                .padding(bottom = 8.dp),
                                     )
                                 }
                             }
@@ -419,8 +427,7 @@ fun HomeScreen(
                                         shape = RoundedCornerShape(23.dp),
                                         spotColor = Black,
                                         ambientColor = Gray01,
-                                    )
-                                    .background(color = Green02, shape = RoundedCornerShape(23.dp))
+                                    ).background(color = Green02, shape = RoundedCornerShape(23.dp))
                                     .noRippleClickable { navigateToInterest() },
                         ) {
                             Column(
@@ -428,7 +435,7 @@ fun HomeScreen(
                                     Modifier
                                         .fillMaxSize()
                                         .padding(horizontal = 15.dp)
-                                        .padding(top = 21.dp),
+                                        .padding(top = 15.dp),
                                 horizontalAlignment = Alignment.Start,
                             ) {
                                 Column(
@@ -454,7 +461,11 @@ fun HomeScreen(
                                     Image(
                                         painter = painterResource(id = R.drawable.img_interest),
                                         contentDescription = "img_interest",
-                                        modifier = Modifier.padding(bottom = 15.dp),
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth(0.55f)
+                                                .aspectRatio(1f)
+                                                .padding(bottom = 15.dp),
                                     )
                                 }
                             }
@@ -518,6 +529,9 @@ fun HomeScreen(
                 }
             }
         }
+    }
+    if (showTreeExplanation) {
+        TreeExplanation(onClose = { showTreeExplanation = false })
     }
 }
 
