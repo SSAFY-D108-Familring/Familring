@@ -103,7 +103,6 @@ fun HomeRoute(
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
                 navigateToMyPage = navigateToMyPage,
-                showSnackBar = showSnackBar,
             )
         }
 
@@ -113,7 +112,6 @@ fun HomeRoute(
                 navigateToNotification = navigateToNotification,
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
-                showSnackBar = showSnackBar,
             )
             showSnackBar(state.errorMessage)
         }
@@ -129,7 +127,6 @@ fun HomeScreen(
     navigateToTimeCapsule: () -> Unit = {},
     navigateToInterest: () -> Unit = {},
     navigateToMyPage: () -> Unit = {},
-    showSnackBar: (String) -> Unit = {},
 ) {
     var progress by remember {
         mutableFloatStateOf(0f)
@@ -562,17 +559,17 @@ fun FamilyCard(user: User) {
             verticalArrangement = Arrangement.Center,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (user.userRole.equals("M")) {
+                if (user.userRole == "M") {
                     Text(
                         text = "엄마",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
                     )
-                } else if (user.userRole.equals("F")) {
+                } else if (user.userRole == "F") {
                     Text(
                         text = "아빠",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
                     )
-                } else if (user.userRole.equals("D")) {
+                } else if (user.userRole == "D") {
                     Text(
                         text = "딸",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
@@ -680,6 +677,5 @@ fun HomeScreenPreview() {
         navigateToNotification = {},
         navigateToTimeCapsule = {},
         navigateToInterest = {},
-        showSnackBar = {},
     )
 }
