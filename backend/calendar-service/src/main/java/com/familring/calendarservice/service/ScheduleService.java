@@ -138,6 +138,8 @@ public class ScheduleService {
             throw new InvalidScheduleRequestException();
         }
 
+        scheduleRepository.delete(schedule);
+
         // 알림 전송
         List<Long> attendeeIds = schedule.getScheduleUsers().stream().map(ScheduleUser::getAttendeeId)
                 .filter(id -> !id.equals(userId)).toList();
@@ -159,7 +161,6 @@ public class ScheduleService {
 
         notificationServiceFeignClient.alarmByFcm(notificationRequest);
 
-        scheduleRepository.delete(schedule);
     }
 
     @Transactional
@@ -169,6 +170,12 @@ public class ScheduleService {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
         if (!schedule.getFamilyId().equals(familyId)) {
             throw new InvalidScheduleRequestException();
+        }
+
+        Stream<Long> beforeAttendeeIds = null;
+        if (request.getHasNotification()) {
+            beforeAttendeeIds = schedule.getScheduleUsers().stream()
+                    .filter(ScheduleUser::getAttendanceStatus).map(ScheduleUser::getAttendeeId);
         }
 
         schedule.updateSchedule(
@@ -194,13 +201,11 @@ public class ScheduleService {
         });
 
         // 알림 전송
-        if (schedule.getHasNotification()) {
-            Stream<Long> updatedAttendeeIds = schedule.getScheduleUsers().stream().filter(ScheduleUser::getAttendanceStatus)
-                    .map(ScheduleUser::getAttendeeId);
-            Stream<Long> requestAttendeeIds = request.getAttendances().stream().filter(UserAttendance::getAttendanceStatus)
+        if (request.getHasNotification()) {
+            Stream<Long> afterAttendeeIds = request.getAttendances().stream().filter(UserAttendance::getAttendanceStatus)
                     .map(UserAttendance::getUserId);
 
-            List<Long> totalAttendeeIds = Stream.concat(updatedAttendeeIds, requestAttendeeIds).distinct()
+            List<Long> totalAttendeeIds = Stream.concat(beforeAttendeeIds, afterAttendeeIds).distinct()
                     .filter(id -> !id.equals(userId)).toList();
 
             UserInfoResponse userInfo = userServiceFeignClient.getUser(userId).getData();
