@@ -6,6 +6,7 @@ import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
+import com.familring.domain.request.UserEmotionRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,18 +35,18 @@ class HomeViewModel
         private val _myUserId = MutableStateFlow<Long?>(null)
         val myUserId = _myUserId.asStateFlow()
 
-        private val _refreshTrigger = MutableStateFlow(0) // 실시간으로 받아오기 위해 필요하고
+        private val refreshTrigger = MutableStateFlow(0) // 실시간으로 받아오기 위해 필요하고
 
         init {
             viewModelScope.launch {
-                _refreshTrigger.collectLatest {
+                refreshTrigger.collectLatest {
                     getFamilyMembers()
                 }
             }
         }
 
         fun refresh() {
-            _refreshTrigger.value += 1 // 트리거가 필요함
+            refreshTrigger.value += 1 // 트리거가 필요함
         }
 
         private fun getFamilyMembers() {
@@ -124,6 +125,23 @@ class HomeViewModel
                             }
                         }
                     }
+            }
+        }
+
+        fun updateEmotion(emotion: UserEmotionRequest) {
+            viewModelScope.launch {
+                userRepository.updateEmotion(emotion).collectLatest { response ->
+                    when (response) {
+                        is ApiResponse.Success -> {
+                            _homeEvent.emit(HomeEvent.UpdateSuccess)
+                            getFamilyMembers()
+                        }
+
+                        is ApiResponse.Error -> {
+                            _homeEvent.emit(HomeEvent.Error(response.code, response.message))
+                        }
+                    }
+                }
             }
         }
     }
