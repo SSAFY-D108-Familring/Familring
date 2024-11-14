@@ -23,9 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.familring.presentation.component.ImageLoadingProgress
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -54,13 +56,17 @@ fun SharePagerItem(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Column {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth(0.85f)
+                        .fillMaxHeight(0.83f)
+                        .padding(top = 20.dp),
+                contentAlignment = Alignment.Center,
+            ) {
                 AsyncImage(
                     modifier =
                         Modifier
-                            .fillMaxWidth(0.8f)
-                            .fillMaxHeight(0.83f)
-                            .padding(top = 20.dp)
                             .clip(shape = RoundedCornerShape(12.dp)),
                     model = imgUrl,
                     contentDescription = "share_img",
@@ -72,6 +78,9 @@ fun SharePagerItem(
                         isImageLoaded = true
                     },
                 )
+                if (!isImageLoaded) {
+                    ImageLoadingProgress()
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             Row(
@@ -84,7 +93,10 @@ fun SharePagerItem(
                     contentAlignment = Alignment.CenterEnd,
                 ) {
                     AsyncImage(
-                        modifier = Modifier.padding(end = 3.dp).size(30.dp),
+                        modifier =
+                            Modifier
+                                .padding(end = 3.dp)
+                                .size(30.dp),
                         model = zodiacImg,
                         contentDescription = "zodiac",
                     )
@@ -98,4 +110,10 @@ fun SharePagerItem(
             Spacer(modifier = Modifier.weight(1f))
         }
     }
+}
+
+@Preview
+@Composable
+private fun SharePagerItemPreview() {
+    SharePagerItem()
 }
