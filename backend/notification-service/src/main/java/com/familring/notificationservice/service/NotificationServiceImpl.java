@@ -61,9 +61,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void notificationToFamily(Long userId, MentionRequest mentionRequest) {
-        log.info("[notificationToFamily] 알림 수신자={}, 알림 발신자={}", mentionRequest.getReceiverId(), userId);;
+        log.info("[notificationToFamily] 알림 수신자={}, 알림 발신자={}", mentionRequest.getReceiverId(), userId);
         // 수신자에게 알림 전송
-        UserInfoResponse usersList = userServiceFeignClient.getUser(userId).getData();
+        UserInfoResponse usersList = userServiceFeignClient.getUser(mentionRequest.getReceiverId()).getData();
         FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO("사랑의 한마디", mentionRequest.getMention());
         fcmUtil.singleFcmSend(usersList, fcmDto);
         log.info("[notificationToFamily] 알림 전송 완료");
