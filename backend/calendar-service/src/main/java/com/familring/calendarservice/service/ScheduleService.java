@@ -3,7 +3,6 @@ package com.familring.calendarservice.service;
 import com.familring.calendarservice.domain.Schedule;
 import com.familring.calendarservice.domain.ScheduleUser;
 import com.familring.calendarservice.dto.client.NotificationRequest;
-import com.familring.calendarservice.dto.client.NotificationType;
 import com.familring.calendarservice.dto.client.UserInfoResponse;
 import com.familring.calendarservice.dto.request.ScheduleUpdateRequest;
 import com.familring.calendarservice.dto.request.UserAttendance;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
