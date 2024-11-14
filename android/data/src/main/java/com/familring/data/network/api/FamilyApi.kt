@@ -5,6 +5,7 @@ import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
 import com.familring.domain.model.chat.Chat
+import com.familring.domain.model.chat.ChatResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -50,7 +51,7 @@ interface FamilyApi {
         @Header("X-User-ID") userId: Long,
         @Query("page") page: Int,
         @Query("size") size: Int,
-    ): BaseResponse<List<Chat>>
+    ): BaseResponse<ChatResponse>
 
     @Multipart
     @POST("users/voice")

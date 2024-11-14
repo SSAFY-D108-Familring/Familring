@@ -8,6 +8,7 @@ import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
 import com.familring.domain.model.chat.Chat
+import com.familring.domain.model.chat.ChatResponse
 import com.familring.domain.model.chat.FileUploadRequest
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.util.toVoiceMultiPart
@@ -73,7 +74,7 @@ class FamilyRepositoryImpl
             userId: Long,
             page: Int,
             size: Int,
-        ): Flow<ApiResponse<List<Chat>>> =
+        ): Flow<ApiResponse<ChatResponse>> =
             flow {
                 val response =
                     emitApiResponse(
@@ -85,7 +86,7 @@ class FamilyRepositoryImpl
                                 size = size,
                             )
                         },
-                        default = listOf(),
+                        default = ChatResponse(),
                     )
                 emit(response)
             }

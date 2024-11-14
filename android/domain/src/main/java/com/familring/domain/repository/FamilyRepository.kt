@@ -5,6 +5,7 @@ import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
 import com.familring.domain.model.chat.Chat
+import com.familring.domain.model.chat.ChatResponse
 import com.familring.domain.model.chat.FileUploadRequest
 import kotlinx.coroutines.flow.Flow
 import java.io.File
@@ -29,7 +30,7 @@ interface FamilyRepository {
         userId: Long,
         page: Int,
         size: Int,
-    ): Flow<ApiResponse<List<Chat>>>
+    ): Flow<ApiResponse<ChatResponse>>
 
     suspend fun uploadVoice(
         request: FileUploadRequest,
