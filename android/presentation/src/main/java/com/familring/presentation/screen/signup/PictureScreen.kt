@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,6 +84,7 @@ fun PictureRoute(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PictureScreen(
     modifier: Modifier = Modifier,
@@ -93,8 +96,13 @@ fun PictureScreen(
     getFaceCount: (File) -> Unit = {},
 ) {
     val context = LocalContext.current
+    var showBottomSheet by remember { mutableStateOf(false) }
     var imgUri by remember { mutableStateOf<Uri?>(null) }
     var faceSuccess by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        showBottomSheet = true
+    }
 
     LaunchedEffect(uiEvent) {
         uiEvent.collectLatest { event ->
@@ -254,6 +262,13 @@ fun PictureScreen(
                 },
                 enabled = faceSuccess,
             )
+        }
+    }
+    if (showBottomSheet) {
+        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
+            Column(modifier = Modifier.fillMaxWidth()) {
+
+            }
         }
     }
 }

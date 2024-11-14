@@ -6,6 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
@@ -19,12 +23,13 @@ import com.familring.presentation.R
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -35,7 +40,6 @@ import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
 import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
-import timber.log.Timber
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
@@ -64,7 +68,9 @@ class ChatViewModel
                 .add(LocalDateTimeAdapter())
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
-        private lateinit var chatList: List<Chat>
+
+        private val _chatPagingData = MutableStateFlow<PagingData<Chat>>(PagingData.empty())
+        val chatPagingData = _chatPagingData.asStateFlow()
 
         // 재생 중인 파일
         private var currentPlayer: VoicePlayer? by mutableStateOf(null)
@@ -124,7 +130,7 @@ class ChatViewModel
             Pager(
                 config =
                     PagingConfig(
-                        pageSize = 50,
+                        pageSize = 20,
                         enablePlaceholders = false,
                     ),
             ) {
@@ -167,7 +173,7 @@ class ChatViewModel
                 _chatPagingData.value = pagingData
 
                 if (_state.value is ChatUiState.Loading) {
-                    _state.value = ChatUiState.Success(userId = userId!!)
+                    _state.value = ChatUiState.Success
                 }
             }
         }
