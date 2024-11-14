@@ -6,6 +6,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.familring.domain.datastore.TutorialDataStore
 import com.familring.domain.mapper.toProfile
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.timecapsule.TimeCapsule
@@ -26,6 +27,7 @@ class TimeCapsuleViewModel
     @Inject
     constructor(
         private val timeCapsuleRepository: TimeCapsuleRepository,
+        private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(TimeCapsuleUiState())
         val uiState = _uiState.asStateFlow()
@@ -34,7 +36,39 @@ class TimeCapsuleViewModel
         val event = _event.asSharedFlow()
 
         init {
+            getReadTutorial()
             getTimeCapsuleStatus()
+        }
+
+        private fun getReadTutorial() {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(
+                        isReadTutorial = tutorialDataStore.getTimeCapsuleReadTutorial(),
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorial() {
+            viewModelScope.launch {
+                tutorialDataStore.setTimeCapsuleReadTutorial(true)
+            }
+            _uiState.update {
+                it.copy(
+                    isReadTutorial = true,
+                )
+            }
+        }
+
+        fun setReadTutorialState(isRead: Boolean) {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(
+                        isReadTutorial = isRead,
+                    )
+                }
+            }
         }
 
         fun getTimeCapsuleStatus() {

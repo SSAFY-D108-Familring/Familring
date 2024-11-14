@@ -3,9 +3,9 @@ package com.familring.presentation.screen.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,12 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -62,12 +58,14 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toColor
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarTab(
     modifier: Modifier = Modifier,
+    date: LocalDate = LocalDate.now(),
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
     showDeleteScheduleDialog: (Long) -> Unit,
@@ -88,7 +86,16 @@ fun CalendarTab(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.fillMaxHeight(0.02f))
+            Text(
+                modifier = Modifier,
+                text = date.toString(),
+                style =
+                    Typography.headlineSmall.copy(
+                        fontSize = 18.sp,
+                        color = Gray01,
+                    ),
+            )
+            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             CustomTextTab(
                 selectedItemIndex = selectedItemIndex,
                 tabs = tabs,
@@ -136,28 +143,27 @@ fun DailyTab(
             )
         }
     } else {
-        val pagerState = rememberPagerState(pageCount = { dailyLifes.size })
-
         Column(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(top = 20.dp, bottom = 20.dp),
+                    .padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(50.dp),
         ) {
-            HorizontalPager(
+            LazyColumn(
                 modifier =
-                    Modifier
+                    modifier
                         .fillMaxSize(),
-                state = pagerState,
-                pageSpacing = 14.dp,
-                contentPadding = PaddingValues(horizontal = 28.dp),
-            ) { page ->
-                DailyItem(
-                    dailyLife = dailyLifes[page],
-                    navigateToModifyDaily = navigateToModifyDaily,
-                    showDeleteDailyDialog = showDeleteDailyDialog,
-                )
+                verticalArrangement = Arrangement.spacedBy(15.dp),
+            ) {
+                items(dailyLifes) { dailyLife ->
+                    DailyItem(
+                        dailyLife = dailyLife,
+                        navigateToModifyDaily = navigateToModifyDaily,
+                        showDeleteDailyDialog = showDeleteDailyDialog,
+                    )
+                }
             }
         }
     }
@@ -170,13 +176,12 @@ fun DailyItem(
     navigateToModifyDaily: (DailyLife) -> Unit,
     showDeleteDailyDialog: (Long) -> Unit,
 ) {
-    val scrollState = rememberScrollState()
     var isImageLoaded by remember { mutableStateOf(false) }
 
     Column(
         modifier =
             modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .border(width = 2.dp, color = Gray03, shape = RoundedCornerShape(12.dp))
                 .background(color = White)
                 .padding(20.dp),
@@ -231,7 +236,7 @@ fun DailyItem(
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Column(modifier = Modifier.verticalScroll(scrollState)) {
+        Column {
             if (dailyLife.content.isNotBlank() and dailyLife.content.isNotEmpty()) {
                 Text(
                     modifier =
@@ -325,8 +330,14 @@ fun ScheduleItem(
     Box(
         modifier =
             modifier
-                .clickable { if (schedule.albumId != null) navigateToAlbum(schedule.albumId!!, true) }
-                .fillMaxWidth()
+                .clickable {
+                    if (schedule.albumId != null) {
+                        navigateToAlbum(
+                            schedule.albumId!!,
+                            true,
+                        )
+                    }
+                }.fillMaxWidth()
                 .padding(top = 15.dp, start = 10.dp, bottom = 15.dp),
     ) {
         Row {

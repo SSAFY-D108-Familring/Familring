@@ -14,18 +14,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,8 +51,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.familring.domain.model.gallery.Album
 import com.familring.domain.model.gallery.AlbumType
+import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
+import com.familring.presentation.component.TutorialScreen
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
@@ -61,6 +68,7 @@ import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GalleryRoute(
     modifier: Modifier,
@@ -68,10 +76,16 @@ fun GalleryRoute(
     viewModel: GalleryViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
+    val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
+
     val galleryUiState by viewModel.galleryUiState.collectAsStateWithLifecycle()
     val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Init)
 
     var showLoading by remember { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showTutorial by remember { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
         viewModel.getAlbums(listOf(AlbumType.NORMAL, AlbumType.SCHEDULE, AlbumType.PERSON))
     }
@@ -101,6 +115,10 @@ fun GalleryRoute(
         deleteAlbum = { albumId ->
             viewModel.deleteAlbum(albumId)
         },
+        showTutorial = {
+            showTutorial = true
+            viewModel.setReadTutorialState(false)
+        },
     )
 
     LaunchedEffect(galleryUiEvent) {
@@ -128,6 +146,31 @@ fun GalleryRoute(
     if (showLoading) {
         LoadingDialog(loadingMessage = "앨범 생성중...")
     }
+
+    if (showTutorial && !tutorialUiState.isReadTutorial) {
+        ModalBottomSheet(
+            containerColor = White,
+            onDismissRequest = {
+                showTutorial = false
+                viewModel.setReadTutorial()
+            },
+            sheetState = sheetState,
+        ) {
+            TutorialScreen(
+                imageLists =
+                    listOf(
+                        R.drawable.img_tutorial_album_first,
+                        R.drawable.img_tutorial_album_second,
+                        R.drawable.img_tutorial_album_third,
+                        R.drawable.img_tutorial_album_fourth,
+                    ),
+                title = "공유 앨범 미리보기 \uD83D\uDD0D",
+                subTitle =
+                    "가족끼리 일정에 관련된 앨범을 공유하고\n" +
+                        "자신 얼굴이 들어간 사진을 자동으로 분류해줘요!",
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,6 +183,7 @@ fun GalleryScreen(
     onGalleryCreate: (String, AlbumType) -> Unit = { _, _ -> },
     onUpdateAlbum: (Long, String) -> Unit = { _, _ -> },
     deleteAlbum: (Long) -> Unit = {},
+    showTutorial: () -> Unit = {},
 ) {
     var privateGallerySelected by rememberSaveable { mutableStateOf(true) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -162,6 +206,23 @@ fun GalleryScreen(
                         color = Black,
                     )
                 },
+                tutorialIcon = {
+                    Icon(
+                        modifier =
+                        Modifier
+                            .size(20.dp)
+                            .border(
+                                width = 2.dp,
+                                color = Gray03,
+                                shape = CircleShape,
+                            )
+                            .padding(2.dp)
+                            .noRippleClickable { showTutorial() },
+                        painter = painterResource(id = R.drawable.ic_tutorial),
+                        contentDescription = "ic_question",
+                        tint = Gray03,
+                    )
+                },
                 navigationType = TopAppBarNavigationType.None,
             )
             Spacer(modifier = Modifier.fillMaxSize(0.03f))
@@ -174,21 +235,24 @@ fun GalleryScreen(
                     text = "공유",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                        Modifier
-                            .background(
-                                color = if (privateGallerySelected) Green02 else White,
-                                shape = RoundedCornerShape(30.dp),
-                            ).border(
-                                border =
-                                    if (privateGallerySelected) {
-                                        BorderStroke(0.dp, Gray03)
-                                    } else {
-                                        BorderStroke(1.dp, Gray03)
-                                    },
-                                RoundedCornerShape(30.dp),
-                            ).noRippleClickable {
-                                privateGallerySelected = true
-                            }.padding(horizontal = 19.dp, vertical = 8.dp),
+                    Modifier
+                        .background(
+                            color = if (privateGallerySelected) Green02 else White,
+                            shape = RoundedCornerShape(30.dp),
+                        )
+                        .border(
+                            border =
+                            if (privateGallerySelected) {
+                                BorderStroke(0.dp, Gray03)
+                            } else {
+                                BorderStroke(1.dp, Gray03)
+                            },
+                            RoundedCornerShape(30.dp),
+                        )
+                        .noRippleClickable {
+                            privateGallerySelected = true
+                        }
+                        .padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (privateGallerySelected) White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -196,21 +260,24 @@ fun GalleryScreen(
                     text = "인물",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                        Modifier
-                            .background(
-                                color = if (!privateGallerySelected) Green02 else White,
-                                shape = RoundedCornerShape(30.dp),
-                            ).border(
-                                border =
-                                    if (!privateGallerySelected) {
-                                        BorderStroke(0.dp, Gray03)
-                                    } else {
-                                        BorderStroke(1.dp, Gray03)
-                                    },
-                                RoundedCornerShape(30.dp),
-                            ).noRippleClickable {
-                                privateGallerySelected = false
-                            }.padding(horizontal = 19.dp, vertical = 8.dp),
+                    Modifier
+                        .background(
+                            color = if (!privateGallerySelected) Green02 else White,
+                            shape = RoundedCornerShape(30.dp),
+                        )
+                        .border(
+                            border =
+                            if (!privateGallerySelected) {
+                                BorderStroke(0.dp, Gray03)
+                            } else {
+                                BorderStroke(1.dp, Gray03)
+                            },
+                            RoundedCornerShape(30.dp),
+                        )
+                        .noRippleClickable {
+                            privateGallerySelected = false
+                        }
+                        .padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (!privateGallerySelected) White else Color.Black,
                 )
             }
@@ -280,15 +347,15 @@ fun GalleryScreen(
                 ) {
                     Column(
                         modifier =
-                            Modifier
-                                .background(color = White)
-                                .padding(top = 16.dp),
+                        Modifier
+                            .background(color = White)
+                            .padding(top = 16.dp),
                     ) {
                         BasicTextField(
                             modifier =
-                                Modifier
-                                    .background(Color.Transparent)
-                                    .padding(horizontal = 26.dp),
+                            Modifier
+                                .background(Color.Transparent)
+                                .padding(horizontal = 26.dp),
                             value = albumname,
                             onValueChange = { albumname = it },
                             textStyle =
@@ -358,15 +425,15 @@ fun GalleryItem(
         ) {
             Column(
                 modifier =
-                    Modifier
-                        .background(color = White)
-                        .padding(top = 16.dp),
+                Modifier
+                    .background(color = White)
+                    .padding(top = 16.dp),
             ) {
                 BasicTextField(
                     modifier =
-                        Modifier
-                            .background(Color.Transparent)
-                            .padding(horizontal = 26.dp),
+                    Modifier
+                        .background(Color.Transparent)
+                        .padding(horizontal = 26.dp),
                     value = updatedAlbumName,
                     onValueChange = { updatedAlbumName = it },
                     // 처음엔 그레이 색..?
@@ -416,9 +483,9 @@ fun GalleryItem(
 
     Column(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(bottom = 8.dp),
+        Modifier
+            .fillMaxSize()
+            .padding(bottom = 8.dp),
     ) {
         Card(
             modifier =
