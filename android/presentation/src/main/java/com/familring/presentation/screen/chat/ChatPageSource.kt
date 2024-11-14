@@ -1,5 +1,6 @@
 package com.familring.presentation.screen.chat
 
+import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.familring.domain.datastore.AuthDataStore
@@ -9,6 +10,8 @@ import com.familring.domain.repository.FamilyRepository
 import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
+
+const val STARTING_PAGE_INDEX = 0
 
 class ChatPageSource
     @Inject
@@ -20,7 +23,7 @@ class ChatPageSource
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Chat> =
             try {
-                val page = params.key ?: 0
+                val page = params.key ?: STARTING_PAGE_INDEX
                 val familyId = authDataStore.getFamilyId()
                 val userId = authDataStore.getUserId()
 
@@ -36,11 +39,19 @@ class ChatPageSource
                 ) {
                     is ApiResponse.Success -> {
                         val data = response.data
-                        LoadResult.Page(
-                            data = data,
-                            prevKey = if (page == 0) null else page - 1,
-                            nextKey = if (page == data.size / params.loadSize) null else page + 1,
-                        )
+                        if (data != emptyList<PagingData<Chat>>()) {
+                            LoadResult.Page(
+                                data = data,
+                                prevKey =
+                                    when (page) {
+                                        STARTING_PAGE_INDEX -> null
+                                        else -> page - 1
+                                    },
+                                nextKey = page + 1,
+                            )
+                        } else {
+                            LoadResult.Invalid()
+                        }
                     }
 
                     is ApiResponse.Error -> {
