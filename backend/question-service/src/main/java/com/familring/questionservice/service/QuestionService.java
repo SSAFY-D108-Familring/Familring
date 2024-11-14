@@ -355,7 +355,9 @@ public class QuestionService {
         log.info("[fcmToUser] receiver userId={}", receiver.getUserId());
 
         // 알림 메시지 생성
-        String message = sender.getUserNickname() + "가 똑똑 두드렸어요 ✊\uD83C\uDFFB";
+        String title = sender.getUserNickname() + "님이 똑똑 두드렸어요 ✊\uD83C\uDFFB";
+        log.info("[fcmToUser] title={}", title);
+        String message = "랜덤 질문에 답변을 입력하고 다른 가족의 답을 확인해보세요 !";
         log.info("[fcmToUser] message={}", message);
 
         // 알림 전송 객체 생성
@@ -366,7 +368,7 @@ public class QuestionService {
                 }})
                 .senderUserId(userId)
                 .destinationId(knockRequest.getQuestionId().toString())
-                .title("랜덤 질문 언급 알림")
+                .title(title)
                 .message(message)
                 .build();
 
