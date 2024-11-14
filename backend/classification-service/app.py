@@ -22,6 +22,7 @@ import aiohttp
 import datetime
 from pytz import timezone
 import time
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # .env 파일 로드
 load_dotenv()
@@ -85,6 +86,12 @@ async def lifespan(app: FastAPI):
     # Startup
     try:
         logger.info(f"Using port: {SERVER_PORT}")
+
+        # Prometheus 설정
+        instrumentator = Instrumentator()
+        instrumentator.instrument(app)
+        instrumentator.expose(app, endpoint="/face-recognition/metrics")
+
         # Eureka 클라이언트 초기화
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
