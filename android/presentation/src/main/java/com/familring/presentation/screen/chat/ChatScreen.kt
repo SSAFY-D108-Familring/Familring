@@ -89,6 +89,8 @@ fun ChatRoute(
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
+    val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
+
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -117,7 +119,10 @@ fun ChatRoute(
                 chatList = uiState.chatList,
                 userId = uiState.userId,
                 popUpBackStack = popUpBackStack,
-                showTutorial = { showTutorial = true },
+                showTutorial = {
+                    showTutorial = true
+                    viewModel.setReadTutorialState(false)
+                },
                 showSnackBar = showSnackBar,
                 sendMessage = viewModel::sendMessage,
                 sendVoteMessage = viewModel::sendVoteMessage,
@@ -129,10 +134,13 @@ fun ChatRoute(
                 removePlayer = viewModel::removePlayer,
             )
 
-            if (showTutorial) {
+            if (showTutorial && !tutorialUiState.isReadTutorial) {
                 ModalBottomSheet(
                     containerColor = White,
-                    onDismissRequest = { showTutorial = false },
+                    onDismissRequest = {
+                        showTutorial = false
+                        viewModel.setReadTutorial()
+                    },
                     sheetState = sheetState,
                 ) {
                     TutorialScreen(
