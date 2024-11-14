@@ -2,6 +2,7 @@ package com.familring.presentation.screen.interest
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.datastore.TutorialDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.InterestRepository
 import com.familring.domain.request.InterestPeriodRequest
@@ -23,6 +24,7 @@ class InterestViewModel
     @Inject
     constructor(
         private val interestRepository: InterestRepository,
+        private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(InterestUiState())
         val uiState = _uiState.asStateFlow()
@@ -31,7 +33,39 @@ class InterestViewModel
         val uiEvent = _uiEvent.asSharedFlow()
 
         init {
+            getReadTutorial()
             getDataForInterestScreen()
+        }
+
+        private fun getReadTutorial() {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(
+                        isReadTutorial = tutorialDataStore.getInterestReadTutorial(),
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorial() {
+            viewModelScope.launch {
+                tutorialDataStore.setInterestReadTutorial(true)
+            }
+            _uiState.update {
+                it.copy(
+                    isReadTutorial = true,
+                )
+            }
+        }
+
+        fun setReadTutorialState(isRead: Boolean) {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(
+                        isReadTutorial = isRead,
+                    )
+                }
+            }
         }
 
         private fun getInterestStatus() {

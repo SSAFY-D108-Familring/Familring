@@ -321,11 +321,11 @@ fun ScheduleCreateScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
+                    Column(
+//                        verticalAlignment = Alignment.Bottom,
                     ) {
                         Text(
-                            text = "알림",
+                            text = "등록 알림",
                             style =
                                 Typography.headlineSmall.copy(
                                     fontSize = 18.sp,
@@ -335,8 +335,8 @@ fun ScheduleCreateScreen(
                         Text(
                             modifier =
                                 Modifier
-                                    .padding(start = 5.dp),
-                            text = "1일 전 오전 9시",
+                                    .padding(top = 3.dp),
+                            text = "함께하는 구성원에게 등록 알림을 보내요",
                             style =
                                 Typography.displayLarge.copy(
                                     fontSize = 12.sp,

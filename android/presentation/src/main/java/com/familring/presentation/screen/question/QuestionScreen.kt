@@ -2,6 +2,7 @@ package com.familring.presentation.screen.question
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,16 +15,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,11 +58,13 @@ import com.familring.domain.model.question.QuestionAnswer
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
+import com.familring.presentation.component.TutorialScreen
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
@@ -65,6 +72,7 @@ import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuestionRoute(
     modifier: Modifier,
@@ -73,8 +81,14 @@ fun QuestionRoute(
     showSnackBar: (String) -> Unit,
     viewModel: QuestionViewModel = hiltViewModel(),
 ) {
+    val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
+
     val questionState by viewModel.questionState.collectAsStateWithLifecycle()
     var isLoading by remember { mutableStateOf(false) }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showTutorial by remember { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
         viewModel.refresh()
     }
@@ -92,10 +106,39 @@ fun QuestionRoute(
                 navigateToQuestionList = navigateToQuestionList,
                 navigateToAnswerWrite = navigateToAnswerWrite,
                 showSnackBar = showSnackBar,
+                showTutorial = {
+                    showTutorial = true
+                    viewModel.setReadTutorialState(false)
+                },
                 questionId = state.questionId,
                 questionContent = state.questionContent,
                 answerContents = state.answerContents,
             )
+
+            if (showTutorial && !tutorialUiState.isReadTutorial) {
+                ModalBottomSheet(
+                    containerColor = White,
+                    onDismissRequest = {
+                        showTutorial = false
+                        viewModel.setReadTutorial()
+                    },
+                    sheetState = sheetState,
+                ) {
+                    TutorialScreen(
+                        imageLists =
+                            listOf(
+                                R.drawable.img_tutorial_question_first,
+                                R.drawable.img_tutorial_question_second,
+                                R.drawable.img_tutorial_question_third,
+                                R.drawable.img_tutorial_question_fourth,
+                            ),
+                        title = "랜덤 질문 미리보기 \uD83D\uDD0D",
+                        subTitle =
+                            "가족 모두가 참여하면 아침 9시에\n" +
+                                "랜덤으로 새로운 질문이 생성되요!",
+                    )
+                }
+            }
         }
 
         is QuestionState.Error -> {
@@ -120,6 +163,7 @@ fun QuestionScreen(
     navigateToQuestionList: () -> Unit,
     navigateToAnswerWrite: () -> Unit,
     showSnackBar: (String) -> Unit = {},
+    showTutorial: () -> Unit = {},
     questionId: Long = 0,
     questionContent: String = "",
     answerContents: List<QuestionAnswer> = listOf(),
@@ -185,6 +229,22 @@ fun QuestionScreen(
                                 text = "오늘의 질문",
                                 style = Typography.titleLarge,
                                 color = Black,
+                            )
+                        },
+                        tutorialIcon = {
+                            Icon(
+                                modifier =
+                                    Modifier
+                                        .size(20.dp)
+                                        .border(
+                                            width = 2.dp,
+                                            color = Gray03,
+                                            shape = CircleShape,
+                                        ).padding(2.dp)
+                                        .noRippleClickable { showTutorial() },
+                                painter = painterResource(id = R.drawable.ic_tutorial),
+                                contentDescription = "ic_question",
+                                tint = Gray03,
                             )
                         },
                         trailingIcon = {
