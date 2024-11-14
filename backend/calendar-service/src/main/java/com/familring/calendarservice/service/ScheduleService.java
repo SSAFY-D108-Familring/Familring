@@ -19,21 +19,20 @@ import com.familring.calendarservice.repository.ScheduleRepository;
 import com.familring.calendarservice.service.client.NotificationServiceFeignClient;
 import com.familring.calendarservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.familring.calendarservice.dto.client.NotificationType.MENTION_SCHEDULE;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Log4j2
 public class ScheduleService {
 
     private final FamilyServiceFeignClient familyServiceFeignClient;
@@ -172,11 +171,13 @@ public class ScheduleService {
             throw new InvalidScheduleRequestException();
         }
 
-        Stream<Long> beforeAttendeeIds = null;
-        if (request.getHasNotification()) {
-            beforeAttendeeIds = schedule.getScheduleUsers().stream()
-                    .filter(ScheduleUser::getAttendanceStatus).map(ScheduleUser::getAttendeeId);
-        }
+        // 알림이 필요한 경우에만 이전 참석자 ID를 Set으로 보관
+        Set<Long> beforeAttendeeIds = request.getHasNotification()
+                ? schedule.getScheduleUsers().stream()
+                .filter(ScheduleUser::getAttendanceStatus)
+                .map(ScheduleUser::getAttendeeId)
+                .collect(Collectors.toSet())
+                : Collections.emptySet();
 
         schedule.updateSchedule(
                 request.getStartTime(),
@@ -202,11 +203,15 @@ public class ScheduleService {
 
         // 알림 전송
         if (request.getHasNotification()) {
-            Stream<Long> afterAttendeeIds = request.getAttendances().stream().filter(UserAttendance::getAttendanceStatus)
-                    .map(UserAttendance::getUserId);
+            Set<Long> afterAttendeeIds = request.getAttendances().stream().filter(UserAttendance::getAttendanceStatus)
+                    .map(UserAttendance::getUserId).collect(Collectors.toSet());
 
-            List<Long> totalAttendeeIds = Stream.concat(beforeAttendeeIds, afterAttendeeIds).distinct()
-                    .filter(id -> !id.equals(userId)).toList();
+            log.info("이전 참여자 ID: {}", beforeAttendeeIds);
+            log.info("이후 참여자 ID: {}", afterAttendeeIds);
+
+            Set<Long> totalAttendeeIds = new HashSet<>(beforeAttendeeIds);
+            totalAttendeeIds.addAll(afterAttendeeIds);
+            totalAttendeeIds.remove(userId);
 
             UserInfoResponse userInfo = userServiceFeignClient.getUser(userId).getData();
             String title = userInfo.getUserNickname() + "님이 일정을 수정했어요 \uD83D\uDCC5";
@@ -217,7 +222,7 @@ public class ScheduleService {
 
             NotificationRequest notificationRequest = NotificationRequest.builder()
                     .notificationType(MENTION_SCHEDULE)
-                    .receiverUserIds(totalAttendeeIds)
+                    .receiverUserIds(totalAttendeeIds.stream().toList())
                     .senderUserId(userId)
                     .destinationId(schedule.getId().toString())
                     .title(title)
