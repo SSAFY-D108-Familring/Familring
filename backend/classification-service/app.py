@@ -22,7 +22,7 @@ import aiohttp
 import datetime
 from pytz import timezone
 import time
-from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_fastapi_instrumentator import Instrumentator, metrics
 
 # .env 파일 로드
 load_dotenv()
@@ -136,10 +136,63 @@ app = FastAPI(
     redoc_url=None
 )
 
-# Prometheus 설정
-instrumentator = Instrumentator()
+# Instrumentator 인스턴스 생성 및 상세 설정
+def metrics_initialization():
+    instrumentator = Instrumentator(
+        should_group_status_codes=False,
+        should_ignore_untemplated=True,
+        should_respect_env_var=True,
+        should_instrument_requests_inprogress=True,
+        excluded_handlers=[".*admin.*", "/metrics"],
+        env_var_name="ENABLE_METRICS",
+        inprogress_name="fastapi_inprogress",
+        inprogress_labels=True,
+    )
+
+    # 기본 메트릭 추가
+    instrumentator.add(
+        metrics.request_size(
+            metric_namespace="fastapi",
+            metric_subsystem="app",
+            buckets=[.1, .25, .5, 1, 2.5, 5, 10],
+            should_include_handler=True,
+            should_include_method=True,
+            should_include_status=True,
+            should_include_instance=True,
+            instance_label=APP_NAME
+        )
+    ).add(
+        metrics.response_size(
+            should_include_handler=True,
+            should_include_method=True,
+            should_include_status=True,
+            metric_namespace="fastapi",
+            metric_subsystem="responses",
+        )
+    ).add(
+        metrics.latency(
+            should_include_handler=True,
+            should_include_method=True,
+            should_include_status=True,
+            metric_namespace="fastapi",
+            metric_subsystem="requests",
+        )
+    ).add(
+        metrics.requests(
+            should_include_handler=True,
+            should_include_method=True,
+            should_include_status=True,
+            metric_namespace="fastapi",
+            metric_subsystem="requests",
+        )
+    )
+
+    return instrumentator
+
+# FastAPI 앱에 Instrumentator 적용
+instrumentator = metrics_initialization()
 instrumentator.instrument(app)
-instrumentator.expose(app, endpoint="/face-recognition/metrics")
+instrumentator.expose(app, endpoint="/face-recognition/metrics", include_in_schema=True)
 
 # CORS 미들웨어 설정
 app.add_middleware(
