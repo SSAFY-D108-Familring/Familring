@@ -19,9 +19,11 @@ interface ScheduleApi {
         @Query("month") month: Int,
     ): BaseResponse<MonthSchedulesDailies>
 
-    @GET("calendars/schedules")
+    @GET("calendars/schedules/date")
     suspend fun getDaySchedules(
-        @Query("schedule_id") scheduleIds: List<Long>,
+        @Query("year") year: Int,
+        @Query("month") month: Int,
+        @Query("day") day: Int,
     ): BaseResponse<List<Schedule>>
 
     @POST("calendars/schedules")

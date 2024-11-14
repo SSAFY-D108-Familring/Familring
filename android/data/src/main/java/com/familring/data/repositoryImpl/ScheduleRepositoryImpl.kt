@@ -29,11 +29,15 @@ class ScheduleRepositoryImpl
                 emit(apiResponse)
             }
 
-        override suspend fun getDaySchedules(scheduleIds: List<Long>): Flow<ApiResponse<List<Schedule>>> =
+        override suspend fun getDaySchedules(
+            year: Int,
+            month: Int,
+            day: Int,
+        ): Flow<ApiResponse<List<Schedule>>> =
             flow {
                 val apiResponse =
                     emitApiResponse(
-                        apiResponse = { scheduleApi.getDaySchedules(scheduleIds) },
+                        apiResponse = { scheduleApi.getDaySchedules(year, month, day) },
                         default = listOf(),
                     )
                 emit(apiResponse)

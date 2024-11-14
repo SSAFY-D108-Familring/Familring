@@ -151,8 +151,8 @@ fun CalendarScreen(
     state: CalendarUiState,
     event: SharedFlow<CalendarUiEvent>,
     getMonthData: (Int, Int) -> Unit = { _, _ -> },
-    getDaySchedules: (List<Long>) -> Unit = {},
-    getDayDailies: (List<Long>) -> Unit = {},
+    getDaySchedules: (Int, Int, Int) -> Unit = { _, _, _ -> },
+    getDayDailies: (Int, Int, Int) -> Unit = { _, _, _ -> },
     deleteSchedule: (Long) -> Unit = {},
     deleteDaily: (Long) -> Unit = {},
     createAlbum: (Long, String) -> Unit = { _, _ -> },
@@ -367,11 +367,16 @@ fun CalendarScreen(
                                 state.previewDailies,
                             ),
                         onDayClick = { daySchedule ->
+                            val date = daySchedule.date
                             getDaySchedules(
-                                daySchedule.schedules.map { it.id },
+                                date.year,
+                                date.monthValue,
+                                date.dayOfMonth,
                             )
                             getDayDailies(
-                                daySchedule.dailies.map { it.id },
+                                date.year,
+                                date.monthValue,
+                                date.dayOfMonth,
                             )
                             selectedDay = daySchedule.date
                             showBottomSheet = true
