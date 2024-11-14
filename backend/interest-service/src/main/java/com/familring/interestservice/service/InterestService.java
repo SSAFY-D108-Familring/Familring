@@ -194,7 +194,14 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
+        Optional<Interest> interestOptional  = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId);
+
+        // 최근 관심사가 없을 경우 빈 리스트 반환
+        if (interestOptional.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Interest interest = interestOptional.get();
 
         // 가족 구성원 찾기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
