@@ -479,8 +479,6 @@ async def classify_images(request: AnalysisRequest):
                         faceCount=face_count
                     ))
 
-                await asyncio.sleep(0.05)
-
             response = BaseResponse.create(
                 status_code=200,
                 message="얼굴 유사도 분석이 완료되었습니다.",
