@@ -51,16 +51,34 @@ class KSTFormatter(logging.Formatter):
         return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 # 로깅 설정 수정
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-formatter = KSTFormatter(
-    fmt='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-logger.handlers.clear()
-logger.addHandler(handler)
+def setup_logger():
+    # 기존 핸들러 제거
+    logging.getLogger().handlers.clear()
+    
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.INFO)
+    
+    # 이미 핸들러가 있다면 제거
+    if logger.handlers:
+        logger.handlers.clear()
+    
+    # 새로운 핸들러 추가
+    formatter = KSTFormatter(
+        fmt='%(asctime)s [%(levelname)s] %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    
+    logger.addHandler(handler)
+    
+    # 상위 로거로 전파하지 않도록 설정
+    logger.propagate = False
+    
+    return logger
+
+# 로거 초기화
+logger = setup_logger()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
