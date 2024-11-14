@@ -181,39 +181,39 @@ public class AlbumService {
 
         /****************** 얼굴 사진 분류 시작 ******************/
 
-        // 가족 얼굴 사진 가져오기
-        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
-
-        // 유사도 분석 (userId, similarity)
-        FaceSimilarityRequest faceSimilarityRequest = FaceSimilarityRequest.builder()
-                .targetImages(photoUrls).people(
-                        familyMembers.stream().map(m -> new Person(m.getUserId(), m.getUserFace())).toList()
-                ).build();
-        List<FaceSimilarityResponse> faceSimilarityResponses = classificationServiceFeignClient.calculateSimilarity(faceSimilarityRequest).getData();
-
-        // 가족 구성원의 앨범 가져오기 (userId, album)
-        Map<Long, Album> albumMap = albumRepository.findByUserIdIn(familyMembers.stream().map(UserInfoResponse::getUserId).toList())
-                .stream().collect(Collectors.toMap(Album::getUserId, a -> a));
-
-        float threshold = 0.46f;
-
-        // 유사도가 일정 이상 넘으면 앨범에 추가
-        for (int i = 0; i < newPhotos.size(); i++) {
-            Photo newPhoto = newPhotos.get(i);
-            Map<Long, Double> similarities = faceSimilarityResponses.get(i).getSimilarities();
-
-            similarities.forEach((id, score) -> {
-                if (score > threshold) {
-                    // 새로운 Photo 엔티티 생성
-                    Photo copyPhoto = Photo.builder()
-                            .photoUrl(newPhoto.getPhotoUrl())
-                            .parentPhoto(newPhoto)
-                            .build();
-
-                    albumMap.get(id).addPhoto(copyPhoto);
-                }
-            });
-        }
+//        // 가족 얼굴 사진 가져오기
+//        List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
+//
+//        // 유사도 분석 (userId, similarity)
+//        FaceSimilarityRequest faceSimilarityRequest = FaceSimilarityRequest.builder()
+//                .targetImages(photoUrls).people(
+//                        familyMembers.stream().map(m -> new Person(m.getUserId(), m.getUserFace())).toList()
+//                ).build();
+//        List<FaceSimilarityResponse> faceSimilarityResponses = classificationServiceFeignClient.calculateSimilarity(faceSimilarityRequest).getData();
+//
+//        // 가족 구성원의 앨범 가져오기 (userId, album)
+//        Map<Long, Album> albumMap = albumRepository.findByUserIdIn(familyMembers.stream().map(UserInfoResponse::getUserId).toList())
+//                .stream().collect(Collectors.toMap(Album::getUserId, a -> a));
+//
+//        float threshold = 0.46f;
+//
+//        // 유사도가 일정 이상 넘으면 앨범에 추가
+//        for (int i = 0; i < newPhotos.size(); i++) {
+//            Photo newPhoto = newPhotos.get(i);
+//            Map<Long, Double> similarities = faceSimilarityResponses.get(i).getSimilarities();
+//
+//            similarities.forEach((id, score) -> {
+//                if (score > threshold) {
+//                    // 새로운 Photo 엔티티 생성
+//                    Photo copyPhoto = Photo.builder()
+//                            .photoUrl(newPhoto.getPhotoUrl())
+//                            .parentPhoto(newPhoto)
+//                            .build();
+//
+//                    albumMap.get(id).addPhoto(copyPhoto);
+//                }
+//            });
+//        }
 
         /****************** 얼굴 사진 분류 끝 ******************/
 
