@@ -26,7 +26,7 @@ sealed class BottomNavItem(
 
     data object Question : BottomNavItem(
         title = R.string.question_title,
-        icon = R.drawable.ic_question,
+        icon = R.drawable.ic_tutorial,
         selectedIcon = R.drawable.ic_fill_question,
         route = ScreenDestinations.Question.route, // 임시
     )

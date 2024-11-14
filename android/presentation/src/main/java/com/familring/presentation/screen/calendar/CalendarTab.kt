@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -59,12 +58,14 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toColor
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun CalendarTab(
     modifier: Modifier = Modifier,
+    date: LocalDate = LocalDate.now(),
     schedules: List<Schedule>,
     dailyLifes: List<DailyLife>,
     showDeleteScheduleDialog: (Long) -> Unit,
@@ -85,7 +86,16 @@ fun CalendarTab(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.fillMaxHeight(0.02f))
+            Text(
+                modifier = Modifier,
+                text = date.toString(),
+                style =
+                    Typography.headlineSmall.copy(
+                        fontSize = 18.sp,
+                        color = Gray01,
+                    ),
+            )
+            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
             CustomTextTab(
                 selectedItemIndex = selectedItemIndex,
                 tabs = tabs,

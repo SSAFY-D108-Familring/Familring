@@ -369,7 +369,7 @@ fun CalendarScreen(
                                     shape = CircleShape,
                                 ).padding(2.dp)
                                 .noRippleClickable { showTutorial() },
-                        painter = painterResource(id = R.drawable.ic_question),
+                        painter = painterResource(id = R.drawable.ic_tutorial),
                         contentDescription = "ic_question",
                         tint = Gray03,
                     )
@@ -468,6 +468,7 @@ fun CalendarScreen(
                 containerColor = White,
             ) {
                 CalendarTab(
+                    date = selectedDay!!,
                     schedules = state.detailedSchedule,
                     dailyLifes = state.detailedDailies,
                     createAlbum = createAlbum,
