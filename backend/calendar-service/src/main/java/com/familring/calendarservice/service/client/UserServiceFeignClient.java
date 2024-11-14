@@ -17,6 +17,6 @@ public interface UserServiceFeignClient {
     @PostMapping("/client/users")
     BaseResponse<List<UserInfoResponse>> getAllUser(@RequestBody List<Long> userIds);
 
-    @GetMapping("/client/{userId}")
+    @GetMapping("/client/users/{userId}")
     BaseResponse<UserInfoResponse> getUser(@PathVariable Long userId);
 }
