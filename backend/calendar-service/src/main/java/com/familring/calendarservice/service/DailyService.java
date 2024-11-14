@@ -36,11 +36,11 @@ public class DailyService {
     @Value("${aws.s3.daily-photo-path}")
     private String dailyPhotoPath;
 
-    public List<DailyDateResponse> getDailiesDateByMonth(int year, int month, Long userId) {
+    public List<DailyDateResponse> getDailiesByYearAndMonth(int year, int month, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData()
                 .getFamilyId();
 
-        return dailyRepository.findDailiesByDateAndFamilyId(year, month, familyId).stream().map(
+        return dailyRepository.findByYearAndMonthAndFamilyId(year, month, familyId).stream().map(
                 daily -> DailyDateResponse.builder().id(daily.getId()).createdAt(daily.getCreatedAt()).build()).toList();
     }
 
@@ -108,6 +108,25 @@ public class DailyService {
 
     public List<DailyResponse> getDailies(List<Long> dailyIds, Long userId) {
         List<Daily> dailies = dailyRepository.findAllById(dailyIds);
+
+        Map<Long, UserInfoResponse> userMap = userServiceFeignClient
+                .getAllUser(dailies.stream().map(Daily::getAuthorId).distinct().toList()).getData()
+                .stream().collect(Collectors.toMap(UserInfoResponse::getUserId, u -> u));
+
+        return dailies.stream().map(daily -> {
+            UserInfoResponse userInfo = userMap.get(daily.getAuthorId());
+
+            return DailyResponse.builder().id(daily.getId()).content(daily.getContent()).photoUrl(daily.getPhotoUrl())
+                    .userNickname(userInfo.getUserNickname()).userZodiacSign(userInfo.getUserZodiacSign())
+                    .userColor(userInfo.getUserColor()).myPost(daily.getAuthorId().equals(userId)).build();
+        }).toList();
+    }
+
+    public List<DailyResponse> getDailiesByDate(int year, int month, int day, Long userId) {
+        Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData()
+                .getFamilyId();
+
+        List<Daily> dailies = dailyRepository.findByDateAndFamilyId(year, month, day, familyId);
 
         Map<Long, UserInfoResponse> userMap = userServiceFeignClient
                 .getAllUser(dailies.stream().map(Daily::getAuthorId).distinct().toList()).getData()

@@ -1,6 +1,7 @@
 package com.familring.calendarservice.controller;
 
 import com.familring.calendarservice.dto.response.DailyResponse;
+import com.familring.calendarservice.dto.response.MonthDailyScheduleResponse;
 import com.familring.calendarservice.service.DailyService;
 import com.familring.common_module.dto.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,5 +65,17 @@ public class DailyController {
     ) {
         dailyService.deleteDaily(dailyId, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일상을 성공적으로 삭제했습니다."));
+    }
+
+    @GetMapping("/date")
+    @Operation(summary = "날짜별 일상 조회", description = "입력받은 년, 월, 일에 해당하는 일상을 반환합니다.")
+    public ResponseEntity<BaseResponse<List<DailyResponse>>> getDailiesByDate(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(),
+                year + "년 " + month + "월 " + day + "일의 일상을 모두 조회했습니다.", dailyService.getDailiesByDate(year, month, day, userId)));
     }
 }

@@ -32,8 +32,8 @@ public class CalendarController {
             @RequestParam int month,
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
     ) {
-        List<DailyDateResponse> dailyDateResponses = dailyService.getDailiesDateByMonth(year, month, userId);
-        List<ScheduleDateResponse> scheduleDateResponses = scheduleService.getSchedulesByMonth(year, month, userId);
+        List<DailyDateResponse> dailyDateResponses = dailyService.getDailiesByYearAndMonth(year, month, userId);
+        List<ScheduleDateResponse> scheduleDateResponses = scheduleService.getSchedulesByYearAndMonth(year, month, userId);
         MonthDailyScheduleResponse response = MonthDailyScheduleResponse.builder().dailies(dailyDateResponses).schedules(scheduleDateResponses).build();
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), month + "월 일정과 일상 게시물을 모두 조회했습니다.", response));
     }

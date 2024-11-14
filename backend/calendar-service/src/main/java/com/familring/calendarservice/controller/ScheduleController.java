@@ -2,6 +2,9 @@ package com.familring.calendarservice.controller;
 
 import com.familring.calendarservice.dto.request.ScheduleRequest;
 import com.familring.calendarservice.dto.request.ScheduleUpdateRequest;
+import com.familring.calendarservice.dto.response.DailyDateResponse;
+import com.familring.calendarservice.dto.response.MonthDailyScheduleResponse;
+import com.familring.calendarservice.dto.response.ScheduleDateResponse;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
 import com.familring.calendarservice.service.ScheduleService;
 import com.familring.common_module.dto.BaseResponse;
@@ -60,5 +63,17 @@ public class ScheduleController {
             @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId) {
         scheduleService.updateSchedule(scheduleId, scheduleUpdateRequest, userId);
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "일정을 성공적으로 수정했습니다."));
+    }
+
+    @GetMapping("/date")
+    @Operation(summary = "날짜별 일정 조회", description = "입력받은 년, 월, 일에 해당하는 일정을 반환합니다.")
+    public ResponseEntity<BaseResponse<List<ScheduleResponse>>>  getSchedulesByDate(
+            @RequestParam int year,
+            @RequestParam int month,
+            @RequestParam int day,
+            @Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId
+    ) {
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(),
+                year + "년 " + month + "월 " + day + "일의 일정을 모두 조회했습니다.", scheduleService.getSchedulesByDate(year, month, day, userId)));
     }
 }
