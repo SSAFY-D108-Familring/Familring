@@ -29,7 +29,7 @@
     <input type="text" id="voteTitle" placeholder="투표 제목" style="display: none;">
 </div>
 <div id="chat-log"></div>
-<button onclick="loadMoreMessages()">더보기</button>
+<button id="loadMoreButton" onclick="loadMoreMessages()">더보기</button>
 
 <script>
     let stompClient = null;
@@ -124,12 +124,19 @@
                 return;
             }
 
-            chatLog.innerHTML = "";
-
-            if (result.data && Array.isArray(result.data)) {
-                result.data.forEach(message => {
+            // 이전 메시지들이 사라지지 않도록 기존 로그에 추가
+            if (result.data && result.data.chatList) {
+                result.data.chatList.forEach(message => {
                     displayMessageByType(message);
                 });
+
+                // 다음 페이지가 있는지 확인하여 로딩 버튼을 제어할 수 있음
+                const hasNext = result.data.hasNext;
+                if (!hasNext) {
+                    document.getElementById("loadMoreButton").style.display = "none"; // 더보기 버튼 숨기기
+                } else {
+                    document.getElementById("loadMoreButton").style.display = "block"; // 더보기 버튼 표시
+                }
             } else {
                 console.warn("No chat data available.");
             }
