@@ -325,6 +325,7 @@ fun QuestionScreen(
                                 showSnackBar,
                                 answer,
                                 questionId = questionId,
+                                past = false,
                             )
                         }
                     }
@@ -341,6 +342,7 @@ fun FamilyListItem(
     answer: Int,
     viewModel: QuestionViewModel = hiltViewModel(),
     questionId: Long,
+    past: Boolean,
 ) {
     Column(
         modifier =
@@ -375,30 +377,6 @@ fun FamilyListItem(
                 style = Typography.displaySmall.copy(fontSize = 18.sp),
                 color = Black,
             )
-            Text(
-                text =
-                    buildAnnotatedString {
-                        withStyle(
-                            style =
-                                SpanStyle(
-                                    textDecoration = TextDecoration.Underline,
-                                ),
-                        ) {
-                            append("✊\uD83C\uDFFB 똑똑")
-                        }
-                    },
-                style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                color = Gray02,
-                modifier =
-                    Modifier.noRippleClickable {
-                        viewModel.knockKnock(
-                            questionId,
-                            questionAnswer.userId,
-                        )
-                        Timber.d("똑똑 누름 " + questionAnswer.userId)
-                        showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
-                    },
-            )
         } else {
             Row {
                 Text(
@@ -406,7 +384,8 @@ fun FamilyListItem(
                     style = Typography.displaySmall.copy(fontSize = 18.sp),
                     color = Gray02,
                 )
-//                if (answer != 0) {
+                if (answer != 0 && !past) {
+                    Timber.d("$past")
                 Text(
                     text =
                         buildAnnotatedString {
@@ -431,7 +410,7 @@ fun FamilyListItem(
                             showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
                         },
                 )
-//                }
+                }
             }
         }
     }

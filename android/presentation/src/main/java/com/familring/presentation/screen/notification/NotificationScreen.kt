@@ -42,6 +42,11 @@ import com.familring.presentation.util.noRippleClickable
 fun NotificationRoute(
     modifier: Modifier,
     navigateToHome: () -> Unit,
+    navigateToQuestion: () -> Unit,
+    navigateToSchedule: () -> Unit,
+    navigateToChat: () -> Unit,
+    navigateToTimeCapsule: () -> Unit,
+    navigateToInterest: () -> Unit,
     viewModel: NotificationViewModel = hiltViewModel(),
 ) {
     val notificationListState = viewModel.notificationListState.collectAsStateWithLifecycle()
@@ -58,6 +63,17 @@ fun NotificationRoute(
         notificationEvent = notificationEvent.value,
         viewModel = viewModel,
         notificationListState = notificationListState.value,
+        onNotificationClick = { notification ->
+            viewModel.readNotification(notification.notificationId)
+            when (notification.notificationType) {
+                "KNOCK" -> navigateToQuestion()
+                "MENTION_SCHEDULE" -> navigateToSchedule()
+                "MENTION_CHAT" -> navigateToChat()
+                "RANDOM" -> navigateToQuestion()
+                "TIMECAPSULE" -> navigateToTimeCapsule()
+                "INTEREST_PICK", "INTEREST_COMPLETE" -> navigateToInterest()
+            }
+        },
     )
 }
 
@@ -68,6 +84,7 @@ fun NotificationScreen(
     viewModel: NotificationViewModel,
     notificationEvent: NotificationEvent,
     notificationListState: NotificationListState,
+    onNotificationClick: (NotificationResponse) -> Unit = {},
 ) {
     LaunchedEffect(notificationEvent) {
         when (notificationEvent) {
@@ -124,9 +141,7 @@ fun NotificationScreen(
                         items(notificationListState.notificationList.size) { index ->
                             NotificationItem(
                                 notificationListState.notificationList[index],
-                                onNotificationClick = { notificationId ->
-                                    viewModel.readNotification(notificationId)
-                                },
+                                onNotificationClick = onNotificationClick,
                             )
                         }
                     }
@@ -152,7 +167,7 @@ fun NotificationScreen(
 @Composable
 fun NotificationItem(
     notification: NotificationResponse,
-    onNotificationClick: (Long) -> Unit = {},
+    onNotificationClick: (NotificationResponse) -> Unit = {},
 ) {
     Box {
         ElevatedCard(
@@ -160,7 +175,11 @@ fun NotificationItem(
                 Modifier
                     .fillMaxSize()
                     .padding(horizontal = 21.dp)
-                    .noRippleClickable { onNotificationClick(notification.notificationId) },
+                    .noRippleClickable {
+                        onNotificationClick(
+                            notification,
+                        )
+                    },
             shape = RoundedCornerShape(20.dp),
             colors =
                 CardDefaults.cardColors(

@@ -2,6 +2,8 @@ package com.familring.presentation.screen.gallery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -16,13 +18,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.familring.domain.model.gallery.Photo
 import com.familring.presentation.component.TopAppBar
-import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.White
 
 @Composable
 fun PhotoRoute(
-    photoUrl: String,
     albumId: Long,
+    photoUrl: String,
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {},
     viewModel: GalleryViewModel = hiltViewModel(),
@@ -73,38 +74,32 @@ fun PhotoScreen(
         )
 
     Box(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().background(White),
     ) {
-        // 배경을 검은색으로
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(White),
-        )
-
-        // 이미지 페이저
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize(),
-        ) { page ->
-            ZoomableImage(
-                imageUrl = photos[page].photoUrl,
+        Column {
+            TopAppBar(
+                title = {
+                },
+                onNavigationClick = onNavigateBack,
             )
-        }
+            Spacer(modifier = Modifier.fillMaxSize(0.02f))
 
-        // 상단 바
-        TopAppBar(
-            title = {
-            },
-            onNavigationClick = onNavigateBack,
-        )
+            HorizontalPager(
+                modifier = Modifier.fillMaxSize(),
+                state = pagerState,
+            ) { page ->
+                ZoomableImage(
+                    imageUrl = photos[page].photoUrl,
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun ZoomableImage(imageUrl: String) {
     AsyncImage(
+        modifier = Modifier.fillMaxSize(),
         model = imageUrl,
         contentDescription = "fullscreen_photo",
         contentScale = ContentScale.Fit,

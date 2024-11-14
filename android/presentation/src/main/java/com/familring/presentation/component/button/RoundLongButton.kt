@@ -42,7 +42,7 @@ fun RoundLongButton(
                     disabledContentColor = White,
                 ),
             modifier =
-                Modifier
+                modifier
                     .fillMaxWidth(0.9f)
                     .height(52.dp),
             shape = RoundedCornerShape(12.dp),
