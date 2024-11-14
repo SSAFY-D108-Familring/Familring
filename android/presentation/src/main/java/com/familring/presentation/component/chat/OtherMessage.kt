@@ -103,7 +103,7 @@ fun OtherMessage(
                             text = unReadMembers,
                             style = Typography.titleSmall.copy(fontSize = 10.sp),
                             color = Green02,
-                            modifier = Modifier.padding(bottom = 2.dp),
+                            modifier = Modifier.padding(start = 2.dp),
                         )
                     }
                     Text(
