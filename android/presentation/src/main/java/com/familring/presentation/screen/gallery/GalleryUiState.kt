@@ -14,7 +14,6 @@ sealed interface GalleryUiState {
         val normalAlbums: List<Album> = emptyList(),
         val personAlbums: List<Album> = emptyList(),
         val scheduleAlbums: List<Album> = emptyList(),
-        val isReadTutorial: Boolean = true,
     ) : GalleryUiState
 
     @Immutable

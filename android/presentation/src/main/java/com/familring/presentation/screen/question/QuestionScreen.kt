@@ -81,6 +81,8 @@ fun QuestionRoute(
     showSnackBar: (String) -> Unit,
     viewModel: QuestionViewModel = hiltViewModel(),
 ) {
+    val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
+
     val questionState by viewModel.questionState.collectAsStateWithLifecycle()
     var isLoading by remember { mutableStateOf(false) }
 
@@ -104,16 +106,22 @@ fun QuestionRoute(
                 navigateToQuestionList = navigateToQuestionList,
                 navigateToAnswerWrite = navigateToAnswerWrite,
                 showSnackBar = showSnackBar,
-                showTutorial = { showTutorial = true },
+                showTutorial = {
+                    showTutorial = true
+                    viewModel.setReadTutorialState(false)
+                },
                 questionId = state.questionId,
                 questionContent = state.questionContent,
                 answerContents = state.answerContents,
             )
 
-            if (showTutorial) {
+            if (showTutorial && !tutorialUiState.isReadTutorial) {
                 ModalBottomSheet(
                     containerColor = White,
-                    onDismissRequest = { showTutorial = false },
+                    onDismissRequest = {
+                        showTutorial = false
+                        viewModel.setReadTutorial()
+                    },
                     sheetState = sheetState,
                 ) {
                     TutorialScreen(

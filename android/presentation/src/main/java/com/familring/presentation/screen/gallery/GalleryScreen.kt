@@ -76,6 +76,8 @@ fun GalleryRoute(
     viewModel: GalleryViewModel = hiltViewModel(),
     showSnackBar: (String) -> Unit,
 ) {
+    val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
+
     val galleryUiState by viewModel.galleryUiState.collectAsStateWithLifecycle()
     val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Init)
 
@@ -145,7 +147,7 @@ fun GalleryRoute(
         LoadingDialog(loadingMessage = "앨범 생성중...")
     }
 
-    if (showTutorial) { // && !galleryUiState.isReadTutorial
+    if (showTutorial && !tutorialUiState.isReadTutorial) {
         ModalBottomSheet(
             containerColor = White,
             onDismissRequest = {
@@ -207,14 +209,15 @@ fun GalleryScreen(
                 tutorialIcon = {
                     Icon(
                         modifier =
-                            Modifier
-                                .size(20.dp)
-                                .border(
-                                    width = 2.dp,
-                                    color = Gray03,
-                                    shape = CircleShape,
-                                ).padding(2.dp)
-                                .noRippleClickable { showTutorial() },
+                        Modifier
+                            .size(20.dp)
+                            .border(
+                                width = 2.dp,
+                                color = Gray03,
+                                shape = CircleShape,
+                            )
+                            .padding(2.dp)
+                            .noRippleClickable { showTutorial() },
                         painter = painterResource(id = R.drawable.ic_question),
                         contentDescription = "ic_question",
                         tint = Gray03,
@@ -232,21 +235,24 @@ fun GalleryScreen(
                     text = "공유",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                        Modifier
-                            .background(
-                                color = if (privateGallerySelected) Green02 else White,
-                                shape = RoundedCornerShape(30.dp),
-                            ).border(
-                                border =
-                                    if (privateGallerySelected) {
-                                        BorderStroke(0.dp, Gray03)
-                                    } else {
-                                        BorderStroke(1.dp, Gray03)
-                                    },
-                                RoundedCornerShape(30.dp),
-                            ).noRippleClickable {
-                                privateGallerySelected = true
-                            }.padding(horizontal = 19.dp, vertical = 8.dp),
+                    Modifier
+                        .background(
+                            color = if (privateGallerySelected) Green02 else White,
+                            shape = RoundedCornerShape(30.dp),
+                        )
+                        .border(
+                            border =
+                            if (privateGallerySelected) {
+                                BorderStroke(0.dp, Gray03)
+                            } else {
+                                BorderStroke(1.dp, Gray03)
+                            },
+                            RoundedCornerShape(30.dp),
+                        )
+                        .noRippleClickable {
+                            privateGallerySelected = true
+                        }
+                        .padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (privateGallerySelected) White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -254,21 +260,24 @@ fun GalleryScreen(
                     text = "인물",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                        Modifier
-                            .background(
-                                color = if (!privateGallerySelected) Green02 else White,
-                                shape = RoundedCornerShape(30.dp),
-                            ).border(
-                                border =
-                                    if (!privateGallerySelected) {
-                                        BorderStroke(0.dp, Gray03)
-                                    } else {
-                                        BorderStroke(1.dp, Gray03)
-                                    },
-                                RoundedCornerShape(30.dp),
-                            ).noRippleClickable {
-                                privateGallerySelected = false
-                            }.padding(horizontal = 19.dp, vertical = 8.dp),
+                    Modifier
+                        .background(
+                            color = if (!privateGallerySelected) Green02 else White,
+                            shape = RoundedCornerShape(30.dp),
+                        )
+                        .border(
+                            border =
+                            if (!privateGallerySelected) {
+                                BorderStroke(0.dp, Gray03)
+                            } else {
+                                BorderStroke(1.dp, Gray03)
+                            },
+                            RoundedCornerShape(30.dp),
+                        )
+                        .noRippleClickable {
+                            privateGallerySelected = false
+                        }
+                        .padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (!privateGallerySelected) White else Color.Black,
                 )
             }
@@ -338,15 +347,15 @@ fun GalleryScreen(
                 ) {
                     Column(
                         modifier =
-                            Modifier
-                                .background(color = White)
-                                .padding(top = 16.dp),
+                        Modifier
+                            .background(color = White)
+                            .padding(top = 16.dp),
                     ) {
                         BasicTextField(
                             modifier =
-                                Modifier
-                                    .background(Color.Transparent)
-                                    .padding(horizontal = 26.dp),
+                            Modifier
+                                .background(Color.Transparent)
+                                .padding(horizontal = 26.dp),
                             value = albumname,
                             onValueChange = { albumname = it },
                             textStyle =
@@ -416,15 +425,15 @@ fun GalleryItem(
         ) {
             Column(
                 modifier =
-                    Modifier
-                        .background(color = White)
-                        .padding(top = 16.dp),
+                Modifier
+                    .background(color = White)
+                    .padding(top = 16.dp),
             ) {
                 BasicTextField(
                     modifier =
-                        Modifier
-                            .background(Color.Transparent)
-                            .padding(horizontal = 26.dp),
+                    Modifier
+                        .background(Color.Transparent)
+                        .padding(horizontal = 26.dp),
                     value = updatedAlbumName,
                     onValueChange = { updatedAlbumName = it },
                     // 처음엔 그레이 색..?
@@ -474,9 +483,9 @@ fun GalleryItem(
 
     Column(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .padding(bottom = 8.dp),
+        Modifier
+            .fillMaxSize()
+            .padding(bottom = 8.dp),
     ) {
         Card(
             modifier =

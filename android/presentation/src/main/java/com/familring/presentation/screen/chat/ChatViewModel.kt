@@ -6,10 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.model.ApiResponse
@@ -23,13 +19,12 @@ import com.familring.presentation.R
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -40,6 +35,7 @@ import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
 import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
+import timber.log.Timber
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
@@ -52,8 +48,12 @@ class ChatViewModel
         private val familyRepository: FamilyRepository,
         private val authDataStore: AuthDataStore,
         private val tokenDataStore: TokenDataStore,
+        private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
-        private var userId: Long? = 0L
+        private val _tutorialUiState = MutableStateFlow(TutorialUiState())
+        val tutorialUiState = _tutorialUiState.asStateFlow()
+
+        var userId: Long? = 0L
         private var familyId: Long? = 0L
 
         private lateinit var stompSession: StompSession
@@ -64,9 +64,7 @@ class ChatViewModel
                 .add(LocalDateTimeAdapter())
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
-
-        private val _chatPagingData = MutableStateFlow<PagingData<Chat>>(PagingData.empty())
-        val chatPagingData = _chatPagingData.asStateFlow()
+        private lateinit var chatList: List<Chat>
 
         // 재생 중인 파일
         private var currentPlayer: VoicePlayer? by mutableStateOf(null)
@@ -78,9 +76,41 @@ class ChatViewModel
         val event = _event.asSharedFlow()
 
         init {
+            getReadTutorial()
             loadUserData()
             connectStomp()
             getChatList()
+        }
+
+        private fun getReadTutorial() {
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = tutorialDataStore.getChatReadTutorial(),
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorial() {
+            viewModelScope.launch {
+                tutorialDataStore.setChatReadTutorial(true)
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = true,
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorialState(isRead: Boolean) {
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = isRead,
+                    )
+                }
+            }
         }
 
         private fun loadUserData() {

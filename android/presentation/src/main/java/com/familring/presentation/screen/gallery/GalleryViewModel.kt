@@ -25,6 +25,9 @@ class GalleryViewModel
         private val galleryRepository: GalleryRepository,
         private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
+        private val _tutorialUiState = MutableStateFlow(TutorialUiState())
+        val tutorialUiState = _tutorialUiState.asStateFlow()
+
         private val _galleryUiState = MutableStateFlow<GalleryUiState>(GalleryUiState.Loading)
         val galleryUiState = _galleryUiState.asStateFlow()
 
@@ -42,34 +45,34 @@ class GalleryViewModel
         }
 
         private fun getReadTutorial() {
-//            viewModelScope.launch {
-//                _galleryUiState.update {
-//                    it.copy(
-//                        isReadTutorial = tutorialDataStore.getAlbumReadTutorial(),
-//                    )
-//                }
-//            }
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = tutorialDataStore.getAlbumReadTutorial(),
+                    )
+                }
+            }
         }
 
         fun setReadTutorial() {
             viewModelScope.launch {
                 tutorialDataStore.setAlbumReadTutorial(true)
-//                _uiState.update {
-//                    it.copy(
-//                        isReadTutorial = true,
-//                    )
-//                }
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = true,
+                    )
+                }
             }
         }
 
         fun setReadTutorialState(isRead: Boolean) {
-//            viewModelScope.launch {
-//                _galleryUiState.update {
-//                    it.copy(
-//                        isReadTutorial = isRead,
-//                    )
-//                }
-//            }
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = isRead,
+                    )
+                }
+            }
         }
 
         fun getAlbums(albumTypes: List<AlbumType>) {
