@@ -89,7 +89,7 @@ fun InterestSelectDialog(
                     modifier =
                         Modifier
                             .background(color = Green01),
-                    text = "이제 관심사를 선정할래요",
+                    text = "관심사 선정하기",
                     style = Typography.titleSmall,
                 )
             }

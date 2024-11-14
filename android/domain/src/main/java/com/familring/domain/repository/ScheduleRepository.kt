@@ -12,7 +12,11 @@ interface ScheduleRepository {
         month: Int,
     ): Flow<ApiResponse<MonthSchedulesDailies>>
 
-    suspend fun getDaySchedules(scheduleIds: List<Long>): Flow<ApiResponse<List<Schedule>>>
+    suspend fun getDaySchedules(
+        year: Int,
+        month: Int,
+        day: Int,
+    ): Flow<ApiResponse<List<Schedule>>>
 
     suspend fun createSchedule(schedule: ScheduleCreateRequest): Flow<ApiResponse<Unit>>
 

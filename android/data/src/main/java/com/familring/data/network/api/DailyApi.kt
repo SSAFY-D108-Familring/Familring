@@ -14,9 +14,11 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface DailyApi {
-    @GET("calendars/dailies")
+    @GET("calendars/dailies/date")
     suspend fun getDayDailies(
-        @Query("daily_id") dailyIds: List<Long>,
+        @Query("year") year: Int,
+        @Query("month") month: Int,
+        @Query("day") day: Int,
     ): BaseResponse<List<DailyLife>>
 
     @Multipart

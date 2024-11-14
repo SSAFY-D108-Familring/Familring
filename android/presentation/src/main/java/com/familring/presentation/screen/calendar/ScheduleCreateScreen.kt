@@ -147,7 +147,6 @@ fun ScheduleCreateScreen(
             Blue01,
             Pink02,
             Gray02,
-            Black,
         )
     var selectedColorIdx by remember { mutableIntStateOf(0) }
 

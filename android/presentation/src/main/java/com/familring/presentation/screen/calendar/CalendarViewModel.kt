@@ -98,17 +98,13 @@ class CalendarViewModel
             }
         }
 
-        fun getDaySchedules(scheduleIds: List<Long>) {
-            if (scheduleIds.isEmpty()) {
-                _uiState.update {
-                    it.copy(
-                        detailedSchedule = emptyList(),
-                    )
-                }
-                return
-            }
+        fun getDaySchedules(
+            year: Int,
+            month: Int,
+            day: Int,
+        ) {
             viewModelScope.launch {
-                scheduleRepository.getDaySchedules(scheduleIds).collect { result ->
+                scheduleRepository.getDaySchedules(year, month, day).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _uiState.update {
@@ -162,17 +158,13 @@ class CalendarViewModel
             }
         }
 
-        fun getDayDailies(dailyIds: List<Long>) {
-            if (dailyIds.isEmpty()) {
-                _uiState.update {
-                    it.copy(
-                        detailedDailies = emptyList(),
-                    )
-                }
-                return
-            }
+        fun getDayDailies(
+            year: Int,
+            month: Int,
+            day: Int,
+        ) {
             viewModelScope.launch {
-                dailyRepository.getDayDailies(dailyIds).collect { result ->
+                dailyRepository.getDayDailies(year, month, day).collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
                             _uiState.update {
