@@ -15,6 +15,9 @@ sealed interface HomeEvent {
     data object Success : HomeEvent
 
     @Immutable
+    data object UpdateSuccess : HomeEvent
+
+    @Immutable
     data class Error(
         val code: String,
         val message: String,

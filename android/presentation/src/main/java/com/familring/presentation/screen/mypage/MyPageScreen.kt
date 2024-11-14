@@ -39,11 +39,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.domain.model.Profile
 import com.familring.domain.request.UserEmotionRequest
 import com.familring.presentation.R
-import com.familring.presentation.component.EmotionGrid
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.ZodiacBackgroundProfile
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.dialog.TwoButtonTextDialog
+import com.familring.presentation.screen.home.EmotionUpdateScreen
 import com.familring.presentation.screen.signup.shareCode
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -391,10 +391,10 @@ fun MyPageScreen(
     if (showLogoutDialog) {
         Box(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .background(color = Black.copy(alpha = 0.5f))
-                .noRippleClickable { showLogoutDialog = false },
+                Modifier
+                    .fillMaxSize()
+                    .background(color = Black.copy(alpha = 0.5f))
+                    .noRippleClickable { showLogoutDialog = false },
             contentAlignment = Alignment.Center,
         ) {
             TwoButtonTextDialog(
@@ -439,22 +439,14 @@ fun MyPageScreen(
     }
 
     if (showEmotionDialog) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(color = Black.copy(alpha = 0.5f))
-                    .noRippleClickable { showEmotionDialog = false },
-            contentAlignment = Alignment.Center,
-        ) {
-            EmotionGrid(
-                clickEmotion = { emotion ->
-                    // 서버에 기분 수정 보내기
-                    updateEmotion(UserEmotionRequest(emotion))
-                    showEmotionDialog = false
-                },
-            )
-        }
+        EmotionUpdateScreen(
+            onClose = { showEmotionDialog = false },
+            clickEmotion = {
+                // 서버에 기분 수정 보내기
+                updateEmotion(UserEmotionRequest(it))
+                showEmotionDialog = false
+            },
+        )
     }
 }
 

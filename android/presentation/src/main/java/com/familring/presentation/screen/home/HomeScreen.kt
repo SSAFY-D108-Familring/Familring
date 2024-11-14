@@ -53,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
+import com.familring.domain.request.UserEmotionRequest
 import com.familring.presentation.R
 import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
@@ -71,7 +72,6 @@ import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
-import timber.log.Timber
 
 @Composable
 fun HomeRoute(
@@ -92,12 +92,10 @@ fun HomeRoute(
 
     when (val state = homeState) {
         is HomeState.Loading -> {
-            Timber.tag("nakyung").d("홈화면 로딩중")
             LoadingDialog(loadingMessage = "홈 화면을 불러오고 있어요...")
         }
 
         is HomeState.Success -> {
-            Timber.tag("nakyung").d("홈화면 그려짐")
             HomeScreen(
                 modifier = modifier,
                 familyMembers = state.familyMembers,
@@ -159,6 +157,10 @@ fun HomeScreen(
                 showSnackBar("알림을 성공적으로 전송했습니다")
             }
 
+            is HomeEvent.UpdateSuccess -> {
+                showSnackBar("나의 현재 기분이 변경되었어요!")
+            }
+
             else -> {}
         }
     }
@@ -175,6 +177,7 @@ fun HomeScreen(
     var showTreeExplanation by remember { mutableStateOf(false) }
     var selectedUser by remember { mutableStateOf<User?>(null) }
     var showLoveMention by remember { mutableStateOf(false) }
+    var showEditEmotion by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -537,6 +540,8 @@ fun HomeScreen(
                             if (mother.userId != currentUserId) {
                                 selectedUser = mother
                                 showLoveMention = true
+                            } else {
+                                showEditEmotion = true
                             }
                         })
                     } else {
@@ -555,6 +560,8 @@ fun HomeScreen(
                                 if (father.userId != currentUserId) {
                                     selectedUser = father
                                     showLoveMention = true
+                                } else {
+                                    showEditEmotion = true
                                 }
                             },
                         )
@@ -581,6 +588,8 @@ fun HomeScreen(
                             if (children[index].userId != currentUserId) {
                                 selectedUser = children[index]
                                 showLoveMention = true
+                            } else {
+                                showEditEmotion = true
                             }
                         })
                     }
@@ -601,6 +610,15 @@ fun HomeScreen(
                     selectedUser!!.userId,
                     content,
                 )
+            },
+        )
+    }
+
+    if (showEditEmotion) {
+        EmotionUpdateScreen(
+            onClose = { showEditEmotion = false },
+            clickEmotion = { emotion ->
+                viewModel.updateEmotion(UserEmotionRequest(userEmotion = emotion))
             },
         )
     }
