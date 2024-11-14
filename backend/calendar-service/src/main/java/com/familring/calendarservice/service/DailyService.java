@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +128,8 @@ public class DailyService {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData()
                 .getFamilyId();
 
-        List<Daily> dailies = dailyRepository.findByDateAndFamilyId(year, month, day, familyId);
+        LocalDate date = LocalDate.of(year, month, day);
+        List<Daily> dailies = dailyRepository.findByDateAndFamilyId(date, familyId);
 
         Map<Long, UserInfoResponse> userMap = userServiceFeignClient
                 .getAllUser(dailies.stream().map(Daily::getAuthorId).distinct().toList()).getData()
