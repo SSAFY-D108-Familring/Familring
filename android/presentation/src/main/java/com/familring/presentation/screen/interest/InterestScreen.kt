@@ -31,7 +31,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TutorialScreen
@@ -176,7 +175,7 @@ fun InterestScreen(
                                     shape = CircleShape,
                                 ).padding(2.dp)
                                 .noRippleClickable { showTutorial() },
-                        painter = painterResource(id = R.drawable.ic_question),
+                        painter = painterResource(id = R.drawable.ic_tutorial),
                         contentDescription = "ic_question",
                         tint = Gray03,
                     )
