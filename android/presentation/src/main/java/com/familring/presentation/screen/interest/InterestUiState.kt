@@ -17,4 +17,5 @@ data class InterestUiState(
     val selectedInterest: SelectedInterest = SelectedInterest(),
     val leftMissionPeriod: Int = 0,
     val missions: List<Mission> = listOf(),
+    val isReadTutorial: Boolean = true,
 )

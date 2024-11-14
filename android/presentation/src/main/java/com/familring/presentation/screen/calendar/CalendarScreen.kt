@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -59,19 +61,23 @@ import com.familring.domain.model.calendar.Schedule
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
 import com.familring.presentation.component.TopAppBarNavigationType
+import com.familring.presentation.component.TutorialScreen
 import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.noRippleClickable
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.PriorityQueue
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarRoute(
     modifier: Modifier,
@@ -85,6 +91,9 @@ fun CalendarRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val uiState by calendarViewModel.uiState.collectAsStateWithLifecycle()
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var showTutorial by remember { mutableStateOf(true) }
 
     CalendarScreen(
         modifier = modifier,
@@ -102,8 +111,37 @@ fun CalendarRoute(
         navigateToAlbum = navigateToAlbum,
         navigateToModifySchedule = navigateToModifySchedule,
         navigateToModifyDaily = navigateToModifyDaily,
+        showTutorial = {
+            showTutorial = true
+            calendarViewModel.setReadTutorialState(false)
+        },
         showSnackBar = showSnackBar,
     )
+
+    if (showTutorial && !uiState.isReadTutorial) {
+        ModalBottomSheet(
+            containerColor = White,
+            onDismissRequest = {
+                showTutorial = false
+                calendarViewModel.setReadTutorial()
+            },
+            sheetState = sheetState,
+        ) {
+            TutorialScreen(
+                imageLists =
+                    listOf(
+                        R.drawable.img_tutorial_calendar_first,
+                        R.drawable.img_tutorial_calendar_second,
+                        R.drawable.img_tutorial_calendar_third,
+                        R.drawable.img_tutorial_calendar_fourth,
+                    ),
+                title = "공유 캘린더 미리보기 \uD83D\uDD0D",
+                subTitle =
+                    "가족 구성원 모두의 일정을 한눈에 관리하고\n" +
+                        "개인의 일상을 모두 볼 수 있도록 공유하세요!",
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -125,6 +163,7 @@ fun CalendarScreen(
     navigateToModifySchedule: (Schedule) -> Unit = {},
     navigateToModifyDaily: (DailyLife) -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    showTutorial: () -> Unit = {},
 ) {
     // pager
     val coroutineScope = rememberCoroutineScope()
@@ -319,6 +358,22 @@ fun CalendarScreen(
                         style = Typography.titleLarge.copy(fontSize = 30.sp),
                     )
                 },
+                tutorialIcon = {
+                    Icon(
+                        modifier =
+                            Modifier
+                                .size(20.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Gray03,
+                                    shape = CircleShape,
+                                ).padding(2.dp)
+                                .noRippleClickable { showTutorial() },
+                        painter = painterResource(id = R.drawable.ic_tutorial),
+                        contentDescription = "ic_question",
+                        tint = Gray03,
+                    )
+                },
                 navigationType = TopAppBarNavigationType.None,
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -413,6 +468,7 @@ fun CalendarScreen(
                 containerColor = White,
             ) {
                 CalendarTab(
+                    date = selectedDay!!,
                     schedules = state.detailedSchedule,
                     dailyLifes = state.detailedDailies,
                     createAlbum = createAlbum,
@@ -485,7 +541,6 @@ private fun createDaySchedules(
             }
         DaySchedule(date, schedules, dailies)
     }
-
 
 private fun calcOrder(previewSchedules: List<PreviewSchedule>): List<PreviewSchedule> {
     val occupyList = MutableList<LocalDate?>(3) { null }

@@ -29,6 +29,7 @@ fun TopAppBar(
     title: @Composable () -> Unit,
     navigationType: TopAppBarNavigationType = TopAppBarNavigationType.Back,
     onNavigationClick: () -> Unit = {},
+    tutorialIcon: @Composable () -> Unit = {},
     trailingIcon: @Composable () -> Unit = {},
 ) {
     Row(
@@ -51,6 +52,8 @@ fun TopAppBar(
             Spacer(modifier = Modifier.width(18.dp))
         }
         title()
+        Spacer(modifier = Modifier.width(10.dp))
+        tutorialIcon()
         Spacer(modifier = Modifier.weight(1f))
         trailingIcon()
         Spacer(modifier = Modifier.width(10.dp))

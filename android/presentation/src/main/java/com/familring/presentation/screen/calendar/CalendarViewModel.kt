@@ -2,6 +2,7 @@ package com.familring.presentation.screen.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.datastore.TutorialDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.gallery.AlbumType
 import com.familring.domain.repository.DailyRepository
@@ -24,12 +25,48 @@ class CalendarViewModel
         private val scheduleRepository: ScheduleRepository,
         private val dailyRepository: DailyRepository,
         private val galleryRepository: GalleryRepository,
+        private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(CalendarUiState())
         val uiState = _uiState.asStateFlow()
 
         private val _event = MutableSharedFlow<CalendarUiEvent>()
         val event = _event.asSharedFlow()
+
+        init {
+            getReadTutorial()
+        }
+
+        private fun getReadTutorial() {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(
+                        isReadTutorial = tutorialDataStore.getCalendarReadTutorial(),
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorial() {
+            viewModelScope.launch {
+                tutorialDataStore.setCalendarReadTutorial(true)
+                _uiState.update {
+                    it.copy(
+                        isReadTutorial = true,
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorialState(isRead: Boolean) {
+            viewModelScope.launch {
+                _uiState.update {
+                    it.copy(
+                        isReadTutorial = isRead,
+                    )
+                }
+            }
+        }
 
         fun getMonthData(
             year: Int,
