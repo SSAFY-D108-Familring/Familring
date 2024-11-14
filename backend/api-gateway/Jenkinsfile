@@ -77,7 +77,10 @@ def stopAndRemoveContainer(containerName) {
 def buildAndRunContainer(serviceName, port) {
     stopAndRemoveContainer(serviceName)
     sh 'chmod +x ./gradlew'
-    sh './gradlew build --build-cache -x test'
+    sh './gradlew clean build -x test'
     sh "docker build -t ${serviceName} ."
     sh "docker run --name ${serviceName} -d -p ${port}:${port} ${serviceName}"
+
+    // 사용하지 않는 Docker 이미지 정리
+    sh "docker image prune -f"
 }

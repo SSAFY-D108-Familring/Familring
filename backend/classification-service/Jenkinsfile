@@ -44,5 +44,8 @@ def buildAndRunContainer(serviceName) {
 
     sh "docker build -t ${serviceName} ."
     sh "docker run --name ${serviceName} --env-file .env -p 5555:5555 -d ${serviceName}"
+
+    // 사용하지 않는 Docker 이미지 정리
+    sh "docker image prune -f"
 }
 
