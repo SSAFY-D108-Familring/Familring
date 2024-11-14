@@ -151,8 +151,8 @@ fun CalendarScreen(
     state: CalendarUiState,
     event: SharedFlow<CalendarUiEvent>,
     getMonthData: (Int, Int) -> Unit = { _, _ -> },
-    getDaySchedules: (List<Long>) -> Unit = {},
-    getDayDailies: (List<Long>) -> Unit = {},
+    getDaySchedules: (Int, Int, Int) -> Unit = { _, _, _ -> },
+    getDayDailies: (Int, Int, Int) -> Unit = { _, _, _ -> },
     deleteSchedule: (Long) -> Unit = {},
     deleteDaily: (Long) -> Unit = {},
     createAlbum: (Long, String) -> Unit = { _, _ -> },
@@ -231,92 +231,14 @@ fun CalendarScreen(
                         horizontalAlignment = Alignment.End,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Surface(
-                                color = Gray01.copy(alpha = 0.9f),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.padding(end = 8.dp),
-                            ) {
-                                Text(
-                                    text = "일상 공유",
-                                    style = Typography.labelSmall,
-                                    color = White,
-                                    modifier =
-                                        Modifier.padding(
-                                            horizontal = 16.dp,
-                                            vertical = 8.dp,
-                                        ),
-                                )
-                            }
-                            FloatingActionButton(
-                                onClick = { navigateToCreateDaily() },
-                                shape = RoundedCornerShape(50.dp),
-                                modifier =
-                                    Modifier
-                                        .padding(end = 7.dp)
-                                        .size(40.dp),
-                                containerColor = Green01,
-                                elevation =
-                                    FloatingActionButtonDefaults.elevation(
-                                        defaultElevation = 0.dp,
-                                        pressedElevation = 0.dp,
-                                        hoveredElevation = 0.dp,
-                                        focusedElevation = 0.dp,
-                                    ),
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_add),
-                                    contentDescription = "ic_add",
-                                    tint = White,
-                                )
-                            }
-                        }
-                        Row(
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Surface(
-                                color = Gray01.copy(alpha = 0.8f),
-                                shape = RoundedCornerShape(8.dp),
-                                modifier = Modifier.padding(end = 8.dp),
-                            ) {
-                                Text(
-                                    "일정 생성",
-                                    style = Typography.labelSmall,
-                                    color = White,
-                                    modifier =
-                                        Modifier.padding(
-                                            vertical = 8.dp,
-                                            horizontal = 16.dp,
-                                        ),
-                                )
-                            }
-                            FloatingActionButton(
-                                onClick = { navigateToCreateSchedule() },
-                                shape = RoundedCornerShape(50.dp),
-                                modifier =
-                                    Modifier
-                                        .padding(end = 7.dp)
-                                        .size(40.dp),
-                                containerColor = Green01,
-                                elevation =
-                                    FloatingActionButtonDefaults.elevation(
-                                        defaultElevation = 0.dp,
-                                        pressedElevation = 0.dp,
-                                        hoveredElevation = 0.dp,
-                                        focusedElevation = 0.dp,
-                                    ),
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_add),
-                                    contentDescription = "ic_add",
-                                    tint = White,
-                                )
-                            }
-                        }
+                        FloatingActionButtonWithLabel(
+                            label = "일상 공유",
+                            onClick = navigateToCreateDaily,
+                        )
+                        FloatingActionButtonWithLabel(
+                            label = "일정 생성",
+                            onClick = navigateToCreateSchedule,
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.fillMaxSize(0.02f))
@@ -445,11 +367,16 @@ fun CalendarScreen(
                                 state.previewDailies,
                             ),
                         onDayClick = { daySchedule ->
+                            val date = daySchedule.date
                             getDaySchedules(
-                                daySchedule.schedules.map { it.id },
+                                date.year,
+                                date.monthValue,
+                                date.dayOfMonth,
                             )
                             getDayDailies(
-                                daySchedule.dailies.map { it.id },
+                                date.year,
+                                date.monthValue,
+                                date.dayOfMonth,
                             )
                             selectedDay = daySchedule.date
                             showBottomSheet = true
@@ -521,6 +448,56 @@ fun CalendarScreen(
     }
 }
 
+@Composable
+private fun FloatingActionButtonWithLabel(
+    label: String = "",
+    onClick: () -> Unit = {},
+) {
+    Row(
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Surface(
+            color = Gray01.copy(alpha = 0.9f),
+            shape = RoundedCornerShape(8.dp),
+            modifier = Modifier.padding(end = 8.dp),
+        ) {
+            Text(
+                text = label,
+                style = Typography.labelSmall,
+                color = White,
+                modifier =
+                    Modifier.padding(
+                        horizontal = 16.dp,
+                        vertical = 8.dp,
+                    ),
+            )
+        }
+        FloatingActionButton(
+            onClick = onClick,
+            shape = RoundedCornerShape(50.dp),
+            modifier =
+                Modifier
+                    .padding(end = 7.dp)
+                    .size(40.dp),
+            containerColor = Green01,
+            elevation =
+                FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 0.dp,
+                    pressedElevation = 0.dp,
+                    hoveredElevation = 0.dp,
+                    focusedElevation = 0.dp,
+                ),
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_add),
+                contentDescription = "ic_add",
+                tint = White,
+            )
+        }
+    }
+}
+
 private fun createDaySchedules(
     selectedMonth: LocalDate,
     previewSchedules: List<PreviewSchedule>,
@@ -566,10 +543,11 @@ private fun calcOrder(previewSchedules: List<PreviewSchedule>): List<PreviewSche
                 currentSchedule.order = i
                 occupyList[i] = currentSchedule.endTime.toLocalDate()
                 break
+            } else {
+                currentSchedule.order = -1
             }
         }
     }
-    previewSchedules.forEach(::println)
     return previewSchedules
 }
 

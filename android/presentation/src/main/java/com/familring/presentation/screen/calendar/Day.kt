@@ -106,10 +106,15 @@ fun Day(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             val maxVisibleItems = 3
-            val visibleItems = MutableList<PreviewSchedule?>(3) { null }
+            var hasMore = false
+            val visibleItems = MutableList<PreviewSchedule?>(maxVisibleItems) { null }
             daySchedule.schedules
-                .filter { it.order in 0..2 }
-                .sortedBy { it.order }
+                .filter{ schedule ->
+                    if (schedule.order == -1) {
+                        hasMore = true
+                    }
+                    schedule.order in 0..2
+                }.sortedBy { it.order }
                 .forEach { schedule -> visibleItems[schedule.order] = schedule }
 
             items(visibleItems) { schedule ->
@@ -135,12 +140,12 @@ fun Day(
                 } else {
                     Schedule(
                         modifier = Modifier.fillMaxWidth(),
-                        schedule = schedule,
+                        schedule = null,
                     )
                 }
             }
 
-            if (daySchedule.schedules.size > maxVisibleItems) {
+            if (hasMore) {
                 item {
                     Text(
                         modifier =
@@ -199,7 +204,7 @@ fun Schedule(
                     )
             } else if (isNextConnected) {
                 Modifier
-                    .padding(start = 1.dp)
+                    .padding(start = 2.dp)
                     .background(
                         color = schedule.color.toColor(),
                         RoundedCornerShape(topStart = 3.dp, bottomStart = 3.dp),
@@ -263,7 +268,7 @@ private fun DayPreview() {
                             startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
                             endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
                             color = "0xFF000000",
-                            order = 0,
+                            order = 1,
                         ),
                         PreviewSchedule(
                             id = 0,

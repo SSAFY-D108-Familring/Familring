@@ -301,13 +301,26 @@ fun HomeScreen(
                                 style = Typography.titleLarge.copy(fontSize = 24.sp),
                                 color = Green02,
                             )
-                            Box(
+                            Column(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 14.dp)
-                                        .padding(top = 12.dp),
+                                        .padding(top = 8.dp),
                             ) {
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 2.dp),
+                                    contentAlignment = Alignment.CenterEnd,
+                                ) {
+                                    Text(
+                                        text = "100",
+                                        style = Typography.displaySmall.copy(fontSize = 8.sp),
+                                        color = Gray02,
+                                    )
+                                }
                                 Box(
                                     modifier =
                                         Modifier
@@ -344,7 +357,7 @@ fun HomeScreen(
                                     modifier =
                                         Modifier
                                             .fillMaxWidth()
-                                            .padding(top = 20.dp),
+                                            .padding(top = 2.dp),
                                 ) {
                                     Box(
                                         modifier =
@@ -357,20 +370,6 @@ fun HomeScreen(
                                             text = "${progress.toInt()}",
                                             style = Typography.displaySmall.copy(fontSize = 8.sp),
                                             color = Color.Black,
-                                        )
-                                    }
-
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(end = 0.dp),
-                                        contentAlignment = Alignment.CenterEnd,
-                                    ) {
-                                        Text(
-                                            text = "100",
-                                            style = Typography.displaySmall.copy(fontSize = 8.sp),
-                                            color = Gray02,
                                         )
                                     }
                                 }

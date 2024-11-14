@@ -6,7 +6,11 @@ import kotlinx.coroutines.flow.Flow
 import okhttp3.MultipartBody
 
 interface DailyRepository {
-    suspend fun getDayDailies(dailyIds: List<Long>): Flow<ApiResponse<List<DailyLife>>>
+    suspend fun getDayDailies(
+        year: Int,
+        month: Int,
+        day: Int,
+    ): Flow<ApiResponse<List<DailyLife>>>
 
     suspend fun createDaily(
         content: String,

@@ -79,7 +79,9 @@ fun CalendarTab(
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier =
+            modifier
+                .fillMaxSize(),
         color = Color.White,
     ) {
         Column(
