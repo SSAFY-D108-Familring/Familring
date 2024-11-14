@@ -34,13 +34,13 @@ public class TimeCapsuleNotificationJob implements Job {
         }
 
         // 알림 메시지 생성
-        String message = "타임캡슐을 열어볼 시간이 되었습니다!";
+        String message = "가족들의 속마음은 무엇일까요? 타임캡슐에서 확인해보세요 !";
         NotificationRequest request = NotificationRequest.builder()
                 .notificationType(NotificationType.TIMECAPSULE)
                 .receiverUserIds(familyMemberIds)
                 .senderUserId(null)
                 .destinationId(null)
-                .title("타임캡슐 알림")
+                .title("타임캡슐이 열렸습니다 \uD83D\uDC8A ")
                 .message(message)
                 .build();
 
