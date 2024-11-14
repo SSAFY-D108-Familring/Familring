@@ -25,6 +25,7 @@ import com.familring.presentation.screen.gallery.TutorialUiState
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -142,31 +143,43 @@ class ChatViewModel
 
         private fun connectStomp() {
             viewModelScope.launch {
-                val token = tokenDataStore.getAccessToken()
+                try {
+                    val token = tokenDataStore.getAccessToken()
 
-                if (token != null && familyId != null) {
-                    val okHttpclient =
-                        OkHttpClient
-                            .Builder()
-                            .addInterceptor(
-                                HttpLoggingInterceptor().apply {
-                                    level = HttpLoggingInterceptor.Level.BODY
-                                },
-                            ).callTimeout(Duration.ofMinutes(1))
-                            .pingInterval(Duration.ofSeconds(10))
-                            .build()
+                    if (token != null && familyId != null) {
+                        val okHttpclient =
+                            OkHttpClient
+                                .Builder()
+                                .addInterceptor(
+                                    HttpLoggingInterceptor().apply {
+                                        level = HttpLoggingInterceptor.Level.BODY
+                                    },
+                                ).callTimeout(Duration.ofMinutes(1))
+                                .pingInterval(Duration.ofSeconds(10))
+                                .build()
 
-                    val client = StompClient(OkHttpWebSocketClient(okHttpclient))
-                    stompSession =
-                        client
-                            .connect(
-                                url = BuildConfig.SOCKET_URL,
-                                customStompConnectHeaders = mapOf(X_USER_ID to userId.toString()),
-                            ).withMoshi(moshi)
+                        val client = StompClient(OkHttpWebSocketClient(okHttpclient))
+                        stompSession =
+                            client
+                                .connect(
+                                    url = BuildConfig.SOCKET_URL,
+                                    customStompConnectHeaders = mapOf(X_USER_ID to userId.toString()),
+                                ).withMoshi(moshi)
 
-                    subscribeMessages()
-                    subscribeReadStatus()
+                        subscribeMessages()
+                        subscribeReadStatus()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    retryConnection()
                 }
+            }
+        }
+
+        private fun retryConnection() {
+            viewModelScope.launch {
+                delay(1500) // 1.5초 정도 대기 후 재연결 시도
+                connectStomp()
             }
         }
 
