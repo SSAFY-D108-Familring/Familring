@@ -20,6 +20,7 @@
         SELECT *
         FROM notification
         WHERE receiver_user_id = #{userId} AND notification_is_read = 0
+        ORDER BY notification_created_at DESC
     </select>
 
     <select id="findNotificationByNotificationId" resultMap="notificationInfo">
