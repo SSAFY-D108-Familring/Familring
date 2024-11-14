@@ -108,6 +108,7 @@ fun NicknameScreen(
             RoundLongButton(
                 text = "설정 완료",
                 onClick = navigateToPicture,
+                enabled = nickname.isNotBlank(),
             )
         }
     }

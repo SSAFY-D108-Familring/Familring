@@ -48,8 +48,8 @@ interface FamilyApi {
     suspend fun enterRoom(
         @Path("roomId") roomId: Long,
         @Header("X-User-ID") userId: Long,
-        @Query("page") page: Int? = 0,
-        @Query("size") size: Int? = 50,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
     ): BaseResponse<List<Chat>>
 
     @Multipart

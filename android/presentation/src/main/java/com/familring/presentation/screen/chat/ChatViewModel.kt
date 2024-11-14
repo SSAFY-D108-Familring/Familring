@@ -61,7 +61,6 @@ class ChatViewModel
         val tutorialUiState = _tutorialUiState.asStateFlow()
 
         var userId: Long? = 0L
-
         private var familyId: Long? = 0L
 
         private lateinit var stompSession: StompSession
