@@ -89,7 +89,8 @@
 
     <update id="updateUserUnReadCountByUserId">
         UPDATE user
-        SET user_un_read_count = GRATEST(user_un_read_count + #{amount}, 0), user_modified_at = NOW()
+        SET user_un_read_count = #{newUnReadCount},
+            user_modified_at = NOW()
         WHERE user_id = #{userId}
     </update>
 

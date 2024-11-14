@@ -33,7 +33,7 @@ public interface UserDao {
     void updateUserFaceByUserId(@Param("userId") Long userId,@Param("userNewFace") String newFace);
 
     // 회원 안읽음 알림 수 변경
-    void updateUserUnReadCountByUserId(@Param("userId") Long userId, @Param("amount") int amount);
+    void updateUserUnReadCountByUserId(@Param("userId") Long userId, @Param("newUnReadCount") int newUnReadCount);
     
     // 회원 탈퇴
     void deleteUser(UserDeleteRequest deleteRequest);

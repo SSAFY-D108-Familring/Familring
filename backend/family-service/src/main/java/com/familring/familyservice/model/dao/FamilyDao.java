@@ -48,7 +48,7 @@ public interface FamilyDao {
     void insertFamily(FamilyCreateRequest familyCreateRequest);
 
     // familyI에 해당하는 family의 familyCommuniStatus + mount
-    void updateFamilyCommunicationStatusByFamilyId(@Param("familyId") Long familyId, @Param("amount") int amount);
+    void updateFamilyCommunicationStatusByFamilyId(@Param("familyId") Long familyId, @Param("newStatus") int newStatus);
 
     // family_user 구성원 추가
     Long insetFamily_User(@Param("familyId") Long familyId, @Param("userId") Long userId);

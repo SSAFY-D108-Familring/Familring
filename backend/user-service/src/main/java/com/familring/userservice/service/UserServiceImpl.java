@@ -293,9 +293,13 @@ public class UserServiceImpl implements UserService {
                     return new ResponseStatusException(HttpStatus.NOT_FOUND, usernameNotFoundException.getMessage(), usernameNotFoundException);
                 });
         log.info("[updateUserUnReadCount] 찾은 회원 userId={}", user.getUserId());
+        log.info("[updateUserUnReadCount] 이전 안읽음 알림 개수: {}", user.getUserUnReadCount());
+
 
         // 2. 알림 수 변경
-        userDao.updateUserUnReadCountByUserId(unReadCountRequest.getUserId(), unReadCountRequest.getAmount());
+        int newUnReadCount = Math.max(0, user.getUserUnReadCount() + unReadCountRequest.getAmount());
+        userDao.updateUserUnReadCountByUserId(unReadCountRequest.getUserId(), newUnReadCount);
+        log.info("[updateUserUnReadCount] 이후 안읽음 알림 개수: {}", newUnReadCount);
     }
 
     @Override
