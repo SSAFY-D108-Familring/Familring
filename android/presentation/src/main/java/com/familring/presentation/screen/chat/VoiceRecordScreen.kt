@@ -2,6 +2,7 @@ package com.familring.presentation.screen.chat
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,10 +25,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -37,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
@@ -47,14 +48,14 @@ import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.util.noRippleClickable
 import kotlinx.coroutines.delay
-import timber.log.Timber
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 @SuppressLint("DefaultLocale")
 @Composable
 fun VoiceRecordScreen(
     onDismiss: () -> Unit,
-    onRecordingComplete: (String) -> Unit,
+    onRecordingComplete: (Context, File) -> Unit,
     showSnackBar: (String) -> Unit,
     popUpBackStack: () -> Unit,
 ) {
@@ -63,7 +64,7 @@ fun VoiceRecordScreen(
     var isRecording by remember { mutableStateOf(false) }
     var recordedFilePath by remember { mutableStateOf<String?>(null) }
     var amplitudes by remember { mutableStateOf(listOf<Int>()) }
-    var recordingTime by remember { mutableStateOf(0L) }
+    var recordingTime by remember { mutableLongStateOf(0L) }
 
     val permissionLauncher =
         rememberLauncherForActivityResult(
@@ -125,8 +126,11 @@ fun VoiceRecordScreen(
                     recordedFilePath = null
                 },
                 onSend = {
-                    onRecordingComplete(recordedFilePath!!)
-                    onDismiss()
+                    recordedFilePath?.let {
+                        val file = File(it)
+                        onRecordingComplete(context, file)
+                        onDismiss()
+                    }
                 },
                 showSnackBar = showSnackBar,
             )
@@ -236,12 +240,11 @@ fun VoicePlaybackUI(
     val voicePlayer = remember { VoicePlayer() }
     var isPlaying by remember { mutableStateOf(false) }
     var progress by remember { mutableFloatStateOf(0f) }
-    var totalDuration by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(isPlaying) {
-        Timber.d("isPlaying: $isPlaying")
-        if (isPlaying) {
-            totalDuration = voicePlayer.getTotalDuration()
+    DisposableEffect(Unit) {
+        onDispose {
+            voicePlayer.stopPlaying()
+            isPlaying = false
         }
     }
 
@@ -265,8 +268,8 @@ fun VoicePlaybackUI(
                     } else {
                         voicePlayer.playMessage(
                             filePath = filePath,
-                            onProgressUpdate = { current ->
-                                progress = current / totalDuration.toFloat()
+                            onProgressUpdate = { current, total ->
+                                progress = current / total.toFloat()
                             },
                             onComplete = {
                                 isPlaying = false
@@ -281,6 +284,7 @@ fun VoicePlaybackUI(
                 },
             ) {
                 Icon(
+                    modifier = Modifier.fillMaxSize(),
                     painter =
                         if (isPlaying) {
                             painterResource(id = R.drawable.ic_pause)
@@ -306,6 +310,7 @@ fun VoicePlaybackUI(
             )
         }
         if (!isPlaying) {
+            Spacer(modifier = Modifier.height(10.dp))
             Row {
                 IconButton(onClick = {
                     voicePlayer.stopPlaying()
@@ -313,17 +318,20 @@ fun VoicePlaybackUI(
                     onDelete()
                 }) {
                     Icon(
+                        modifier = Modifier.fillMaxSize(),
                         imageVector = Icons.Default.Refresh,
                         contentDescription = "Refresh",
                         tint = Gray01,
                     )
                 }
+                Spacer(modifier = Modifier.width(10.dp))
                 IconButton(onClick = {
                     onSend()
                     voicePlayer.stopPlaying()
                     isPlaying = false
                 }) {
                     Icon(
+                        modifier = Modifier.fillMaxSize(),
                         painter = painterResource(id = R.drawable.ic_send),
                         contentDescription = "Send",
                         tint = Green02,
