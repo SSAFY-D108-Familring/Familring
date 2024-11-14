@@ -60,7 +60,6 @@ class ChatViewModel
         private val _tutorialUiState = MutableStateFlow(TutorialUiState())
         val tutorialUiState = _tutorialUiState.asStateFlow()
 
-        private var userId: Long? = 0L
         var userId: Long? = 0L
 
         private var familyId: Long? = 0L
@@ -122,29 +121,6 @@ class ChatViewModel
                     )
                 }
             }
-        }
-
-        fun pauseCurrentPlaying() {
-            currentPath?.let {
-                currentPlayer?.apply {
-                    pause()
-                }
-                currentPlayer = null
-                currentPath = null
-            }
-        }
-
-        fun setCurrentPlayer(
-            player: VoicePlayer,
-            filePath: String,
-        ) {
-            currentPlayer = player
-            currentPath = filePath
-        }
-
-        fun removePlayer() {
-            currentPlayer = null
-            currentPath = null
         }
 
         private fun loadUserData() {
