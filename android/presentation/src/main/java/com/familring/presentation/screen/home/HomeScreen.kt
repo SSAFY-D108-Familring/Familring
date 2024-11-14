@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -516,16 +517,21 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            LazyRow(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                items(children.size) { index ->
-                    FamilyCard(children[index])
+                LazyRow(
+                    modifier =
+                        Modifier
+                            .wrapContentWidth()
+                            .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                ) {
+                    items(children.size) { index ->
+                        FamilyCard(children[index])
+                    }
                 }
             }
         }
