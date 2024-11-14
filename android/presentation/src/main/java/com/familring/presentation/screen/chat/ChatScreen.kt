@@ -154,10 +154,10 @@ fun ChatRoute(
                                 R.drawable.img_tutorial_chat_third,
                                 R.drawable.img_tutorial_chat_fourth,
                             ),
-                        title = "관심사 공유 미리보기 \uD83D\uDD0D",
+                        title = "채팅 미리보기 \uD83D\uDD0D",
                         subTitle =
-                            "가족들의 최근 관심사를 알아보고\n" +
-                                "체험한 후 인증하며 가까워질 수 있어요!",
+                            "가족들과 채팅은 물론 소소한 투표,\n" +
+                                    "음성 메시지를 보내며 소통할 수 있어요!",
                     )
                 }
             }
