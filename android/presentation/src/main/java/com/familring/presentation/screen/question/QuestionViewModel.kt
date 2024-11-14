@@ -2,16 +2,19 @@ package com.familring.presentation.screen.question
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.datastore.TutorialDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.question.QuestionList
 import com.familring.domain.repository.QuestionRepository
 import com.familring.domain.repository.UserRepository
+import com.familring.presentation.screen.gallery.TutorialUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -20,9 +23,13 @@ import javax.inject.Inject
 class QuestionViewModel
     @Inject
     constructor(
-        val questionRepository: QuestionRepository,
+        private val questionRepository: QuestionRepository,
         val userRepository: UserRepository,
+        private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
+        private val _tutorialUiState = MutableStateFlow(TutorialUiState())
+        val tutorialUiState = _tutorialUiState.asStateFlow()
+
         private val _questionState = MutableStateFlow<QuestionState>(QuestionState.Loading)
         val questionState = _questionState.asStateFlow()
 
@@ -38,9 +45,41 @@ class QuestionViewModel
         private val _refreshTrigger = MutableStateFlow(0)
 
         init {
+            getReadTutorial()
             viewModelScope.launch {
                 _refreshTrigger.collectLatest {
                     getQuestion()
+                }
+            }
+        }
+
+        private fun getReadTutorial() {
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = tutorialDataStore.getQuestionReadTutorial(),
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorial() {
+            viewModelScope.launch {
+                tutorialDataStore.setQuestionReadTutorial(true)
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = true,
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorialState(isRead: Boolean) {
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = isRead,
+                    )
                 }
             }
         }

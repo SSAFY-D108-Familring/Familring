@@ -8,9 +8,8 @@ sealed interface ChatUiState {
     @Immutable
     data object Loading : ChatUiState
 
-    data class Success(
-        val userId: Long = 0L,
-    ) : ChatUiState
+    @Immutable
+    data object Success : ChatUiState
 
     @Immutable
     data class Error(

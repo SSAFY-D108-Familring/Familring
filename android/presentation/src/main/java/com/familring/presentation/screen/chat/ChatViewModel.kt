@@ -12,6 +12,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
+import com.familring.domain.datastore.TutorialDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.chat.Chat
 import com.familring.domain.model.chat.FileUploadRequest
@@ -20,6 +21,7 @@ import com.familring.domain.model.chat.VoteResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.presentation.BuildConfig
 import com.familring.presentation.R
+import com.familring.presentation.screen.gallery.TutorialUiState
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -52,8 +55,13 @@ class ChatViewModel
         private val familyRepository: FamilyRepository,
         private val authDataStore: AuthDataStore,
         private val tokenDataStore: TokenDataStore,
+        private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
-        private var userId: Long? = 0L
+        private val _tutorialUiState = MutableStateFlow(TutorialUiState())
+        val tutorialUiState = _tutorialUiState.asStateFlow()
+
+        var userId: Long? = 0L
+
         private var familyId: Long? = 0L
 
         private lateinit var stompSession: StompSession
@@ -78,9 +86,41 @@ class ChatViewModel
         val event = _event.asSharedFlow()
 
         init {
+            getReadTutorial()
             loadUserData()
             connectStomp()
             getChatList()
+        }
+
+        private fun getReadTutorial() {
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = tutorialDataStore.getChatReadTutorial(),
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorial() {
+            viewModelScope.launch {
+                tutorialDataStore.setChatReadTutorial(true)
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = true,
+                    )
+                }
+            }
+        }
+
+        fun setReadTutorialState(isRead: Boolean) {
+            viewModelScope.launch {
+                _tutorialUiState.update {
+                    it.copy(
+                        isReadTutorial = isRead,
+                    )
+                }
+            }
         }
 
         private fun loadUserData() {
@@ -94,7 +134,7 @@ class ChatViewModel
             Pager(
                 config =
                     PagingConfig(
-                        pageSize = 50,
+                        pageSize = 20,
                         enablePlaceholders = false,
                     ),
             ) {
@@ -137,7 +177,7 @@ class ChatViewModel
                 _chatPagingData.value = pagingData
 
                 if (_state.value is ChatUiState.Loading) {
-                    _state.value = ChatUiState.Success(userId = userId!!)
+                    _state.value = ChatUiState.Success
                 }
             }
         }

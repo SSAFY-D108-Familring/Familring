@@ -53,7 +53,6 @@ fun ResultScreen(
                     style = Typography.titleSmall.copy(fontSize = 22.sp),
                     color = Green03,
                 )
-                Spacer(modifier = Modifier.width(3.dp))
                 Text(
                     text = "가 선정되었네요",
                     style = Typography.bodyLarge.copy(fontSize = 22.sp),
