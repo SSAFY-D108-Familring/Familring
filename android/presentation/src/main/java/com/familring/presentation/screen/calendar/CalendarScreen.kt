@@ -543,6 +543,8 @@ private fun calcOrder(previewSchedules: List<PreviewSchedule>): List<PreviewSche
                 currentSchedule.order = i
                 occupyList[i] = currentSchedule.endTime.toLocalDate()
                 break
+            } else {
+                currentSchedule.order = -1
             }
         }
     }

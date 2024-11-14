@@ -106,10 +106,15 @@ fun Day(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             val maxVisibleItems = 3
-            val visibleItems = MutableList<PreviewSchedule?>(3) { null }
+            var hasMore = false
+            val visibleItems = MutableList<PreviewSchedule?>(maxVisibleItems) { null }
             daySchedule.schedules
-                .filter { it.order in 0..2 }
-                .sortedBy { it.order }
+                .filter{ schedule ->
+                    if (schedule.order == -1) {
+                        hasMore = true
+                    }
+                    schedule.order in 0..2
+                }.sortedBy { it.order }
                 .forEach { schedule -> visibleItems[schedule.order] = schedule }
 
             items(visibleItems) { schedule ->
@@ -135,12 +140,12 @@ fun Day(
                 } else {
                     Schedule(
                         modifier = Modifier.fillMaxWidth(),
-                        schedule = schedule,
+                        schedule = null,
                     )
                 }
             }
 
-            if (daySchedule.schedules.size > maxVisibleItems) {
+            if (hasMore) {
                 item {
                     Text(
                         modifier =
