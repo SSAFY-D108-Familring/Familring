@@ -201,6 +201,7 @@ class GalleryViewModel
 
         fun deleteAlbum(albumId: Long) {
             viewModelScope.launch {
+
                 galleryRepository.deleteAlbum(albumId).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
@@ -226,6 +227,7 @@ class GalleryViewModel
             photos: List<File>,
         ) {
             viewModelScope.launch {
+                _galleryUiEvent.emit(GalleryUiEvent.Loading)
                 galleryRepository.uploadPhotos(albumId, photos).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
@@ -251,6 +253,7 @@ class GalleryViewModel
             photoIds: List<Long>,
         ) {
             viewModelScope.launch {
+                _galleryUiEvent.emit(GalleryUiEvent.Loading)
                 galleryRepository.deletePhotos(albumId, photoIds).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {

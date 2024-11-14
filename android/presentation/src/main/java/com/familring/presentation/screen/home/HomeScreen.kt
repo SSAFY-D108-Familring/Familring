@@ -54,6 +54,7 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
+import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
@@ -65,6 +66,7 @@ import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Green04
+import com.familring.presentation.theme.Green05
 import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -82,6 +84,7 @@ fun HomeRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
+    val homeEvent by viewModel.homeEvent.collectAsStateWithLifecycle(initialValue = HomeEvent.None)
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
@@ -103,6 +106,9 @@ fun HomeRoute(
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
                 navigateToMyPage = navigateToMyPage,
+                showSnackBar = showSnackBar,
+                homeEvent = homeEvent,
+                viewModel = viewModel,
             )
         }
 
@@ -112,6 +118,9 @@ fun HomeRoute(
                 navigateToNotification = navigateToNotification,
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
+                showSnackBar = showSnackBar,
+                homeEvent = homeEvent,
+                viewModel = viewModel,
             )
             showSnackBar(state.errorMessage)
         }
@@ -127,6 +136,9 @@ fun HomeScreen(
     navigateToTimeCapsule: () -> Unit = {},
     navigateToInterest: () -> Unit = {},
     navigateToMyPage: () -> Unit = {},
+    showSnackBar: (String) -> Unit = {},
+    homeEvent: HomeEvent,
+    viewModel: HomeViewModel,
 ) {
     var progress by remember {
         mutableFloatStateOf(0f)
@@ -141,11 +153,28 @@ fun HomeScreen(
         progress = familyInfo.familyCommunicationStatus.toFloat().coerceIn(0f, 100f)
     }
 
+    LaunchedEffect(homeEvent) {
+        when (homeEvent) {
+            is HomeEvent.Success -> {
+                showSnackBar("알림을 성공적으로 전송했습니다")
+            }
+
+            else -> {}
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.getUserId()
+    }
+
     val father = familyMembers.find { it.userRole == "F" }
     val mother = familyMembers.find { it.userRole == "M" }
     val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
+    val currentUserId by viewModel.myUserId.collectAsStateWithLifecycle()
 
     var showTreeExplanation by remember { mutableStateOf(false) }
+    var selectedUser by remember { mutableStateOf<User?>(null) }
+    var showLoveMention by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -250,15 +279,21 @@ fun HomeScreen(
                         Column {
                             Text(
                                 modifier = Modifier.padding(start = 15.dp),
+                                text = "우리 가족의 나무는 지금...",
+                                style = Typography.displayMedium,
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                modifier = Modifier.padding(start = 15.dp),
                                 text =
                                     if (progress > 75f) {
-                                        "열심히 하셧고\n축하하고 ㅎㅎ🎄"
+                                        "초록초록 \uD83E\uDD70"
                                     } else if (progress > 50) {
-                                        "지금처럼 쭉\n정진하시고 ㅋ"
+                                        "파릇파릇 \uD83D\uDE0A"
                                     } else if (progress > 25f) {
-                                        "소통을 조금만 더\n해주시고 ㅋㅋ\uD83C\uDF84"
+                                        "무럭무럭 \uD83D\uDE42"
                                     } else {
-                                        "소통이 ㅠㅠ지금\n부족해요\uD83D\uDE30"
+                                        "민둥맨둥 \uD83D\uDE30"
                                     },
                                 style = Typography.titleLarge.copy(fontSize = 24.sp),
                                 color = Green02,
@@ -290,12 +325,14 @@ fun HomeScreen(
                                                 .fillMaxHeight()
                                                 .clip(RoundedCornerShape(9.dp))
                                                 .background(
-                                                    if (progress > 69f) {
+                                                    if (progress > 75f) {
                                                         Green02
-                                                    } else if (progress > 29f) {
+                                                    } else if (progress > 50f) {
                                                         Green03
-                                                    } else {
+                                                    } else if (progress > 25f) {
                                                         Green04
+                                                    } else {
+                                                        Green05
                                                     },
                                                 ).animateContentSize(),
                                     )
@@ -496,7 +533,12 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (mother != null) {
-                        FamilyCard(mother)
+                        FamilyCard(mother, onCardClick = {
+                            if (mother.userId != currentUserId) {
+                                selectedUser = mother
+                                showLoveMention = true
+                            }
+                        })
                     } else {
                         EmptyCard()
                     }
@@ -507,7 +549,16 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     if (father != null) {
-                        FamilyCard(father)
+                        FamilyCard(
+                            father,
+                            onCardClick = {
+                                if(father.userId != currentUserId){
+                                    selectedUser = father
+                                    showLoveMention = true
+
+                                }
+                            },
+                        )
                     } else {
                         EmptyCard()
                     }
@@ -516,18 +567,23 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(12.dp))
             Box(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
+                contentAlignment = Alignment.Center
             ) {
                 LazyRow(
                     modifier =
-                        Modifier
-                            .wrapContentWidth()
-                            .padding(bottom = 16.dp),
+                    Modifier
+                        .wrapContentWidth()
+                        .padding(bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp),
                 ) {
                     items(children.size) { index ->
-                        FamilyCard(children[index])
+                        FamilyCard(children[index], onCardClick = {
+                            if (children[index].userId != currentUserId){
+                                selectedUser = children[index]
+                                showLoveMention = true
+                            }
+                        })
                     }
                 }
             }
@@ -539,14 +595,20 @@ fun HomeScreen(
 }
 
 @Composable
-fun FamilyCard(user: User) {
+fun FamilyCard(
+    user: User,
+    onCardClick: (Long) -> Unit = {},
+) {
     ElevatedCard(
         shape = RoundedCornerShape(18.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier =
             Modifier
                 .width(124.dp)
-                .aspectRatio(1f),
+                .aspectRatio(1f)
+                .noRippleClickable {
+                    onCardClick(user.userId)
+                },
     ) {
         Column(
             modifier =
@@ -677,5 +739,8 @@ fun HomeScreenPreview() {
         navigateToNotification = {},
         navigateToTimeCapsule = {},
         navigateToInterest = {},
+        showSnackBar = {},
+        homeEvent = HomeEvent.None,
+        viewModel = hiltViewModel(),
     )
 }
