@@ -1,6 +1,5 @@
 package com.familring.presentation.screen.chat
 
-import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.familring.domain.datastore.AuthDataStore
@@ -11,19 +10,15 @@ import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
-const val STARTING_PAGE_INDEX = 0
-
 class ChatPageSource
     @Inject
     constructor(
         private val familyRepository: FamilyRepository,
         private val authDataStore: AuthDataStore,
     ) : PagingSource<Int, Chat>() {
-        override fun getRefreshKey(state: PagingState<Int, Chat>): Int? = state.anchorPosition
-
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Chat> =
             try {
-                val page = params.key ?: STARTING_PAGE_INDEX
+                val page = params.key ?: 0
                 val familyId = authDataStore.getFamilyId()
                 val userId = authDataStore.getUserId()
 
@@ -34,24 +29,16 @@ class ChatPageSource
                                 roomId = familyId ?: -1,
                                 userId = userId ?: -1,
                                 page = page,
-                                size = params.loadSize,
+                                size = 30,
                             ).first()
                 ) {
                     is ApiResponse.Success -> {
                         val data = response.data
-                        if (data != emptyList<PagingData<Chat>>()) {
-                            LoadResult.Page(
-                                data = data,
-                                prevKey =
-                                    when (page) {
-                                        STARTING_PAGE_INDEX -> null
-                                        else -> page - 1
-                                    },
-                                nextKey = page + 1,
-                            )
-                        } else {
-                            LoadResult.Invalid()
-                        }
+                        LoadResult.Page(
+                            data = data.chatList,
+                            prevKey = if (page == 0) null else page - 1, // 이전 페이지 번호 설정
+                            nextKey = if (!data.hasNext) null else page + 1, // 다음 페이지 번호 설정
+                        )
                     }
 
                     is ApiResponse.Error -> {
@@ -61,4 +48,6 @@ class ChatPageSource
             } catch (e: ApiException) {
                 LoadResult.Error(e)
             }
+
+        override fun getRefreshKey(state: PagingState<Int, Chat>): Int? = state.anchorPosition
     }

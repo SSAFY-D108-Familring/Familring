@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -82,7 +83,6 @@ import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toDateOnly
 import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -197,23 +197,14 @@ fun ChatScreen(
 ) {
     var inputMessage by remember { mutableStateOf("") }
     var showBottomSheet by remember { mutableStateOf(false) }
-    val lazyListState =
-        rememberLazyListState(
-            initialFirstVisibleItemIndex = maxOf(chatList.itemCount - 1, 0),
-        )
+    val lazyListState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         if (chatList.itemCount > 0) {
-            lazyListState.scrollToItem(chatList.itemCount - 1)
-        }
-    }
-
-    LaunchedEffect(chatList.itemCount) {
-        if (chatList.itemCount > 0) {
-            lazyListState.animateScrollToItem(chatList.itemCount - 1)
+            lazyListState.animateScrollToItem(0)
         }
     }
 
@@ -262,19 +253,11 @@ fun ChatScreen(
                         .padding(horizontal = 15.dp),
                 state = lazyListState,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                reverseLayout = true,
             ) {
-                val pagingToList = chatList.itemSnapshotList.reversed()
-                items(pagingToList.size) { index ->
-                    val listItem = pagingToList[index]
+                items(chatList.itemCount) { index ->
+                    val listItem = chatList[index]
                     listItem?.let { item ->
-                        // 현재 메시지 날짜
-                        val currentDate = item.createdAt.toDateOnly()
-
-                        // 첫 번째 메시지이거나, 이전 메시지와 날짜가 다르면 날짜 구분선 추가
-                        if (index == 0 || currentDate != pagingToList.getOrNull(index - 1)?.createdAt?.toDateOnly()) {
-                            DateDivider(date = currentDate)
-                        }
-
                         when (item.messageType) {
                             context.getString(R.string.message_type) -> {
                                 if (item.senderId == userId) {
@@ -382,6 +365,14 @@ fun ChatScreen(
                                 }
                             }
                         }
+                        val currentDate = item.createdAt.toDateOnly()
+
+                        // 마지막 메시지이거나, 다음 메시지와 날짜가 다르면 날짜 구분선 추가
+                        if (index == chatList.itemCount - 1 ||
+                            currentDate != chatList[index + 1]?.createdAt?.toDateOnly()
+                        ) {
+                            DateDivider(date = currentDate)
+                        }
                     }
                 }
             }
@@ -415,11 +406,6 @@ fun ChatScreen(
                     value = inputMessage,
                     onValueChanged = {
                         inputMessage = it
-                        scope.launch {
-                            if (chatList.itemCount > 0) {
-                                lazyListState.animateScrollToItem(chatList.itemCount - 1)
-                            }
-                        }
                     },
                     sendMessage = {
                         sendMessage(context, inputMessage)

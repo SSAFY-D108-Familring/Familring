@@ -134,7 +134,8 @@ class ChatViewModel
             Pager(
                 config =
                     PagingConfig(
-                        pageSize = 20,
+                        pageSize = 30,
+                        prefetchDistance = 3,
                         enablePlaceholders = false,
                     ),
             ) {
