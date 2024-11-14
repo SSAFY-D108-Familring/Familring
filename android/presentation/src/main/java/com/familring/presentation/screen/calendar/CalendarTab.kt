@@ -1,5 +1,10 @@
 package com.familring.presentation.screen.calendar
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,7 +24,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,6 +64,7 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
+import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -78,46 +90,182 @@ fun CalendarTab(
     val tabs = listOf("일정 ${schedules.size}", "일상 ${dailyLifes.size}")
     var selectedItemIndex by remember { mutableIntStateOf(0) }
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = Color.White,
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                modifier = Modifier,
-                text = date.toString(),
-                style =
-                    Typography.headlineSmall.copy(
-                        fontSize = 18.sp,
-                        color = Gray01,
-                    ),
-            )
-            Spacer(modifier = Modifier.fillMaxHeight(0.03f))
-            CustomTextTab(
-                selectedItemIndex = selectedItemIndex,
-                tabs = tabs,
-                onClick = { selectedItemIndex = it },
-                selectedTextColor = Green02,
-            )
-            when (selectedItemIndex) {
-                0 ->
-                    ScheduleTab(
-                        schedules = schedules,
-                        createAlbum = createAlbum,
-                        showDeleteDialog = showDeleteScheduleDialog,
-                        navigateToModifySchedule = navigateToModifySchedule,
-                        navigateToAlbum = navigateToAlbum,
-                    )
+    var isExpanded by remember { mutableStateOf(false) }
 
-                1 ->
-                    DailyTab(
-                        dailyLifes = dailyLifes,
-                        navigateToModifyDaily = navigateToModifyDaily,
-                        showDeleteDailyDialog = showDeleteDailyDialog,
+    Scaffold(
+        modifier = modifier,
+        floatingActionButton = {
+            Column(
+                horizontalAlignment = Alignment.End,
+            ) {
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = slideInVertically(initialOffsetY = { it / 2 }) + fadeIn(),
+                    exit = slideOutVertically(targetOffsetY = { it / 2 }) + fadeOut(),
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Surface(
+                                color = Gray01.copy(alpha = 0.9f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.padding(end = 8.dp),
+                            ) {
+                                Text(
+                                    text = "일상 공유",
+                                    style = Typography.labelSmall,
+                                    color = White,
+                                    modifier =
+                                        Modifier.padding(
+                                            horizontal = 16.dp,
+                                            vertical = 8.dp,
+                                        ),
+                                )
+                            }
+                            FloatingActionButton(
+                                onClick = {
+//                                    navigateToCreateDaily()
+                                },
+                                shape = RoundedCornerShape(50.dp),
+                                modifier =
+                                    Modifier
+                                        .padding(end = 7.dp)
+                                        .size(40.dp),
+                                containerColor = Green01,
+                                elevation =
+                                    FloatingActionButtonDefaults.elevation(
+                                        defaultElevation = 0.dp,
+                                        pressedElevation = 0.dp,
+                                        hoveredElevation = 0.dp,
+                                        focusedElevation = 0.dp,
+                                    ),
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_add),
+                                    contentDescription = "ic_add",
+                                    tint = White,
+                                )
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Surface(
+                                color = Gray01.copy(alpha = 0.8f),
+                                shape = RoundedCornerShape(8.dp),
+                                modifier = Modifier.padding(end = 8.dp),
+                            ) {
+                                Text(
+                                    "일정 생성",
+                                    style = Typography.labelSmall,
+                                    color = White,
+                                    modifier =
+                                        Modifier.padding(
+                                            vertical = 8.dp,
+                                            horizontal = 16.dp,
+                                        ),
+                                )
+                            }
+                            FloatingActionButton(
+                                onClick = {
+//                                    navigateToCreateSchedule()
+                                },
+                                shape = RoundedCornerShape(50.dp),
+                                modifier =
+                                    Modifier
+                                        .padding(end = 7.dp)
+                                        .size(40.dp),
+                                containerColor = Green01,
+                                elevation =
+                                    FloatingActionButtonDefaults.elevation(
+                                        defaultElevation = 0.dp,
+                                        pressedElevation = 0.dp,
+                                        hoveredElevation = 0.dp,
+                                        focusedElevation = 0.dp,
+                                    ),
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_add),
+                                    contentDescription = "ic_add",
+                                    tint = White,
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.fillMaxSize(0.02f))
+                FloatingActionButton(
+                    onClick = { isExpanded = !isExpanded },
+                    shape = RoundedCornerShape(50.dp),
+                    containerColor = Green01,
+                    modifier = Modifier.size(56.dp),
+                    elevation =
+                        FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 0.dp,
+                            pressedElevation = 0.dp,
+                            hoveredElevation = 0.dp,
+                            focusedElevation = 0.dp,
+                        ),
+                ) {
+                    Icon(
+                        imageVector = if (isExpanded) Icons.Default.Close else Icons.Default.Add,
+                        contentDescription = "fab_img",
+                        tint = White,
                     )
+                }
+            }
+        },
+    ) { innerPadding ->
+        innerPadding
+        Surface(
+            modifier =
+                Modifier
+                    .fillMaxSize(),
+            color = Color.White,
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    modifier = Modifier,
+                    text = date.toString(),
+                    style =
+                        Typography.headlineSmall.copy(
+                            fontSize = 18.sp,
+                            color = Gray01,
+                        ),
+                )
+                Spacer(modifier = Modifier.fillMaxHeight(0.03f))
+                CustomTextTab(
+                    selectedItemIndex = selectedItemIndex,
+                    tabs = tabs,
+                    onClick = { selectedItemIndex = it },
+                    selectedTextColor = Green02,
+                )
+                when (selectedItemIndex) {
+                    0 ->
+                        ScheduleTab(
+                            schedules = schedules,
+                            createAlbum = createAlbum,
+                            showDeleteDialog = showDeleteScheduleDialog,
+                            navigateToModifySchedule = navigateToModifySchedule,
+                            navigateToAlbum = navigateToAlbum,
+                        )
+
+                    1 ->
+                        DailyTab(
+                            dailyLifes = dailyLifes,
+                            navigateToModifyDaily = navigateToModifyDaily,
+                            showDeleteDailyDialog = showDeleteDailyDialog,
+                        )
+                }
             }
         }
     }
