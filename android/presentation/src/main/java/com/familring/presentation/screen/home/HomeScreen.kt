@@ -64,6 +64,7 @@ import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Green04
+import com.familring.presentation.theme.Green05
 import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -155,6 +156,7 @@ fun HomeScreen(
             is HomeEvent.Success -> {
                 showSnackBar("알림을 성공적으로 전송했습니다")
             }
+
             else -> {}
         }
     }
@@ -308,12 +310,14 @@ fun HomeScreen(
                                                 .fillMaxHeight()
                                                 .clip(RoundedCornerShape(9.dp))
                                                 .background(
-                                                    if (progress > 69f) {
+                                                    if (progress > 75f) {
                                                         Green02
-                                                    } else if (progress > 29f) {
+                                                    } else if (progress > 50f) {
                                                         Green03
-                                                    } else {
+                                                    } else if (progress > 25f) {
                                                         Green04
+                                                    } else {
+                                                        Green05
                                                     },
                                                 ).animateContentSize(),
                                     )
@@ -515,7 +519,7 @@ fun HomeScreen(
                 ) {
                     if (mother != null) {
                         FamilyCard(mother, onCardClick = {
-                            viewModel.sendMentionNotification(it, "MOTHER")
+                            viewModel.sendMentionNotification(mother.userId, "MOTHER")
                         })
                     } else {
                         EmptyCard()
@@ -528,7 +532,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(15.dp))
                     if (father != null) {
                         FamilyCard(father, onCardClick = {
-                            viewModel.sendMentionNotification(it, "FATHER")
+                            viewModel.sendMentionNotification(father.userId, "FATHER")
                         })
                     } else {
                         EmptyCard()
@@ -546,7 +550,7 @@ fun HomeScreen(
             ) {
                 items(children.size) { index ->
                     FamilyCard(children[index], onCardClick = {
-                        viewModel.sendMentionNotification(it, "CHILD")
+                        viewModel.sendMentionNotification(children[index].userId, "CHILD")
                     })
                 }
             }

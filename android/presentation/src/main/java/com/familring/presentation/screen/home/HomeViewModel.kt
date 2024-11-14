@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -90,9 +91,11 @@ class HomeViewModel
             mention: String,
         ) {
             viewModelScope.launch {
+                Timber.d("알림 전송 시도: receiverId=$receiverId, mention=$mention")
                 userRepository.sendMentionNotification(receiverId, mention).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
+                            Timber.d("알림 전송 성공 $receiverId, $mention")
                             _homeEvent.emit(HomeEvent.Success)
                         }
 
