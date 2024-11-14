@@ -26,12 +26,6 @@ class NotificationViewModel
         private val _notificationEvent = MutableSharedFlow<NotificationEvent>()
         val notificationEvent = _notificationEvent.asSharedFlow()
 
-//        init {
-//            viewModelScope.launch {
-//                getNotificationList()
-//            }
-//        }
-
         fun getNotificationList() {
             viewModelScope.launch {
                 userRepository.getNotifications().collectLatest { response ->
