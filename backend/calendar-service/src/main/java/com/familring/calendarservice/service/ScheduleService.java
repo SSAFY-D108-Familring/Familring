@@ -23,6 +23,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -234,7 +235,11 @@ public class ScheduleService {
 
     public List<ScheduleResponse> getSchedulesByDate(int year, int month, int day, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
-        List<Schedule> schedules = scheduleRepository.findByDateAndFamilyId(year, month, day, familyId);
+
+        LocalDateTime startOfDay = LocalDateTime.of(year, month, day, 0, 0, 0);
+        LocalDateTime endOfDay = LocalDateTime.of(year, month, day, 23, 59, 59);
+
+        List<Schedule> schedules = scheduleRepository.findByDateAndFamilyId(startOfDay, endOfDay, familyId);
 
         // 가족 구성원 정보 조회
         List<UserInfoResponse> familyUsersInfo = familyServiceFeignClient.getFamilyMembers(userId).getData();
