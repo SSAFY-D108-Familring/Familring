@@ -19,6 +19,8 @@ from py_eureka_client import eureka_client
 import asyncio
 import concurrent.futures
 import aiohttp
+from pytz import timezone
+import time
 
 # .env 파일 로드
 load_dotenv()
@@ -34,14 +36,30 @@ SERVER_PORT = int(os.getenv('SERVER_PORT'))
 CPU_COUNT = os.cpu_count() or 4
 THREAD_POOL = concurrent.futures.ThreadPoolExecutor(max_workers=CPU_COUNT * 2)
 
-# 로깅 설정
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
+# 로깅 포맷터에 한국 시간대 적용
+class KSTFormatter(logging.Formatter):
+    def converter(self, timestamp):
+        dt = datetime.datetime.fromtimestamp(timestamp)
+        korean_tz = timezone('Asia/Seoul')
+        return dt.replace(tzinfo=datetime.timezone.utc).astimezone(korean_tz)
+        
+    def formatTime(self, record, datefmt=None):
+        dt = self.converter(record.created)
+        if datefmt:
+            return dt.strftime(datefmt)
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+# 로깅 설정 수정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+formatter = KSTFormatter(
+    fmt='%(asctime)s [%(levelname)s] %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-logger = logging.getLogger(__name__)
-
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+logger.handlers.clear()
+logger.addHandler(handler)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
