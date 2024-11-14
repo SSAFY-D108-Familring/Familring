@@ -569,7 +569,6 @@ private fun calcOrder(previewSchedules: List<PreviewSchedule>): List<PreviewSche
             }
         }
     }
-    previewSchedules.forEach(::println)
     return previewSchedules
 }
 
