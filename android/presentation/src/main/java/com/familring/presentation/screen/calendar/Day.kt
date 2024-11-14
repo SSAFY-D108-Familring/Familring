@@ -199,7 +199,7 @@ fun Schedule(
                     )
             } else if (isNextConnected) {
                 Modifier
-                    .padding(start = 1.dp)
+                    .padding(start = 2.dp)
                     .background(
                         color = schedule.color.toColor(),
                         RoundedCornerShape(topStart = 3.dp, bottomStart = 3.dp),
@@ -263,7 +263,7 @@ private fun DayPreview() {
                             startTime = LocalDateTime.parse("2024-10-01T10:00:00"),
                             endTime = LocalDateTime.parse("2024-10-03T12:00:00"),
                             color = "0xFF000000",
-                            order = 0,
+                            order = 1,
                         ),
                         PreviewSchedule(
                             id = 0,
