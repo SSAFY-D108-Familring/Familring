@@ -5,6 +5,7 @@ import com.familring.domain.model.JwtToken
 import com.familring.domain.model.User
 import com.familring.domain.model.notification.KnockNotificationRequest
 import com.familring.domain.model.notification.NotificationResponse
+import com.familring.domain.model.notification.SendMentionNotificationRequest
 import com.familring.domain.request.UserEmotionRequest
 import com.familring.domain.request.UserLoginRequest
 import okhttp3.MultipartBody
@@ -78,5 +79,10 @@ interface UserApi {
     @POST("users/fcm")
     suspend fun updateFcmToken(
         @Query("fcmToken") token: String,
+    ): BaseResponse<Unit>
+
+    @POST("notifications/mention")
+    suspend fun sendMentionNotification(
+        @Body request: SendMentionNotificationRequest,
     ): BaseResponse<Unit>
 }

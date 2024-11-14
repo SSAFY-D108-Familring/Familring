@@ -42,4 +42,9 @@ interface UserRepository {
     suspend fun updateFCMToken(token: String): Flow<ApiResponse<Unit>>
 
     suspend fun updateFace(face: File): Flow<ApiResponse<Unit>>
+
+    suspend fun sendMentionNotification(
+        receiverId: Long,
+        mention: String,
+    ): Flow<ApiResponse<Unit>>
 }

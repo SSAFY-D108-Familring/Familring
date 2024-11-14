@@ -199,18 +199,6 @@ fun AlbumScreen(
     }
 
     Surface(modifier = modifier.fillMaxSize(), color = White) {
-        if (isLoading) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(color = Black.copy(alpha = 0.5f)),
-                contentAlignment = Alignment.Center,
-            ) {
-                LoadingDialog(loadingMessage = "사진 로딩중...")
-            }
-            return@Surface
-        }
         Column(modifier = Modifier.fillMaxSize()) {
             TopAppBar(
                 title = {
@@ -406,6 +394,9 @@ fun AlbumScreen(
                     },
                 )
             }
+        }
+        if (isLoading) {
+            LoadingDialog(loadingMessage = "사진 업데이트 중...")
         }
     }
 }
