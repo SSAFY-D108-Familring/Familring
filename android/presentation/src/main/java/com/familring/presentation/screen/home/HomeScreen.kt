@@ -53,6 +53,7 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
+import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
@@ -166,6 +167,8 @@ fun HomeScreen(
     val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
 
     var showTreeExplanation by remember { mutableStateOf(false) }
+    var selectedUser by remember { mutableStateOf<User?>(null) }
+    var showLoveMention by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -519,7 +522,8 @@ fun HomeScreen(
                 ) {
                     if (mother != null) {
                         FamilyCard(mother, onCardClick = {
-                            viewModel.sendMentionNotification(mother.userId, "MOTHER")
+                            selectedUser = mother
+                            showLoveMention = true
                         })
                     } else {
                         EmptyCard()
@@ -532,7 +536,8 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(15.dp))
                     if (father != null) {
                         FamilyCard(father, onCardClick = {
-                            viewModel.sendMentionNotification(father.userId, "FATHER")
+                            selectedUser = father
+                            showLoveMention = true
                         })
                     } else {
                         EmptyCard()
@@ -550,7 +555,8 @@ fun HomeScreen(
             ) {
                 items(children.size) { index ->
                     FamilyCard(children[index], onCardClick = {
-                        viewModel.sendMentionNotification(children[index].userId, "CHILD")
+                        selectedUser = children[index]
+                        showLoveMention = true
                     })
                 }
             }
@@ -558,6 +564,21 @@ fun HomeScreen(
     }
     if (showTreeExplanation) {
         TreeExplanation(onClose = { showTreeExplanation = false })
+    }
+    if (showLoveMention && selectedUser != null) {
+        LoveMention(
+            user = selectedUser!!,
+            onClose = {
+                showLoveMention = false
+                selectedUser = null
+            },
+            onSend = { content ->
+                viewModel.sendMentionNotification(
+                    selectedUser!!.userId,
+                    content
+                )
+            }
+        )
     }
 }
 

@@ -66,7 +66,7 @@ class FamilringMessagingService : FirebaseMessagingService() {
                 .Builder(this, channelId)
                 .setContentTitle(title)
                 .setContentText(body)
-                .setSmallIcon(R.drawable.ic_home) // 알림 아이콘 필요
+                .setSmallIcon(R.drawable.ic_fill_home)
                 .setAutoCancel(true)
                 .build()
 
