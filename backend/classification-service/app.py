@@ -156,8 +156,6 @@ def metrics_initialization():
             should_include_status=True,
             metric_namespace="fastapi",
             metric_subsystem="app",
-            should_include_instance=True,
-            instance_label=APP_NAME
         )
     ).add(
         metrics.response_size(
