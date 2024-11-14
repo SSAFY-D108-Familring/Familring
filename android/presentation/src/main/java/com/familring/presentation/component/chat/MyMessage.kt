@@ -1,6 +1,7 @@
 package com.familring.presentation.component.chat
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -16,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.presentation.theme.Black
@@ -32,38 +32,37 @@ fun MyMessage(
     unReadMembers: String,
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 10.dp),
         contentAlignment = Alignment.CenterEnd,
     ) {
         Row(
             modifier =
                 Modifier
-                    .height(IntrinsicSize.Max),
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.End,
         ) {
-            Box(
-                modifier =
-                    Modifier
-                        .width(IntrinsicSize.Max)
-                        .fillMaxHeight(),
-                contentAlignment = Alignment.BottomCenter,
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.Bottom,
             ) {
-                Column {
+                if (unReadMembers != "0") {
                     Text(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(end = 2.dp),
-                        text = if (unReadMembers != "0") unReadMembers else "",
+                        text = unReadMembers,
                         style = Typography.titleSmall.copy(fontSize = 10.sp),
                         color = Green02,
-                        textAlign = TextAlign.End,
-                    )
-                    Text(
-                        text = time,
-                        style = Typography.bodySmall.copy(fontSize = 12.sp),
-                        color = Gray02,
+                        modifier = Modifier.padding(bottom = 2.dp),
                     )
                 }
+                Text(
+                    text = time,
+                    style = Typography.bodySmall.copy(fontSize = 12.sp),
+                    color = Gray02,
+                )
             }
             Spacer(modifier = Modifier.width(7.dp))
             Text(
