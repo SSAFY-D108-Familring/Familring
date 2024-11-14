@@ -2,6 +2,7 @@ package com.familring.presentation.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
@@ -22,12 +23,16 @@ class HomeViewModel
     constructor(
         private val familyRepository: FamilyRepository,
         private val userRepository: UserRepository,
+        private val authDataStore: AuthDataStore,
     ) : ViewModel() {
         private val _homeState = MutableStateFlow<HomeState>(HomeState.Loading)
         val homeState = _homeState.asStateFlow()
 
         private val _homeEvent = MutableSharedFlow<HomeEvent>()
         val homeEvent = _homeEvent.asSharedFlow()
+
+        private val _myUserId = MutableStateFlow<Long?>(null)
+        val myUserId = _myUserId.asStateFlow()
 
         private val _refreshTrigger = MutableStateFlow(0) // 실시간으로 받아오기 위해 필요하고
 
@@ -86,29 +91,39 @@ class HomeViewModel
             }
         }
 
+        fun getUserId() {
+            viewModelScope.launch {
+                authDataStore.getUserId()?.let {
+                    _myUserId.value = it
+                }
+            }
+        }
+
         fun sendMentionNotification(
             receiverId: Long,
             mention: String,
         ) {
             viewModelScope.launch {
                 Timber.d("알림 전송 시도: receiverId=$receiverId, mention=$mention")
-                userRepository.sendMentionNotification(receiverId, mention).collectLatest { response ->
-                    when (response) {
-                        is ApiResponse.Success -> {
-                            Timber.d("알림 전송 성공 $receiverId, $mention")
-                            _homeEvent.emit(HomeEvent.Success)
-                        }
+                userRepository
+                    .sendMentionNotification(receiverId, mention)
+                    .collectLatest { response ->
+                        when (response) {
+                            is ApiResponse.Success -> {
+                                Timber.d("알림 전송 성공 $receiverId, $mention")
+                                _homeEvent.emit(HomeEvent.Success)
+                            }
 
-                        is ApiResponse.Error -> {
-                            _homeEvent.emit(
-                                HomeEvent.Error(
-                                    code = response.code,
-                                    message = response.message,
-                                ),
-                            )
+                            is ApiResponse.Error -> {
+                                _homeEvent.emit(
+                                    HomeEvent.Error(
+                                        code = response.code,
+                                        message = response.message,
+                                    ),
+                                )
+                            }
                         }
                     }
-                }
             }
         }
     }

@@ -87,7 +87,7 @@ fun LoveMention(
                             style = Typography.titleSmall.copy(fontSize = 22.sp),
                         )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         modifier = Modifier.padding(start = 13.dp),
                         text = "알림으로 사랑을 전해 드릴게요",
@@ -108,6 +108,7 @@ fun LoveMention(
                                     zodiacImgUrl = user.userZodiacSign, // 프로필 사진 URL
                                     backgroundColor = user.userColor, // 유저 배경 색
                                 ),
+                            paddingValue = 20
                         )
                     }
                     Spacer(modifier = Modifier.height(20.dp))

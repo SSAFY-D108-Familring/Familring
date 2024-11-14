@@ -162,9 +162,14 @@ fun HomeScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.getUserId()
+    }
+
     val father = familyMembers.find { it.userRole == "F" }
     val mother = familyMembers.find { it.userRole == "M" }
     val children = familyMembers.filter { it.userRole == "S" || it.userRole == "D" }
+    val currentUserId by viewModel.myUserId.collectAsStateWithLifecycle()
 
     var showTreeExplanation by remember { mutableStateOf(false) }
     var selectedUser by remember { mutableStateOf<User?>(null) }
@@ -528,8 +533,10 @@ fun HomeScreen(
                 ) {
                     if (mother != null) {
                         FamilyCard(mother, onCardClick = {
-                            selectedUser = mother
-                            showLoveMention = true
+                            if (mother.userId != currentUserId) {
+                                selectedUser = mother
+                                showLoveMention = true
+                            }
                         })
                     } else {
                         EmptyCard()
@@ -541,10 +548,16 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.width(15.dp))
                     if (father != null) {
-                        FamilyCard(father, onCardClick = {
-                            selectedUser = father
-                            showLoveMention = true
-                        })
+                        FamilyCard(
+                            father,
+                            onCardClick = {
+                                if(father.userId != currentUserId){
+                                    selectedUser = father
+                                    showLoveMention = true
+
+                                }
+                            },
+                        )
                     } else {
                         EmptyCard()
                     }
@@ -561,8 +574,10 @@ fun HomeScreen(
             ) {
                 items(children.size) { index ->
                     FamilyCard(children[index], onCardClick = {
-                        selectedUser = children[index]
-                        showLoveMention = true
+                        if (children[index].userId != currentUserId){
+                            selectedUser = children[index]
+                            showLoveMention = true
+                        }
                     })
                 }
             }
