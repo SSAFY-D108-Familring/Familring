@@ -22,8 +22,8 @@ import com.familring.presentation.theme.White
 
 @Composable
 fun PhotoRoute(
-    photoUrl: String,
     albumId: Long,
+    photoUrl: String,
     modifier: Modifier = Modifier,
     onNavigateBack: () -> Unit = {},
     viewModel: GalleryViewModel = hiltViewModel(),
@@ -99,9 +99,10 @@ fun PhotoScreen(
 @Composable
 fun ZoomableImage(imageUrl: String) {
     AsyncImage(
+        modifier = Modifier.fillMaxSize(),
         model = imageUrl,
         contentDescription = "fullscreen_photo",
-        contentScale = ContentScale.FillBounds,
+        contentScale = ContentScale.Fit,
     )
 }
 

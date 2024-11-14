@@ -273,15 +273,21 @@ fun HomeScreen(
                         Column {
                             Text(
                                 modifier = Modifier.padding(start = 15.dp),
+                                text = "우리 가족의 나무는 지금...",
+                                style = Typography.displayMedium,
+                            )
+                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                modifier = Modifier.padding(start = 15.dp),
                                 text =
                                     if (progress > 75f) {
-                                        "열심히 하셧고\n축하하고 ㅎㅎ🎄"
+                                        "초록초록 \uD83E\uDD70"
                                     } else if (progress > 50) {
-                                        "지금처럼 쭉\n정진하시고 ㅋ"
+                                        "파릇파릇 \uD83D\uDE0A"
                                     } else if (progress > 25f) {
-                                        "소통을 조금만 더\n해주시고 ㅋㅋ\uD83C\uDF84"
+                                        "무럭무럭 \uD83D\uDE42"
                                     } else {
-                                        "소통이 ㅠㅠ지금\n부족해요\uD83D\uDE30"
+                                        "민둥맨둥 \uD83D\uDE30"
                                     },
                                 style = Typography.titleLarge.copy(fontSize = 24.sp),
                                 color = Green02,
@@ -575,9 +581,9 @@ fun HomeScreen(
             onSend = { content ->
                 viewModel.sendMentionNotification(
                     selectedUser!!.userId,
-                    content
+                    content,
                 )
-            }
+            },
         )
     }
 }
