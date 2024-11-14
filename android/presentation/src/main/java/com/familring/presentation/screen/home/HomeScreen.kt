@@ -54,6 +54,7 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
+import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
@@ -587,6 +588,23 @@ fun HomeScreen(
             }
         }
     }
+
+    if (showLoveMention && selectedUser != null) {
+        LoveMention(
+            user = selectedUser!!,
+            onClose = {
+                showLoveMention = false
+                selectedUser = null
+            },
+            onSend = { content ->
+                viewModel.sendMentionNotification(
+                    selectedUser!!.userId,
+                    content,
+                )
+            },
+        )
+    }
+
     if (showTreeExplanation) {
         TreeExplanation(onClose = { showTreeExplanation = false })
     }
