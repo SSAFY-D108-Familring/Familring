@@ -87,11 +87,6 @@ async def lifespan(app: FastAPI):
     try:
         logger.info(f"Using port: {SERVER_PORT}")
 
-        # Prometheus 설정
-        instrumentator = Instrumentator()
-        instrumentator.instrument(app)
-        instrumentator.expose(app, endpoint="/face-recognition/metrics")
-
         # Eureka 클라이언트 초기화
         eureka_config = {
             "eureka_server": EUREKA_SERVER,
@@ -140,6 +135,11 @@ app = FastAPI(
     docs_url="/face-recognition/docs",          
     redoc_url=None
 )
+
+# Prometheus 설정
+instrumentator = Instrumentator()
+instrumentator.instrument(app)
+instrumentator.expose(app, endpoint="/face-recognition/metrics")
 
 # CORS 미들웨어 설정
 app.add_middleware(
