@@ -6,6 +6,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
 import com.familring.domain.datastore.TutorialDataStore
@@ -21,12 +25,13 @@ import com.familring.presentation.screen.gallery.TutorialUiState
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -38,7 +43,6 @@ import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
 import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
-import timber.log.Timber
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
@@ -57,6 +61,8 @@ class ChatViewModel
         val tutorialUiState = _tutorialUiState.asStateFlow()
 
         private var userId: Long? = 0L
+        var userId: Long? = 0L
+
         private var familyId: Long? = 0L
 
         private lateinit var stompSession: StompSession
@@ -67,7 +73,9 @@ class ChatViewModel
                 .add(LocalDateTimeAdapter())
                 .addLast(KotlinJsonAdapterFactory())
                 .build()
-        private lateinit var chatList: List<Chat>
+
+        private val _chatPagingData = MutableStateFlow<PagingData<Chat>>(PagingData.empty())
+        val chatPagingData = _chatPagingData.asStateFlow()
 
         // 재생 중인 파일
         private var currentPlayer: VoicePlayer? by mutableStateOf(null)
@@ -81,6 +89,8 @@ class ChatViewModel
         init {
             getReadTutorial()
             loadUserData()
+            connectStomp()
+            getChatList()
         }
 
         private fun getReadTutorial() {
@@ -139,45 +149,21 @@ class ChatViewModel
 
         private fun loadUserData() {
             viewModelScope.launch {
-                val userIdJob = async { authDataStore.getUserId() }
-                val familyIdJob = async { authDataStore.getFamilyId() }
-
-                userId = userIdJob.await()
-                familyId = familyIdJob.await()
-
-                if (userId != null && familyId != null) {
-                    enterRoom(userId = userId!!, roomId = familyId!!)
-                    connectStomp()
-                }
+                userId = authDataStore.getUserId()
+                familyId = authDataStore.getFamilyId()
             }
         }
 
-        private fun enterRoom(
-            roomId: Long,
-            userId: Long,
-        ) {
-            viewModelScope.launch {
-                familyRepository.enterRoom(roomId, userId).collectLatest { response ->
-                    when (response) {
-                        is ApiResponse.Success -> {
-                            chatList = response.data
-                            val currentState = _state.value
-
-                            if (currentState is ChatUiState.Success) {
-                                _state.value = currentState.copy(chatList = chatList)
-                            } else {
-                                _state.value = ChatUiState.Success(userId = userId, chatList = chatList)
-                            }
-                        }
-
-                        is ApiResponse.Error -> {
-                            _state.value = ChatUiState.Error(response.message)
-                            _event.emit(ChatUiEvent.Error(response.code, response.message))
-                        }
-                    }
-                }
-            }
-        }
+        private fun enterRoom(): Flow<PagingData<Chat>> =
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 20,
+                        enablePlaceholders = false,
+                    ),
+            ) {
+                ChatPageSource(familyRepository, authDataStore)
+            }.flow.cachedIn(viewModelScope)
 
         private fun connectStomp() {
             viewModelScope.launch {
@@ -209,26 +195,22 @@ class ChatViewModel
             }
         }
 
+        private fun getChatList() {
+            viewModelScope.launch {
+                val pagingData = enterRoom().first()
+                _chatPagingData.value = pagingData
+
+                if (_state.value is ChatUiState.Loading) {
+                    _state.value = ChatUiState.Success
+                }
+            }
+        }
+
         // 메시지 구독
         private fun subscribeMessages() {
             viewModelScope.launch {
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId"))
-                    .collect { message ->
-                        val chatMessage = moshi.adapter(Chat::class.java).fromJson(message.bodyAsText)
-                        chatMessage?.let {
-                            updateChatListWithNewMessage(it)
-                        }
-                    }
-            }
-        }
-
-        // 새로운 메시지 업데이트
-        private fun updateChatListWithNewMessage(chatMessage: Chat) {
-            val currentState = _state.value
-            if (currentState is ChatUiState.Success) {
-                val updatedChatList = listOf(chatMessage) + currentState.chatList
-                _state.value = currentState.copy(chatList = updatedChatList)
             }
         }
 
@@ -238,9 +220,7 @@ class ChatViewModel
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL"))
                     .collect {
-                        if (familyId != null && userId != null) {
-                            enterRoom(roomId = familyId!!, userId = userId!!)
-                        }
+                        getChatList()
                     }
             }
         }
@@ -249,7 +229,6 @@ class ChatViewModel
             try {
                 viewModelScope.launch {
                     stompSession.disconnect()
-                    Timber.d("WebSocket disconnected")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -338,7 +317,7 @@ class ChatViewModel
             }
         }
 
-        fun sendVoiceMessage(
+        private fun sendVoiceMessage(
             context: Context,
             voiceUrl: String,
         ) {
@@ -355,6 +334,29 @@ class ChatViewModel
                         ),
                 )
             }
+        }
+
+        fun pauseCurrentPlaying() {
+            currentPath?.let {
+                currentPlayer?.apply {
+                    pause()
+                }
+                currentPlayer = null
+                currentPath = null
+            }
+        }
+
+        fun setCurrentPlayer(
+            player: VoicePlayer,
+            filePath: String,
+        ) {
+            currentPlayer = player
+            currentPath = filePath
+        }
+
+        fun removePlayer() {
+            currentPlayer = null
+            currentPath = null
         }
 
         companion object {
