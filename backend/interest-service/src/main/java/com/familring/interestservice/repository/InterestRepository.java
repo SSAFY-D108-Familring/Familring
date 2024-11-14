@@ -1,10 +1,12 @@
 package com.familring.interestservice.repository;
 
 import com.familring.interestservice.domain.Interest;
+import jakarta.persistence.LockModeType;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -19,6 +21,11 @@ public interface InterestRepository extends JpaRepository<Interest, Integer> {
 
     // 가족에 가장 최근 관심사 찾기
     Optional<Interest> findFirstByFamilyIdOrderByIdDesc(Long familyId);
+
+    // 비관적 Lock
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT i FROM Interest i WHERE i.familyId = :familyId ORDER BY i.id DESC")
+    Optional<Interest> findFirstByFamilyIdOrderByIdDescWithLock(@Param("familyId") Long familyId);
 
     Slice<Interest> findByFamilyIdOrderByIdDesc(Long familyId, Pageable pageable);
 

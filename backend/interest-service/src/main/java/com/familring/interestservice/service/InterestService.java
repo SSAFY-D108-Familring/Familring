@@ -3,9 +3,7 @@ package com.familring.interestservice.service;
 import com.familring.interestservice.domain.Interest;
 import com.familring.interestservice.domain.InterestAnswer;
 import com.familring.interestservice.domain.InterestMission;
-import com.familring.interestservice.dto.client.Family;
-import com.familring.interestservice.dto.client.FamilyStatusRequest;
-import com.familring.interestservice.dto.client.UserInfoResponse;
+import com.familring.interestservice.dto.client.*;
 import com.familring.interestservice.dto.request.InterestAnswerCreateRequest;
 import com.familring.interestservice.dto.request.InterestMissionCreatePeriodRequest;
 import com.familring.interestservice.dto.response.*;
@@ -15,6 +13,7 @@ import com.familring.interestservice.repository.InterestMissionRepository;
 import com.familring.interestservice.repository.InterestRepository;
 import com.familring.interestservice.service.client.FamilyServiceFeignClient;
 import com.familring.interestservice.service.client.FileServiceFeignClient;
+import com.familring.interestservice.service.client.NotificationServiceFeignClient;
 import com.familring.interestservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +43,7 @@ public class InterestService {
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final UserServiceFeignClient userServiceFeignClient;
     private final FileServiceFeignClient fileServiceFeignClient;
+    private final NotificationServiceFeignClient notificationServiceFeignClient;
 
     @Value("${aws.s3.interest-photo-path}")
     private String interestPhotoPath;
@@ -228,6 +228,7 @@ public class InterestService {
 
     }
 
+    // 관심사 선정
     public void createInterestAnswerSelected(Long userId) {
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
@@ -250,7 +251,40 @@ public class InterestService {
             Random random = new Random();
             InterestAnswer selectedAnswer = interestAnswerList.get(random.nextInt(interestAnswerList.size()));
             selectedAnswer.updateSelected(true);
-            interestAnswerRepository.save(selectedAnswer);  // 변경 사항을 저장
+            interestAnswerRepository.save(selectedAnswer);  // 변경 사항을 저장 (이때 관심사 선정)
+
+            log.info("관심사 선정 완료");
+
+            // 가족 구성원 모두에게 전송 (답변 안했더라도)
+            // 1. 가족 구성원 찾기
+            List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberListByFamilyId(familyId).getData();
+
+            List<Long> familyMemberIds = new ArrayList<>();
+            for (UserInfoResponse familyMember : familyMembers) {
+                // 사용자 조회 - 수신자
+                UserInfoResponse receiver = userServiceFeignClient.getUser(familyMember.getUserId()).getData();
+                log.info("[fcmToUser] receiver userId={}", receiver.getUserId());
+
+                familyMemberIds.add(familyMember.getUserId());
+            }
+
+            // 알림 메시지 생성
+            String message = "이번 관심사가 선정되었어요!";
+            log.info("[fcmToUser] message={}", message);
+
+            // 알림 전송 객체 생성
+            NotificationRequest request = NotificationRequest.builder()
+                    .notificationType(NotificationType.INTEREST_PICK)
+                    .receiverUserIds(familyMemberIds)
+                    .senderUserId(null)
+                    .destinationId(null)
+                    .title("관심사 선정 알림")
+                    .message(message)
+                    .build();
+
+            // 알림 전송
+            log.info("[fcmToUser] 알림 보낼 사람 수: {}명", request.getReceiverUserIds().size());
+            notificationServiceFeignClient.alarmByFcm(request);
             return;
         }
 
@@ -304,7 +338,7 @@ public class InterestService {
         Long familyId = family.getFamilyId();
 
         // 가장 최근 관심사 찾기
-        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
+        Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDescWithLock(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 가족 구성원 찾기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
