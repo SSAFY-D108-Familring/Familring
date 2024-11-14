@@ -155,8 +155,9 @@ class ChatViewModel
                                     HttpLoggingInterceptor().apply {
                                         level = HttpLoggingInterceptor.Level.BODY
                                     },
-                                ).callTimeout(Duration.ofMinutes(1))
-                                .pingInterval(Duration.ofSeconds(10))
+                                ).callTimeout(Duration.ofMinutes(10))
+                                .pingInterval(Duration.ofSeconds(30))
+                                .retryOnConnectionFailure(true)
                                 .build()
 
                         val client = StompClient(OkHttpWebSocketClient(okHttpclient))
@@ -177,10 +178,24 @@ class ChatViewModel
             }
         }
 
+        // 재연결 로직 개선
         private fun retryConnection() {
             viewModelScope.launch {
-                delay(1500) // 1.5초 정도 대기 후 재연결 시도
-                connectStomp()
+                var retryCount = 0
+                val maxRetries = 3
+
+                while (retryCount < maxRetries) {
+                    try {
+                        delay(2000) // 지수 백오프 적용
+                        connectStomp()
+                        break // 성공하면 루프 종료
+                    } catch (e: Exception) {
+                        retryCount++
+                        if (retryCount >= maxRetries) {
+                            _state.value = ChatUiState.Error("연결 실패")
+                        }
+                    }
+                }
             }
         }
 
@@ -190,6 +205,7 @@ class ChatViewModel
                 _chatPagingData.value = pagingData
 
                 if (_state.value is ChatUiState.Loading) {
+                    delay(1000)
                     _state.value = ChatUiState.Success
                 }
             }
