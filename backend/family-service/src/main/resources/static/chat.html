@@ -35,7 +35,7 @@
     let stompClient = null;
     let isConnected = false;
     let currentPage = 0;
-    const pageSize = 100;
+    const pageSize = 20;
 
     function toggleVoteOptions() {
         const voteTitleInput = document.getElementById("voteTitle");
@@ -71,7 +71,7 @@
                 });
 
                 stompClient.subscribe(`/room/${roomId}/readStatus`, () => {
-                    fetchChatHistory(roomId, userId);
+                    fetchChatHistory(roomId, userId, currentPage, pageSize);
                 });
 
                 stompClient.subscribe(`/room/${roomId}/exit`, (message) => {
@@ -107,9 +107,9 @@
         chatLog.innerHTML += content;
     }
 
-    async function fetchChatHistory(roomId, userId) {
+    async function fetchChatHistory(roomId, userId, currentPage, pageSize) {
         try {
-            const response = await fetch(`/rooms/enter/${roomId}`, {
+            const response = await fetch(`/rooms/enter/${roomId}?page=${currentPage}&size=${pageSize}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

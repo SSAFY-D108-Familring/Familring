@@ -27,8 +27,7 @@ public class ChatRoomController {
     @Operation(summary = "채팅방 입장", description = "roomId에 해당하는 채팅방의 채팅 List를 페이징 처리하여 조회")
     public ResponseEntity<?> joinRoom(
             @PathVariable Long roomId, @RequestHeader("X-User-ID") Long userId,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "100") int size) {
+            @RequestParam(value = "page") int page,@RequestParam(value = "size") int size) {
         try {
             log.info("[joinRoom] 채팅방 입장 요청 roomId={}, userId={}, page={}, size={}", roomId, userId, page, size);
             List<ChatResponse> chatResponseList = chatRoomService.findPagedChatByRoomId(roomId, userId, page, size);
