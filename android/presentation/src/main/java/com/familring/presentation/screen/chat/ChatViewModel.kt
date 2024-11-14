@@ -53,7 +53,7 @@ class ChatViewModel
         private val authDataStore: AuthDataStore,
         private val tokenDataStore: TokenDataStore,
     ) : ViewModel() {
-        private var userId: Long? = 0L
+        var userId: Long? = 0L
         private var familyId: Long? = 0L
 
         private lateinit var stompSession: StompSession
@@ -94,7 +94,7 @@ class ChatViewModel
             Pager(
                 config =
                     PagingConfig(
-                        pageSize = 50,
+                        pageSize = 20,
                         enablePlaceholders = false,
                     ),
             ) {
@@ -137,7 +137,7 @@ class ChatViewModel
                 _chatPagingData.value = pagingData
 
                 if (_state.value is ChatUiState.Loading) {
-                    _state.value = ChatUiState.Success(userId = userId!!)
+                    _state.value = ChatUiState.Success
                 }
             }
         }
