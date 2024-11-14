@@ -22,7 +22,7 @@ import aiohttp
 import datetime
 from pytz import timezone
 import time
-from prometheus_fastapi_instrumentator import Instrumentator, metrics
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # .env 파일 로드
 load_dotenv()
@@ -136,58 +136,10 @@ app = FastAPI(
     redoc_url=None
 )
 
-# Instrumentator 인스턴스 생성 및 상세 설정
-def metrics_initialization():
-    instrumentator = Instrumentator(
-        should_group_status_codes=False,
-        should_ignore_untemplated=True,
-        should_respect_env_var=True,
-        should_instrument_requests_inprogress=True,
-        env_var_name="ENABLE_METRICS",
-        inprogress_name="fastapi_inprogress",
-        inprogress_labels=True,
-    )
-
-    instrumentator.add(
-        metrics.request_size(
-            should_include_handler=True,
-            should_include_method=True,
-            should_include_status=True,
-            metric_namespace="fastapi",
-            metric_subsystem="app",
-        )
-    ).add(
-        metrics.response_size(
-            should_include_handler=True,
-            should_include_method=True,
-            should_include_status=True,
-            metric_namespace="fastapi",
-            metric_subsystem="responses",
-        )
-    ).add(
-        metrics.latency(
-            should_include_handler=True,
-            should_include_method=True,
-            should_include_status=True,
-            metric_namespace="fastapi",
-            metric_subsystem="requests",
-        )
-    ).add(
-        metrics.requests(
-            should_include_handler=True,
-            should_include_method=True,
-            should_include_status=True,
-            metric_namespace="fastapi",
-            metric_subsystem="requests",
-        )
-    )
-
-    return instrumentator
-
-# FastAPI 앱에 Instrumentator 적용
-instrumentator = metrics_initialization()
+# Prometheus 설정
+instrumentator = Instrumentator()
 instrumentator.instrument(app)
-instrumentator.expose(app, endpoint="/face-recognition/metrics", include_in_schema=True)
+instrumentator.expose(app, endpoint="/face-recognition/metrics")
 
 # CORS 미들웨어 설정
 app.add_middleware(
