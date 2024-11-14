@@ -192,18 +192,18 @@ fun PictureScreen(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp),
                 text = "얼굴 분석을 위해 정면 사진을 촬영해 주세요",
                 style = Typography.bodyLarge,
                 color = Gray01,
             )
             Text(
                 modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp),
                 text = "최대한 이목구비가 잘 나오게요!",
                 style = Typography.bodyLarge,
                 color = Gray01,
@@ -211,21 +211,21 @@ fun PictureScreen(
             Spacer(modifier = Modifier.fillMaxHeight(0.07f))
             Box(
                 modifier =
-                Modifier
-                    .fillMaxWidth(0.9f)
-                    .aspectRatio(1f)
-                    .background(color = Gray04, shape = RoundedCornerShape(12.dp))
-                    .clickable {
-                        when (PackageManager.PERMISSION_GRANTED) {
-                            ContextCompat.checkSelfPermission(
-                                context,
-                                Manifest.permission.CAMERA,
-                            ),
-                            -> cameraLauncher.launch(cameraFileUri)
+                    Modifier
+                        .fillMaxWidth(0.9f)
+                        .aspectRatio(1f)
+                        .background(color = Gray04, shape = RoundedCornerShape(12.dp))
+                        .clickable {
+                            when (PackageManager.PERMISSION_GRANTED) {
+                                ContextCompat.checkSelfPermission(
+                                    context,
+                                    Manifest.permission.CAMERA,
+                                ),
+                                -> cameraLauncher.launch(cameraFileUri)
 
-                            else -> permissionLauncher.launch(Manifest.permission.CAMERA)
-                        }
-                    },
+                                else -> permissionLauncher.launch(Manifest.permission.CAMERA)
+                            }
+                        },
                 contentAlignment = Alignment.Center,
             ) {
                 if (imgUri != null) {
@@ -371,7 +371,7 @@ fun PictureScreen(
                     RoundLongButton(
                         modifier = Modifier.fillMaxWidth(),
                         text = "확인했어요",
-                        onClick = { showBottomSheet = false }
+                        onClick = { showBottomSheet = false },
                     )
                     Spacer(modifier = Modifier.height(10.dp))
                 }

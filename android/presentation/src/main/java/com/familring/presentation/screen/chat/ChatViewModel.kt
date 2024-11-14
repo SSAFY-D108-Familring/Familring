@@ -12,6 +12,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.datastore.TokenDataStore
+import com.familring.domain.datastore.TutorialDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.chat.Chat
 import com.familring.domain.model.chat.FileUploadRequest
@@ -20,6 +21,7 @@ import com.familring.domain.model.chat.VoteResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.presentation.BuildConfig
 import com.familring.presentation.R
+import com.familring.presentation.screen.gallery.TutorialUiState
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
