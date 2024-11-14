@@ -149,15 +149,13 @@ def metrics_initialization():
         inprogress_labels=True,
     )
 
-    # 기본 메트릭 추가
     instrumentator.add(
         metrics.request_size(
-            metric_namespace="fastapi",
-            metric_subsystem="app",
-            buckets=[.1, .25, .5, 1, 2.5, 5, 10],
             should_include_handler=True,
             should_include_method=True,
             should_include_status=True,
+            metric_namespace="fastapi",
+            metric_subsystem="app",
             should_include_instance=True,
             instance_label=APP_NAME
         )
