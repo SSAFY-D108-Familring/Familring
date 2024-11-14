@@ -5,10 +5,12 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -17,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -50,6 +55,8 @@ import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
+import com.familring.presentation.theme.Green02
+import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toFile
@@ -96,6 +103,7 @@ fun PictureScreen(
     getFaceCount: (File) -> Unit = {},
 ) {
     val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
     var imgUri by remember { mutableStateOf<Uri?>(null) }
     var faceSuccess by remember { mutableStateOf(false) }
@@ -265,9 +273,108 @@ fun PictureScreen(
         }
     }
     if (showBottomSheet) {
-        ModalBottomSheet(onDismissRequest = { showBottomSheet = false }) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-
+        ModalBottomSheet(
+            sheetState = sheetState,
+            onDismissRequest = { showBottomSheet = false },
+            containerColor = White,
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 30.dp),
+            ) {
+                Text(
+                    text = "얼굴 사진 촬영 팁 \uD83D\uDCA1",
+                    color = Black,
+                    style = Typography.titleMedium.copy(fontSize = 25.sp),
+                )
+                Spacer(modifier = Modifier.height(18.dp))
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Row(
+                        modifier = Modifier.wrapContentSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "측면이 아닌,",
+                            color = Gray01,
+                            style = Typography.displaySmall.copy(fontSize = 18.sp),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "정면",
+                            color = Red01,
+                            style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                        )
+                        Text(
+                            text = "으로 촬영해 주세요!",
+                            color = Gray01,
+                            style = Typography.displaySmall.copy(fontSize = 18.sp),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Image(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentScale = ContentScale.FillWidth,
+                        painter = painterResource(id = R.drawable.img_face_example),
+                        contentDescription = "face_example",
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Row(
+                        modifier = Modifier.wrapContentSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "해당 사진은 나중에",
+                            color = Gray01,
+                            style = Typography.displaySmall.copy(fontSize = 18.sp),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "인물별 앨범 분류",
+                            color = Green02,
+                            style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                        )
+                        Text(
+                            text = "할 때 쓰여요",
+                            color = Gray01,
+                            style = Typography.displaySmall.copy(fontSize = 18.sp),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "얼굴을 정확하게 촬영해 주세요 :)",
+                        color = Gray01,
+                        style = Typography.displaySmall.copy(fontSize = 18.sp),
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Image(
+                        modifier = Modifier.fillMaxWidth(0.5f),
+                        contentScale = ContentScale.FillWidth,
+                        painter = painterResource(id = R.drawable.img_face_example_two),
+                        contentDescription = "face_example",
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "예시 사진처럼 가까이서 찍어 주세요",
+                        color = Black,
+                        style = Typography.headlineSmall.copy(fontSize = 14.sp),
+                    )
+                    Spacer(modifier = Modifier.height(15.dp))
+                    RoundLongButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "확인했어요",
+                        onClick = { showBottomSheet = false },
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
             }
         }
     }

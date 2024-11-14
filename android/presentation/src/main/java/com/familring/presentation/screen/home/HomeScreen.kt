@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,7 +54,6 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.presentation.R
-import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.theme.Black
@@ -551,10 +551,9 @@ fun HomeScreen(
                         FamilyCard(
                             father,
                             onCardClick = {
-                                if(father.userId != currentUserId){
+                                if (father.userId != currentUserId) {
                                     selectedUser = father
                                     showLoveMention = true
-
                                 }
                             },
                         )
@@ -564,42 +563,32 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            LazyRow(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                items(children.size) { index ->
-                    FamilyCard(children[index], onCardClick = {
-                        if (children[index].userId != currentUserId){
-                            selectedUser = children[index]
-                            showLoveMention = true
-                        }
-                    })
+                LazyRow(
+                    modifier =
+                        Modifier
+                            .wrapContentWidth()
+                            .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                ) {
+                    items(children.size) { index ->
+                        FamilyCard(children[index], onCardClick = {
+                            if (children[index].userId != currentUserId) {
+                                selectedUser = children[index]
+                                showLoveMention = true
+                            }
+                        })
+                    }
                 }
             }
         }
     }
     if (showTreeExplanation) {
         TreeExplanation(onClose = { showTreeExplanation = false })
-    }
-    if (showLoveMention && selectedUser != null) {
-        LoveMention(
-            user = selectedUser!!,
-            onClose = {
-                showLoveMention = false
-                selectedUser = null
-            },
-            onSend = { content ->
-                viewModel.sendMentionNotification(
-                    selectedUser!!.userId,
-                    content,
-                )
-            },
-        )
     }
 }
 
@@ -630,17 +619,17 @@ fun FamilyCard(
             verticalArrangement = Arrangement.Center,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (user.userRole.equals("M")) {
+                if (user.userRole == "M") {
                     Text(
                         text = "엄마",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
                     )
-                } else if (user.userRole.equals("F")) {
+                } else if (user.userRole == "F") {
                     Text(
                         text = "아빠",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
                     )
-                } else if (user.userRole.equals("D")) {
+                } else if (user.userRole == "D") {
                     Text(
                         text = "딸",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
