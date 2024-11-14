@@ -88,7 +88,6 @@ fun LoginScreen(
         when (loginEvent) {
             is LoginEvent.None -> {
                 isLoading = false
-                showSnackBar("패밀링에 오신걸 환영합니다")
             }
 
             is LoginEvent.Loading -> isLoading = true
