@@ -29,8 +29,15 @@ public class Interest {
     @Column(name="interest_mission_end_date", nullable = true)
     private LocalDate missionEndDate;
 
+    @Column(name="interest_mission_count")
+    private int missionCount;
+
     public void updateMissionEndDate(LocalDate newMissionEndDate) {
         this.missionEndDate = newMissionEndDate;
+    }
+
+    public void updateMissionCount() {
+        this.missionCount += 1;
     }
 
 }

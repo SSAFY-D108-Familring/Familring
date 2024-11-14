@@ -427,6 +427,46 @@ public class InterestService {
                     .build();
 
             interestMissionRepository.save(interestMission);
+
+            interest.updateMissionCount();
+
+            // 가족 구성원 모두에게 전송
+            // 1. 가족 구성원 찾기
+            List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberListByFamilyId(familyId).getData();
+            int familyMemberCount = familyMembers.size();
+            log.info("구성원 count : " + familyMemberCount);
+
+            // missionCount와 familyMemberCount가 같을 때만 알림 전송
+            if (interest.getMissionCount() == familyMemberCount) {
+                log.info("같은가.");
+
+                List<Long> familyMemberIds = new ArrayList<>();
+                for (UserInfoResponse familyMember : familyMembers) {
+                    // 사용자 조회 - 수신자
+                    UserInfoResponse receiver = userServiceFeignClient.getUser(familyMember.getUserId()).getData();
+                    log.info("[fcmToUser] receiver userId={}", receiver.getUserId());
+
+                    familyMemberIds.add(familyMember.getUserId());
+                }
+
+                // 알림 메시지 생성
+                String message = "인증한 사진들이 궁금하신가요? 관심사 공유에서 확인해보세요 !";
+                log.info("[fcmToUser] message={}", message);
+
+                // 알림 전송 객체 생성
+                NotificationRequest request = NotificationRequest.builder()
+                        .notificationType(NotificationType.INTEREST_COMPLETE)
+                        .receiverUserIds(familyMemberIds)
+                        .senderUserId(null)
+                        .destinationId(null)
+                        .title("관심사가 모두 인증되었습니다 \uD83D\uDC40")
+                        .message(message)
+                        .build();
+
+                // 알림 전송
+                log.info("[fcmToUser] 알림 보낼 사람 수: {}명", request.getReceiverUserIds().size());
+                notificationServiceFeignClient.alarmByFcm(request);
+            }
         } else {
             throw new AlreadyExistInterestMissionException();
         }
