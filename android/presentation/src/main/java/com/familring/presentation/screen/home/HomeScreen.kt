@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,6 +53,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
+import com.familring.domain.request.UserEmotionRequest
 import com.familring.presentation.R
 import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
@@ -70,7 +72,6 @@ import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
-import timber.log.Timber
 
 @Composable
 fun HomeRoute(
@@ -91,12 +92,10 @@ fun HomeRoute(
 
     when (val state = homeState) {
         is HomeState.Loading -> {
-            Timber.tag("nakyung").d("홈화면 로딩중")
             LoadingDialog(loadingMessage = "홈 화면을 불러오고 있어요...")
         }
 
         is HomeState.Success -> {
-            Timber.tag("nakyung").d("홈화면 그려짐")
             HomeScreen(
                 modifier = modifier,
                 familyMembers = state.familyMembers,
@@ -158,6 +157,10 @@ fun HomeScreen(
                 showSnackBar("알림을 성공적으로 전송했습니다")
             }
 
+            is HomeEvent.UpdateSuccess -> {
+                showSnackBar("나의 현재 기분이 변경되었어요!")
+            }
+
             else -> {}
         }
     }
@@ -174,6 +177,7 @@ fun HomeScreen(
     var showTreeExplanation by remember { mutableStateOf(false) }
     var selectedUser by remember { mutableStateOf<User?>(null) }
     var showLoveMention by remember { mutableStateOf(false) }
+    var showEditEmotion by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -536,6 +540,8 @@ fun HomeScreen(
                             if (mother.userId != currentUserId) {
                                 selectedUser = mother
                                 showLoveMention = true
+                            } else {
+                                showEditEmotion = true
                             }
                         })
                     } else {
@@ -551,10 +557,11 @@ fun HomeScreen(
                         FamilyCard(
                             father,
                             onCardClick = {
-                                if(father.userId != currentUserId){
+                                if (father.userId != currentUserId) {
                                     selectedUser = father
                                     showLoveMention = true
-
+                                } else {
+                                    showEditEmotion = true
                                 }
                             },
                         )
@@ -564,28 +571,33 @@ fun HomeScreen(
                 }
             }
             Spacer(modifier = Modifier.height(12.dp))
-            LazyRow(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp),
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                items(children.size) { index ->
-                    FamilyCard(children[index], onCardClick = {
-                        if (children[index].userId != currentUserId){
-                            selectedUser = children[index]
-                            showLoveMention = true
-                        }
-                    })
+                LazyRow(
+                    modifier =
+                        Modifier
+                            .wrapContentWidth()
+                            .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                ) {
+                    items(children.size) { index ->
+                        FamilyCard(children[index], onCardClick = {
+                            if (children[index].userId != currentUserId) {
+                                selectedUser = children[index]
+                                showLoveMention = true
+                            } else {
+                                showEditEmotion = true
+                            }
+                        })
+                    }
                 }
             }
         }
     }
-    if (showTreeExplanation) {
-        TreeExplanation(onClose = { showTreeExplanation = false })
-    }
+
     if (showLoveMention && selectedUser != null) {
         LoveMention(
             user = selectedUser!!,
@@ -600,6 +612,19 @@ fun HomeScreen(
                 )
             },
         )
+    }
+
+    if (showEditEmotion) {
+        EmotionUpdateScreen(
+            onClose = { showEditEmotion = false },
+            clickEmotion = { emotion ->
+                viewModel.updateEmotion(UserEmotionRequest(userEmotion = emotion))
+            },
+        )
+    }
+
+    if (showTreeExplanation) {
+        TreeExplanation(onClose = { showTreeExplanation = false })
     }
 }
 
@@ -630,17 +655,17 @@ fun FamilyCard(
             verticalArrangement = Arrangement.Center,
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (user.userRole.equals("M")) {
+                if (user.userRole == "M") {
                     Text(
                         text = "엄마",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
                     )
-                } else if (user.userRole.equals("F")) {
+                } else if (user.userRole == "F") {
                     Text(
                         text = "아빠",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
                     )
-                } else if (user.userRole.equals("D")) {
+                } else if (user.userRole == "D") {
                     Text(
                         text = "딸",
                         style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),

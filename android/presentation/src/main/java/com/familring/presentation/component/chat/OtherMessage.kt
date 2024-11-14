@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.familring.domain.model.Profile
@@ -38,51 +39,58 @@ fun OtherMessage(
     unReadMembers: String,
 ) {
     Box(
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(end = 10.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
         Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(IntrinsicSize.Max),
+                    .height(IntrinsicSize.Min),
         ) {
-            ZodiacBackgroundProfile(
-                modifier = Modifier.padding(top = 5.dp),
-                profile =
-                    Profile(
-                        nickname = nickname,
-                        zodiacImgUrl = profileImg,
-                        backgroundColor = color,
-                    ),
-                size = 36,
-                paddingValue = 5,
-            )
-            Spacer(modifier = Modifier.width(7.dp))
-            Column(modifier = Modifier.wrapContentSize()) {
-                Text(
-                    text = nickname,
-                    style = Typography.headlineSmall.copy(fontSize = 13.sp),
-                    color = Gray01,
+            Row(
+                modifier = Modifier.weight(1f, fill = false),
+            ) {
+                ZodiacBackgroundProfile(
+                    modifier = Modifier.padding(top = 5.dp),
+                    profile =
+                        Profile(
+                            nickname = nickname,
+                            zodiacImgUrl = profileImg,
+                            backgroundColor = color,
+                        ),
+                    size = 36,
+                    paddingValue = 5,
                 )
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    modifier =
-                        Modifier
-                            .background(
-                                color = Brown01,
-                                shape =
-                                    RoundedCornerShape(
-                                        topStart = 0.dp,
-                                        topEnd = 15.dp,
-                                        bottomStart = 15.dp,
-                                        bottomEnd = 15.dp,
-                                    ),
-                            ).padding(horizontal = 13.dp, vertical = 10.dp),
-                    text = message,
-                    style = Typography.bodyLarge,
-                    color = White,
-                )
+                Spacer(modifier = Modifier.width(7.dp))
+                Column(modifier = Modifier.wrapContentSize()) {
+                    Text(
+                        text = nickname,
+                        style = Typography.headlineSmall.copy(fontSize = 13.sp),
+                        color = Gray01,
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Text(
+                        modifier =
+                            Modifier
+                                .background(
+                                    color = Brown01,
+                                    shape =
+                                        RoundedCornerShape(
+                                            topStart = 0.dp,
+                                            topEnd = 15.dp,
+                                            bottomStart = 15.dp,
+                                            bottomEnd = 15.dp,
+                                        ),
+                                ).padding(horizontal = 13.dp, vertical = 10.dp),
+                        text = message,
+                        style = Typography.bodyLarge,
+                        color = White,
+                    )
+                }
             }
             Spacer(modifier = Modifier.width(7.dp))
             Box(
@@ -90,12 +98,14 @@ fun OtherMessage(
                 contentAlignment = Alignment.BottomCenter,
             ) {
                 Column {
-                    Text(
-                        modifier = Modifier.padding(start = 2.dp),
-                        text = if (unReadMembers != "0") unReadMembers else "",
-                        style = Typography.titleSmall.copy(fontSize = 10.sp),
-                        color = Green02,
-                    )
+                    if (unReadMembers != "0") {
+                        Text(
+                            text = unReadMembers,
+                            style = Typography.titleSmall.copy(fontSize = 10.sp),
+                            color = Green02,
+                            modifier = Modifier.padding(bottom = 2.dp),
+                        )
+                    }
                     Text(
                         text = time,
                         style = Typography.bodySmall.copy(fontSize = 12.sp),
@@ -105,4 +115,17 @@ fun OtherMessage(
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun OtherMessagePreview() {
+    OtherMessage(
+        nickname = "dd",
+        profileImg = "",
+        color = "0xFFD9D9D9",
+        message = "asdfasdfdsfsfdlkjldkjdlkjdlkdjldkjldkjdlkjdlkjdlkjdddfdfdfdf",
+        time = "15:00",
+        unReadMembers = "3",
+    )
 }
