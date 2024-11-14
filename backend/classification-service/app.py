@@ -408,6 +408,7 @@ async def classify_images(request: AnalysisRequest):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
     """
+    start_time = time.time()
     try:
         async with aiohttp.ClientSession() as session:
             # 인물 이미지 처리
@@ -486,18 +487,23 @@ async def classify_images(request: AnalysisRequest):
             )
 
             logger.info(f"Classification API 응답: {response.model_dump_json(exclude_none=True)}")
+            execution_time = time.time() - start_time
+            logger.info(f"Classification API 처리 시간: {execution_time:.2f}초")
             return response
 
     except Exception as e:
+        execution_time = time.time() - start_time
         error_response = BaseResponse.create(
             status_code=500,
             message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
         )
         logger.error(f"Classification API 에러 응답: {error_response.model_dump_json(exclude_none=True)}")
+        logger.error(f"Classification API 처리 시간: {execution_time:.2f}초")        
         return error_response
 
 @app.post("/face-recognition/face-count", response_model=BaseResponse[CountResponse])
 async def count_faces(file: UploadFile = File(...)):
+    start_time = time.time()
     try:
         logger.info(f"얼굴 수 검출 요청 시작 - 파일명: {file.filename}")
         
@@ -538,11 +544,15 @@ async def count_faces(file: UploadFile = File(...)):
         )
         
         logger.info(f"Face Count API 응답: {response.model_dump_json(exclude_none=True)}")
+        execution_time = time.time() - start_time
+        logger.info(f"Face Count API 처리 시간: {execution_time:.2f}초")
         return response
         
     except Exception as e:
+        execution_time = time.time() - start_time
         error_msg = f"얼굴 수 검출 중 오류가 발생했습니다: {str(e)}"
         logger.error(error_msg)
+        logger.error(f"Face Count API 처리 시간: {execution_time:.2f}초")
         return BaseResponse.create(
             status_code=500,
             message=error_msg
