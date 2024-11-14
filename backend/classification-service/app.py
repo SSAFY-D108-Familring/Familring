@@ -388,7 +388,7 @@ async def classify_images(request: AnalysisRequest):
             }
 
             # 대상 이미지를 배치로 나누어 처리
-            BATCH_SIZE = 10
+            BATCH_SIZE = 5
             results = []
             
             for i in range(0, len(request.targetImages), BATCH_SIZE):
