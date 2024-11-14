@@ -2,8 +2,10 @@ package com.familring.calendarservice.service;
 
 import com.familring.calendarservice.domain.Schedule;
 import com.familring.calendarservice.domain.ScheduleUser;
+import com.familring.calendarservice.dto.client.NotificationRequest;
 import com.familring.calendarservice.dto.client.UserInfoResponse;
 import com.familring.calendarservice.dto.request.ScheduleUpdateRequest;
+import com.familring.calendarservice.dto.request.UserAttendance;
 import com.familring.calendarservice.dto.response.ScheduleDateResponse;
 import com.familring.calendarservice.dto.request.ScheduleRequest;
 import com.familring.calendarservice.dto.response.ScheduleResponse;
@@ -14,14 +16,20 @@ import com.familring.calendarservice.repository.ScheduleUserRepository;
 import com.familring.calendarservice.service.client.AlbumServiceFeignClient;
 import com.familring.calendarservice.service.client.FamilyServiceFeignClient;
 import com.familring.calendarservice.repository.ScheduleRepository;
+import com.familring.calendarservice.service.client.NotificationServiceFeignClient;
+import com.familring.calendarservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.familring.calendarservice.dto.client.NotificationType.MENTION_SCHEDULE;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,6 +40,8 @@ public class ScheduleService {
     private final AlbumServiceFeignClient albumServiceFeignClient;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleUserRepository scheduleUserRepository;
+    private final NotificationServiceFeignClient notificationServiceFeignClient;
+    private final UserServiceFeignClient userServiceFeignClient;
 
     public List<ScheduleDateResponse> getSchedulesByMonth(int year, int month, Long userId) {
         Long familyId = familyServiceFeignClient.getFamilyInfo(userId).getData().getFamilyId();
@@ -91,9 +101,32 @@ public class ScheduleService {
                     schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendanceStatus());
                 });
 
-        // @@ 알림 등록해주기 @@
-
         scheduleRepository.save(schedule);
+
+        // 알림 전송
+        if (schedule.getHasNotification()) {
+            List<Long> attendeeIds = schedule.getScheduleUsers().stream()
+                    .filter(ScheduleUser::getAttendanceStatus)
+                    .map(ScheduleUser::getAttendeeId)
+                    .filter(id -> !id.equals(userId)).toList();
+
+            UserInfoResponse userInfo = userServiceFeignClient.getUser(userId).getData();
+            String title = userInfo.getUserNickname() + "님이 새로운 일정을 등록했어요 \uD83D\uDCC5";
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy/MM/dd]");
+            String formattedDate = schedule.getStartTime().format(formatter);
+            String message = formattedDate + " " + schedule.getTitle();
+
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .notificationType(MENTION_SCHEDULE)
+                    .receiverUserIds(attendeeIds)
+                    .senderUserId(userId)
+                    .destinationId(schedule.getId().toString())
+                    .title(title)
+                    .message(message).build();
+
+            notificationServiceFeignClient.alarmByFcm(notificationRequest);
+        }
     }
 
     @Transactional
@@ -104,6 +137,27 @@ public class ScheduleService {
         if (!schedule.getFamilyId().equals(familyId)) {
             throw new InvalidScheduleRequestException();
         }
+
+        // 알림 전송
+        List<Long> attendeeIds = schedule.getScheduleUsers().stream().map(ScheduleUser::getAttendeeId)
+                .filter(id -> !id.equals(userId)).toList();
+
+        UserInfoResponse userInfo = userServiceFeignClient.getUser(userId).getData();
+        String title = userInfo.getUserNickname() + "님이 일정을 삭제했어요 \uD83D\uDCC5";
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy/MM/dd]");
+        String formattedDate = schedule.getStartTime().format(formatter);
+        String message = formattedDate + " " + schedule.getTitle();
+
+        NotificationRequest notificationRequest = NotificationRequest.builder()
+                .notificationType(MENTION_SCHEDULE)
+                .receiverUserIds(attendeeIds)
+                .senderUserId(userId)
+                .destinationId(schedule.getId().toString())
+                .title(title)
+                .message(message).build();
+
+        notificationServiceFeignClient.alarmByFcm(notificationRequest);
 
         scheduleRepository.delete(schedule);
     }
@@ -116,12 +170,6 @@ public class ScheduleService {
         if (!schedule.getFamilyId().equals(familyId)) {
             throw new InvalidScheduleRequestException();
         }
-
-        /* 알람 수정해주기
-        ON -> OFF 알람 삭제
-        OFF -> ON 알람 등록
-        ON -> ON 알람 시간 변경해야 하는지 체크
-         */
 
         schedule.updateSchedule(
                 request.getStartTime(),
@@ -144,5 +192,33 @@ public class ScheduleService {
                 schedule.addUser(userAttendance.getUserId(), userAttendance.getAttendanceStatus());
             }
         });
+
+        // 알림 전송
+        if (schedule.getHasNotification()) {
+            Stream<Long> updatedAttendeeIds = schedule.getScheduleUsers().stream().filter(ScheduleUser::getAttendanceStatus)
+                    .map(ScheduleUser::getAttendeeId);
+            Stream<Long> requestAttendeeIds = request.getAttendances().stream().filter(UserAttendance::getAttendanceStatus)
+                    .map(UserAttendance::getUserId);
+
+            List<Long> totalAttendeeIds = Stream.concat(updatedAttendeeIds, requestAttendeeIds).distinct()
+                    .filter(id -> !id.equals(userId)).toList();
+
+            UserInfoResponse userInfo = userServiceFeignClient.getUser(userId).getData();
+            String title = userInfo.getUserNickname() + "님이 일정을 수정했어요 \uD83D\uDCC5";
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("[yyyy/MM/dd]");
+            String formattedDate = schedule.getStartTime().format(formatter);
+            String message = formattedDate + " " + schedule.getTitle();
+
+            NotificationRequest notificationRequest = NotificationRequest.builder()
+                    .notificationType(MENTION_SCHEDULE)
+                    .receiverUserIds(totalAttendeeIds)
+                    .senderUserId(userId)
+                    .destinationId(schedule.getId().toString())
+                    .title(title)
+                    .message(message).build();
+
+            notificationServiceFeignClient.alarmByFcm(notificationRequest);
+        }
     }
 }
