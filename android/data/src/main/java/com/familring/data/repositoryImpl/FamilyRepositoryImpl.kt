@@ -71,6 +71,8 @@ class FamilyRepositoryImpl
         override suspend fun enterRoom(
             roomId: Long,
             userId: Long,
+            page: Int,
+            size: Int,
         ): Flow<ApiResponse<List<Chat>>> =
             flow {
                 val response =
@@ -79,6 +81,8 @@ class FamilyRepositoryImpl
                             api.enterRoom(
                                 roomId = roomId,
                                 userId = userId,
+                                page = page,
+                                size = size,
                             )
                         },
                         default = listOf(),

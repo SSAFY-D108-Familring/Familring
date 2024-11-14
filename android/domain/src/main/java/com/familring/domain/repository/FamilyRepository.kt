@@ -27,6 +27,8 @@ interface FamilyRepository {
     suspend fun enterRoom(
         roomId: Long,
         userId: Long,
+        page: Int,
+        size: Int,
     ): Flow<ApiResponse<List<Chat>>>
 
     suspend fun uploadVoice(
