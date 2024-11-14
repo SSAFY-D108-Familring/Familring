@@ -269,7 +269,7 @@ public class InterestService {
             }
 
             // 알림 메시지 생성
-            String message = "이번 관심사가 선정되었어요!";
+            String message = "선정된 관심사가 궁금하신가요? 관심사 공유에서 확인해보세요 !";
             log.info("[fcmToUser] message={}", message);
 
             // 알림 전송 객체 생성
@@ -278,7 +278,7 @@ public class InterestService {
                     .receiverUserIds(familyMemberIds)
                     .senderUserId(null)
                     .destinationId(null)
-                    .title("관심사 선정 알림")
+                    .title("관심사가 선정되었습니다 \uD83C\uDF81")
                     .message(message)
                     .build();
 
