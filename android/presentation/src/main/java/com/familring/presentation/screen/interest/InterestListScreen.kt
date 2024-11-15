@@ -31,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.LazyPagingItems
@@ -39,6 +41,7 @@ import com.familring.domain.model.interest.Mission
 import com.familring.domain.model.interest.SelectedInterest
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
+import com.familring.presentation.component.dialog.OneButtonTextDialog
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Green02
@@ -119,44 +122,58 @@ fun InterestListScreen(
         }
 
         if (showDialog) {
-            val pagerState = rememberPagerState(pageCount = { detailInterests.size })
-
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(color = Black.copy(alpha = 0.5f))
-                        .noRippleClickable {
-                            showDialog = false
-                        },
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    modifier = Modifier.wrapContentSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            if (detailInterests.isEmpty()) {
+                Dialog(
+                    onDismissRequest = { showDialog = false },
+                    properties =
+                        DialogProperties(usePlatformDefaultWidth = false),
                 ) {
-                    HorizontalPager(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(0.55f)
-                                .clickable(enabled = false) {},
-                        state = pagerState,
-                        pageSpacing = 15.dp,
-                        contentPadding = PaddingValues(horizontal = 35.dp),
-                    ) { page ->
-                        SharePagerItem(
-                            imgUrl = detailInterests[page].missionImgUrl,
-                            username = detailInterests[page].userNickname,
-                            zodiacImg = detailInterests[page].profileImgUrl,
+                    OneButtonTextDialog(
+                        text = "아무도 인증하지 않았어요",
+                        buttonText = "확인",
+                        onButtonClick = { showDialog = false },
+                    )
+                }
+            } else {
+                val pagerState = rememberPagerState(pageCount = { detailInterests.size })
+
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(color = Black.copy(alpha = 0.5f))
+                            .noRippleClickable {
+                                showDialog = false
+                            },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        modifier = Modifier.wrapContentSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        HorizontalPager(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(0.55f)
+                                    .clickable(enabled = false) {},
+                            state = pagerState,
+                            pageSpacing = 15.dp,
+                            contentPadding = PaddingValues(horizontal = 35.dp),
+                        ) { page ->
+                            SharePagerItem(
+                                imgUrl = detailInterests[page].missionImgUrl,
+                                username = detailInterests[page].userNickname,
+                                zodiacImg = detailInterests[page].profileImgUrl,
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(18.dp))
+                        Text(
+                            text = "빈 화면을 터치하면 닫혀요!",
+                            style = Typography.displaySmall.copy(fontSize = 18.sp),
+                            color = White,
                         )
                     }
-                    Spacer(modifier = Modifier.height(18.dp))
-                    Text(
-                        text = "빈 화면을 터치하면 닫혀요!",
-                        style = Typography.displaySmall.copy(fontSize = 18.sp),
-                        color = White,
-                    )
                 }
             }
         }

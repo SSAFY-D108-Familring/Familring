@@ -55,16 +55,16 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FamilringTheme {
-                if (LocalDateTime.now() > date) {
-                    BlockScreen()
-                } else {
+//                if (LocalDateTime.now() > date) {
+//                    BlockScreen()
+//                } else {
                     MainScreen(
                         modifier =
                             Modifier
                                 .statusBarsPadding()
                                 .navigationBarsPadding(),
                     )
-                }
+//                }
             }
         }
 
