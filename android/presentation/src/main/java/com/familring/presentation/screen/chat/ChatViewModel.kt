@@ -25,6 +25,7 @@ import com.familring.presentation.screen.gallery.TutorialUiState
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,6 +45,7 @@ import org.hildan.krossbow.stomp.conversions.moshi.withMoshi
 import org.hildan.krossbow.stomp.headers.StompSendHeaders
 import org.hildan.krossbow.stomp.headers.StompSubscribeHeaders
 import org.hildan.krossbow.websocket.okhttp.OkHttpWebSocketClient
+import timber.log.Timber
 import java.io.File
 import java.time.Duration
 import java.time.LocalDateTime
@@ -58,11 +60,17 @@ class ChatViewModel
         private val tokenDataStore: TokenDataStore,
         private val tutorialDataStore: TutorialDataStore,
     ) : ViewModel() {
+        override fun onCleared() {
+            super.onCleared()
+            disconnect()
+        }
+
         private val _tutorialUiState = MutableStateFlow(TutorialUiState())
         val tutorialUiState = _tutorialUiState.asStateFlow()
 
-        var userId: Long? = 0L
-        private var familyId: Long? = 0L
+        var userId: Long? = null
+        private var familyId: Long? = null
+        private var isConnect: Boolean = false
 
         private lateinit var stompSession: StompSession
         private val moshi: Moshi =
@@ -87,7 +95,6 @@ class ChatViewModel
 
         init {
             getReadTutorial()
-            loadUserData()
             connectStomp()
             getChatList()
         }
@@ -123,13 +130,6 @@ class ChatViewModel
             }
         }
 
-        private fun loadUserData() {
-            viewModelScope.launch {
-                userId = authDataStore.getUserId()
-                familyId = authDataStore.getFamilyId()
-            }
-        }
-
         private fun enterRoom(): Flow<PagingData<Chat>> =
             Pager(
                 config =
@@ -145,10 +145,16 @@ class ChatViewModel
         private fun connectStomp() {
             viewModelScope.launch {
                 try {
-                    val token = tokenDataStore.getAccessToken()
+                    val fetchedUserId = async { authDataStore.getUserId() }
+                    val fetchedFamilyId = async { authDataStore.getFamilyId() }
+                    val fetchedToken = async { tokenDataStore.getAccessToken() }
 
-                    if (token != null && familyId != null) {
-                        val okHttpclient =
+                    userId = fetchedUserId.await()
+                    familyId = fetchedFamilyId.await()
+                    val token = fetchedToken.await()
+
+                    if (userId != null && familyId != null && token != null) {
+                        val okHttpClient =
                             OkHttpClient
                                 .Builder()
                                 .addInterceptor(
@@ -160,7 +166,7 @@ class ChatViewModel
                                 .retryOnConnectionFailure(true)
                                 .build()
 
-                        val client = StompClient(OkHttpWebSocketClient(okHttpclient))
+                        val client = StompClient(OkHttpWebSocketClient(okHttpClient))
                         stompSession =
                             client
                                 .connect(
@@ -168,8 +174,12 @@ class ChatViewModel
                                     customStompConnectHeaders = mapOf(X_USER_ID to userId.toString()),
                                 ).withMoshi(moshi)
 
-                        subscribeMessages()
-                        subscribeReadStatus()
+                        // 연결이 완료되면 구독 설정
+                        if (::stompSession.isInitialized) {
+                            subscribeMessages()
+                            subscribeReadStatus()
+                            isConnect = true
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -184,7 +194,7 @@ class ChatViewModel
                 var retryCount = 0
                 val maxRetries = 3
 
-                while (retryCount < maxRetries) {
+                while (retryCount < maxRetries && !isConnect) {
                     try {
                         delay(2000) // 지수 백오프 적용
                         connectStomp()
@@ -231,12 +241,22 @@ class ChatViewModel
         }
 
         fun disconnect() {
-            try {
-                viewModelScope.launch {
-                    stompSession.disconnect()
+            viewModelScope.launch {
+                if (isConnect) {
+                    try {
+                        Timber.d("Disconnecting WebSocket...")
+                        stompSession.disconnect()
+                        isConnect = false
+                    } catch (e: Exception) {
+                        Timber.e(e, "Failed to disconnect WebSocket.")
+                        _event.emit(
+                            ChatUiEvent.Error(
+                                code = "failed",
+                                message = "서버 연결에 실패하였습니다. 다시 시도해 주세요!",
+                            ),
+                        )
+                    }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
 
