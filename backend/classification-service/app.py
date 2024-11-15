@@ -24,6 +24,7 @@ from pytz import timezone
 import time
 from prometheus_fastapi_instrumentator import Instrumentator
 import json
+import math
 
 # .env 파일 로드
 load_dotenv()
@@ -136,6 +137,38 @@ app = FastAPI(
     docs_url="/face-recognition/docs",          
     redoc_url=None
 )
+
+# 동시 처리 제한 및 대기 큐 설정
+MAX_CONCURRENT_REQUESTS = 30  # 동시 처리할 최대 요청 수
+MAX_QUEUE_SIZE = 50  # 최대 대기 큐 크기
+# Semaphore 대신 BoundedSemaphore 사용
+request_semaphore = asyncio.BoundedSemaphore(MAX_CONCURRENT_REQUESTS + MAX_QUEUE_SIZE)
+
+async def adaptive_processing(processing_func, *args, **kwargs):
+    start_time = time.time()
+    try:
+        async with request_semaphore:  # 동시 요청 제한
+            # 현재 활성 요청 수에 따라 처리 속도 조절
+            active_requests = MAX_CONCURRENT_REQUESTS - request_semaphore._value
+            delay = math.exp(active_requests / MAX_CONCURRENT_REQUESTS) - 1
+            if delay > 0:
+                await asyncio.sleep(delay)
+            
+            result = await processing_func(*args, **kwargs)
+            
+            processing_time = time.time() - start_time
+            logger.info(f"Request processed in {processing_time:.2f}s with {active_requests} active requests")
+            
+            return result
+    except ValueError:
+        # 대기 큐가 가득 찼을 때
+        raise HTTPException(
+            status_code=503,
+            detail="서버 대기열이 가득 찼습니다. 잠시 후 다시 시도해주세요."
+        )
+    except Exception as e:
+        logger.error(f"Processing error: {str(e)}")
+        raise
 
 # Prometheus 설정
 instrumentator = Instrumentator()
@@ -394,13 +427,13 @@ async def process_face_encodings(image):
         logger.info(f"검출된 얼굴 수: {len(face_locations)}")
         
         # 향상된 파라미터 적용
-        logger.info("얼굴 인코딩 시작 (향상된 파라미터 사용)")
+        logger.info("얼굴 인코딩 시작")
         face_encodings = await loop.run_in_executor(
             THREAD_POOL,
             lambda: face_recognition.face_encodings(
                 image, 
                 face_locations, 
-                num_jitters=5,  # 증가된 jitter 값
+                num_jitters=3,  # 증가된 jitter 값
             )
         )
     
@@ -420,6 +453,9 @@ async def classify_images(request: AnalysisRequest):
     """
     여러 이미지에서 검출된 얼굴들 중 각 인물별 최대 유사도를 분석합니다.
     """
+    return await adaptive_processing(_classify_images, request)
+
+async def _classify_images(request: AnalysisRequest):
     start_time = time.time()
     try:
         async with aiohttp.ClientSession() as session:
@@ -493,15 +529,25 @@ async def classify_images(request: AnalysisRequest):
                     ))
 
             response = BaseResponse.create(
-            status_code=200,
-            message="얼굴 유사도 분석이 완료되었습니다.",
-            data=results if results else []
-        )
+                status_code=200,
+                message="얼굴 유사도 분석이 완료되었습니다.",
+                data=results if results else []
+            )
 
-        logger.info(f"Classification API 응답:\n{response.to_json_log()}")
+            logger.info(f"Classification API 응답:\n{response.to_json_log()}")
+            execution_time = time.time() - start_time
+            logger.info(f"Classification API 처리 시간: {execution_time:.2f}초")
+            return response
+
+    except Exception as e:
         execution_time = time.time() - start_time
-        logger.info(f"Classification API 처리 시간: {execution_time:.2f}초")
-        return response
+        error_response = BaseResponse.create(
+            status_code=500,
+            message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
+        )
+        logger.error(f"Classification API 에러 응답:\n{error_response.to_json_log()}")
+        logger.error(f"Classification API 처리 시간: {execution_time:.2f}초")        
+        return error_response
 
     except Exception as e:
         execution_time = time.time() - start_time
@@ -515,6 +561,9 @@ async def classify_images(request: AnalysisRequest):
 
 @app.post("/face-recognition/face-count", response_model=BaseResponse[CountResponse])
 async def count_faces(file: UploadFile = File(...)):
+    return await adaptive_processing(_count_faces, file)
+
+async def _count_faces(file: UploadFile):
     start_time = time.time()
     try:
         logger.info(f"얼굴 수 검출 요청 시작 - 파일명: {file.filename}")
@@ -564,12 +613,12 @@ async def count_faces(file: UploadFile = File(...)):
         execution_time = time.time() - start_time
         error_response = BaseResponse.create(
             status_code=500,
-            message=error_msg
+            message=f"얼굴 수 검출 중 오류가 발생했습니다: {str(e)}"
         )
         logger.error(f"Face Count API 에러 응답:\n{error_response.to_json_log()}")
         logger.error(f"Face Count API 처리 시간: {execution_time:.2f}초")
         return error_response
-
+    
 if __name__ == "__main__":
     import uvicorn
     logger.info(f"Starting server on port {SERVER_PORT}")
