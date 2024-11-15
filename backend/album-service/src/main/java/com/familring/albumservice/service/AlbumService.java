@@ -22,7 +22,9 @@ import com.familring.albumservice.service.client.FileServiceFeignClient;
 import com.familring.albumservice.service.client.UserServiceFeignClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import static com.familring.albumservice.domain.AlbumType.*;
@@ -48,6 +51,9 @@ public class AlbumService {
     private final AlbumQueryRepository albumQueryRepository;
     private final PhotoRepository photoRepository;
     private final UserServiceFeignClient userServiceFeignClient;
+
+    @Qualifier("taskExecutor")
+    private final Executor executor;
 
     @Value("${aws.s3.album-photo-path}")
     private String albumPhotoPath;
@@ -179,8 +185,15 @@ public class AlbumService {
         // Photo Entity 변환
         List<Photo> newPhotos = photoUrls.stream().map(url -> Photo.builder().photoUrl(url).build()).toList();
 
-        /****************** 얼굴 사진 분류 시작 ******************/
+        /****************** 얼굴 사진 분류 ******************/
+        executor.execute(() -> faceClassification(userId, photoUrls, newPhotos));
 
+        // DB에 저장
+        album.addPhotos(newPhotos);
+    }
+
+    @Async
+    public void faceClassification(Long userId, List<String> photoUrls, List<Photo> newPhotos) {
         // 가족 얼굴 사진 가져오기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
@@ -214,11 +227,6 @@ public class AlbumService {
                 }
             });
         }
-
-        /****************** 얼굴 사진 분류 끝 ******************/
-
-        // DB에 저장
-        album.addPhotos(newPhotos);
     }
 
     @Transactional
