@@ -74,7 +74,7 @@ fun BirthScreen(
     var year by remember { mutableStateOf("") }
     var month by remember { mutableStateOf("") }
     var date by remember { mutableStateOf("") }
-    val isButtonEnabled = isDateFormValid(year, month, date)
+    val isButtonEnabled = isValid(year, month, date)
     var checked by remember { mutableStateOf(false) }
 
     val focusManager = LocalFocusManager.current
@@ -178,6 +178,19 @@ fun BirthScreen(
         }
     }
 }
+
+private fun isValid(
+    year: String,
+    month: String,
+    date: String,
+): Boolean =
+    isDateFormValid(year, month, date) &&
+        LocalDate.now() >=
+        LocalDate.of(
+            year.toInt(),
+            month.toInt(),
+            date.toInt(),
+        )
 
 @Composable
 @Preview
