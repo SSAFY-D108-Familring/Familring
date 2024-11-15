@@ -23,6 +23,7 @@ import datetime
 from pytz import timezone
 import time
 from prometheus_fastapi_instrumentator import Instrumentator
+import json
 
 # .env 파일 로드
 load_dotenv()
@@ -166,6 +167,14 @@ class BaseResponse(BaseModel, Generic[T]):
             statusCode=status_code,
             message=message,
             data=data
+        )
+    
+    def to_json_log(self):
+        """응답을 JSON 형식의 문자열로 변환"""
+        return json.dumps(
+            self.model_dump(exclude_none=True),
+            ensure_ascii=False,
+            indent=2
         )
 
 class Person(BaseModel):
@@ -350,7 +359,7 @@ async def load_image_from_bytes(file_content: bytes):
         return None
 
 async def process_face_encodings(image):
-    """비동기적으로 얼굴 인코딩 처리"""
+    """비동기적으로 얼굴 인코딩 처리 - 향상된 파라미터 적용"""
     if image is None:
         logger.error("입력 이미지가 None입니다")
         return []
@@ -372,7 +381,6 @@ async def process_face_encodings(image):
             new_height, new_width = image.shape[:2]
             logger.info(f"이미지 크기 조정: {new_width}x{new_height} (scale: {scale:.2f})")
 
-        # HOG로 얼굴 검출
         logger.info("얼굴 검출 시도")
         face_locations = await loop.run_in_executor(
             THREAD_POOL,
@@ -385,11 +393,16 @@ async def process_face_encodings(image):
             
         logger.info(f"검출된 얼굴 수: {len(face_locations)}")
         
-        # 얼굴 인코딩
-        logger.info("얼굴 인코딩 시작")
+        # 향상된 파라미터 적용
+        logger.info("얼굴 인코딩 시작 (향상된 파라미터 사용)")
         face_encodings = await loop.run_in_executor(
             THREAD_POOL,
-            lambda: face_recognition.face_encodings(image, face_locations, num_jitters=1)
+            lambda: face_recognition.face_encodings(
+                image, 
+                face_locations, 
+                num_jitters=5,  # 증가된 jitter 값
+                model="large"   # 더 정확한 모델 사용
+            )
         )
     
         if face_encodings:
@@ -481,15 +494,15 @@ async def classify_images(request: AnalysisRequest):
                     ))
 
             response = BaseResponse.create(
-                status_code=200,
-                message="얼굴 유사도 분석이 완료되었습니다.",
-                data=results if results else []
-            )
+            status_code=200,
+            message="얼굴 유사도 분석이 완료되었습니다.",
+            data=results if results else []
+        )
 
-            logger.info(f"Classification API 응답: {response.model_dump_json(exclude_none=True)}")
-            execution_time = time.time() - start_time
-            logger.info(f"Classification API 처리 시간: {execution_time:.2f}초")
-            return response
+        logger.info(f"Classification API 응답:\n{response.to_json_log()}")
+        execution_time = time.time() - start_time
+        logger.info(f"Classification API 처리 시간: {execution_time:.2f}초")
+        return response
 
     except Exception as e:
         execution_time = time.time() - start_time
@@ -497,7 +510,7 @@ async def classify_images(request: AnalysisRequest):
             status_code=500,
             message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
         )
-        logger.error(f"Classification API 에러 응답: {error_response.model_dump_json(exclude_none=True)}")
+        logger.error(f"Classification API 에러 응답:\n{error_response.to_json_log()}")
         logger.error(f"Classification API 처리 시간: {execution_time:.2f}초")        
         return error_response
 
@@ -543,20 +556,20 @@ async def count_faces(file: UploadFile = File(...)):
             data=CountResponse(faceCount=face_count)
         )
         
-        logger.info(f"Face Count API 응답: {response.model_dump_json(exclude_none=True)}")
+        logger.info(f"Face Count API 응답:\n{response.to_json_log()}")
         execution_time = time.time() - start_time
         logger.info(f"Face Count API 처리 시간: {execution_time:.2f}초")
         return response
         
     except Exception as e:
         execution_time = time.time() - start_time
-        error_msg = f"얼굴 수 검출 중 오류가 발생했습니다: {str(e)}"
-        logger.error(error_msg)
-        logger.error(f"Face Count API 처리 시간: {execution_time:.2f}초")
-        return BaseResponse.create(
+        error_response = BaseResponse.create(
             status_code=500,
             message=error_msg
         )
+        logger.error(f"Face Count API 에러 응답:\n{error_response.to_json_log()}")
+        logger.error(f"Face Count API 처리 시간: {execution_time:.2f}초")
+        return error_response
 
 if __name__ == "__main__":
     import uvicorn
