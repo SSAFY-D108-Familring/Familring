@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
@@ -34,15 +35,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +61,7 @@ import com.familring.presentation.R
 import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
+import com.familring.presentation.screen.mypage.roleToWord
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
@@ -526,46 +530,51 @@ fun HomeScreen(
                     )
                 }
                 Spacer(modifier = Modifier.height(15.dp))
-                Row(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    if (mother != null) {
-                        FamilyCard(mother, onCardClick = {
-                            if (mother.userId != currentUserId) {
-                                selectedUser = mother
-                                showLoveMention = true
-                            } else {
-                                showEditEmotion = true
-                            }
-                        })
-                    } else {
-                        EmptyCard()
-                    }
-                    Spacer(modifier = Modifier.width(16.dp))
-                    Image(
-                        painter = painterResource(id = R.drawable.img_heart),
-                        contentDescription = "heart_img",
-                    )
-                    Spacer(modifier = Modifier.width(15.dp))
-                    if (father != null) {
-                        FamilyCard(
-                            father,
-                            onCardClick = {
-                                if (father.userId != currentUserId) {
-                                    selectedUser = father
-                                    showLoveMention = true
-                                } else {
-                                    showEditEmotion = true
-                                }
-                            },
+                    Row(
+                        modifier = Modifier.wrapContentSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        if (mother != null) {
+                            FamilyCard(
+                                user = mother,
+                                onCardClick = {
+                                    if (mother.userId != currentUserId) {
+                                        selectedUser = mother
+                                        showLoveMention = true
+                                    } else {
+                                        showEditEmotion = true
+                                    }
+                                },
+                            )
+                        } else {
+                            EmptyCard()
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.img_heart),
+                            contentDescription = "heart_img",
                         )
-                    } else {
-                        EmptyCard()
+                        Spacer(modifier = Modifier.width(15.dp))
+                        if (father != null) {
+                            FamilyCard(
+                                user = father,
+                                onCardClick = {
+                                    if (father.userId != currentUserId) {
+                                        selectedUser = father
+                                        showLoveMention = true
+                                    } else {
+                                        showEditEmotion = true
+                                    }
+                                },
+                            )
+                        } else {
+                            EmptyCard()
+                        }
                     }
                 }
             }
@@ -583,14 +592,17 @@ fun HomeScreen(
                     contentPadding = PaddingValues(horizontal = 16.dp),
                 ) {
                     items(children.size) { index ->
-                        FamilyCard(children[index], onCardClick = {
-                            if (children[index].userId != currentUserId) {
-                                selectedUser = children[index]
-                                showLoveMention = true
-                            } else {
-                                showEditEmotion = true
-                            }
-                        })
+                        FamilyCard(
+                            user = children[index],
+                            onCardClick = {
+                                if (children[index].userId != currentUserId) {
+                                    selectedUser = children[index]
+                                    showLoveMention = true
+                                } else {
+                                    showEditEmotion = true
+                                }
+                            },
+                        )
                     }
                 }
             }
@@ -632,122 +644,105 @@ fun FamilyCard(
     user: User,
     onCardClick: (Long) -> Unit = {},
 ) {
+    var contentHeight by remember { mutableIntStateOf(0) } // 콘텐츠 높이 저장
     ElevatedCard(
-        shape = RoundedCornerShape(18.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier =
             Modifier
-                .size(120.dp)
-                .aspectRatio(1f)
+                .width(with(LocalDensity.current) { contentHeight.toDp() })
                 .noRippleClickable {
                     onCardClick(user.userId)
                 },
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Green06),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .aspectRatio(1f)
-                    .background(color = Green06)
-                    .padding(horizontal = 22.dp)
-                    .padding(vertical = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (user.userRole == "M") {
-                    Text(
-                        text = "엄마",
-                        style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
-                    )
-                } else if (user.userRole == "F") {
-                    Text(
-                        text = "아빠",
-                        style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
-                    )
-                } else if (user.userRole == "D") {
-                    Text(
-                        text = "딸",
-                        style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
-                    )
-                } else {
-                    Text(
-                        text = "아들",
-                        style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
-                    )
-                }
-                Spacer(modifier = Modifier.width(2.dp))
-                Text(
-                    text = user.userNickname,
-                    style = Typography.titleLarge.copy(fontSize = 15.sp, color = Black),
-                )
-            }
-
-            Spacer(modifier = Modifier.fillMaxSize(0.01f))
-            AsyncImage(
-                model = user.userZodiacSign,
+            Column(
                 modifier =
                     Modifier
-                        .size(51.dp)
-                        .aspectRatio(1f),
-                contentDescription = "user zodiac img",
-            )
-
-            Spacer(
-                modifier = Modifier.height(13.dp),
-            )
-            Text(
-                user.userEmotion.ifEmpty {
-                    "평범해요 🙂"
-                },
-                style = Typography.displaySmall.copy(fontSize = 14.sp, color = Black),
-            )
+                        .onSizeChanged { size -> contentHeight = size.height } // 콘텐츠 높이 추적
+                        .padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = roleToWord(user.userRole),
+                        style = Typography.displaySmall.copy(fontSize = 12.sp, color = Gray02),
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Text(
+                        text = user.userNickname,
+                        style = Typography.titleLarge.copy(fontSize = 15.sp, color = Black),
+                    )
+                }
+                Spacer(modifier = Modifier.height(5.dp))
+                AsyncImage(
+                    model = user.userZodiacSign,
+                    modifier =
+                        Modifier
+                            .size(50.dp)
+                            .aspectRatio(1f),
+                    contentDescription = "user zodiac img",
+                )
+                Spacer(modifier = Modifier.height(13.dp))
+                Text(
+                    user.userEmotion.ifEmpty {
+                        "평범해요 🙂"
+                    },
+                    style = Typography.displaySmall.copy(fontSize = 14.sp, color = Black),
+                )
+            }
         }
     }
 }
 
 @Composable
 fun EmptyCard() {
+    var contentHeight by remember { mutableIntStateOf(0) } // 콘텐츠 높이 저장
     Box {
         ElevatedCard(
-            shape = RoundedCornerShape(18.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
             modifier =
                 Modifier
-                    .width(124.dp)
-                    .aspectRatio(1f),
+                    .width(with(LocalDensity.current) { contentHeight.toDp() }),
+            shape = RoundedCornerShape(18.dp),
+            colors = CardDefaults.cardColors(containerColor = Green06),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         ) {
-            Column(
-                Modifier
-                    .aspectRatio(1f)
-                    .background(color = Green06)
-                    .padding(horizontal = 22.dp)
-                    .padding(vertical = 12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = "우리가좍",
-                    style = Typography.titleLarge.copy(fontSize = 15.sp),
-                    modifier = Modifier.alpha(0.3f),
-                )
-                Spacer(modifier = Modifier.fillMaxSize(0.01f))
-                Image(
-                    painter = painterResource(id = R.drawable.img_rabbit),
-                    contentDescription = "chicken_img",
+                Column(
                     modifier =
                         Modifier
-                            .size(51.dp)
-                            .aspectRatio(1f)
-                            .alpha(0.3f),
-                )
-                Spacer(
-                    modifier = Modifier.height(15.dp),
-                )
-                Text(
-                    text = "평범해요 \uD83D\uDE42",
-                    style = Typography.displaySmall.copy(fontSize = 14.sp),
-                    modifier = Modifier.alpha(0.3f),
-                )
+                            .onSizeChanged { size -> contentHeight = size.height } // 콘텐츠 높이 추적
+                            .padding(12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = "우리가좍",
+                        style = Typography.titleLarge.copy(fontSize = 15.sp, color = Black),
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    AsyncImage(
+                        model = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/zodiac-sign/토끼.png",
+                        modifier =
+                            Modifier
+                                .size(50.dp)
+                                .aspectRatio(1f),
+                        contentDescription = "user zodiac img",
+                    )
+                    Spacer(modifier = Modifier.height(13.dp))
+                    Text(
+                        text = "평범해요 🙂",
+                        style = Typography.displaySmall.copy(fontSize = 14.sp, color = Black),
+                    )
+                }
             }
         }
         Box(
@@ -767,13 +762,15 @@ fun EmptyCard() {
 @Preview
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(
-        familyMembers = emptyList(),
-        navigateToNotification = {},
-        navigateToTimeCapsule = {},
-        navigateToInterest = {},
-        showSnackBar = {},
-        homeEvent = HomeEvent.None,
-        viewModel = hiltViewModel(),
-    )
+//    HomeScreen(
+//        familyMembers = emptyList(),
+//        navigateToNotification = {},
+//        navigateToTimeCapsule = {},
+//        navigateToInterest = {},
+//        showSnackBar = {},
+//        homeEvent = HomeEvent.None,
+//        viewModel = hiltViewModel(),
+//    )
+
+    FamilyCard(user = User())
 }
