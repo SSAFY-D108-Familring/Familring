@@ -24,7 +24,6 @@ import java.util.stream.Collectors;
 @Log4j2
 public class ChatRoomServiceImpl implements ChatRoomService {
 
-    private final RedisUtil redisUtil;
     private final ChatRepository chatRepository;
     private final VoteRepository voteRepository;
     private final UserServiceFeignClient userServiceFeignClient;

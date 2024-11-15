@@ -12,8 +12,14 @@ public class NotificationEventListener {
 
     @EventListener
     public void handleNotificationEvent(NotificationEvent event) {
-        String destination = "/room/" + event.getRoomId() + "/readStatus";
-        template.convertAndSend(destination, event.getMessage());
-        System.out.println("[NotificationEventListener] roomId=" + event.getRoomId() + "에 알림 전송: " + event.getMessage());
+        if(event.getType().equals("read")) {
+            String destination = "/room/" + event.getRoomId() + "/readStatus";
+            template.convertAndSend(destination, event.getMessage());
+            System.out.println("[NotificationEventListener] roomId=" + event.getRoomId() + "에 알림 전송: " + event.getMessage());
+        } else if(event.getType().equals("error")) {
+            String destination = "/room/" + event.getRoomId() + "/error";
+            template.convertAndSend(destination, event.getMessage());
+            System.out.println("[NotificationEventListener] roomId=" + event.getRoomId() + "에 알림 전송: " + event.getMessage());
+        }
     }
 }

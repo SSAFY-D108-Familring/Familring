@@ -16,18 +16,8 @@ public class FcmMessage {
     @AllArgsConstructor
     @Getter
     public static class Message {
-        private Notification notification;
         private String token;
         private FcmDto data; //FcmDto
-    }
-
-    @Builder
-    @AllArgsConstructor
-    @Getter
-    public static class Notification {
-        private String title; //FcmDTO것과동일
-        private String body;  //FcmDTO것과동일
-        private String image;
     }
 
     @Builder
@@ -36,5 +26,6 @@ public class FcmMessage {
     public static class FcmDto { //FcmDto
         private String title;
         private String body;
+        private String type;
     }
 }

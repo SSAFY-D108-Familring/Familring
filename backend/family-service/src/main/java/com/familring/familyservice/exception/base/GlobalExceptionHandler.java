@@ -11,11 +11,13 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
+@Component
 @RestControllerAdvice
 @RequiredArgsConstructor
 @Log4j2
