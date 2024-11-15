@@ -1,5 +1,6 @@
 package com.familring.familyservice.config.websocket;
 
+import com.familring.familyservice.exception.base.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -13,12 +14,14 @@ import org.springframework.web.socket.config.annotation.*;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final StompHandler stompHandler;
+    private final GlobalExceptionHandler globalExceptionHandler;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-stomp")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
+        registry.setErrorHandler(globalExceptionHandler);
     }
 
     @Override
