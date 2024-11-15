@@ -43,6 +43,7 @@ import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun LoginRoute(
@@ -99,7 +100,6 @@ fun LoginScreen(
 
             is LoginEvent.Error -> {
                 isLoading = false
-                showSnackBar("잠시후 다시 시도해주세요")
             }
         }
     }
@@ -109,18 +109,16 @@ fun LoginScreen(
             is LoginState.Init -> {
                 isLoading = false
             }
-
             is LoginState.Success -> navigateToHome()
             is LoginState.NoRegistered -> {
+                Timber.d("회원가입 화면으로 이동")
                 navigateToFirst()
                 resetState()
             }
-
             is LoginState.Error -> {
                 showSnackBar(loginState.errorMessage)
                 isLoading = false
             }
-
             is LoginState.Loading -> isLoading = true
         }
     }
