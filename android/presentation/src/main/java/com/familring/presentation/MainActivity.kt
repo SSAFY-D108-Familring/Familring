@@ -78,25 +78,28 @@ class MainActivity : ComponentActivity() {
 
     private fun handleDeepLink(intent: Intent) {
         intent.data?.let { uri ->
-            when (uri.host) {
-                "notification" -> {
-                    val type = uri.getQueryParameter("type")
-                    startDestination = when (type) {
-                        "KNOCK", "RANDOM" -> "question"
-                        "MENTION_SCHEDULE" -> "schedule"
-                        "MENTION_CHAT" -> "chat"
-                        "TIMECAPSULE" -> "timecapsule"
-                        "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
-                        else -> null
+            if (uri.scheme == "familring") {
+                when (uri.host) {
+                    "notification" -> {
+                        val type = uri.getQueryParameter("type")
+                        startDestination = when (type) {
+                            "KNOCK", "RANDOM" -> "question"
+                            "MENTION_SCHEDULE" -> "schedule"
+                            "TIMECAPSULE" -> "timecapsule"
+                            "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
+                            else -> null
+                        }
+                        Timber.d("딥링크로 이동할 화면: $startDestination")
                     }
-                }
-                else -> {
-                    val action = uri.getQueryParameter("action")
-                    val code = uri.getQueryParameter("code")
-                    if (action == "copy_code" && code != null) {
-                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("family_code", code)
-                        clipboard.setPrimaryClip(clip)
+                    else -> {
+                        // 기존의 copy_code 처리
+                        val action = uri.getQueryParameter("action")
+                        val code = uri.getQueryParameter("code")
+                        if (action == "copy_code" && code != null) {
+                            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("family_code", code)
+                            clipboard.setPrimaryClip(clip)
+                        }
                     }
                 }
             }
