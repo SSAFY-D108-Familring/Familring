@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
 
 import java.io.PrintWriter;
@@ -15,7 +14,6 @@ import java.io.StringWriter;
 
 @Log4j2
 @RequiredArgsConstructor
-@Component
 public class StompErrorHandler extends StompSubProtocolErrorHandler {
 
     private final ObjectMapper objectMapper;
