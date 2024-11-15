@@ -406,8 +406,7 @@ fun FamilyListItem(
                                     questionId,
                                     questionAnswer.userId,
                                 )
-                                Timber.d("똑똑 누름 " + questionAnswer.userId)
-                                showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
+                                showSnackBar("${questionAnswer.userNickname} 님을 똑똑 두드렸어요! ✊🏻")
                             },
                     )
                 }
