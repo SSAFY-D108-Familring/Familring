@@ -121,7 +121,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 2. 수신자들에게 알림 전송
         List<UserInfoResponse> usersList = userServiceFeignClient.getAllUser(notificationRequest.getReceiverUserIds()).getData();
-        FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO(notificationRequest.getTitle(), notificationRequest.getMessage());
+        FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO(notificationRequest.getTitle(), notificationRequest.getMessage(), notificationRequest.getNotificationType().toString() );
         fcmUtil.multiFcmSend(usersList, fcmDto);
         log.info("[alarmByFcm] 알림 전송 완료");
     }
