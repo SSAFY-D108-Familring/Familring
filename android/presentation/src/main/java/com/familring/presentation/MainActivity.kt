@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         handleDeepLink(intent)
 
         // apk 막기 용도
-        val date = LocalDateTime.of(2024, 11, 30, 12, 0)
+        val date = LocalDateTime.of(2024, 11, 18, 0, 0)
 
         setContent {
             FamilringTheme {
@@ -71,6 +71,7 @@ class MainActivity : ComponentActivity() {
         Timber.tag("keyhash :").d(Utility.getKeyHash(this))
     }
 
+    // 앱 이미 실행 중일 때 새로운 인텐트로 들어올 경우 처리
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleDeepLink(intent)

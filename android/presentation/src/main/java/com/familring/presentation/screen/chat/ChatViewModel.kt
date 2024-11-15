@@ -178,6 +178,7 @@ class ChatViewModel
                         if (::stompSession.isInitialized) {
                             subscribeMessages()
                             subscribeReadStatus()
+                            subscribeError()
                             isConnect = true
                         }
                     }
@@ -235,12 +236,25 @@ class ChatViewModel
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL"))
                     .collect {
+                        Timber.d("읽음 처리")
                         getChatList()
                     }
             }
         }
 
-        fun disconnect() {
+        // 투표 참여 여부 구독
+        private fun subscribeError() {
+            viewModelScope.launch {
+                Timber.d("참여 처리 : $SUBSCRIBE_URL$familyId$ERROR_URL")
+                stompSession
+                    .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$ERROR_URL"))
+                    .collect { response ->
+                        _event.emit(ChatUiEvent.VoteError(response.bodyAsText))
+                    }
+            }
+        }
+
+        private fun disconnect() {
             viewModelScope.launch {
                 if (isConnect) {
                     try {
@@ -390,5 +404,6 @@ class ChatViewModel
             const val READ_STATUS_URL = "/readStatus"
             const val SEND_URL = "/send/chat.send"
             const val VOTE_URL = "/send/chat.vote"
+            const val ERROR_URL = "/error"
         }
     }

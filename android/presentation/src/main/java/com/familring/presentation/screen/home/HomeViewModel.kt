@@ -81,12 +81,14 @@ class HomeViewModel
                     val state = _homeState.value
                     if (state is HomeState.Loading) {
                         _homeState.value = updateState
+                        _homeEvent.emit(HomeEvent.None)
                     } else if (state is HomeState.Success) {
                         _homeState.value =
                             state.copy(
                                 familyMembers = updateState.familyMembers,
                                 familyInfo = updateState.familyInfo,
                             )
+                        _homeEvent.emit(HomeEvent.None)
                     }
                 }
             }

@@ -21,9 +21,7 @@ fun NavGraphBuilder.SignUpNavGraph(
             FirstRoute(
                 modifier = modifier,
                 navigateToBirth = {
-                    navController.navigate(ScreenDestinations.Birth.route) {
-                        popUpTo(ScreenDestinations.First.route)
-                    }
+                    navController.navigate(ScreenDestinations.Birth.route)
                 },
                 showSnackBar = showSnackBar,
             )
@@ -41,9 +39,7 @@ fun NavGraphBuilder.SignUpNavGraph(
                 modifier = modifier,
                 popUpBackStack = navController::popBackStack,
                 navigateToColor = {
-                    navController.navigate(ScreenDestinations.ProfileColor.route) {
-                        popUpTo(ScreenDestinations.First.route)
-                    }
+                    navController.navigate(ScreenDestinations.ProfileColor.route)
                 },
                 viewModel = viewModel,
             )
@@ -62,9 +58,7 @@ fun NavGraphBuilder.SignUpNavGraph(
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
                 navigateToNickname = {
-                    navController.navigate(ScreenDestinations.Nickname.route) {
-                        popUpTo(ScreenDestinations.First.route)
-                    }
+                    navController.navigate(ScreenDestinations.Nickname.route)
                 },
             )
         }
@@ -82,9 +76,7 @@ fun NavGraphBuilder.SignUpNavGraph(
                 viewModel = viewModel,
                 popUpBackStack = navController::popBackStack,
                 navigateToPicture = {
-                    navController.navigate(ScreenDestinations.Picture.route) {
-                        popUpTo(ScreenDestinations.First.route)
-                    }
+                    navController.navigate(ScreenDestinations.Picture.route)
                 },
             )
         }
@@ -103,9 +95,7 @@ fun NavGraphBuilder.SignUpNavGraph(
                 popUpBackStack = navController::popBackStack,
                 showSnackBar = showSnackBar,
                 navigateToCount = {
-                    navController.navigate(ScreenDestinations.FamilyInfo.route) {
-                        popUpTo(ScreenDestinations.First.route)
-                    }
+                    navController.navigate(ScreenDestinations.FamilyInfo.route)
                 },
             )
         }
