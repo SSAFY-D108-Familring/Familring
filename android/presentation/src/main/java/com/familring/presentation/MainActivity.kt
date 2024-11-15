@@ -17,7 +17,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.Modifier
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.WindowCompat
 import com.familring.presentation.theme.FamilringTheme
 import com.kakao.sdk.common.util.Utility
@@ -76,13 +79,27 @@ class MainActivity : ComponentActivity() {
 
     private fun handleDeepLink(intent: Intent) {
         intent.data?.let { uri ->
-            val action = uri.getQueryParameter("action")
-            val code = uri.getQueryParameter("code")
-
-            if (action == "copy_code" && code != null) {
-                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("family_code", code)
-                clipboard.setPrimaryClip(clip)
+            when (uri.host) {
+                "notification" -> {
+                    val type = uri.getQueryParameter("type")
+                    startDestination = when (type) {
+                        "KNOCK", "RANDOM" -> "question"
+                        "MENTION_SCHEDULE" -> "schedule"
+                        "MENTION_CHAT" -> "chat"
+                        "TIMECAPSULE" -> "timecapsule"
+                        "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
+                        else -> null
+                    }
+                }
+                else -> {
+                    val action = uri.getQueryParameter("action")
+                    val code = uri.getQueryParameter("code")
+                    if (action == "copy_code" && code != null) {
+                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("family_code", code)
+                        clipboard.setPrimaryClip(clip)
+                    }
+                }
             }
         }
     }
@@ -129,5 +146,9 @@ class MainActivity : ComponentActivity() {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
             }
         startActivity(intent)
+    }
+
+    companion object {
+        var startDestination: String? = null
     }
 }

@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
@@ -36,42 +37,21 @@ class LoginViewModel
         private val authDataStore: AuthDataStore,
         private val firebaseMessaging: FirebaseMessaging,
     ) : ViewModel() {
-        private val _loginState = MutableStateFlow<LoginState>(LoginState.Loading)
+        private val _loginState = MutableStateFlow<LoginState>(LoginState.Init)
         val loginState = _loginState.asStateFlow()
 
         private val _loginEvent = MutableSharedFlow<LoginEvent>()
         val loginEvent = _loginEvent.asSharedFlow()
 
         init {
-            autoLogin()
-            updateFCMToken()
+            checkLoginState()
         }
 
-        private fun autoLogin() {
+        private fun checkLoginState() {
             viewModelScope.launch {
                 val kakaoId = authDataStore.getKakaoId()
                 if (kakaoId != null) {
-                    try {
-                        _loginEvent.emit(LoginEvent.Loading)
-                        userRepository
-                            .login(UserLoginRequest(userKakaoId = kakaoId))
-                            .collectLatest { response ->
-                                when (response) {
-                                    is ApiResponse.Success -> {
-                                        Timber.d("서버 로그인 성공: " + response.data)
-                                        _loginEvent.emit(LoginEvent.LoginSuccess)
-                                    }
-
-                                    is ApiResponse.Error -> {
-                                        Timber.e("서버 로그인 실패: " + response.message)
-                                        _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${response.message}"))
-                                    }
-                                }
-                            }
-                    } catch (e: Exception) {
-                        Timber.e(e, "서버 통신 중 오류 발생")
-                        _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${e.message}"))
-                    }
+                    tryAutoLogin(kakaoId)
                 } else {
                     _loginEvent.emit(LoginEvent.None)
                     _loginState.value = LoginState.Init
@@ -79,33 +59,59 @@ class LoginViewModel
             }
         }
 
-        fun updateFCMToken() {
-            viewModelScope.launch(Dispatchers.IO) {
-                val kakaoId = authDataStore.getKakaoId()
-                if (kakaoId != null) {
-                    try {
-                        val fcmToken = Tasks.await(firebaseMessaging.token)
-                        val savedToken = authDataStore.getFCMToken()
-                        if (savedToken != fcmToken) {
-                            userRepository.updateFCMToken(fcmToken).collectLatest { response ->
-                                when (response) {
-                                    is ApiResponse.Success -> {
-                                        Timber.d("FCM 토큰 업데이트 성공")
-                                        authDataStore.saveFCMToken(fcmToken)
-                                    }
+        private suspend fun tryAutoLogin(kakaoId: String) {
+            try {
+                _loginEvent.emit(LoginEvent.Loading)
+                userRepository
+                    .login(UserLoginRequest(userKakaoId = kakaoId))
+                    .collectLatest { response ->
+                        when (response) {
+                            is ApiResponse.Success -> {
+                                Timber.d("서버 로그인 성공: " + response.data)
+                                updateFCMToken()
+                                _loginEvent.emit(LoginEvent.LoginSuccess)
+                            }
 
-                                    is ApiResponse.Error -> {
-                                        Timber.e("FCM 토큰 업데이트 실패: " + response.message)
-                                    }
+                            is ApiResponse.Error -> {
+                                Timber.e("서버 로그인 실패: " + response.message)
+                                _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${response.message}"))
+                                _loginState.value = LoginState.Init
+                            }
+                        }
+                    }
+            } catch (e: Exception) {
+                Timber.e(e, "서버 통신 중 오류 발생")
+                _loginEvent.emit(LoginEvent.Error(errorMessage = "로그인 실패 ${e.message}"))
+                _loginState.value = LoginState.Init
+            }
+        }
+
+        suspend fun updateFCMToken(): String? =
+            withContext(Dispatchers.IO) {
+                try {
+                    val fcmToken = Tasks.await(firebaseMessaging.token)
+                    val savedToken = authDataStore.getFCMToken()
+
+                    if (savedToken != fcmToken) {
+                        userRepository.updateFCMToken(fcmToken).collectLatest { response ->
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    Timber.d("FCM 토큰 업데이트 성공")
+                                    authDataStore.saveFCMToken(fcmToken)
+                                }
+
+                                is ApiResponse.Error -> {
+                                    Timber.e("FCM 토큰 업데이트 실패: " + response.message)
                                 }
                             }
                         }
-                    } catch (e: Exception) {
-                        Timber.e(e, "FCM 토큰 업데이트 실패")
                     }
+                    fcmToken
+                } catch (e: Exception) {
+                    Timber.e(e, "FCM 토큰 업데이트 실패")
+                    null
                 }
             }
-        }
 
         fun handleKakaoLogin(activity: Activity) {
             viewModelScope.launch {
@@ -137,9 +143,12 @@ class LoginViewModel
                         UserApiClient.instance.loginWithKakaoTalk(activity) { token, error ->
                             when {
                                 error != null -> {
-                                    // 카카오톡 로그인 실패 시 카카오 계정으로 로그인 시도
                                     if (error is ClientError && error.reason == ClientErrorCause.Cancelled) {
                                         Timber.tag(TAG).d("카카오톡 로그인 취소")
+                                        viewModelScope.launch {
+                                            _loginState.value = LoginState.Init
+                                            _loginEvent.emit(LoginEvent.None)
+                                        }
                                         continuation.resume(null) {}
                                     } else {
                                         Timber.tag(TAG).e(error, "카카오톡 로그인 실패, 카카오 계정으로 시도")
@@ -156,7 +165,6 @@ class LoginViewModel
                                 token != null ->
                                     continuation.resume(token) {
                                         Timber.tag(TAG).d("카카오톡 로그인 성공")
-                                        updateFCMToken()
                                     }
                             }
                         }
@@ -166,7 +174,8 @@ class LoginViewModel
                 }
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "카카오톡 로그인 실패")
-                // 카카오톡 로그인 실패 시 카카오 계정으로 로그인 시도
+                _loginState.value = LoginState.Init
+                _loginEvent.emit(LoginEvent.None)
                 loginWithKakaoAccount(activity)
             }
         }
@@ -186,7 +195,6 @@ class LoginViewModel
                                 token != null ->
                                     continuation.resume(token) {
                                         Timber.tag(TAG).d("카카오 계정 로그인 성공")
-                                        updateFCMToken()
                                     }
                             }
                         }
@@ -227,26 +235,51 @@ class LoginViewModel
                                     .login(
                                         UserLoginRequest(userKakaoId = user.id.toString()),
                                     ).collectLatest { response ->
-                                        Timber.tag(TAG).d("서버 응답: " + response)
                                         when (response) {
                                             is ApiResponse.Success -> {
                                                 Timber.tag(TAG).d("서버 로그인 성공: " + response.data)
-                                                updateFCMToken()
-                                                _loginState.value =
-                                                    LoginState.Success(token, user.id)
+                                                // FCM 토큰 즉시 업데이트
+                                                val fcmToken = updateFCMToken()
+                                                if (fcmToken != null) {
+                                                    Timber.d("신규 로그인 FCM 토큰 업데이트 완료: $fcmToken")
+                                                }
+                                                _loginState.value = LoginState.Success(token, user.id)
                                                 _loginEvent.emit(LoginEvent.LoginSuccess)
                                             }
 
                                             is ApiResponse.Error -> {
-                                                Timber.tag(TAG).e("서버 로그인 실패: " + response.message)
-                                                _loginState.value =
-                                                    LoginState.NoRegistered("로그인 실패: ${response.message}")
-                                                _loginEvent.emit(
-                                                    LoginEvent.Error(
-                                                        errorCode = response.code,
-                                                        errorMessage = "로그인 실패 ${response.message}",
-                                                    ),
-                                                )
+                                                when {
+                                                    response.code == "USER_NOT_FOUND" || response.code == "404 NOT_FOUND" -> {
+                                                        // 회원가입 화면으로 이동하기 전에 FCM 토큰 미리 준비
+                                                        val fcmToken = updateFCMToken()
+                                                        if (fcmToken != null) {
+                                                            authDataStore.saveFCMToken(fcmToken)
+                                                            Timber.d("회원가입 전 FCM 토큰 저장 완료: $fcmToken")
+                                                        }
+                                                        _loginState.value =
+                                                            LoginState.NoRegistered("회원가입이 필요합니다")
+                                                        _loginEvent.emit(
+                                                            LoginEvent.Error(
+                                                                errorCode = response.code,
+                                                                errorMessage = "회원가입이 필요합니다",
+                                                            ),
+                                                        )
+                                                    }
+
+                                                    else -> {
+                                                        Timber
+                                                            .tag(TAG)
+                                                            .e("서버 로그인 실패: " + response.message)
+                                                        _loginState.value =
+                                                            LoginState.Error("로그인 실패: ${response.message}")
+                                                        _loginEvent.emit(
+                                                            LoginEvent.Error(
+                                                                errorCode = response.code,
+                                                                errorMessage = "로그인 실패 ${response.message}",
+                                                            ),
+                                                        )
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -268,6 +301,9 @@ class LoginViewModel
         }
 
         fun resetState() {
-            _loginState.value = LoginState.Loading
+            viewModelScope.launch {
+                _loginState.value = LoginState.Init
+                _loginEvent.emit(LoginEvent.None)
+            }
         }
     }

@@ -267,11 +267,11 @@ fun HomeScreen(
                             painter =
                                 painterResource(
                                     id =
-                                        if (progress > 75) {
+                                        if (progress > 75f) {
                                             R.drawable.img_tree_status_four
-                                        } else if (progress > 50) {
+                                        } else if (progress > 50f) {
                                             R.drawable.img_tree_status_three
-                                        } else if (progress > 25) {
+                                        } else if (progress > 25f) {
                                             R.drawable.img_tree_status_two
                                         } else {
                                             R.drawable.img_tree_status_one
@@ -291,7 +291,7 @@ fun HomeScreen(
                                 text =
                                     if (progress > 75f) {
                                         "초록초록 \uD83E\uDD70"
-                                    } else if (progress > 50) {
+                                    } else if (progress > 50f) {
                                         "파릇파릇 \uD83D\uDE0A"
                                     } else if (progress > 25f) {
                                         "무럭무럭 \uD83D\uDE42"
@@ -637,7 +637,7 @@ fun FamilyCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier =
             Modifier
-                .width(124.dp)
+                .size(120.dp)
                 .aspectRatio(1f)
                 .noRippleClickable {
                     onCardClick(user.userId)
