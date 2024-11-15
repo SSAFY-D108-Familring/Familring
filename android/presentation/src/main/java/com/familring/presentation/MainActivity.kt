@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         handleDeepLink(intent)
 
         // apk 막기 용도
-        val date = LocalDateTime.of(2024, 11, 15, 12, 0)
+        val date = LocalDateTime.of(2024, 11, 30, 12, 0)
 
         setContent {
             FamilringTheme {
@@ -71,7 +71,6 @@ class MainActivity : ComponentActivity() {
         Timber.tag("keyhash :").d(Utility.getKeyHash(this))
     }
 
-    // 앱 이미 실행 중일 때 새로운 인텐트로 들어올 경우 처리
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleDeepLink(intent)
@@ -79,13 +78,27 @@ class MainActivity : ComponentActivity() {
 
     private fun handleDeepLink(intent: Intent) {
         intent.data?.let { uri ->
-            val action = uri.getQueryParameter("action")
-            val code = uri.getQueryParameter("code")
-
-            if (action == "copy_code" && code != null) {
-                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("family_code", code)
-                clipboard.setPrimaryClip(clip)
+            when (uri.host) {
+                "notification" -> {
+                    val type = uri.getQueryParameter("type")
+                    startDestination = when (type) {
+                        "KNOCK", "RANDOM" -> "question"
+                        "MENTION_SCHEDULE" -> "schedule"
+                        "MENTION_CHAT" -> "chat"
+                        "TIMECAPSULE" -> "timecapsule"
+                        "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
+                        else -> null
+                    }
+                }
+                else -> {
+                    val action = uri.getQueryParameter("action")
+                    val code = uri.getQueryParameter("code")
+                    if (action == "copy_code" && code != null) {
+                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("family_code", code)
+                        clipboard.setPrimaryClip(clip)
+                    }
+                }
             }
         }
     }
@@ -132,5 +145,9 @@ class MainActivity : ComponentActivity() {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
             }
         startActivity(intent)
+    }
+
+    companion object {
+        var startDestination: String? = null
     }
 }
