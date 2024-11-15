@@ -139,11 +139,13 @@ public class TimeCapsuleService {
                     .endDate(timeCapsuleCreateRequest.getDate())
                     .build();
 
+            String uniqueId = UUID.randomUUID().toString();
+
             // Job 설정
             JobDetail jobDetail = JobBuilder.newJob(TimeCapsuleNotificationJob.class)
-                    .withIdentity("timeCapsuleNotificationJob_" + timeCapsule.getId())
+                    .withIdentity("timeCapsuleNotificationJob_" + uniqueId)
                     .usingJobData("userId", userId)
-                    .usingJobData("timeCapsuleId", timeCapsule.getId())
+                    .usingJobData("timeCapsuleId", uniqueId)
                     .build();
 
             // LocalDate를 Date로 변환
@@ -151,7 +153,7 @@ public class TimeCapsuleService {
 
             // 지정된 endDate에 Job이 실행되도록 트리거 생성
             Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity("timeCapsuleNotificationTrigger_" + timeCapsule.getId())
+                    .withIdentity("timeCapsuleNotificationTrigger_" + uniqueId)
                     .startAt(triggerStartDate)
                     .build();
 
