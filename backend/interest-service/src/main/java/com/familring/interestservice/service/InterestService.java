@@ -356,6 +356,7 @@ public class InterestService {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
+        log.info("interestAnswers size : " + interestAnswers.size());
 
         // 해당 관심사에 인증 기간 설정 (selected 하나라도 true 인 상태일 때만 가능함)
         boolean hasSelectedAnswer = interestAnswers.stream().anyMatch(InterestAnswer::isSelected);
