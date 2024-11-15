@@ -33,7 +33,7 @@ fun CustomTextField(
     placeHolder: String = "",
     borderColor: Color = Green03,
     focusManager: FocusManager,
-    maxValue: Int = 5,
+    maxValue: Int? = null,
 ) {
     OutlinedTextField(
         modifier =
@@ -47,7 +47,11 @@ fun CustomTextField(
                 ),
         value = value,
         onValueChange = {
-            if (it.length <= maxValue) {
+            if (maxValue != null) {
+                if (it.length <= maxValue) {
+                    onValueChanged(it)
+                }
+            } else {
                 onValueChanged(it)
             }
         },
