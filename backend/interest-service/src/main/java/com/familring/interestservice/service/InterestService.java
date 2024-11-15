@@ -633,9 +633,16 @@ public class InterestService {
             // 1 → 관심사 선정 완료, 인증 기간 미설정
             if (interest.getMissionEndDate() == null) {
                 return 1;
+            } else {
+                // 인증 기간 설정되어 있을 때 인증 기한이 오늘까지면 미션 인증 가능
+                LocalDate currentDate = LocalDate.now();
+                if (!interest.getMissionEndDate().isBefore(currentDate)) {
+                    return 2;
+                } else {
+                    // 인증 기간 설정되어 있을 때 인증 기한이 오늘보다 이전이면 미션 인증 불가능, 다시 관심사 작성하는 걸로 변경
+                    return 0;
+                }
             }
-            // 2 → 인증 기간
-            return 2;
         }
 
         // 기본적으로 작성하는 기간으로 반환
