@@ -58,11 +58,9 @@ import com.familring.presentation.component.TutorialScreen
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.theme.Black
-import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Green02
-import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
@@ -209,15 +207,14 @@ fun GalleryScreen(
                 tutorialIcon = {
                     Icon(
                         modifier =
-                        Modifier
-                            .size(20.dp)
-                            .border(
-                                width = 2.dp,
-                                color = Gray03,
-                                shape = CircleShape,
-                            )
-                            .padding(2.dp)
-                            .noRippleClickable { showTutorial() },
+                            Modifier
+                                .size(20.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Gray03,
+                                    shape = CircleShape,
+                                ).padding(2.dp)
+                                .noRippleClickable { showTutorial() },
                         painter = painterResource(id = R.drawable.ic_tutorial),
                         contentDescription = "ic_question",
                         tint = Gray03,
@@ -235,24 +232,21 @@ fun GalleryScreen(
                     text = "공유",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                    Modifier
-                        .background(
-                            color = if (privateGallerySelected) Green02 else White,
-                            shape = RoundedCornerShape(30.dp),
-                        )
-                        .border(
-                            border =
-                            if (privateGallerySelected) {
-                                BorderStroke(0.dp, Gray03)
-                            } else {
-                                BorderStroke(1.dp, Gray03)
-                            },
-                            RoundedCornerShape(30.dp),
-                        )
-                        .noRippleClickable {
-                            privateGallerySelected = true
-                        }
-                        .padding(horizontal = 19.dp, vertical = 8.dp),
+                        Modifier
+                            .background(
+                                color = if (privateGallerySelected) Green02 else White,
+                                shape = RoundedCornerShape(30.dp),
+                            ).border(
+                                border =
+                                    if (privateGallerySelected) {
+                                        BorderStroke(0.dp, Gray03)
+                                    } else {
+                                        BorderStroke(1.dp, Gray03)
+                                    },
+                                RoundedCornerShape(30.dp),
+                            ).noRippleClickable {
+                                privateGallerySelected = true
+                            }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (privateGallerySelected) White else Color.Black,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -260,24 +254,21 @@ fun GalleryScreen(
                     text = "인물",
                     style = Typography.headlineSmall.copy(fontSize = 14.sp),
                     modifier =
-                    Modifier
-                        .background(
-                            color = if (!privateGallerySelected) Green02 else White,
-                            shape = RoundedCornerShape(30.dp),
-                        )
-                        .border(
-                            border =
-                            if (!privateGallerySelected) {
-                                BorderStroke(0.dp, Gray03)
-                            } else {
-                                BorderStroke(1.dp, Gray03)
-                            },
-                            RoundedCornerShape(30.dp),
-                        )
-                        .noRippleClickable {
-                            privateGallerySelected = false
-                        }
-                        .padding(horizontal = 19.dp, vertical = 8.dp),
+                        Modifier
+                            .background(
+                                color = if (!privateGallerySelected) Green02 else White,
+                                shape = RoundedCornerShape(30.dp),
+                            ).border(
+                                border =
+                                    if (!privateGallerySelected) {
+                                        BorderStroke(0.dp, Gray03)
+                                    } else {
+                                        BorderStroke(1.dp, Gray03)
+                                    },
+                                RoundedCornerShape(30.dp),
+                            ).noRippleClickable {
+                                privateGallerySelected = false
+                            }.padding(horizontal = 19.dp, vertical = 8.dp),
                     color = if (!privateGallerySelected) White else Color.Black,
                 )
             }
@@ -347,15 +338,15 @@ fun GalleryScreen(
                 ) {
                     Column(
                         modifier =
-                        Modifier
-                            .background(color = White)
-                            .padding(top = 16.dp),
+                            Modifier
+                                .background(color = White)
+                                .padding(top = 16.dp),
                     ) {
                         BasicTextField(
                             modifier =
-                            Modifier
-                                .background(Color.Transparent)
-                                .padding(horizontal = 26.dp),
+                                Modifier
+                                    .background(Color.Transparent)
+                                    .padding(horizontal = 26.dp),
                             value = albumname,
                             onValueChange = { albumname = it },
                             textStyle =
@@ -377,10 +368,10 @@ fun GalleryScreen(
                             },
                         )
 
-                        Spacer(modifier = Modifier.fillMaxSize(0.05f))
+                        Spacer(modifier = Modifier.height(20.dp))
                         RoundLongButton(
-                            backgroundColor = Brown01,
-                            text = "생성하기",
+                            backgroundColor = Green02,
+                            text = "생성",
                             enabled = albumname.isNotEmpty(),
                             onClick = {
                                 Timber.d("생성하기")
@@ -392,7 +383,7 @@ fun GalleryScreen(
                                 showBottomSheet = false
                             },
                         )
-                        Spacer(modifier = Modifier.fillMaxSize(0.3f))
+                        Spacer(modifier = Modifier.height(20.dp))
                     }
                 }
             }
@@ -425,15 +416,15 @@ fun GalleryItem(
         ) {
             Column(
                 modifier =
-                Modifier
-                    .background(color = White)
-                    .padding(top = 16.dp),
+                    Modifier
+                        .background(color = White)
+                        .padding(top = 16.dp),
             ) {
                 BasicTextField(
                     modifier =
-                    Modifier
-                        .background(Color.Transparent)
-                        .padding(horizontal = 26.dp),
+                        Modifier
+                            .background(Color.Transparent)
+                            .padding(horizontal = 26.dp),
                     value = updatedAlbumName,
                     onValueChange = { updatedAlbumName = it },
                     // 처음엔 그레이 색..?
@@ -455,37 +446,49 @@ fun GalleryItem(
                         }
                     },
                 )
-
-                Spacer(modifier = Modifier.fillMaxSize(0.05f))
-                RoundLongButton(
-                    backgroundColor = Brown01,
-                    text = "수정하기",
-                    onClick = {
-                        if (updatedAlbumName.isNotEmpty()) {
-                            onUpdateAlbum(album.id, updatedAlbumName)
-                            showDialog = false
-                        }
-                    },
-                )
-                Spacer(modifier = Modifier.fillMaxSize(0.03f))
-                RoundLongButton(
-                    backgroundColor = Red01,
-                    text = "삭제하기",
-                    onClick = {
-                        deleteAlbum(album.id)
-                        showDialog = false
-                    },
-                )
-                Spacer(modifier = Modifier.fillMaxSize(0.08f))
+                Spacer(modifier = Modifier.height(20.dp))
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                    ) {
+                        RoundLongButton(
+                            modifier = Modifier.weight(1f),
+                            backgroundColor = Green02,
+                            text = "수정",
+                            onClick = {
+                                if (updatedAlbumName.isNotEmpty()) {
+                                    onUpdateAlbum(album.id, updatedAlbumName)
+                                    showDialog = false
+                                }
+                            },
+                            fraction = 1f,
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        RoundLongButton(
+                            modifier = Modifier.weight(1f),
+                            backgroundColor = Green02,
+                            text = "삭제",
+                            onClick = {
+                                deleteAlbum(album.id)
+                                showDialog = false
+                            },
+                            fraction = 1f,
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
     }
 
     Column(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .padding(bottom = 8.dp),
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = 8.dp),
     ) {
         Card(
             modifier =

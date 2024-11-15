@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.core.content.FileProvider
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -75,10 +76,11 @@ fun File.rotateImage(degrees: Float): File {
         )
 
     // 회전된 이미지 임시 파일에 저장
-    val rotatedFile = File.createTempFile("rotated_", ".jpg", this.parentFile).apply {
-        createNewFile()
-        deleteOnExit()
-    }
+    val rotatedFile =
+        File.createTempFile("rotated_", ".jpg", this.parentFile).apply {
+            createNewFile()
+            deleteOnExit()
+        }
 
     FileOutputStream(rotatedFile).use { out ->
         rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
@@ -89,4 +91,20 @@ fun File.rotateImage(degrees: Float): File {
     rotatedBitmap.recycle()
 
     return rotatedFile
+}
+
+fun createCameraFile(context: Context): Pair<File, Uri> {
+    val cameraFile =
+        File.createTempFile("photo_${System.currentTimeMillis()}", ".jpg", context.cacheDir).apply {
+            createNewFile()
+            deleteOnExit()
+        }
+
+    val cameraFileUri =
+        FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            cameraFile,
+        )
+    return Pair(cameraFile, cameraFileUri)
 }
