@@ -450,7 +450,7 @@ fun MyPageScreen(
     }
 }
 
-private fun roleToWord(role: String): String =
+fun roleToWord(role: String): String =
     when (role) {
         "M" -> "엄마"
         "F" -> "아빠"

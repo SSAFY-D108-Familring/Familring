@@ -27,6 +27,7 @@ import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 
@@ -94,21 +95,34 @@ fun NicknameScreen(
                 modifier = modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center,
             ) {
-                CustomTextField(
-                    modifier = Modifier.fillMaxWidth(0.9f),
-                    value = nickname,
-                    onValueChanged = {
-                        nickname = it
-                    },
-                    placeHolder = "닉네임을 입력해 주세요",
-                    focusManager = focusManager,
-                )
+                Column {
+                    CustomTextField(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        value = nickname,
+                        onValueChanged = {
+                            nickname = it
+                        },
+                        placeHolder = "닉네임을 입력해 주세요",
+                        focusManager = focusManager,
+                    )
+                    Box(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        contentAlignment = Alignment.CenterEnd,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(top = 3.dp, end = 7.dp),
+                            text = "${nickname.length}/5",
+                            style = Typography.displaySmall,
+                            color = Gray02,
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.fillMaxHeight(0.05f))
             RoundLongButton(
                 text = "설정 완료",
                 onClick = navigateToPicture,
-                enabled = nickname.isNotBlank(),
+                enabled = nickname.isNotBlank() && nickname.length <= 5,
             )
         }
     }

@@ -6,10 +6,9 @@ import androidx.compose.runtime.Stable
 @Stable
 sealed interface ChatUiEvent {
     @Immutable
-    data object LoadSuccess : ChatUiEvent
-
-    @Immutable
-    data object SendSuccess : ChatUiEvent
+    data class VoteError(
+        val message: String,
+    ) : ChatUiEvent
 
     @Immutable
     data class Error(
