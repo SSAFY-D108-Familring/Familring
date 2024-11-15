@@ -401,7 +401,6 @@ async def process_face_encodings(image):
                 image, 
                 face_locations, 
                 num_jitters=5,  # 증가된 jitter 값
-                model="large"   # 더 정확한 모델 사용
             )
         )
     
