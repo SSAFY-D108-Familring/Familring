@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +59,18 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    val startDestination =
+        remember(MainActivity.startDestination) {
+            when (MainActivity.startDestination) {
+                "question" -> ScreenDestinations.Question.route
+                "schedule" -> ScreenDestinations.Calendar.route
+                "chat" -> ScreenDestinations.Chat.route
+                "timecapsule" -> ScreenDestinations.TimeCapsule.route
+                "interest" -> ScreenDestinations.Interest.route
+                else -> ScreenDestinations.Login.route
+            }
+        }
+
     val snackBarHostState = remember { SnackbarHostState() } // 스낵바 호스트
     val onShowSnackBar: (message: String) -> Unit = { message ->
         coroutineScope.launch {
@@ -94,9 +107,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 modifier
                     .padding(innerPadding),
             navController = navController,
-            startDestination = ScreenDestinations.Login.route,
+            startDestination = startDestination,
             showSnackBar = onShowSnackBar,
         )
+    }
+
+    LaunchedEffect(Unit) {
+        MainActivity.startDestination = null
     }
 }
 
@@ -108,6 +125,7 @@ fun MainNavHost(
     showSnackBar: (String) -> Unit,
 ) {
     val galleryViewModel = hiltViewModel<GalleryViewModel>()
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -495,6 +513,13 @@ fun MainNavHost(
                 showSnackBar = showSnackBar,
                 popUpBackStack = navController::popBackStack,
             )
+        }
+    }
+    LaunchedEffect(startDestination) {
+        if (startDestination != ScreenDestinations.Login.route) {
+            navController.navigate(startDestination) {
+                popUpTo(0) { inclusive = true }
+            }
         }
     }
 }
