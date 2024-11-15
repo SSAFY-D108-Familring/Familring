@@ -14,6 +14,7 @@ import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
@@ -85,28 +87,30 @@ class LoginViewModel
         }
 
         suspend fun updateFCMToken(): String? =
-            try {
-                val fcmToken = Tasks.await(firebaseMessaging.token)
-                val savedToken = authDataStore.getFCMToken()
+            withContext(Dispatchers.IO) {
+                try {
+                    val fcmToken = Tasks.await(firebaseMessaging.token)
+                    val savedToken = authDataStore.getFCMToken()
 
-                if (savedToken != fcmToken) {
-                    userRepository.updateFCMToken(fcmToken).collectLatest { response ->
-                        when (response) {
-                            is ApiResponse.Success -> {
-                                Timber.d("FCM 토큰 업데이트 성공")
-                                authDataStore.saveFCMToken(fcmToken)
-                            }
+                    if (savedToken != fcmToken) {
+                        userRepository.updateFCMToken(fcmToken).collectLatest { response ->
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    Timber.d("FCM 토큰 업데이트 성공")
+                                    authDataStore.saveFCMToken(fcmToken)
+                                }
 
-                            is ApiResponse.Error -> {
-                                Timber.e("FCM 토큰 업데이트 실패: " + response.message)
+                                is ApiResponse.Error -> {
+                                    Timber.e("FCM 토큰 업데이트 실패: " + response.message)
+                                }
                             }
                         }
                     }
+                    fcmToken
+                } catch (e: Exception) {
+                    Timber.e(e, "FCM 토큰 업데이트 실패")
+                    null
                 }
-                fcmToken
-            } catch (e: Exception) {
-                Timber.e(e, "FCM 토큰 업데이트 실패")
-                null
             }
 
         fun handleKakaoLogin(activity: Activity) {
@@ -252,15 +256,22 @@ class LoginViewModel
                                                             authDataStore.saveFCMToken(fcmToken)
                                                             Timber.d("회원가입 전 FCM 토큰 저장 완료: $fcmToken")
                                                         }
-                                                        _loginState.value = LoginState.NoRegistered("회원가입이 필요합니다")
-                                                        _loginEvent.emit(LoginEvent.Error(
-                                                            errorCode = response.code,
-                                                            errorMessage = "회원가입이 필요합니다"
-                                                        ))
+                                                        _loginState.value =
+                                                            LoginState.NoRegistered("회원가입이 필요합니다")
+                                                        _loginEvent.emit(
+                                                            LoginEvent.Error(
+                                                                errorCode = response.code,
+                                                                errorMessage = "회원가입이 필요합니다",
+                                                            ),
+                                                        )
                                                     }
+
                                                     else -> {
-                                                        Timber.tag(TAG).e("서버 로그인 실패: " + response.message)
-                                                        _loginState.value = LoginState.Error("로그인 실패: ${response.message}")
+                                                        Timber
+                                                            .tag(TAG)
+                                                            .e("서버 로그인 실패: " + response.message)
+                                                        _loginState.value =
+                                                            LoginState.Error("로그인 실패: ${response.message}")
                                                         _loginEvent.emit(
                                                             LoginEvent.Error(
                                                                 errorCode = response.code,
