@@ -79,10 +79,9 @@ public class TimeCapsuleService {
             // 2. 이미 작성을 끝낸 상태 (1) - 해당 user 가 이미 작성을 한 경우
             // 타임 캡슐 답변 DB 에서 해당 User 로 작성된 타임 캡슐이 있으면
             Optional<TimeCapsuleAnswer> timeCapsuleAnswer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsule);
+            // 타임 캡슐 마감 날짜 - 현재 날짜 = 남은 날짜 같이 전송
+            int dayCount = (int) ChronoUnit.DAYS.between(currentDate, timeCapsule.getEndDate());
             if (timeCapsuleAnswer.isPresent()) {
-                // 타임 캡슐 마감 날짜 - 현재 날짜 = 남은 날짜 같이 전송
-                int dayCount = (int) ChronoUnit.DAYS.between(currentDate, timeCapsule.getEndDate());
-
                 if (dayCount > 0) {
                     response = TimeCapsuleStatusResponse.builder()
                             .status(1)
@@ -110,11 +109,17 @@ public class TimeCapsuleService {
                 // 그 찾은 user id 들로 userResponse 조회
                 List<UserInfoResponse> users = userServiceFeignClient.getAllUser(userIds).getData();
 
-                response = TimeCapsuleStatusResponse.builder()
-                        .status(2)
-                        .count(cnt) // 몇 번째 타임캡슐인지
-                        .users(users)
-                        .build();
+                if (dayCount > 0) {
+                    response = TimeCapsuleStatusResponse.builder()
+                            .status(2)
+                            .count(cnt) // 몇 번째 타임캡슐인지
+                            .users(users)
+                            .build();
+                } else { // dayCount == 0 (0 일이면 타임 캡슐 생성할 수 있게)
+                    response = TimeCapsuleStatusResponse.builder()
+                            .status(0) // 상태값만 전송
+                            .build();
+                }
             }
         }
 
