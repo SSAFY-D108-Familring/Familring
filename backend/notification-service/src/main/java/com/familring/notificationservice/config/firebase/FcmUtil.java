@@ -1,9 +1,11 @@
 package com.familring.notificationservice.config.firebase;
 
+import com.familring.notificationservice.model.dto.NotificationType;
 import com.familring.notificationservice.model.dto.response.UserInfoResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.WebpushConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Async;
@@ -21,13 +23,10 @@ public class FcmUtil {
     public void singleFcmSend(UserInfoResponse user, FcmMessage.FcmDto fcmDTO) {
         String fcmToken = user.getUserFcmToken(); // 사용자 FCM 토큰 가져오기
 
-        // FCM 토큰이 유효한 경우 메시지 생성 및 전송
         if (fcmToken != null && !fcmToken.isEmpty()) {
-            Message message = makeMessage(fcmDTO.getTitle(), fcmDTO.getBody(), fcmToken); // 메시지 생성
+            Message message = makeMessage(fcmDTO.getTitle(), fcmDTO.getBody(), fcmToken, fcmDTO.getType()); // 메시지 생성
             sendMessage(message); // 메시지 전송
-        }
-        // FCM 토큰이 없는 경우 로그 띄우기
-        else if (fcmToken == null) {
+        } else if (fcmToken == null) {
             log.info("[singleFcmSend] userId={}에게 FCM 토큰이 없습니다.", user.getUserFcmToken());
         }
     }
@@ -38,14 +37,14 @@ public class FcmUtil {
         users.forEach(user -> singleFcmSend(user, fcmDTO));
     }
 
-
     // FCM 메시지를 생성하는 메서드
-    public Message makeMessage(String title, String body, String token) { // FcmDTO의 title, body 사용
+    public Message makeMessage(String title, String body, String token, String type) { // FcmDTO의 title, body 사용
         // 메시지 객체 생성
         return Message.builder()
                 .setToken(token)                // FCM 토큰 설정
                 .putData("title", title)        // 데이터에 제목 추가
                 .putData("body", body)          // 데이터에 본문 추가
+                .putData("type", type)
                 .build();
     }
 
@@ -62,6 +61,14 @@ public class FcmUtil {
         return FcmMessage.FcmDto.builder()
                 .title(title)
                 .body(body)
+                .build();
+    }
+
+    public FcmMessage.FcmDto makeFcmDTO(String title, String body, String type) {
+        return FcmMessage.FcmDto.builder()
+                .title(title)
+                .body(body)
+                .type(type)
                 .build();
     }
 }
