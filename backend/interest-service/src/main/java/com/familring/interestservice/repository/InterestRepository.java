@@ -24,8 +24,8 @@ public interface InterestRepository extends JpaRepository<Interest, Integer> {
 
     // 비관적 Lock
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(value = "SELECT * FROM Interest WHERE family_id = :familyId ORDER BY id DESC LIMIT 1", nativeQuery = true)
-    Optional<Interest> findFirstByFamilyIdOrderByIdDescWithLock(@Param("familyId") Long familyId);
+    @Query("SELECT i FROM Interest i WHERE i.familyId = :familyId AND i.id = (SELECT MAX(i2.id) FROM Interest i2 WHERE i2.familyId = :familyId)")
+    Optional<Interest> findTopByFamilyIdWithLock(@Param("familyId") Long familyId);
 
     Slice<Interest> findByFamilyIdOrderByIdDesc(Long familyId, Pageable pageable);
 
