@@ -351,11 +351,7 @@ public class InterestService {
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
         // 답변한 가족 구성원 리스트 생성 및 모든 답변의 selected 상태 확인
-        List<InterestAnswer> interestAnswers = familyMembers.stream()
-                .map(member -> interestAnswerRepository.findByUserIdAndInterest(member.getUserId(), interest))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .toList();
+        List<InterestAnswer> interestAnswers = interestAnswerRepository.findByFamilyIdAndInterest(familyId, interest);
         log.info("interestAnswers size : " + interestAnswers.size());
 
         // 해당 관심사에 인증 기간 설정 (selected 하나라도 true 인 상태일 때만 가능함)
