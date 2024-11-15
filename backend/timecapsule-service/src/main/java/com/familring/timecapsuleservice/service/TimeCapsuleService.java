@@ -159,6 +159,7 @@ public class TimeCapsuleService {
                 notificationScheduler.scheduleJob(jobDetail, trigger);
                 log.info("스케쥴러 성공");
             } catch (Exception e) {
+                log.info(e.toString());
                 throw new FailedCreateTimeCapsuleException();
             }
 
