@@ -1,5 +1,6 @@
 package com.familring.data.di
 
+import android.content.Context
 import com.familring.data.BuildConfig
 import com.familring.data.network.api.AuthApi
 import com.familring.data.network.interceptor.AccessTokenInterceptor
@@ -19,6 +20,7 @@ import com.google.gson.JsonSyntaxException
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -174,4 +176,7 @@ object NetworkModule {
         loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         return loggingInterceptor
     }
+
+    @Provides
+    fun provideContext(@ApplicationContext context: Context): Context = context
 }

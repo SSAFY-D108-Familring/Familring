@@ -441,6 +441,7 @@ fun MainNavHost(
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
                 viewModel = galleryViewModel,
+                showSnackbar = showSnackBar
             )
         }
 

@@ -386,30 +386,30 @@ fun FamilyListItem(
                 )
                 if (answer != 0 && !past) {
                     Timber.d("$past")
-                Text(
-                    text =
-                        buildAnnotatedString {
-                            withStyle(
-                                style =
-                                    SpanStyle(
-                                        textDecoration = TextDecoration.Underline,
-                                    ),
-                            ) {
-                                append("✊\uD83C\uDFFB 똑똑")
-                            }
-                        },
-                    style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                    color = Gray02,
-                    modifier =
-                        Modifier.noRippleClickable {
-                            viewModel.knockKnock(
-                                questionId,
-                                questionAnswer.userId,
-                            )
-                            Timber.d("똑똑 누름 " + questionAnswer.userId)
-                            showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
-                        },
-                )
+                    Text(
+                        text =
+                            buildAnnotatedString {
+                                withStyle(
+                                    style =
+                                        SpanStyle(
+                                            textDecoration = TextDecoration.Underline,
+                                        ),
+                                ) {
+                                    append("✊\uD83C\uDFFB 똑똑")
+                                }
+                            },
+                        style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                        color = Gray02,
+                        modifier =
+                            Modifier.noRippleClickable {
+                                viewModel.knockKnock(
+                                    questionId,
+                                    questionAnswer.userId,
+                                )
+                                Timber.d("똑똑 누름 " + questionAnswer.userId)
+                                showSnackBar("${questionAnswer.userNickname}을/를 똑똑 두드렸어요~ ㅋㅋ")
+                            },
+                    )
                 }
             }
         }
