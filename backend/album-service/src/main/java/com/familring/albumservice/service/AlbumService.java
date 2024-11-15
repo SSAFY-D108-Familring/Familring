@@ -192,7 +192,7 @@ public class AlbumService {
         album.addPhotos(newPhotos);
     }
 
-    @Async
+    @Transactional
     public void faceClassification(Long userId, List<String> photoUrls, List<Photo> newPhotos) {
         // 가족 얼굴 사진 가져오기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
