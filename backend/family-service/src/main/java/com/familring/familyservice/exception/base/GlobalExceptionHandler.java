@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @RequiredArgsConstructor
 @Log4j2
-public class GlobalExceptionHandler extends StompSubProtocolErrorHandler {
+public class GlobalExceptionHandler {
 
     private final ObjectMapper objectMapper;
 

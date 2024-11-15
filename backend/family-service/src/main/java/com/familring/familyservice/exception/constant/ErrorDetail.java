@@ -15,7 +15,7 @@ public enum ErrorDetail {
     // ChatResponse
     NOT_FOUND_CHAT_ROOM("C0001", HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다."),
     NOT_FOUND_VOTE("V0001", HttpStatus.NOT_FOUND, "투표를 찾을 수 없습니다."),
-    ALREADY_PARTICIPATED("V0002", HttpStatus.BAD_REQUEST, "사용자가 이미 투표에 참여했습니다.");
+    ALREADY_PARTICIPATED("V0002", HttpStatus.CONFLICT, "사용자가 이미 투표에 참여했습니다.");
 
     private final String errorCode;
     private final HttpStatus httpStatus;
