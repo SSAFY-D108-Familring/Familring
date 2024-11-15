@@ -67,7 +67,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         // 수신자에게 알림 전송
         UserInfoResponse usersList = userServiceFeignClient.getUser(mentionRequest.getReceiverId()).getData();
-        FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO(title, mentionRequest.getMention());
+        FcmMessage.FcmDto fcmDto = fcmUtil.makeFcmDTO(title, mentionRequest.getMention(), NotificationType.MENTION_CHAT.toString());
         fcmUtil.singleFcmSend(usersList, fcmDto);
         log.info("[notificationToFamily] 알림 전송 완료");
     }
