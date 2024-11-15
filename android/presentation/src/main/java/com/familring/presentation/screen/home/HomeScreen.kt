@@ -248,7 +248,7 @@ fun HomeScreen(
                         style = Typography.headlineSmall.copy(fontSize = 18.sp),
                     )
                 }
-                Spacer(modifier = Modifier.height(25.dp))
+                Spacer(modifier = Modifier.height(15.dp))
                 Box(
                     modifier =
                         Modifier
