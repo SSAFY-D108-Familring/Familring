@@ -50,6 +50,7 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.createCameraFile
 import com.familring.presentation.util.toFile
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -88,6 +89,8 @@ fun EditFaceScreen(
 ) {
     val context = LocalContext.current
     var imgUri by remember { mutableStateOf<Uri?>(null) }
+    var tempUri = Uri.EMPTY
+
     var loading by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiEvent) {
@@ -108,20 +111,11 @@ fun EditFaceScreen(
         }
     }
 
-    val cameraFile =
-        File.createTempFile("photo_", ".jpg", context.cacheDir).apply {
-            createNewFile()
-            deleteOnExit()
-        }
-    val cameraFileUri =
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            cameraFile,
-        )
     val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            imgUri = cameraFileUri
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                imgUri = tempUri
+            }
         }
 
     // 권한 요청을 위한 launcher
@@ -130,6 +124,8 @@ fun EditFaceScreen(
             ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
             if (isGranted) {
+                val (cameraFile, cameraFileUri) = createCameraFile(context)
+                tempUri = cameraFileUri
                 cameraLauncher.launch(cameraFileUri)
             }
         }
@@ -184,7 +180,14 @@ fun EditFaceScreen(
                                     context,
                                     Manifest.permission.CAMERA,
                                 ),
-                                -> cameraLauncher.launch(cameraFileUri)
+                                -> {
+                                    val (cameraFile, cameraFileUri) =
+                                        createCameraFile(
+                                            context,
+                                        )
+                                    tempUri = cameraFileUri
+                                    cameraLauncher.launch(cameraFileUri)
+                                }
 
                                 else -> permissionLauncher.launch(Manifest.permission.CAMERA)
                             }
