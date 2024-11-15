@@ -27,6 +27,7 @@ fun RoundLongButton(
     textColor: Color = White,
     onClick: () -> Unit = {},
     enabled: Boolean = true,
+    fraction: Float = 0.9f,
 ) {
     Box(
         modifier = modifier.fillMaxWidth(),
@@ -43,7 +44,7 @@ fun RoundLongButton(
                 ),
             modifier =
                 modifier
-                    .fillMaxWidth(0.9f)
+                    .fillMaxWidth(fraction)
                     .height(52.dp),
             shape = RoundedCornerShape(12.dp),
             enabled = enabled,

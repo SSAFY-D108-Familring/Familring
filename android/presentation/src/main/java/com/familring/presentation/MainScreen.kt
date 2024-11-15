@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -51,6 +52,7 @@ import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -60,17 +62,16 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
 
-    val startDestination =
-        remember(MainActivity.startDestination) {
-            when (MainActivity.startDestination) {
-                "question" -> ScreenDestinations.Question.route
-                "schedule" -> ScreenDestinations.Calendar.route
-                "chat" -> ScreenDestinations.Chat.route
-                "timecapsule" -> ScreenDestinations.TimeCapsule.route
-                "interest" -> ScreenDestinations.Interest.route
-                else -> ScreenDestinations.Login.route
-            }
+    val startDestination = remember(MainActivity.startDestination) {
+        when (MainActivity.startDestination) {
+            "question" -> ScreenDestinations.Question.route
+            "schedule" -> ScreenDestinations.Calendar.route
+            "chat" -> ScreenDestinations.Chat.route
+            "timecapsule" -> ScreenDestinations.TimeCapsule.route
+            "interest" -> ScreenDestinations.Interest.route
+            else -> ScreenDestinations.Login.route
         }
+    }
 
     val onShowSnackBar: (message: String) -> Unit = { message ->
         coroutineScope.launch {
@@ -111,8 +112,19 @@ fun MainScreen(modifier: Modifier = Modifier) {
         )
     }
 
-    LaunchedEffect(Unit) {
-        MainActivity.startDestination = null
+    LaunchedEffect(startDestination) {
+        if (startDestination != ScreenDestinations.Login.route) {
+            try {
+                navController.navigate(startDestination) {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Navigation failed")
+            }
+        }
     }
 }
 
@@ -127,7 +139,7 @@ fun MainNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination,
+        startDestination = ScreenDestinations.Login.route,
     ) {
         composable(
             route = ScreenDestinations.Login.route,
@@ -517,7 +529,10 @@ fun MainNavHost(
     LaunchedEffect(startDestination) {
         if (startDestination != ScreenDestinations.Login.route) {
             navController.navigate(startDestination) {
-                popUpTo(0) { inclusive = true }
+                popUpTo(navController.graph.startDestinationId) {
+                    inclusive = true
+                }
+                launchSingleTop = true
             }
         }
     }

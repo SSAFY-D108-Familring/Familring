@@ -1,13 +1,13 @@
 package com.familring.presentation.screen.question
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,11 +36,9 @@ import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.textfield.NoBorderTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray02
-import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
-import com.familring.presentation.util.noRippleClickable
 import timber.log.Timber
 
 @Composable
@@ -124,7 +122,6 @@ fun AnswerWriteScreen(
     var content by remember { mutableStateOf(initialAnswer) }
     val focusManager = LocalFocusManager.current
     val maxLength = 100
-    val isEnabled = content.isNotEmpty()
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -137,10 +134,18 @@ fun AnswerWriteScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TopAppBar(
-                title = { Text(text = "답변 작성", style = Typography.headlineMedium) },
+                title = {
+                    Text(
+                        text = "답변 작성",
+                        style =
+                            Typography.headlineMedium.copy(
+                                fontSize = 22.sp,
+                                color = Black,
+                            ),
+                    )
+                },
                 onNavigationClick = onNavigateBack,
             )
-
             Spacer(modifier = Modifier.height(20.dp))
             Column {
                 Spacer(modifier = Modifier.fillMaxSize(0.012f))
@@ -196,22 +201,24 @@ fun AnswerWriteScreen(
                 modifier = Modifier.padding(horizontal = 10.dp),
                 value = content,
                 onValueChange = {
-                    if (it.length <= maxLength){
+                    if (it.length <= maxLength) {
                         content = it
                     }
                 },
                 placeholder = "답변을 입력해 주세요",
             )
             Text(
-                text = "${content.length}/${maxLength}",
+                text = "${content.length}/$maxLength",
                 style = Typography.bodySmall,
                 color = Gray02,
-                modifier = Modifier.align(Alignment.End).padding(end = 16.dp)
+                modifier = Modifier.align(Alignment.End).padding(end = 16.dp),
             )
             Spacer(modifier = Modifier.weight(1f))
-            RoundLongButton( // 버튼이 왜 안눌리지  ㅠ
+            RoundLongButton(
+                modifier = Modifier.imePadding(),
                 text = if (initialAnswer.isEmpty()) "답변 저장하기" else "답변 수정하기",
-                onClick = {  if (isEnabled) onSubmit(content)},
+                onClick = { onSubmit(content) },
+                enabled = content.isNotEmpty() && content.isNotBlank(),
             )
             Spacer(modifier = Modifier.fillMaxSize(0.06f))
         }

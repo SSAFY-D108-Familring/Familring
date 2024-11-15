@@ -35,6 +35,7 @@ import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.toLocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun TimeCapsuleDialog(
@@ -58,7 +59,7 @@ fun TimeCapsuleDialog(
         } else {
             TimeCapsulePager(
                 modifier =
-                    Modifier
+                    modifier
                         .fillMaxHeight(0.6f),
                 timeCapsuleMessages = timeCapsuleMessages,
             )
@@ -112,7 +113,7 @@ fun TimeCapsule(
         Spacer(modifier = Modifier.fillMaxHeight(0.02f))
         Text(
             modifier = Modifier.fillMaxWidth(),
-            text = "2024년 10월 7일 타임캡슐",
+            text = timeCapsuleMessage.createdAt.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일 타임캡슐")),
             style = Typography.headlineLarge.copy(fontSize = 20.sp),
             textAlign = TextAlign.Center,
         )

@@ -1,7 +1,9 @@
 package com.familring.presentation.screen.calendar
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -65,9 +67,11 @@ import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.createCameraFile
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toFile
 import okhttp3.MultipartBody
@@ -100,7 +104,6 @@ fun DailyUploadRoute(
 
     DailyUploadScreen(
         modifier = modifier,
-        state = uiState,
         targetDaily = targetDaily,
         isModify = isModify,
         createDaily = dailyViewModel::createDaily,
@@ -113,7 +116,6 @@ fun DailyUploadRoute(
 @Composable
 fun DailyUploadScreen(
     modifier: Modifier = Modifier,
-    state: DailyUiState = DailyUiState(),
     targetDaily: DailyLife,
     isModify: Boolean = false,
     createDaily: (String, MultipartBody.Part?) -> Unit = { _, _ -> },
@@ -137,20 +139,12 @@ fun DailyUploadScreen(
             },
         )
 
-    val cameraFile =
-        File.createTempFile("photo_", ".jpg", context.cacheDir).apply {
-            createNewFile()
-            deleteOnExit()
-        }
-    val cameraFileUri =
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            cameraFile,
-        )
+    var tempUri = Uri.EMPTY
     val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            imgUri = cameraFileUri
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                imgUri = tempUri
+            }
         }
 
     // 권한 요청을 위한 launcher
@@ -159,6 +153,8 @@ fun DailyUploadScreen(
             ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
             if (isGranted) {
+                val (cameraFile, cameraFileUri) = createCameraFile(context)
+                tempUri = cameraFileUri
                 cameraLauncher.launch(cameraFileUri)
             }
         }
@@ -225,12 +221,25 @@ fun DailyUploadScreen(
                         contentDescription = "daily",
                     )
                 } else {
-                    Icon(
-                        modifier = Modifier.size(60.dp),
-                        painter = painterResource(id = R.drawable.ic_camera),
-                        contentDescription = "ic_camera",
-                        tint = Gray01,
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(60.dp),
+                            painter = painterResource(id = R.drawable.ic_camera),
+                            contentDescription = "ic_camera",
+                            tint = Gray01,
+                        )
+                        Text(
+                            modifier = Modifier.padding(top = 3.dp),
+                            text = "사진 등록은 필수입니다",
+                            style =
+                                Typography.displaySmall.copy(
+                                    fontSize = 18.sp,
+                                    color = Gray02,
+                                ),
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
@@ -246,7 +255,7 @@ fun DailyUploadScreen(
             RoundLongButton(
                 modifier =
                     Modifier
-                        .padding(vertical = 20.dp),
+                        .padding(vertical = 10.dp),
                 text = if (!isModify) "일상 등록하기" else "일상 수정하기",
                 onClick = {
                     if (!isModify) {
@@ -289,7 +298,14 @@ fun DailyUploadScreen(
                                                 context,
                                                 Manifest.permission.CAMERA,
                                             ),
-                                            -> cameraLauncher.launch(cameraFileUri)
+                                            -> {
+                                                val (cameraFile, cameraFileUri) =
+                                                    createCameraFile(
+                                                        context,
+                                                    )
+                                                tempUri = cameraFileUri
+                                                cameraLauncher.launch(cameraFileUri)
+                                            }
 
                                             else -> permissionLauncher.launch(Manifest.permission.CAMERA)
                                         }

@@ -68,7 +68,7 @@ fun NotificationRoute(
             when (notification.notificationType) {
                 "KNOCK" -> navigateToQuestion()
                 "MENTION_SCHEDULE" -> navigateToSchedule()
-                "MENTION_CHAT" -> navigateToChat()
+                "MENTION_CHAT" -> navigateToHome()
                 "RANDOM" -> navigateToQuestion()
                 "TIMECAPSULE" -> navigateToTimeCapsule()
                 "INTEREST_PICK", "INTEREST_COMPLETE" -> navigateToInterest()
