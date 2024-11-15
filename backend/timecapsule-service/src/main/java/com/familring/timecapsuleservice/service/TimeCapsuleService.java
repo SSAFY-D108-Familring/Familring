@@ -63,61 +63,58 @@ public class TimeCapsuleService {
         Long familyId = family.getFamilyId();
 
         // 1. 작성할 수 있는 타임캡슐이 아예 없는 경우 (0)
-        // 현재 날짜를 기준으로 해당 날짜가 포함된 타임캡슐이 없으면 작성할 수 있는 타임캡슐이 없는 경우
+        // 그 가족의 가장 최근의 타임캡슐을 찾아와서
+        Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findFirstByFamilyIdOrderByIdDesc(familyId);
+
+
+        // 현재 날짜로 조회
         LocalDate currentDate = LocalDate.now(); // 현재 날짜
-        Optional<TimeCapsule> timeCapsuleOpt  = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
         int cnt = timeCapsuleRepository.countByFamilyId(familyId);
 
+        // 최근 타임캡슐이 없으면 무조건 타임 캡슐 생성 가능 status 0 이고
         if (timeCapsuleOpt.isEmpty()) {
             response = TimeCapsuleStatusResponse.builder()
                     .status(0) // 상태값만 전송
                     .build();
         } else {
-            // 현재 날짜 기준으로 답변할 수 있는 타임캡슐이 있을 때
             TimeCapsule timeCapsule = timeCapsuleOpt.get();
-
-            // 2. 이미 작성을 끝낸 상태 (1) - 해당 user 가 이미 작성을 한 경우
-            // 타임 캡슐 답변 DB 에서 해당 User 로 작성된 타임 캡슐이 있으면
-            Optional<TimeCapsuleAnswer> timeCapsuleAnswer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsule);
-            // 타임 캡슐 마감 날짜 - 현재 날짜 = 남은 날짜 같이 전송
             int dayCount = (int) ChronoUnit.DAYS.between(currentDate, timeCapsule.getEndDate());
-            if (timeCapsuleAnswer.isPresent()) {
-                if (dayCount > 0) {
+            // 최근 타임 캡슐이 끝나는 날짜가 오늘 날짜면 타임 캡슐 생성 가능
+            if (dayCount == 0) { // 최근 타임 캡슐이 끝나는 날짜가 오늘 날짜면 생성 가능
+                response = TimeCapsuleStatusResponse.builder()
+                        .status(0)
+                        .dayCount(dayCount) // 남은 날짜 전송
+                        .build();
+            } else if (dayCount > 0) {
+                // 타임 캡슐이 끝나는 날짜가 오늘 날짜보다 이후면 답변 작성 가능
+                // 2. 이미 작성을 끝낸 상태 (1) - 해당 user 가 이미 작성을 한 경우
+                Optional<TimeCapsuleAnswer> timeCapsuleAnswer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsule);
+
+                if (timeCapsuleAnswer.isPresent()) {
                     response = TimeCapsuleStatusResponse.builder()
                             .status(1)
                             .dayCount(dayCount) // 남은 날짜 전송
                             .build();
-                } else { // dayCount == 0 (0 일이면 타임 캡슐 생성할 수 있게)
-                    response = TimeCapsuleStatusResponse.builder()
-                            .status(0) // 상태값만 전송
-                            .build();
-                }
-            } else {
-                // 3. 지금 작성 가능한 상태 (2) - 해당 user 가 작성 안 한 경우
-                // 작성한 가족 구성원 목록 조회
-                List<UserInfoResponse> userInfoResponses = familyServiceFeignClient.getFamilyMemberList(userId).getData();
-                List<Long> userIds = new ArrayList<>();
-                for(UserInfoResponse userInfoResponse : userInfoResponses) {
-                    // timeCapsule answer DB 에 있는 구성원 id 들 찾아서
-                    Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userInfoResponse.getUserId(), timeCapsule);
+                } else {
+                    // 3. 지금 작성 가능한 상태 (2) - 해당 user 가 작성 안 한 경우
+                    List<UserInfoResponse> userInfoResponses = familyServiceFeignClient.getFamilyMemberList(userId).getData();
+                    List<Long> userIds = new ArrayList<>();
+                    for(UserInfoResponse userInfoResponse : userInfoResponses) {
+                        // timeCapsule answer DB 에 있는 구성원 id 들 찾아서
+                        Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userInfoResponse.getUserId(), timeCapsule);
 
-                    // userInfoResponse.getUserId() 가 timecapsule 에 있으면
-                    // DB에 해당 userId로 작성된 답변이 있는 경우 userIds에 추가
-                    // uesrIds 에 userInfoResponse.getUserId() 를 추가
-                    answer.ifPresent(capsuleAnswer -> userIds.add(capsuleAnswer.getUserId()));
-                }
-                // 그 찾은 user id 들로 userResponse 조회
-                List<UserInfoResponse> users = userServiceFeignClient.getAllUser(userIds).getData();
+                        // userInfoResponse.getUserId() 가 timecapsule 에 있으면
+                        // DB에 해당 userId로 작성된 답변이 있는 경우 userIds에 추가
+                        // uesrIds 에 userInfoResponse.getUserId() 를 추가
+                        answer.ifPresent(capsuleAnswer -> userIds.add(capsuleAnswer.getUserId()));
+                    }
+                    // 그 찾은 user id 들로 userResponse 조회
+                    List<UserInfoResponse> users = userServiceFeignClient.getAllUser(userIds).getData();
 
-                if (dayCount > 0) {
                     response = TimeCapsuleStatusResponse.builder()
                             .status(2)
                             .count(cnt) // 몇 번째 타임캡슐인지
                             .users(users)
-                            .build();
-                } else { // dayCount == 0 (0 일이면 타임 캡슐 생성할 수 있게)
-                    response = TimeCapsuleStatusResponse.builder()
-                            .status(0) // 상태값만 전송
                             .build();
                 }
             }
