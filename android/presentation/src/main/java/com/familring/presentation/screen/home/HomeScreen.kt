@@ -534,12 +534,17 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Row(
-                        modifier = Modifier.wrapContentSize(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        if (mother != null) {
+                    if (mother != null && father == null) {
+                        Row(
+                            modifier = Modifier.wrapContentSize(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.img_heart),
+                                contentDescription = "heart_img",
+                            )
+                            Spacer(modifier = Modifier.width(15.dp))
                             FamilyCard(
                                 user = mother,
                                 onCardClick = {
@@ -551,16 +556,23 @@ fun HomeScreen(
                                     }
                                 },
                             )
-                        } else {
-                            EmptyCard()
+                            Spacer(modifier = Modifier.width(15.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.img_heart),
+                                contentDescription = "heart_img",
+                            )
                         }
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.img_heart),
-                            contentDescription = "heart_img",
-                        )
-                        Spacer(modifier = Modifier.width(15.dp))
-                        if (father != null) {
+                    } else if (mother == null && father != null) {
+                        Row(
+                            modifier = Modifier.wrapContentSize(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.img_heart),
+                                contentDescription = "heart_img",
+                            )
+                            Spacer(modifier = Modifier.width(15.dp))
                             FamilyCard(
                                 user = father,
                                 onCardClick = {
@@ -572,8 +584,46 @@ fun HomeScreen(
                                     }
                                 },
                             )
-                        } else {
-                            EmptyCard()
+                            Spacer(modifier = Modifier.width(15.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.img_heart),
+                                contentDescription = "heart_img",
+                            )
+                        }
+                    } else if (mother != null && father != null) {
+                        Row(
+                            modifier = Modifier.wrapContentSize(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            FamilyCard(
+                                user = mother,
+                                onCardClick = {
+                                    if (mother.userId != currentUserId) {
+                                        selectedUser = mother
+                                        showLoveMention = true
+                                    } else {
+                                        showEditEmotion = true
+                                    }
+                                },
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Image(
+                                painter = painterResource(id = R.drawable.img_heart),
+                                contentDescription = "heart_img",
+                            )
+                            Spacer(modifier = Modifier.width(15.dp))
+                            FamilyCard(
+                                user = father,
+                                onCardClick = {
+                                    if (father.userId != currentUserId) {
+                                        selectedUser = father
+                                        showLoveMention = true
+                                    } else {
+                                        showEditEmotion = true
+                                    }
+                                },
+                            )
                         }
                     }
                 }
