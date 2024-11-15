@@ -3,6 +3,7 @@ package com.familring.presentation.screen.chat
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -68,6 +69,7 @@ import com.familring.presentation.component.chat.VoteChatItem
 import com.familring.presentation.component.chat.VoteMessage
 import com.familring.presentation.component.chat.VoteResultMessage
 import com.familring.presentation.component.dialog.LoadingDialog
+import com.familring.presentation.component.dialog.OneButtonTextDialog
 import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
@@ -91,6 +93,7 @@ fun ChatRoute(
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
+    val context = LocalContext.current
     val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -99,6 +102,8 @@ fun ChatRoute(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showTutorial by remember { mutableStateOf(true) }
 
+    var showVoteError by remember { mutableStateOf(false) }
+
     LaunchedEffect(viewModel.event) {
         viewModel.event.collectLatest { event ->
             when (event) {
@@ -106,7 +111,9 @@ fun ChatRoute(
                     showSnackBar(event.message)
                 }
 
-                else -> {}
+                is ChatUiEvent.VoteError -> {
+                    showVoteError = true
+                }
             }
         }
     }
@@ -136,6 +143,23 @@ fun ChatRoute(
                 currentPath = viewModel.currentPath,
                 removePlayer = viewModel::removePlayer,
             )
+
+            if (showVoteError) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(color = Black.copy(alpha = 0.5f))
+                            .clickable(enabled = false) { },
+                    contentAlignment = Alignment.Center
+                ) {
+                    OneButtonTextDialog(
+                        text = context.getString(R.string.vote_error_msg),
+                        buttonText = "확인",
+                        onButtonClick = { showVoteError = false },
+                    )
+                }
+            }
 
             if (showTutorial && !tutorialUiState.isReadTutorial) {
                 ModalBottomSheet(
