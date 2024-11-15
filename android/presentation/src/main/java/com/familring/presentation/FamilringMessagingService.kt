@@ -48,7 +48,7 @@ class FamilringMessagingService : FirebaseMessagingService() {
         val intent =
             Intent(this, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                data = android.net.Uri.parse("familring://app/notification?type=$type")
+                data = android.net.Uri.parse("familring://notification?type=$type")
             }
 
         val pendingIntent =
