@@ -132,38 +132,51 @@ public class TimeCapsuleService {
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
 
-        // 현재 날짜로 조회했을 때 타임캡슐이 없을 때만 생성 가능
-        LocalDate currentDate = LocalDate.now(); // 현재 날짜
-        Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
+        // 그 가족의 가장 최근의 타임캡슐을 찾아와서
+        Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findFirstByFamilyIdOrderByIdDesc(familyId);
 
         TimeCapsule timeCapsule;
+        // 현재 날짜로 조회
+        LocalDate currentDate = LocalDate.now(); // 현재 날짜
+
+        String uniqueId = UUID.randomUUID().toString();
+
+        // Job 설정
+        JobDetail jobDetail = JobBuilder.newJob(TimeCapsuleNotificationJob.class)
+                .withIdentity("timeCapsuleNotificationJob_" + uniqueId)
+                .usingJobData("userId", userId)
+                .build();
+
+        // LocalDate를 Date로 변환
+        Date triggerStartDate = Date.from(timeCapsuleCreateRequest.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        // 지정된 endDate에 Job이 실행되도록 트리거 생성
+        Trigger trigger = TriggerBuilder.newTrigger()
+                .withIdentity("timeCapsuleNotificationTrigger_" + uniqueId)
+                .startAt(triggerStartDate)
+                .build();
+
+        timeCapsule = TimeCapsule.builder()
+                .familyId(familyId)
+                .startDate(LocalDate.now())
+                .endDate(timeCapsuleCreateRequest.getDate())
+                .build();
+
+        // 없으면 생성 가능 (무조건)
         if (timeCapsuleOpt.isEmpty()) {
-            int dayCount = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleCreateRequest.getDate());
-            if (dayCount > 0) { // 하루 이상일 때
-                timeCapsule = TimeCapsule.builder()
-                        .familyId(familyId)
-                        .startDate(LocalDate.now())
-                        .endDate(timeCapsuleCreateRequest.getDate())
-                        .build();
+            try {
+                notificationScheduler.scheduleJob(jobDetail, trigger);
+                log.info("스케쥴러 성공");
+            } catch (Exception e) {
+                log.info(e.toString());
+                throw new FailedCreateTimeCapsuleException();
+            }
 
-                String uniqueId = UUID.randomUUID().toString();
-
-                // Job 설정
-                JobDetail jobDetail = JobBuilder.newJob(TimeCapsuleNotificationJob.class)
-                        .withIdentity("timeCapsuleNotificationJob_" + uniqueId)
-                        .usingJobData("userId", userId)
-                        .usingJobData("timeCapsuleId", uniqueId)
-                        .build();
-
-                // LocalDate를 Date로 변환
-                Date triggerStartDate = Date.from(timeCapsuleCreateRequest.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
-
-                // 지정된 endDate에 Job이 실행되도록 트리거 생성
-                Trigger trigger = TriggerBuilder.newTrigger()
-                        .withIdentity("timeCapsuleNotificationTrigger_" + uniqueId)
-                        .startAt(triggerStartDate)
-                        .build();
-
+            timeCapsuleRepository.save(timeCapsule);
+        } else {
+            // 만약 타임캡슐이 있으면 그 타임캡슐의 endDate 가 오늘 날짜 or endDate (11.15) 보다 이후면 (11.16) 생성 가능
+            int dayDiff = (int) ChronoUnit.DAYS.between(currentDate, timeCapsule.getEndDate());
+            if (dayDiff >= 0) {
                 try {
                     notificationScheduler.scheduleJob(jobDetail, trigger);
                     log.info("스케쥴러 성공");
@@ -173,30 +186,28 @@ public class TimeCapsuleService {
                 }
 
                 timeCapsuleRepository.save(timeCapsule);
-            } else {
-                // 최소 하루 이상일 때 생성 가능합니다.
-                throw new MinimumDurationTimeCapsuleException();
             }
-        } else { // 만약에 타임캡슐이 이미 있을 경우 throw
-            throw new AlreadyExistTimeCapsuleException();
         }
-
 
     }
 
-    // 타임캡슐 답변 생성 (타임캡슐 생성 일자 부터 최소 1일 까지만 작성 가능)
+    // 타임캡슐 답변 생성
     public void createTimeCapsuleAnswer(Long userId, TimeCapsuleAnswerCreateRequest timeCapsuleAnswerCreateRequest) {
         // 가족 조회
         Family family = familyServiceFeignClient.getFamilyInfo(userId).getData();
         Long familyId = family.getFamilyId();
 
-        // 현재 날짜로 조회했을 때 타임캡슐이 없을 때만 생성 가능
-        LocalDate currentDate = LocalDate.now(); // 현재 날짜
-        Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findTimeCapsuleWithinDateRangeAndFamilyId(currentDate, familyId);
+        // 가장 최근 타임 캡슐을 조회했을 때 있을 때만 생성 가능
+        // 그 가족의 가장 최근의 타임캡슐을 찾아와서
+        Optional<TimeCapsule> timeCapsuleOpt = timeCapsuleRepository.findFirstByFamilyIdOrderByIdDesc(familyId);
 
-        TimeCapsuleAnswer timeCapsuleAnswer = null;
+        // 현재 날짜로 조회
+        LocalDate currentDate = LocalDate.now(); // 현재 날짜
+
+        TimeCapsuleAnswer timeCapsuleAnswer;
         // 타임 캡슐이 있을 경우
         if (timeCapsuleOpt.isPresent()) {
+            // 가장 최근 타임 캡슐의 endDate 날짜가 11월 15일이면 11월 14일까지 작성 가능 (endDate 날짜보다 전날까지만 작성 가능)
             int dayDiff = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleOpt.get().getEndDate());
             if (dayDiff>=1) { // 타임 캡슐 생성 일자, 현재 날짜 차이가 1일 보다 크기만 하면
                 Optional<TimeCapsuleAnswer> answer = timeCapsuleAnswerRepository.getTimeCapsuleAnswerByUserIdAndTimecapsule(userId, timeCapsuleOpt.get());

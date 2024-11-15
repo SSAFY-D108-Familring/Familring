@@ -16,6 +16,8 @@ public interface TimeCapsuleRepository extends JpaRepository<TimeCapsule, Intege
 
     Optional<TimeCapsule> findByFamilyId(Long familyId);
 
+    Optional<TimeCapsule> findFirstByFamilyIdOrderByIdDesc(Long familyId);
+
     @Query("SELECT t FROM TimeCapsule t WHERE t.startDate <= :currentDate AND t.endDate >= :currentDate AND t.familyId = :familyId")
     Optional<TimeCapsule> findTimeCapsuleWithinDateRangeAndFamilyId(@Param("currentDate") LocalDate currentDate, @Param("familyId") Long familyId);
 
