@@ -1,5 +1,13 @@
 package com.familring.presentation.screen.gallery
 
+import android.Manifest
+import android.app.DownloadManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.familring.domain.datastore.TutorialDataStore
@@ -7,6 +15,7 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.gallery.AlbumType
 import com.familring.domain.repository.GalleryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -14,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.File
 import javax.inject.Inject
@@ -24,6 +34,7 @@ class GalleryViewModel
     constructor(
         private val galleryRepository: GalleryRepository,
         private val tutorialDataStore: TutorialDataStore,
+        private val context: Context,
     ) : ViewModel() {
         private val _tutorialUiState = MutableStateFlow(TutorialUiState())
         val tutorialUiState = _tutorialUiState.asStateFlow()
@@ -201,7 +212,6 @@ class GalleryViewModel
 
         fun deleteAlbum(albumId: Long) {
             viewModelScope.launch {
-
                 galleryRepository.deleteAlbum(albumId).collectLatest { response ->
                     when (response) {
                         is ApiResponse.Success -> {
@@ -272,5 +282,44 @@ class GalleryViewModel
                     }
                 }
             }
+        }
+
+        fun downloadImage(url: String) {
+            viewModelScope.launch {
+                try {
+                    if (checkPermissions()) {
+                        withContext(Dispatchers.IO) {
+                            val request =
+                                DownloadManager
+                                    .Request(Uri.parse(url))
+                                    .setTitle("패밀링 사진 \uD83D\uDCF8")
+                                    .setDescription("이미지 다운로드 중...")
+                                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                                    .setDestinationInExternalPublicDir(
+                                        Environment.DIRECTORY_PICTURES,
+                                        "Familring/${System.currentTimeMillis()}.jpg",
+                                    ).setAllowedOverMetered(true)
+                                    .setAllowedOverRoaming(true)
+
+                            val downloadManager =
+                                context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                            downloadManager.enqueue(request)
+                        }
+                    }
+                } catch (e: Exception) {
+                    Timber.e(e, "이미지 다운로드 실패")
+                }
+            }
+        }
+
+        private fun checkPermissions(): Boolean {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                return true
+            }
+
+            return ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            ) == PackageManager.PERMISSION_GRANTED
         }
     }
