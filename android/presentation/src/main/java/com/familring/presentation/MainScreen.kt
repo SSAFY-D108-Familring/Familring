@@ -1,9 +1,8 @@
 package com.familring.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -12,6 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -58,6 +58,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val context = LocalContext.current
 
     val startDestination =
         remember(MainActivity.startDestination) {
@@ -71,10 +72,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
             }
         }
 
-    val snackBarHostState = remember { SnackbarHostState() } // 스낵바 호스트
     val onShowSnackBar: (message: String) -> Unit = { message ->
         coroutineScope.launch {
-            snackBarHostState.showSnackbar(message)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -91,7 +91,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(hostState = snackBarHostState) },
         bottomBar = {
             if (visible) {
                 BottomNavigationBar(
