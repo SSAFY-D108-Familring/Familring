@@ -236,7 +236,6 @@ class ChatViewModel
                 stompSession
                     .subscribe(StompSubscribeHeaders(destination = "$SUBSCRIBE_URL$familyId$READ_STATUS_URL"))
                     .collect {
-                        Timber.d("읽음 처리")
                         getChatList()
                     }
             }
@@ -290,6 +289,7 @@ class ChatViewModel
                             messageType = context.getString(R.string.message_type),
                         ),
                 )
+                _event.emit(ChatUiEvent.NewMessage)
             }
         }
 
@@ -310,6 +310,7 @@ class ChatViewModel
                             voteTitle = title,
                         ),
                 )
+                _event.emit(ChatUiEvent.NewMessage)
             }
         }
 
@@ -330,6 +331,7 @@ class ChatViewModel
                             responseOfVote = responseOfVote,
                         ),
                 )
+                _event.emit(ChatUiEvent.NewMessage)
             }
         }
 
@@ -353,6 +355,7 @@ class ChatViewModel
                             }
                         }
                     }
+                _event.emit(ChatUiEvent.NewMessage)
             }
         }
 
@@ -372,6 +375,7 @@ class ChatViewModel
                             messageType = context.getString(R.string.voice_type),
                         ),
                 )
+                _event.emit(ChatUiEvent.NewMessage)
             }
         }
 

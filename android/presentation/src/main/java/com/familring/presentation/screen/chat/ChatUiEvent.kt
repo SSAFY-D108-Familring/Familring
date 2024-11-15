@@ -11,6 +11,12 @@ sealed interface ChatUiEvent {
     ) : ChatUiEvent
 
     @Immutable
+    data object Init : ChatUiEvent
+
+    @Immutable
+    data object NewMessage : ChatUiEvent
+
+    @Immutable
     data class Error(
         val code: String,
         val message: String,

@@ -40,7 +40,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,6 +81,7 @@ import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toDateOnly
 import com.familring.presentation.util.toTimeOnly
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 
@@ -93,7 +93,6 @@ fun ChatRoute(
     popUpBackStack: () -> Unit,
     showSnackBar: (String) -> Unit,
 ) {
-    val context = LocalContext.current
     val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
 
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -101,22 +100,6 @@ fun ChatRoute(
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showTutorial by remember { mutableStateOf(true) }
-
-    var showVoteError by remember { mutableStateOf(false) }
-
-    LaunchedEffect(viewModel.event) {
-        viewModel.event.collectLatest { event ->
-            when (event) {
-                is ChatUiEvent.Error -> {
-                    showSnackBar(event.message)
-                }
-
-                is ChatUiEvent.VoteError -> {
-                    showVoteError = true
-                }
-            }
-        }
-    }
 
     when (val uiState = state) {
         is ChatUiState.Loading -> {
@@ -126,6 +109,7 @@ fun ChatRoute(
         is ChatUiState.Success -> {
             ChatScreen(
                 modifier = modifier,
+                event = viewModel.event,
                 chatList = chatList,
                 userId = viewModel.userId ?: 0,
                 popUpBackStack = popUpBackStack,
@@ -143,23 +127,6 @@ fun ChatRoute(
                 currentPath = viewModel.currentPath,
                 removePlayer = viewModel::removePlayer,
             )
-
-            if (showVoteError) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .background(color = Black.copy(alpha = 0.5f))
-                            .clickable(enabled = false) { },
-                    contentAlignment = Alignment.Center
-                ) {
-                    OneButtonTextDialog(
-                        text = context.getString(R.string.vote_error_msg),
-                        buttonText = "확인",
-                        onButtonClick = { showVoteError = false },
-                    )
-                }
-            }
 
             if (showTutorial && !tutorialUiState.isReadTutorial) {
                 ModalBottomSheet(
@@ -199,6 +166,7 @@ fun ChatScreen(
     modifier: Modifier = Modifier,
     popUpBackStack: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
+    event: SharedFlow<ChatUiEvent>,
     chatList: LazyPagingItems<Chat>,
     userId: Long = 0L,
     showTutorial: () -> Unit = {},
@@ -211,16 +179,36 @@ fun ChatScreen(
     currentPath: String? = null,
     removePlayer: () -> Unit = {},
 ) {
+    var showVoteError by remember { mutableStateOf(false) }
     var inputMessage by remember { mutableStateOf("") }
     var showBottomSheet by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
 
     LaunchedEffect(Unit) {
         if (chatList.itemCount > 0) {
             lazyListState.animateScrollToItem(0)
+        }
+    }
+
+    LaunchedEffect(event) {
+        event.collectLatest { newEvent ->
+            when (newEvent) {
+                is ChatUiEvent.Error -> {
+                    showSnackBar(newEvent.message)
+                }
+
+                is ChatUiEvent.VoteError -> {
+                    showVoteError = true
+                }
+
+                is ChatUiEvent.NewMessage -> {
+                    lazyListState.animateScrollToItem(0)
+                }
+
+                else -> {}
+            }
         }
     }
 
@@ -446,6 +434,24 @@ fun ChatScreen(
             }
         }
     }
+
+    if (showVoteError) {
+        Box(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(color = Black.copy(alpha = 0.5f))
+                    .clickable(enabled = false) { },
+            contentAlignment = Alignment.Center,
+        ) {
+            OneButtonTextDialog(
+                text = context.getString(R.string.vote_error_msg),
+                buttonText = "확인",
+                onButtonClick = { showVoteError = false },
+            )
+        }
+    }
+
     if (showBottomSheet) {
         var clickedItem by remember { mutableStateOf("") }
         ModalBottomSheet(
