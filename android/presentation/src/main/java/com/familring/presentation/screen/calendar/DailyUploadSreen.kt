@@ -1,7 +1,9 @@
 package com.familring.presentation.screen.calendar
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -69,6 +71,7 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.createCameraFile
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toFile
 import okhttp3.MultipartBody
@@ -101,7 +104,6 @@ fun DailyUploadRoute(
 
     DailyUploadScreen(
         modifier = modifier,
-        state = uiState,
         targetDaily = targetDaily,
         isModify = isModify,
         createDaily = dailyViewModel::createDaily,
@@ -114,7 +116,6 @@ fun DailyUploadRoute(
 @Composable
 fun DailyUploadScreen(
     modifier: Modifier = Modifier,
-    state: DailyUiState = DailyUiState(),
     targetDaily: DailyLife,
     isModify: Boolean = false,
     createDaily: (String, MultipartBody.Part?) -> Unit = { _, _ -> },
@@ -138,21 +139,11 @@ fun DailyUploadScreen(
             },
         )
 
-    val cameraFile =
-        File.createTempFile("photo_", ".jpg", context.cacheDir).apply {
-            createNewFile()
-            deleteOnExit()
-        }
-    val cameraFileUri =
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            cameraFile,
-        )
+    var tempUri = Uri.EMPTY
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
             if (isSuccess) {
-                imgUri = cameraFileUri
+                imgUri = tempUri
             }
         }
 
@@ -162,6 +153,8 @@ fun DailyUploadScreen(
             ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
             if (isGranted) {
+                val (cameraFile, cameraFileUri) = createCameraFile(context)
+                tempUri = cameraFileUri
                 cameraLauncher.launch(cameraFileUri)
             }
         }
@@ -305,7 +298,14 @@ fun DailyUploadScreen(
                                                 context,
                                                 Manifest.permission.CAMERA,
                                             ),
-                                            -> cameraLauncher.launch(cameraFileUri)
+                                            -> {
+                                                val (cameraFile, cameraFileUri) =
+                                                    createCameraFile(
+                                                        context,
+                                                    )
+                                                tempUri = cameraFileUri
+                                                cameraLauncher.launch(cameraFileUri)
+                                            }
 
                                             else -> permissionLauncher.launch(Manifest.permission.CAMERA)
                                         }

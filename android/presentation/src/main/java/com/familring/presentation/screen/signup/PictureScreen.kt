@@ -44,7 +44,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import com.familring.presentation.R
@@ -59,6 +58,7 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Red01
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.util.createCameraFile
 import com.familring.presentation.util.toFile
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -145,21 +145,11 @@ fun PictureScreen(
         }
     }
 
-    val cameraFile =
-        File.createTempFile("photo_", ".jpg", context.cacheDir).apply {
-            createNewFile()
-            deleteOnExit()
-        }
-    val cameraFileUri =
-        FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.fileprovider",
-            cameraFile,
-        )
+    var tempUri = Uri.EMPTY
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
             if (isSuccess) {
-                imgUri = cameraFileUri
+                imgUri = tempUri
             }
         }
 
@@ -169,6 +159,8 @@ fun PictureScreen(
             ActivityResultContracts.RequestPermission(),
         ) { isGranted: Boolean ->
             if (isGranted) {
+                val (cameraFile, cameraFileUri) = createCameraFile(context)
+                tempUri = cameraFileUri
                 cameraLauncher.launch(cameraFileUri)
             }
         }
@@ -223,7 +215,14 @@ fun PictureScreen(
                                     context,
                                     Manifest.permission.CAMERA,
                                 ),
-                                -> cameraLauncher.launch(cameraFileUri)
+                                -> {
+                                    val (cameraFile, cameraFileUri) =
+                                        createCameraFile(
+                                            context,
+                                        )
+                                    tempUri = cameraFileUri
+                                    cameraLauncher.launch(cameraFileUri)
+                                }
 
                                 else -> permissionLauncher.launch(Manifest.permission.CAMERA)
                             }
