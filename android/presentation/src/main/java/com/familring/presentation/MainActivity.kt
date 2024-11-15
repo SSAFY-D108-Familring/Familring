@@ -17,10 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.WindowCompat
 import com.familring.presentation.theme.FamilringTheme
 import com.kakao.sdk.common.util.Utility
@@ -51,7 +48,7 @@ class MainActivity : ComponentActivity() {
         handleDeepLink(intent)
 
         // apk 막기 용도
-        val date = LocalDateTime.of(2024, 11, 15, 12, 0)
+        val date = LocalDateTime.of(2024, 11, 18, 0, 0)
 
         setContent {
             FamilringTheme {

@@ -278,6 +278,20 @@ fun ChatScreen(
                                             title = it.voteTitle,
                                             unReadMembers = item.unReadMembers.toString(),
                                             time = item.createdAt.toTimeOnly(),
+                                            onAgree = {
+                                                sendVoteResponse(
+                                                    context,
+                                                    it.voteId,
+                                                    "찬성",
+                                                )
+                                            },
+                                            onDisagree = {
+                                                sendVoteResponse(
+                                                    context,
+                                                    it.voteId,
+                                                    "반대",
+                                                )
+                                            },
                                         )
                                     }
                                 } else {

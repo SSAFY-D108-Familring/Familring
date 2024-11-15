@@ -131,15 +131,55 @@ fun VoteMessage(
                                     .wrapContentHeight()
                                     .background(color = White),
                         ) {
-                            Text(
-                                modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 30.dp),
-                                text = title,
-                                style = Typography.displaySmall.copy(fontSize = 18.sp),
-                                textAlign = TextAlign.Center,
-                            )
+                            Column(modifier = Modifier.wrapContentSize()) {
+                                Spacer(modifier = Modifier.height(20.dp))
+                                Text(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    text = title,
+                                    style = Typography.displaySmall.copy(fontSize = 18.sp),
+                                    textAlign = TextAlign.Center,
+                                )
+                                Spacer(modifier = Modifier.height(20.dp))
+                                Row(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 10.dp),
+                                ) {
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .weight(1f)
+                                                .noRippleClickable { onDisagree() }
+                                                .clip(shape = RoundedCornerShape(5.dp))
+                                                .background(color = Pink01),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            modifier = Modifier.padding(vertical = 10.dp),
+                                            text = "반대",
+                                            style = Typography.headlineSmall.copy(fontSize = 14.sp),
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .weight(1f)
+                                                .noRippleClickable { onAgree() }
+                                                .clip(shape = RoundedCornerShape(5.dp))
+                                                .background(color = Blue01),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            modifier = Modifier.padding(vertical = 10.dp),
+                                            text = "찬성",
+                                            style = Typography.headlineSmall.copy(fontSize = 14.sp),
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                         }
                     }
                 }
@@ -303,7 +343,7 @@ fun VoteMessage(
 @Preview(showBackground = true)
 fun MyVoteMessagePreview() {
     VoteMessage(
-        isOther = true,
+        isOther = false,
         title = "오늘 저녁 치킨 어때유?",
         unReadMembers = "3",
         time = "15:00",

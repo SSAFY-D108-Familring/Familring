@@ -304,18 +304,23 @@ class ChatViewModel
             voteId: String,
             responseOfVote: String,
         ) {
+            Timber.d("sendVoteResponse 실행")
             viewModelScope.launch {
-                stompSession.withMoshi(moshi).convertAndSend(
-                    headers = StompSendHeaders(destination = VOTE_URL),
-                    body =
-                        VoteResponse(
-                            roomId = familyId.toString(),
-                            senderId = userId.toString(),
-                            voteId = voteId,
-                            messageType = context.getString(R.string.vote_response_type),
-                            responseOfVote = responseOfVote,
-                        ),
-                )
+                try {
+                    stompSession.withMoshi(moshi).convertAndSend(
+                        headers = StompSendHeaders(destination = VOTE_URL),
+                        body =
+                            VoteResponse(
+                                roomId = familyId.toString(),
+                                senderId = userId.toString(),
+                                voteId = voteId,
+                                messageType = context.getString(R.string.vote_response_type),
+                                responseOfVote = responseOfVote,
+                            ),
+                    )
+                } catch (e: Exception) {
+                    Timber.d("vote error, ")
+                }
             }
         }
 
