@@ -65,6 +65,8 @@ import com.familring.presentation.component.dialog.TwoButtonTextDialog
 import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray02
+import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -225,12 +227,25 @@ fun DailyUploadScreen(
                         contentDescription = "daily",
                     )
                 } else {
-                    Icon(
-                        modifier = Modifier.size(60.dp),
-                        painter = painterResource(id = R.drawable.ic_camera),
-                        contentDescription = "ic_camera",
-                        tint = Gray01,
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            modifier = Modifier.size(60.dp),
+                            painter = painterResource(id = R.drawable.ic_camera),
+                            contentDescription = "ic_camera",
+                            tint = Gray01,
+                        )
+                        Text(
+                            modifier = Modifier.padding(top = 3.dp),
+                            text = "사진 등록은 필수입니다",
+                            style =
+                                Typography.displaySmall.copy(
+                                    fontSize = 18.sp,
+                                    color = Gray02,
+                                ),
+                        )
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
@@ -246,7 +261,7 @@ fun DailyUploadScreen(
             RoundLongButton(
                 modifier =
                     Modifier
-                        .padding(vertical = 20.dp),
+                        .padding(vertical = 10.dp),
                 text = if (!isModify) "일상 등록하기" else "일상 수정하기",
                 onClick = {
                     if (!isModify) {
