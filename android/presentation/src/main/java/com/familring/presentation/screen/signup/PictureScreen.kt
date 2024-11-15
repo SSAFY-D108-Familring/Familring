@@ -157,8 +157,10 @@ fun PictureScreen(
             cameraFile,
         )
     val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            imgUri = cameraFileUri
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                imgUri = cameraFileUri
+            }
         }
 
     // 권한 요청을 위한 launcher

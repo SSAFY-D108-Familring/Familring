@@ -66,7 +66,6 @@ import com.familring.presentation.component.textfield.GrayBackgroundTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
-import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Gray04
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -151,8 +150,10 @@ fun DailyUploadScreen(
             cameraFile,
         )
     val cameraLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            imgUri = cameraFileUri
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
+                imgUri = cameraFileUri
+            }
         }
 
     // 권한 요청을 위한 launcher
