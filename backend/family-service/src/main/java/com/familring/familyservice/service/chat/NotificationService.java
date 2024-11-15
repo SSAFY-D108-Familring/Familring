@@ -14,10 +14,14 @@ public class NotificationService {
     private final ApplicationEventPublisher eventPublisher;
 
     public void notifyReadStatusUpdate(Long roomId) {
-        eventPublisher.publishEvent(new NotificationEvent(this, roomId, "UPDATE_READ_STATUS"));
+        eventPublisher.publishEvent(new NotificationEvent(this, roomId, "UPDATE_READ_STATUS", "read"));
     }
 
     public void notifyRoomExit(Long roomId, Long userId) {
-        eventPublisher.publishEvent(new NotificationEvent(this, roomId, userId + "님이 채팅방을 나갔습니다."));
+        eventPublisher.publishEvent(new NotificationEvent(this, roomId, userId + "님이 채팅방을 나갔습니다.", "read"));
+    }
+
+    public void notifyVoteConflict(Long roomId, Long userId) {
+        eventPublisher.publishEvent(new NotificationEvent(this, roomId, "투표를 중복 참여하셨습니다.", "error"));
     }
 }

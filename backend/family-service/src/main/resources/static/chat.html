@@ -79,6 +79,12 @@
                     displayExitMessage(message.body);
                 });
 
+                stompClient.subscribe(`/room/${roomId}/error`, (message) => {
+                    const errorMessage = message.body; // 서버에서 전송한 메시지
+                    console.error("Error received:", errorMessage);
+                    alert(`에러 메시지: ${errorMessage}`);
+                });
+
                 isConnected = true;
                 console.log("WebSocket connected and subscribed to /room/" + roomId);
             }

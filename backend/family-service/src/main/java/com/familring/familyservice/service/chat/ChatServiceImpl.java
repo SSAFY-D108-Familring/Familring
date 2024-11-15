@@ -33,6 +33,7 @@ public class ChatServiceImpl implements ChatService {
 
     private final FamilyService familyService;
     private final ChatRoomService chatRoomService;
+    private final NotificationService notificationService;
 
     private final ChatRepository chatRepository;
     private final VoteRepository voteRepository;
@@ -135,6 +136,7 @@ public class ChatServiceImpl implements ChatService {
         String voteResponse = chatRequest.getResponseOfVote();
         if (vote.getChoices().containsKey(participantId)) {
             log.info("[createChatVoteResponse] 해당 인원이 이미 투표에 참여 완료");
+            conflictVote(roomId, chatRequest.getSenderId());
             throw new AlreadyVoteParticipantException();
         }
         vote.getChoices().put(participantId, voteResponse);
@@ -274,5 +276,7 @@ public class ChatServiceImpl implements ChatService {
         return response;
     }
 
-
+    private void conflictVote(Long roomId, Long userId) {
+        notificationService.notifyVoteConflict(roomId, userId);
+    }
 }
