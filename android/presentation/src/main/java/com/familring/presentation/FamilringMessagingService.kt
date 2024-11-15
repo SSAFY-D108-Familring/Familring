@@ -2,9 +2,10 @@ package com.familring.presentation
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
-import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -20,46 +21,56 @@ class FamilringMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        // 수신된 메시지 로그로 출력
         Timber.tag("FCM_TEST").d("Received FCM message: ${message.data}")
 
-        // data payload가 있는 경우
+        val notificationType = message.data["type"] ?: "NONE"
+
         if (message.data.isNotEmpty()) {
             val title = message.data["title"] ?: "알림"
             val body = message.data["body"] ?: "새로운 메시지가 있습니다"
-            showNotification(title, body)
-        }
-        // notification payload가 있는 경우
-        else if (message.notification != null) {
+            showNotification(title, body, notificationType)
+        } else if (message.notification != null) {
             val title = message.notification?.title ?: "알림"
             val body = message.notification?.body ?: "새로운 메시지가 있습니다"
-            showNotification(title, body)
+            showNotification(title, body, notificationType)
         }
     }
 
     private fun showNotification(
         title: String,
         body: String,
+        type: String,
     ) {
         val channelId = "knock_channel"
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Android Oreo 이상에서는 채널 생성 필요
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel =
-                NotificationChannel(
-                    channelId,
-                    "똑똑 알림",
-                    NotificationManager.IMPORTANCE_HIGH,
-                ).apply {
-                    description = "답변 독촉 알림"
-                    enableLights(true)
-                    lightColor = Color.WHITE
-                    enableVibration(true)
-                }
-            notificationManager.createNotificationChannel(channel)
-        }
+        val intent =
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                data = android.net.Uri.parse("familring://app/notification?type=$type")
+            }
+
+        val pendingIntent =
+            PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            )
+
+        val channel =
+            NotificationChannel(
+                channelId,
+                "알림",
+                NotificationManager.IMPORTANCE_HIGH,
+            ).apply {
+                description = "알림"
+                enableLights(true)
+                lightColor = Color.WHITE
+                enableVibration(true)
+            }
+        notificationManager.createNotificationChannel(channel)
 
         val notification =
             NotificationCompat
@@ -68,6 +79,7 @@ class FamilringMessagingService : FirebaseMessagingService() {
                 .setContentText(body)
                 .setSmallIcon(R.drawable.ic_fill_home)
                 .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
                 .build()
 
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
