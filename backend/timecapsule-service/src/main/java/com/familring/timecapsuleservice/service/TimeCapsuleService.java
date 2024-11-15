@@ -133,43 +133,50 @@ public class TimeCapsuleService {
 
         TimeCapsule timeCapsule;
         if (timeCapsuleOpt.isEmpty()) {
-            timeCapsule = TimeCapsule.builder()
-                    .familyId(familyId)
-                    .startDate(LocalDate.now())
-                    .endDate(timeCapsuleCreateRequest.getDate())
-                    .build();
+            int dayCount = (int) ChronoUnit.DAYS.between(currentDate, timeCapsuleCreateRequest.getDate());
+            if (dayCount > 0) { // 하루 이상일 때
+                timeCapsule = TimeCapsule.builder()
+                        .familyId(familyId)
+                        .startDate(LocalDate.now())
+                        .endDate(timeCapsuleCreateRequest.getDate())
+                        .build();
 
-            String uniqueId = UUID.randomUUID().toString();
+                String uniqueId = UUID.randomUUID().toString();
 
-            // Job 설정
-            JobDetail jobDetail = JobBuilder.newJob(TimeCapsuleNotificationJob.class)
-                    .withIdentity("timeCapsuleNotificationJob_" + uniqueId)
-                    .usingJobData("userId", userId)
-                    .usingJobData("timeCapsuleId", uniqueId)
-                    .build();
+                // Job 설정
+                JobDetail jobDetail = JobBuilder.newJob(TimeCapsuleNotificationJob.class)
+                        .withIdentity("timeCapsuleNotificationJob_" + uniqueId)
+                        .usingJobData("userId", userId)
+                        .usingJobData("timeCapsuleId", uniqueId)
+                        .build();
 
-            // LocalDate를 Date로 변환
-            Date triggerStartDate = Date.from(timeCapsuleCreateRequest.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                // LocalDate를 Date로 변환
+                Date triggerStartDate = Date.from(timeCapsuleCreateRequest.getDate().atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-            // 지정된 endDate에 Job이 실행되도록 트리거 생성
-            Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity("timeCapsuleNotificationTrigger_" + uniqueId)
-                    .startAt(triggerStartDate)
-                    .build();
+                // 지정된 endDate에 Job이 실행되도록 트리거 생성
+                Trigger trigger = TriggerBuilder.newTrigger()
+                        .withIdentity("timeCapsuleNotificationTrigger_" + uniqueId)
+                        .startAt(triggerStartDate)
+                        .build();
 
-            try {
-                notificationScheduler.scheduleJob(jobDetail, trigger);
-                log.info("스케쥴러 성공");
-            } catch (Exception e) {
-                log.info(e.toString());
-                throw new FailedCreateTimeCapsuleException();
+                try {
+                    notificationScheduler.scheduleJob(jobDetail, trigger);
+                    log.info("스케쥴러 성공");
+                } catch (Exception e) {
+                    log.info(e.toString());
+                    throw new FailedCreateTimeCapsuleException();
+                }
+
+                timeCapsuleRepository.save(timeCapsule);
+            } else {
+                // 최소 하루 이상일 때 생성 가능합니다.
+                throw new MinimumDurationTimeCapsuleException();
             }
-
         } else { // 만약에 타임캡슐이 이미 있을 경우 throw
             throw new AlreadyExistTimeCapsuleException();
         }
 
-        timeCapsuleRepository.save(timeCapsule);
+
     }
 
     // 타임캡슐 답변 생성 (타임캡슐 생성 일자 부터 최소 1일 까지만 작성 가능)
