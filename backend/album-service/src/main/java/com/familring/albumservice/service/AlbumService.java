@@ -26,7 +26,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -44,6 +47,7 @@ import static com.familring.albumservice.domain.AlbumType.*;
 @Log4j2
 public class AlbumService {
 
+    private final TransactionTemplate transactionTemplate;
     private final FamilyServiceFeignClient familyServiceFeignClient;
     private final FileServiceFeignClient fileServiceFeignClient;
     private final ClassificationServiceFeignClient classificationServiceFeignClient;
@@ -186,14 +190,19 @@ public class AlbumService {
         List<Photo> newPhotos = photoUrls.stream().map(url -> Photo.builder().photoUrl(url).build()).toList();
 
         /****************** 얼굴 사진 분류 ******************/
-        executor.execute(() -> faceClassification(userId, photoUrls, newPhotos));
+        executor.execute(() -> transactionTemplate.execute(
+                (status) -> {
+                    faceClassification(userId, photoUrls, newPhotos);
+                    return null;
+                }
+        ));
 
         // DB에 저장
         album.addPhotos(newPhotos);
     }
 
-    @Transactional
     public void faceClassification(Long userId, List<String> photoUrls, List<Photo> newPhotos) {
+
         // 가족 얼굴 사진 가져오기
         List<UserInfoResponse> familyMembers = familyServiceFeignClient.getFamilyMemberList(userId).getData();
 
