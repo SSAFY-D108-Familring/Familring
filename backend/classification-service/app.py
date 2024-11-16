@@ -138,36 +138,17 @@ app = FastAPI(
     redoc_url=None
 )
 
-# 동시 처리 제한 및 대기 큐 설정
-MAX_CONCURRENT_REQUESTS = 15  # 동시 처리할 최대 요청 수
-MAX_QUEUE_SIZE = 50  # 최대 대기 큐 크기
-# Semaphore 대신 BoundedSemaphore 사용
-request_semaphore = asyncio.BoundedSemaphore(MAX_CONCURRENT_REQUESTS + MAX_QUEUE_SIZE)
+# 동시성 제어를 위한 상수와 세마포어
+MAX_CONCURRENT_REQUESTS = 15
+request_semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 
 async def adaptive_processing(processing_func, *args, **kwargs):
-    start_time = time.time()
+    """요청을 처리하는 래퍼 함수"""
     try:
-        async with request_semaphore:  # 동시 요청 제한
-            # 현재 활성 요청 수에 따라 처리 속도 조절
-            active_requests = MAX_CONCURRENT_REQUESTS - request_semaphore._value
-            delay = math.exp(active_requests / MAX_CONCURRENT_REQUESTS) - 1
-            if delay > 0:
-                await asyncio.sleep(delay)
-            
+        async with request_semaphore:  # context manager 사용으로 안전한 release 보장
             result = await processing_func(*args, **kwargs)
-            
-            processing_time = time.time() - start_time
-            logger.info(f"Request processed in {processing_time:.2f}s with {active_requests} active requests")
-            
             return result
-    except ValueError:
-        # 대기 큐가 가득 찼을 때
-        raise HTTPException(
-            status_code=503,
-            detail="서버 대기열이 가득 찼습니다. 잠시 후 다시 시도해주세요."
-        )
     except Exception as e:
-        logger.error(f"Processing error: {str(e)}")
         raise
 
 # Prometheus 설정
