@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,6 +20,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.familring.domain.model.calendar.DailyLife
 import com.familring.domain.model.calendar.Schedule
+import com.familring.presentation.MainActivity.Companion.startDestination
 import com.familring.presentation.navigation.BottomNavigationBar
 import com.familring.presentation.navigation.ScreenDestinations
 import com.familring.presentation.screen.calendar.CalendarRoute
@@ -52,7 +52,6 @@ import com.familring.presentation.screen.timecapsule.TimeCapsuleRoute
 import com.familring.presentation.theme.White
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @Composable
 fun MainScreen(modifier: Modifier = Modifier) {
@@ -61,17 +60,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val context = LocalContext.current
-
-    val startDestination = remember(MainActivity.startDestination) {
-        when (MainActivity.startDestination) {
-            "question" -> ScreenDestinations.Question.route
-            "schedule" -> ScreenDestinations.Calendar.route
-            "chat" -> ScreenDestinations.Chat.route
-            "timecapsule" -> ScreenDestinations.TimeCapsule.route
-            "interest" -> ScreenDestinations.Interest.route
-            else -> ScreenDestinations.Login.route
-        }
-    }
 
     val onShowSnackBar: (message: String) -> Unit = { message ->
         coroutineScope.launch {
@@ -107,24 +95,23 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 modifier
                     .padding(innerPadding),
             navController = navController,
-            startDestination = startDestination,
             showSnackBar = onShowSnackBar,
         )
     }
 
     LaunchedEffect(startDestination) {
-        if (startDestination != ScreenDestinations.Login.route) {
-            try {
-                navController.navigate(startDestination) {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        inclusive = true
-                    }
-                    launchSingleTop = true
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "Navigation failed")
-            }
-        }
+//        if (startDestination != ScreenDestinations.Login.route) {
+//            try {
+//                navController.navigate(startDestination) {
+//                    popUpTo(navController.graph.findStartDestination().id) {
+//                        inclusive = true
+//                    }
+//                    launchSingleTop = true
+//                }
+//            } catch (e: Exception) {
+//                Timber.e(e, "Navigation failed")
+//            }
+//        }
     }
 }
 
@@ -132,7 +119,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
 fun MainNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    startDestination: String,
     showSnackBar: (String) -> Unit,
 ) {
     val galleryViewModel = hiltViewModel<GalleryViewModel>()
@@ -148,7 +134,7 @@ fun MainNavHost(
                 modifier = modifier,
                 navigateToHome = {
                     navController.navigate(ScreenDestinations.Home.route) {
-                        popUpTo(startDestination) {
+                        popUpTo("Login") {
                             inclusive = true
                         }
                     }
@@ -242,7 +228,17 @@ fun MainNavHost(
                 navigateToMyPage = {
                     navController.navigate(ScreenDestinations.MyPage.route)
                 },
+                navigateToQuestion = {
+                    navController.navigate(ScreenDestinations.Question.route)
+                },
+                navigateToSchedule = {
+                    navController.navigate(ScreenDestinations.Calendar.route)
+                },
                 showSnackBar = showSnackBar,
+                notiDestination = startDestination ?: "",
+                reset = {
+                    startDestination = ""
+                },
             )
         }
 
@@ -441,7 +437,7 @@ fun MainNavHost(
                 modifier = modifier,
                 onNavigateBack = navController::popBackStack,
                 viewModel = galleryViewModel,
-                showSnackbar = showSnackBar
+                showSnackbar = showSnackBar,
             )
         }
 
@@ -527,14 +523,14 @@ fun MainNavHost(
             )
         }
     }
-    LaunchedEffect(startDestination) {
-        if (startDestination != ScreenDestinations.Login.route) {
-            navController.navigate(startDestination) {
-                popUpTo(navController.graph.startDestinationId) {
-                    inclusive = true
-                }
-                launchSingleTop = true
-            }
-        }
-    }
+//    LaunchedEffect(startDestination) {
+//        if (startDestination != ScreenDestinations.Login.route) {
+//            navController.navigate(startDestination) {
+//                popUpTo(navController.graph.startDestinationId) {
+//                    inclusive = true
+//                }
+//                launchSingleTop = true
+//            }
+//        }
+//    }
 }

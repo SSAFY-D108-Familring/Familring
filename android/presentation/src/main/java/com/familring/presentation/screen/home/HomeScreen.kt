@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,13 +86,30 @@ fun HomeRoute(
     navigateToTimeCapsule: () -> Unit,
     navigateToInterest: () -> Unit,
     navigateToMyPage: () -> Unit,
+    navigateToQuestion: () -> Unit,
+    navigateToSchedule: () -> Unit,
     showSnackBar: (String) -> Unit,
+    notiDestination: String,
+    reset: () -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
     val homeEvent by viewModel.homeEvent.collectAsStateWithLifecycle(initialValue = HomeEvent.None)
 
+    var alreadyMoved by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.refresh()
+
+        if (!alreadyMoved) {
+            when (notiDestination) {
+                "question" -> navigateToQuestion()
+                "schedule" -> navigateToSchedule()
+                "timecapsule" -> navigateToTimeCapsule()
+                "interest" -> navigateToInterest()
+            }
+            reset()
+            alreadyMoved = true
+        }
     }
 
     when (val state = homeState) {
@@ -189,9 +207,9 @@ fun HomeScreen(
     ) {
         Column(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
         ) {
             Column(
                 modifier =
