@@ -7,14 +7,11 @@ import com.familring.domain.datastore.AuthDataStore
 import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserLoginRequest
-import com.google.android.gms.tasks.Tasks
-import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -22,7 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resumeWithException
@@ -35,7 +31,6 @@ class LoginViewModel
     constructor(
         private val userRepository: UserRepository,
         private val authDataStore: AuthDataStore,
-        private val firebaseMessaging: FirebaseMessaging,
     ) : ViewModel() {
         private val _loginState = MutableStateFlow<LoginState>(LoginState.Init)
         val loginState = _loginState.asStateFlow()
@@ -68,7 +63,6 @@ class LoginViewModel
                         when (response) {
                             is ApiResponse.Success -> {
                                 Timber.d("서버 로그인 성공: " + response.data)
-                                updateFCMToken()
                                 _loginEvent.emit(LoginEvent.LoginSuccess)
                             }
 
@@ -85,33 +79,6 @@ class LoginViewModel
                 _loginState.value = LoginState.Init
             }
         }
-
-        suspend fun updateFCMToken(): String? =
-            withContext(Dispatchers.IO) {
-                try {
-                    val fcmToken = Tasks.await(firebaseMessaging.token)
-                    val savedToken = authDataStore.getFCMToken()
-
-                    if (savedToken != fcmToken) {
-                        userRepository.updateFCMToken(fcmToken).collectLatest { response ->
-                            when (response) {
-                                is ApiResponse.Success -> {
-                                    Timber.d("FCM 토큰 업데이트 성공")
-                                    authDataStore.saveFCMToken(fcmToken)
-                                }
-
-                                is ApiResponse.Error -> {
-                                    Timber.e("FCM 토큰 업데이트 실패: " + response.message)
-                                }
-                            }
-                        }
-                    }
-                    fcmToken
-                } catch (e: Exception) {
-                    Timber.e(e, "FCM 토큰 업데이트 실패")
-                    null
-                }
-            }
 
         fun handleKakaoLogin(activity: Activity) {
             viewModelScope.launch {
@@ -238,11 +205,6 @@ class LoginViewModel
                                         when (response) {
                                             is ApiResponse.Success -> {
                                                 Timber.tag(TAG).d("서버 로그인 성공: " + response.data)
-                                                // FCM 토큰 즉시 업데이트
-                                                val fcmToken = updateFCMToken()
-                                                if (fcmToken != null) {
-                                                    Timber.d("신규 로그인 FCM 토큰 업데이트 완료: $fcmToken")
-                                                }
                                                 _loginState.value = LoginState.Success(token, user.id)
                                                 _loginEvent.emit(LoginEvent.LoginSuccess)
                                             }
@@ -250,12 +212,6 @@ class LoginViewModel
                                             is ApiResponse.Error -> {
                                                 when {
                                                     response.code == "USER_NOT_FOUND" || response.code == "404 NOT_FOUND" -> {
-                                                        // 회원가입 화면으로 이동하기 전에 FCM 토큰 미리 준비
-                                                        val fcmToken = updateFCMToken()
-                                                        if (fcmToken != null) {
-                                                            authDataStore.saveFCMToken(fcmToken)
-                                                            Timber.d("회원가입 전 FCM 토큰 저장 완료: $fcmToken")
-                                                        }
                                                         _loginState.value =
                                                             LoginState.NoRegistered("회원가입이 필요합니다")
                                                         _loginEvent.emit(

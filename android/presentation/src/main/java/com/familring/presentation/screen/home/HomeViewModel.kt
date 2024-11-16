@@ -7,7 +7,10 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.repository.FamilyRepository
 import com.familring.domain.repository.UserRepository
 import com.familring.domain.request.UserEmotionRequest
+import com.google.android.gms.tasks.Tasks
+import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -25,6 +29,7 @@ class HomeViewModel
         private val familyRepository: FamilyRepository,
         private val userRepository: UserRepository,
         private val authDataStore: AuthDataStore,
+        private val firebaseMessaging: FirebaseMessaging,
     ) : ViewModel() {
         private val _homeState = MutableStateFlow<HomeState>(HomeState.Loading)
         val homeState = _homeState.asStateFlow()
@@ -41,6 +46,7 @@ class HomeViewModel
             viewModelScope.launch {
                 refreshTrigger.collectLatest {
                     getFamilyMembers()
+                    updateFCMToken()
                 }
             }
         }
@@ -48,6 +54,33 @@ class HomeViewModel
         fun refresh() {
             refreshTrigger.value += 1 // 트리거가 필요함
         }
+
+        suspend fun updateFCMToken(): String? =
+            withContext(Dispatchers.IO) {
+                try {
+                    val fcmToken = Tasks.await(firebaseMessaging.token)
+                    val savedToken = authDataStore.getFCMToken()
+
+                    if (savedToken != fcmToken) {
+                        userRepository.updateFCMToken(fcmToken).collectLatest { response ->
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    Timber.d("FCM 토큰 업데이트 성공")
+                                    authDataStore.saveFCMToken(fcmToken)
+                                }
+
+                                is ApiResponse.Error -> {
+                                    Timber.e("FCM 토큰 업데이트 실패: " + response.message)
+                                }
+                            }
+                        }
+                    }
+                    fcmToken
+                } catch (e: Exception) {
+                    Timber.e(e, "FCM 토큰 업데이트 실패")
+                    null
+                }
+            }
 
         private fun getFamilyMembers() {
             viewModelScope.launch {
