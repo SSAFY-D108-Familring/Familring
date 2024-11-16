@@ -373,7 +373,7 @@ async def load_image_from_bytes(file_content: bytes):
         return None
 
 async def process_face_encodings(image):
-    """비동기적으로 얼굴 인코딩 처리 - 향상된 파라미터 적용"""
+    """비동기적으로 얼굴 인코딩 처리 - 과검출 방지"""
     if image is None:
         logger.error("입력 이미지가 None입니다")
         return []
@@ -384,7 +384,6 @@ async def process_face_encodings(image):
         # 이미지 크기 조정
         height, width = image.shape[:2]
         max_dimension = 1300
-        logger.info(f"원본 이미지 크기: {width}x{height}")
         
         if max(height, width) > max_dimension:
             scale = max_dimension / max(height, width)
@@ -392,8 +391,6 @@ async def process_face_encodings(image):
                 THREAD_POOL,
                 lambda: cv2.resize(image, None, fx=scale, fy=scale)
             )
-            new_height, new_width = image.shape[:2]
-            logger.info(f"이미지 크기 조정: {new_width}x{new_height} (scale: {scale:.2f})")
 
         logger.info("얼굴 검출 시도")
         face_locations = await loop.run_in_executor(
@@ -401,21 +398,22 @@ async def process_face_encodings(image):
             lambda: face_recognition.face_locations(image, model="hog", number_of_times_to_upsample=1)
         )
         
+        # 과검출 방지를 위한 간단한 제한
+        MAX_REASONABLE_FACES = 20
+        if len(face_locations) > MAX_REASONABLE_FACES:
+            face_locations = face_locations[:MAX_REASONABLE_FACES]
+            logger.info(f"검출된 얼굴이 너무 많아 처음 {MAX_REASONABLE_FACES}개만 처리합니다.")
+        
         if not face_locations:
             logger.warning("얼굴 검출 실패")
             return []
             
         logger.info(f"검출된 얼굴 수: {len(face_locations)}")
         
-        # 향상된 파라미터 적용
         logger.info("얼굴 인코딩 시작")
         face_encodings = await loop.run_in_executor(
             THREAD_POOL,
-            lambda: face_recognition.face_encodings(
-                image, 
-                face_locations, 
-                num_jitters=3,  # 증가된 jitter 값
-            )
+            lambda: face_recognition.face_encodings(image, face_locations, num_jitters=3)
         )
     
         if face_encodings:
