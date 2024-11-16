@@ -139,7 +139,7 @@ app = FastAPI(
 )
 
 # 동시 처리 제한 및 대기 큐 설정
-MAX_CONCURRENT_REQUESTS = 30  # 동시 처리할 최대 요청 수
+MAX_CONCURRENT_REQUESTS = 15  # 동시 처리할 최대 요청 수
 MAX_QUEUE_SIZE = 50  # 최대 대기 큐 크기
 # Semaphore 대신 BoundedSemaphore 사용
 request_semaphore = asyncio.BoundedSemaphore(MAX_CONCURRENT_REQUESTS + MAX_QUEUE_SIZE)
