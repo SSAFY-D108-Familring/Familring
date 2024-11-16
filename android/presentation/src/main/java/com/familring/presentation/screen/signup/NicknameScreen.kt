@@ -104,6 +104,7 @@ fun NicknameScreen(
                         },
                         placeHolder = "닉네임을 입력해 주세요",
                         focusManager = focusManager,
+                        maxValue = 5,
                     )
                     Box(
                         modifier = Modifier.fillMaxWidth(0.9f),
