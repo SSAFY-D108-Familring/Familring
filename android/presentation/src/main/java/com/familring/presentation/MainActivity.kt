@@ -58,12 +58,12 @@ class MainActivity : ComponentActivity() {
 //                if (LocalDateTime.now() > date) {
 //                    BlockScreen()
 //                } else {
-                    MainScreen(
-                        modifier =
-                            Modifier
-                                .statusBarsPadding()
-                                .navigationBarsPadding(),
-                    )
+                MainScreen(
+                    modifier =
+                        Modifier
+                            .statusBarsPadding()
+                            .navigationBarsPadding(),
+                )
 //                }
             }
         }
@@ -83,21 +83,25 @@ class MainActivity : ComponentActivity() {
                 when (uri.host) {
                     "notification" -> {
                         val type = uri.getQueryParameter("type")
-                        startDestination = when (type) {
-                            "KNOCK", "RANDOM" -> "question"
-                            "MENTION_SCHEDULE" -> "schedule"
-                            "TIMECAPSULE" -> "timecapsule"
-                            "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
-                            else -> null
-                        }
+                        startDestination =
+                            when (type) {
+                                "KNOCK", "RANDOM" -> "question"
+                                "MENTION_SCHEDULE" -> "schedule"
+                                "TIMECAPSULE" -> "timecapsule"
+                                "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
+                                else -> null
+                            }
                         Timber.d("딥링크로 이동할 화면: $startDestination")
+                        intent.data = null // 딥링크 데이터 삭제
                     }
+
                     else -> {
                         // 기존의 copy_code 처리
                         val action = uri.getQueryParameter("action")
                         val code = uri.getQueryParameter("code")
                         if (action == "copy_code" && code != null) {
-                            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clipboard =
+                                getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                             val clip = ClipData.newPlainText("family_code", code)
                             clipboard.setPrimaryClip(clip)
                         }

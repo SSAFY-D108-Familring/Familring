@@ -58,6 +58,7 @@ import coil.compose.AsyncImage
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.User
 import com.familring.domain.request.UserEmotionRequest
+import com.familring.presentation.MainActivity.Companion.startDestination
 import com.familring.presentation.R
 import com.familring.presentation.component.LoveMention
 import com.familring.presentation.component.dialog.LoadingDialog
@@ -77,6 +78,7 @@ import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun HomeRoute(
@@ -99,6 +101,8 @@ fun HomeRoute(
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
+        Timber.d("already moved original $alreadyMoved")
+        Timber.d("start destination original $startDestination")
 
         if (!alreadyMoved) {
             when (notiDestination) {
@@ -109,6 +113,8 @@ fun HomeRoute(
             }
             reset()
             alreadyMoved = true
+            Timber.d("already moved reset $alreadyMoved")
+            Timber.d("start destination reset $startDestination")
         }
     }
 
@@ -207,9 +213,9 @@ fun HomeScreen(
     ) {
         Column(
             modifier =
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
         ) {
             Column(
                 modifier =

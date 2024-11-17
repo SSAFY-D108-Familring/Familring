@@ -237,7 +237,8 @@ fun MainNavHost(
                 showSnackBar = showSnackBar,
                 notiDestination = startDestination ?: "",
                 reset = {
-                    startDestination = ""
+                    startDestination = null
+                    navController.popBackStack(ScreenDestinations.Login.route, inclusive = true)
                 },
             )
         }
