@@ -63,6 +63,7 @@ import com.familring.presentation.component.dialog.LoadingDialog
 import com.familring.presentation.component.tutorial.TreeExplanation
 import com.familring.presentation.screen.mypage.roleToWord
 import com.familring.presentation.theme.Black
+import com.familring.presentation.theme.Blue01
 import com.familring.presentation.theme.Gray01
 import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
@@ -703,7 +704,7 @@ fun FamilyCard(
                     onCardClick(user.userId)
                 },
         shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = Green06),
+        colors = CardDefaults.cardColors(containerColor = getEmotionBackgroundColor(user.userEmotion)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Box(
@@ -808,6 +809,16 @@ fun EmptyCard() {
         }
     }
 }
+
+fun getEmotionBackgroundColor(emotion: String): Color =
+    when {
+        emotion.contains("평범") -> Green06
+        emotion.contains("기뻐") -> Color(0xFFFFC76E)
+        emotion.contains("즐거") -> Color(0xFFFFF383)
+        emotion.contains("화났") -> Color(0xFFFFA6A6)
+        emotion.contains("슬퍼") -> Blue01
+        else -> Green06
+    }// 추가
 
 @Preview
 @Composable
