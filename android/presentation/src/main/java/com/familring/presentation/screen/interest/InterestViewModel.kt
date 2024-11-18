@@ -133,12 +133,6 @@ class InterestViewModel
                         is ApiResponse.Success -> {
                             _uiEvent.emit(InterestUiEvent.CreateSuccess)
                             getAnswerStatus()
-//                            _uiState.update {
-//                                it.copy(
-//                                    isWroteInterest = true,
-//                                    myInterest = content,
-//                                )
-//                            }
                             getAnswersCount()
                         }
 
@@ -158,12 +152,6 @@ class InterestViewModel
                         is ApiResponse.Success -> {
                             _uiEvent.emit(InterestUiEvent.EditSuccess)
                             getAnswerStatus()
-//                            _uiState.update {
-//                                it.copy(
-//                                    isWroteInterest = true,
-//                                    myInterest = content,
-//                                )
-//                            }
                             getAnswersCount()
                         }
 
