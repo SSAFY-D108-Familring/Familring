@@ -37,6 +37,8 @@ import com.familring.presentation.theme.Green06
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun NotificationRoute(
@@ -50,8 +52,6 @@ fun NotificationRoute(
     viewModel: NotificationViewModel = hiltViewModel(),
 ) {
     val notificationListState = viewModel.notificationListState.collectAsStateWithLifecycle()
-    val notificationEvent =
-        viewModel.notificationEvent.collectAsStateWithLifecycle(initialValue = NotificationEvent.Loading)
 
     LaunchedEffect(Unit) {
         viewModel.getNotificationList()
@@ -60,7 +60,7 @@ fun NotificationRoute(
     NotificationScreen(
         modifier = modifier,
         navigateToHome = navigateToHome,
-        notificationEvent = notificationEvent.value,
+        notificationEvent = viewModel.notificationEvent,
         viewModel = viewModel,
         notificationListState = notificationListState.value,
         onNotificationClick = { notification ->
@@ -82,25 +82,23 @@ fun NotificationScreen(
     modifier: Modifier = Modifier,
     navigateToHome: () -> Unit = {},
     viewModel: NotificationViewModel,
-    notificationEvent: NotificationEvent,
+    notificationEvent: SharedFlow<NotificationEvent>,
     notificationListState: NotificationListState,
     onNotificationClick: (NotificationResponse) -> Unit = {},
 ) {
     LaunchedEffect(notificationEvent) {
-        when (notificationEvent) {
-            is NotificationEvent.Loading -> {
-                // 로딩
-            }
+        notificationEvent.collectLatest { event ->
+            when (event) {
+                is NotificationEvent.Loading -> {
+                    // 로딩
+                }
 
-            is NotificationEvent.Success -> {
-                viewModel.getNotificationList()
-            }
+                is NotificationEvent.Success -> {
+                    viewModel.getNotificationList()
+                }
 
-            is NotificationEvent.Error -> {
-            }
-
-            null -> {
-                // 로딩
+                is NotificationEvent.Error -> {
+                }
             }
         }
     }
@@ -221,14 +219,4 @@ fun NotificationItem(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun NotificationScreenPreview() {
-    NotificationScreen(
-        viewModel = hiltViewModel(),
-        notificationListState = NotificationListState.Loading,
-        notificationEvent = NotificationEvent.Loading,
-    )
 }

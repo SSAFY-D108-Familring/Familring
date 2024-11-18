@@ -43,6 +43,7 @@ import com.familring.presentation.theme.FamilringTheme
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
 @Composable
@@ -81,25 +82,25 @@ fun LoginScreen(
     val context = LocalContext.current
     val activity = context as? MainActivity
 
-    val loginEvent by viewModel.loginEvent.collectAsStateWithLifecycle(initialValue = LoginEvent.None)
-
     var isLoading by remember { mutableStateOf(false) }
 
-    LaunchedEffect(loginEvent) {
-        when (loginEvent) {
-            is LoginEvent.None -> {
-                isLoading = false
-            }
+    LaunchedEffect(viewModel.loginEvent) {
+        viewModel.loginEvent.collectLatest { event ->
+            when (event) {
+                is LoginEvent.None -> {
+                    isLoading = false
+                }
 
-            is LoginEvent.Loading -> isLoading = true
+                is LoginEvent.Loading -> isLoading = true
 
-            is LoginEvent.LoginSuccess -> {
-                isLoading = false
-                navigateToHome()
-            }
+                is LoginEvent.LoginSuccess -> {
+                    isLoading = false
+                    navigateToHome()
+                }
 
-            is LoginEvent.Error -> {
-                isLoading = false
+                is LoginEvent.Error -> {
+                    isLoading = false
+                }
             }
         }
     }

@@ -80,6 +80,8 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.theme.Yellow01
 import com.familring.presentation.util.noRippleClickable
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeRoute(
@@ -92,7 +94,6 @@ fun HomeRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
-    val homeEvent by viewModel.homeEvent.collectAsStateWithLifecycle(initialValue = HomeEvent.None)
 
     LaunchedEffect(Unit) {
         viewModel.refresh()
@@ -113,7 +114,7 @@ fun HomeRoute(
                 navigateToInterest = navigateToInterest,
                 navigateToMyPage = navigateToMyPage,
                 showSnackBar = showSnackBar,
-                homeEvent = homeEvent,
+                homeEvent = viewModel.homeEvent,
                 viewModel = viewModel,
             )
         }
@@ -125,7 +126,7 @@ fun HomeRoute(
                 navigateToTimeCapsule = navigateToTimeCapsule,
                 navigateToInterest = navigateToInterest,
                 showSnackBar = showSnackBar,
-                homeEvent = homeEvent,
+                homeEvent = viewModel.homeEvent,
                 viewModel = viewModel,
             )
             showSnackBar(state.errorMessage)
@@ -143,7 +144,7 @@ fun HomeScreen(
     navigateToInterest: () -> Unit = {},
     navigateToMyPage: () -> Unit = {},
     showSnackBar: (String) -> Unit = {},
-    homeEvent: HomeEvent,
+    homeEvent: SharedFlow<HomeEvent>,
     viewModel: HomeViewModel,
 ) {
     var progress by remember {
@@ -160,16 +161,18 @@ fun HomeScreen(
     }
 
     LaunchedEffect(homeEvent) {
-        when (homeEvent) {
-            is HomeEvent.Success -> {
-                showSnackBar("알림을 성공적으로 전송했습니다")
-            }
+        homeEvent.collectLatest { event ->
+            when (event) {
+                is HomeEvent.Success -> {
+                    showSnackBar("알림을 성공적으로 전송했습니다")
+                }
 
-            is HomeEvent.UpdateSuccess -> {
-                showSnackBar("나의 현재 기분이 변경되었어요!")
-            }
+                is HomeEvent.UpdateSuccess -> {
+                    showSnackBar("나의 현재 기분이 변경되었어요!")
+                }
 
-            else -> {}
+                else -> {}
+            }
         }
     }
 

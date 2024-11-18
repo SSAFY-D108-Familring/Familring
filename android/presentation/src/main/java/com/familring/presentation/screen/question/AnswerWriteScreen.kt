@@ -39,6 +39,7 @@ import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
 @Composable
@@ -48,7 +49,6 @@ fun AnswerWriteRoute(
     showSnackBar: (String) -> Unit,
     viewModel: QuestionViewModel = hiltViewModel(),
 ) {
-    val questionEvent by viewModel.questionEvent.collectAsStateWithLifecycle(initialValue = QuestionEvent.Loading)
     val questionState by viewModel.questionState.collectAsStateWithLifecycle()
     when (val state = questionState) {
         is QuestionState.Loading -> {
@@ -88,23 +88,21 @@ fun AnswerWriteRoute(
         }
     }
 
-    LaunchedEffect(questionEvent) {
-        when (val event = questionEvent) {
-            is QuestionEvent.Loading -> {
-                // 답변 대기중...
-            }
+    LaunchedEffect(viewModel.questionEvent) {
+        viewModel.questionEvent.collectLatest { event ->
+            when (event) {
+                is QuestionEvent.Loading -> {
+                    // 답변 대기중...
+                }
 
-            is QuestionEvent.Success -> {
-                showSnackBar("답변이 작성되었습니다")
-                onNavigateBack()
-            }
+                is QuestionEvent.Success -> {
+                    showSnackBar("답변이 작성되었습니다")
+                    onNavigateBack()
+                }
 
-            is QuestionEvent.Error -> {
-                showSnackBar(event.message)
-            }
-
-            null -> {
-                showSnackBar("답변을 작성해주세요")
+                is QuestionEvent.Error -> {
+                    showSnackBar(event.message)
+                }
             }
         }
     }
