@@ -360,6 +360,7 @@ fun ScheduleItem(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
+                        modifier = Modifier.weight(1f),
                         text = schedule.title,
                         style =
                             Typography.headlineLarge.copy(
@@ -393,7 +394,8 @@ fun ScheduleItem(
                 )
             }
             Spacer(modifier = Modifier.width(20.dp))
-            Spacer(modifier = Modifier.weight(1f))
+//            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.width(10.dp))
             OverlappingProfileLazyRow(
                 modifier = Modifier.align(Alignment.CenterVertically),
                 profileSize = 32,
