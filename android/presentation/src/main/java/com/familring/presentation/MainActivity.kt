@@ -17,16 +17,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.ui.Modifier
-import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.WindowCompat
-import com.familring.presentation.theme.FamilringTheme
-import com.kakao.sdk.common.util.Utility
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
-import java.time.LocalDateTime
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -50,25 +44,14 @@ class MainActivity : ComponentActivity() {
         // 앱 처음 시작될 때 들어온 인텐트 처리
         handleDeepLink(intent)
 
-        // apk 막기 용도
-        val date = LocalDateTime.of(2024, 11, 24, 0, 0)
-
         setContent {
-            FamilringTheme {
-                if (LocalDateTime.now() > date) {
-                    BlockScreen()
-                } else {
-                    MainScreen(
-                        modifier =
-                            Modifier
-                                .statusBarsPadding()
-                                .navigationBarsPadding(),
-                    )
-                }
-            }
+            MainScreen(
+                modifier =
+                    Modifier
+                        .statusBarsPadding()
+                        .navigationBarsPadding(),
+            )
         }
-
-        Timber.tag("keyhash :").d(Utility.getKeyHash(this))
     }
 
     // 앱 이미 실행 중일 때 새로운 인텐트로 들어올 경우 처리
@@ -83,13 +66,14 @@ class MainActivity : ComponentActivity() {
                 when (uri.host) {
                     "notification" -> {
                         val type = uri.getQueryParameter("type")
-                        startDestination = when (type) {
-                            "KNOCK", "RANDOM" -> "question"
-                            "MENTION_SCHEDULE" -> "schedule"
-                            "TIMECAPSULE" -> "timecapsule"
-                            "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
-                            else -> null
-                        }
+                        startDestination =
+                            when (type) {
+                                "KNOCK", "RANDOM" -> "question"
+                                "MENTION_SCHEDULE" -> "schedule"
+                                "TIMECAPSULE" -> "timecapsule"
+                                "INTEREST_PICK", "INTEREST_COMPLETE" -> "interest"
+                                else -> null
+                            }
                         Timber.d("딥링크로 이동할 화면: $startDestination")
                     }
                 }
