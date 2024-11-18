@@ -261,7 +261,7 @@ public class InterestService {
             for (InterestAnswer i : interestAnswerList) {
                 if (i.getUserId().equals(4L)) {
                     log.info(("userId : " + i.getUserId()));
-                    selectedAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest).orElseThrow();
+                    selectedAnswer = interestAnswerRepository.findByUserIdAndInterest(i.getUserId(), interest).orElseThrow();
                     selectedAnswer.updateSelected(true);
                     break;
                 }
