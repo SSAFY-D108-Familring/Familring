@@ -260,6 +260,7 @@ public class InterestService {
 //            InterestAnswer selectedAnswer = interestAnswerList.get(random.nextInt(interestAnswerList.size()));
             for (InterestAnswer i : interestAnswerList) {
                 if (i.getUserId().equals(4L)) {
+                    log.info(("userId : " + i.getUserId()));
                     selectedAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest).orElseThrow();
                     selectedAnswer.updateSelected(true);
                     break;
