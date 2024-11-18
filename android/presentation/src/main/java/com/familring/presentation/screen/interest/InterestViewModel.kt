@@ -133,6 +133,13 @@ class InterestViewModel
                         is ApiResponse.Success -> {
                             _uiEvent.emit(InterestUiEvent.CreateSuccess)
                             getAnswerStatus()
+//                            _uiState.update {
+//                                it.copy(
+//                                    isWroteInterest = true,
+//                                    myInterest = content,
+//                                )
+//                            }
+                            getAnswersCount()
                         }
 
                         is ApiResponse.Error -> {
@@ -151,6 +158,13 @@ class InterestViewModel
                         is ApiResponse.Success -> {
                             _uiEvent.emit(InterestUiEvent.EditSuccess)
                             getAnswerStatus()
+//                            _uiState.update {
+//                                it.copy(
+//                                    isWroteInterest = true,
+//                                    myInterest = content,
+//                                )
+//                            }
+                            getAnswersCount()
                         }
 
                         is ApiResponse.Error -> {
@@ -168,13 +182,19 @@ class InterestViewModel
                 interestRepository.getAnswers().collect { result ->
                     when (result) {
                         is ApiResponse.Success -> {
+                            val count =
+                                result.data.count { member ->
+                                    member.interest.isNotEmpty() and member.interest.isNotBlank()
+                                }
                             _uiState.update {
                                 it.copy(
                                     isWritingScreenLoading = false,
-                                    wroteFamilyCount =
-                                        result.data.count { member ->
-                                            member.interest.isNotEmpty() and member.interest.isNotBlank()
-                                        },
+                                    wroteFamilyCount = count,
+                                )
+                            }
+                            if (count >= 2) {
+                                _uiEvent.emit(
+                                    InterestUiEvent.ShowDialog(count),
                                 )
                             }
                         }

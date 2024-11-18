@@ -63,6 +63,8 @@ fun InterestRoute(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showTutorial by remember { mutableStateOf(true) }
 
+    var showDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         interestViewModel.uiEvent.collect { event ->
             when (event) {
@@ -72,6 +74,12 @@ fun InterestRoute(
 
                 is InterestUiEvent.EditSuccess -> {
                     onShowSnackBar("관심사를 수정했어요")
+                }
+
+                is InterestUiEvent.ShowDialog -> {
+                    if (uiState.isFamilyWrote) {
+                        showDialog = true
+                    }
                 }
 
                 is InterestUiEvent.Error -> {
@@ -124,6 +132,22 @@ fun InterestRoute(
             }
         }
     }
+
+    if (showDialog) {
+        Dialog(
+            onDismissRequest = { showDialog = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            InterestSelectDialog(
+                count = uiState.wroteFamilyCount,
+                selectInterest = {
+                    interestViewModel.selectInterest()
+                    showDialog = false
+                },
+                closeDialog = { showDialog = false },
+            )
+        }
+    }
 }
 
 @Composable
@@ -140,14 +164,6 @@ fun InterestScreen(
     navigateToInterestList: () -> Unit = {},
     onNavigateBack: () -> Unit = {},
 ) {
-    var showDialog by remember { mutableStateOf(state.isFamilyWrote && state.wroteFamilyCount >= 2) }
-
-    LaunchedEffect(state.wroteFamilyCount) {
-        if (state.wroteFamilyCount >= 2) {
-            showDialog = true
-        }
-    }
-
     Surface(
         modifier = modifier.fillMaxSize(),
         color = White,
@@ -229,22 +245,6 @@ fun InterestScreen(
                         )
                     }
                 }
-            }
-        }
-
-        if (showDialog) {
-            Dialog(
-                onDismissRequest = { },
-                properties = DialogProperties(usePlatformDefaultWidth = false),
-            ) {
-                InterestSelectDialog(
-                    count = state.wroteFamilyCount,
-                    selectInterest = {
-                        selectInterest()
-                        showDialog = false
-                    },
-                    closeDialog = { showDialog = false },
-                )
             }
         }
     }

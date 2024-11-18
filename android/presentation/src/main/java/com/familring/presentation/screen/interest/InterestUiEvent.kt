@@ -5,6 +5,10 @@ sealed interface InterestUiEvent {
 
     data object EditSuccess : InterestUiEvent
 
+    data class ShowDialog(
+        val count: Int,
+    ) : InterestUiEvent
+
     data class Error(
         val code: String,
         val message: String,

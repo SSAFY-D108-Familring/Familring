@@ -82,13 +82,14 @@ fun InterestSelectDialog(
                         .clip(shape = RoundedCornerShape(50.dp))
                         .background(color = Green01)
                         .clickable { selectInterest() }
-                        .padding(horizontal = 22.dp, vertical = 18.dp),
-                shape = RoundedCornerShape(50.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(20.dp),
             ) {
                 Text(
                     modifier =
                         Modifier
-                            .background(color = Green01),
+                            .background(color = Green01)
+                            .padding(10.dp),
                     text = "관심사 선정하기",
                     style = Typography.titleSmall,
                 )
