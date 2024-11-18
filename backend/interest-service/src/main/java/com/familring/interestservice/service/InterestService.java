@@ -94,7 +94,7 @@ public class InterestService {
         Interest interest = interestRepository.findFirstByFamilyIdOrderByIdDesc(familyId).orElseThrow(InterestNotFoundException::new);
 
         // 찾은 관심사로 관심사 답변 찾기
-        InterestAnswer interestAnswer = interestAnswerRepository.findByInterest(interest).orElseThrow(InterestAnswerNotFoundException::new);
+        InterestAnswer interestAnswer = interestAnswerRepository.findByUserIdAndInterest(userId, interest).orElseThrow(InterestAnswerNotFoundException::new);
 
         // 수정
         interestAnswer.updateContent(interestAnswerCreateRequest.getContent());
