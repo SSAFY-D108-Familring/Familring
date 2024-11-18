@@ -134,6 +134,7 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
+        @Volatile
         var startDestination: String? = null
     }
 }
