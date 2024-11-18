@@ -358,9 +358,10 @@ fun ScheduleItem(
                     Modifier
                         .weight(1f),
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        modifier = Modifier.weight(1f),
                         text = schedule.title,
                         style =
                             Typography.headlineLarge.copy(
@@ -394,7 +395,6 @@ fun ScheduleItem(
                 )
             }
             Spacer(modifier = Modifier.width(20.dp))
-//            Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.width(10.dp))
             OverlappingProfileLazyRow(
                 modifier = Modifier.align(Alignment.CenterVertically),
@@ -476,6 +476,7 @@ val schedules =
         Schedule(
             title = "현진이 생일",
             backgroundColor = "0xFFC9D0FF",
+            albumId = 1L,
         ),
         Schedule(
             title = "현진이 생일",
