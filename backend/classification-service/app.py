@@ -357,22 +357,36 @@ async def preprocess_image(image):
         )
 
 async def load_image_from_url_async(url: str, session: aiohttp.ClientSession):
-    """비동기적으로 URL에서 이미지를 로드"""
+    """비동기적으로 URL에서 이미지를 로드 - 메모리 관리 개선"""
     try:
         async with session.get(url) as response:
             response.raise_for_status()
             content = await response.read()
+            
             loop = asyncio.get_event_loop()
             img = await loop.run_in_executor(
                 THREAD_POOL,
-                lambda: Image.open(BytesIO(content))
+                lambda: np.ascontiguousarray(
+                    cv2.imdecode(
+                        np.frombuffer(content, np.uint8),
+                        cv2.IMREAD_COLOR
+                    )
+                )
             )
-            # 여기가 수정된 부분
+            
+            if img is None:
+                raise ValueError("이미지를 디코딩할 수 없습니다")
+                
             processed_img = await preprocess_image(img)
+            del img
             return processed_img
+            
     except Exception as e:
         logger.error(f"이미지 로드 실패: {url} - {str(e)}")
         return None
+    finally:
+        if 'content' in locals():
+            del content
 
 
 async def load_image_from_bytes(file_content: bytes):
@@ -392,7 +406,7 @@ async def load_image_from_bytes(file_content: bytes):
         return None
 
 async def process_face_encodings(image):
-    """비동기적으로 얼굴 인코딩 처리 - 향상된 파라미터 적용"""
+    """비동기적으로 얼굴 인코딩 처리 - 메모리 관리 개선"""
     if image is None:
         logger.error("입력 이미지가 None입니다")
         return []
@@ -403,50 +417,71 @@ async def process_face_encodings(image):
         # 이미지 크기 조정
         height, width = image.shape[:2]
         max_dimension = 1300
-        logger.info(f"원본 이미지 크기: {width}x{height}")
         
         if max(height, width) > max_dimension:
             scale = max_dimension / max(height, width)
+            # RGB로 변환하여 처리
             image = await loop.run_in_executor(
                 THREAD_POOL,
-                lambda: cv2.resize(image, None, fx=scale, fy=scale)
+                lambda: cv2.cvtColor(cv2.resize(image, None, fx=scale, fy=scale), cv2.COLOR_BGR2RGB)
             )
-            new_height, new_width = image.shape[:2]
-            logger.info(f"이미지 크기 조정: {new_width}x{new_height} (scale: {scale:.2f})")
+        else:
+            # RGB로 변환
+            image = await loop.run_in_executor(
+                THREAD_POOL,
+                lambda: cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            )
 
-        logger.info("얼굴 검출 시도")
+        # numpy array를 연속적인 메모리에 할당
+        image = np.ascontiguousarray(image)
+
+        # 얼굴 검출 시도 - 파라미터 조정
         face_locations = await loop.run_in_executor(
             THREAD_POOL,
-            lambda: face_recognition.face_locations(image, model="hog", number_of_times_to_upsample=1)
+            lambda: face_recognition.face_locations(
+                image, 
+                model="hog",
+                number_of_times_to_upsample=1
+            )
         )
         
         if not face_locations:
-            logger.warning("얼굴 검출 실패")
+            del image
             return []
             
-        logger.info(f"검출된 얼굴 수: {len(face_locations)}")
+        # 메모리 사용량 최적화를 위한 배치 처리
+        batch_size = 5
+        face_encodings = []
         
-        # 향상된 파라미터 적용
-        logger.info("얼굴 인코딩 시작")
-        face_encodings = await loop.run_in_executor(
-            THREAD_POOL,
-            lambda: face_recognition.face_encodings(
-                image, 
-                face_locations, 
-                num_jitters=3,  # 증가된 jitter 값
+        for i in range(0, len(face_locations), batch_size):
+            batch_locations = face_locations[i:i + batch_size]
+            batch_encodings = await loop.run_in_executor(
+                THREAD_POOL,
+                lambda: face_recognition.face_encodings(
+                    image,
+                    batch_locations,
+                    num_jitters=2,  # jitter 값 감소
+                    model="small"  # 더 작은 모델 사용
+                )
             )
-        )
-    
-        if face_encodings:
-            logger.info(f"얼굴 인코딩 완료: {len(face_encodings)}개")
-            return face_encodings
-        else:
-            logger.warning("얼굴 인코딩 실패")
-            return []
+            face_encodings.extend(batch_encodings)
+            
+            # 배치 처리 후 메모리 정리
+            del batch_encodings
+        
+        # 메모리 정리
+        del image
+        del face_locations
+        
+        return face_encodings
             
     except Exception as e:
         logger.error(f"얼굴 인코딩 중 에러 발생: {str(e)}")
         return []
+    finally:
+        # 추가적인 메모리 정리
+        if 'image' in locals():
+            del image
 
 @app.post("/face-recognition/classification", response_model=BaseResponse[List[SimilarityResponse]])
 async def classify_images(request: AnalysisRequest):
