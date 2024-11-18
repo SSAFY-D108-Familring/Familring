@@ -138,7 +138,15 @@ fun TimeCapsuleItem(
                     modifier =
                         Modifier
                             .width(65.dp),
-                    painter = painterResource(id = R.drawable.img_wrapped_gift),
+                    painter =
+                        painterResource(
+                            id =
+                                if (timeCapsule.leftDays > 0) {
+                                    R.drawable.img_wrapped_gift
+                                } else {
+                                    R.drawable.img_pill
+                                },
+                        ),
                     contentDescription = "wrapped_gift",
                 )
             }
