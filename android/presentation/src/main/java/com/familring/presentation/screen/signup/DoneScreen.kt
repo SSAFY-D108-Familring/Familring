@@ -197,7 +197,7 @@ fun shareCode(
         FeedTemplate(
             content =
                 Content(
-                    title = "가족에게서 코드가 도착했어요! $code",
+                    title = "가족에게서 코드가 도착했어요! 💕 [$code]",
                     description = "패밀링에서 코드를 입력하고, 가족과 소통해 보세요.",
                     imageUrl = "https://familring-bucket.s3.ap-northeast-2.amazonaws.com/logo/FamilRing+LOGO.png",
                     link = Link(),
