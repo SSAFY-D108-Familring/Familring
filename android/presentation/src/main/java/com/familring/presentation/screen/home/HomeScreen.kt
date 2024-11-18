@@ -74,8 +74,11 @@ import com.familring.presentation.theme.Green03
 import com.familring.presentation.theme.Green04
 import com.familring.presentation.theme.Green05
 import com.familring.presentation.theme.Green06
+import com.familring.presentation.theme.Pink01
+import com.familring.presentation.theme.Red02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import com.familring.presentation.theme.Yellow01
 import com.familring.presentation.util.noRippleClickable
 
 @Composable
@@ -813,12 +816,12 @@ fun EmptyCard() {
 fun getEmotionBackgroundColor(emotion: String): Color =
     when {
         emotion.contains("평범") -> Green06
-        emotion.contains("기뻐") -> Color(0xFFFFC76E)
-        emotion.contains("즐거") -> Color(0xFFFFF383)
-        emotion.contains("화났") -> Color(0xFFFFA6A6)
+        emotion.contains("기뻐") -> Pink01
+        emotion.contains("즐거") -> Yellow01
+        emotion.contains("화났") -> Red02
         emotion.contains("슬퍼") -> Blue01
         else -> Green06
-    }// 추가
+    }
 
 @Preview
 @Composable
