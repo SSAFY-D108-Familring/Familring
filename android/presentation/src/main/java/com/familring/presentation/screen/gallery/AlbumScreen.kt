@@ -62,6 +62,8 @@ import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 import java.io.File
 
 @Composable
@@ -94,7 +96,6 @@ fun AlbumScreen(
 ) {
     val context = LocalContext.current
     val photoUiState by viewModel.photoUiState.collectAsStateWithLifecycle()
-    val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Init)
 
     var isSelectionMode by remember { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<Long>()) }
@@ -172,24 +173,26 @@ fun AlbumScreen(
         }
     }
 
-    LaunchedEffect(galleryUiEvent) {
-        when (galleryUiEvent) {
-            is GalleryUiEvent.Init -> {
-                isLoading = false
-            }
+    LaunchedEffect(viewModel.galleryUiEvent) {
+        viewModel.galleryUiEvent.collectLatest { event ->
+            when (event) {
+                is GalleryUiEvent.Init -> {
+                    isLoading = false
+                }
 
-            is GalleryUiEvent.Loading -> {
-                isLoading = true
-            }
+                is GalleryUiEvent.Loading -> {
+                    isLoading = true
+                }
 
-            is GalleryUiEvent.Success -> {
-                isLoading = false
-                Toast.makeText(context, "성공적으로 반영되었습니다", Toast.LENGTH_SHORT).show()
-            }
+                is GalleryUiEvent.Success -> {
+                    isLoading = false
+                    Toast.makeText(context, "성공적으로 반영되었습니다", Toast.LENGTH_SHORT).show()
+                }
 
-            is GalleryUiEvent.Error -> {
-                isLoading = false
-                Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                is GalleryUiEvent.Error -> {
+                    isLoading = false
+                    Toast.makeText(context, "오류가 발생했습니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -396,6 +399,7 @@ fun AlbumScreen(
             }
         }
         if (isLoading) {
+            Timber.d("사진 업데이트 중")
             LoadingDialog(loadingMessage = "사진 업데이트 중...")
         }
     }
