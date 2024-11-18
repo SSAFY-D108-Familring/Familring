@@ -206,7 +206,7 @@ fun QuestionListItem(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable { onQuestionClick(question.questionId) }
+                .noRippleClickable { onQuestionClick(question.questionId) }
                 .padding(horizontal = 25.dp)
                 .padding(bottom = 15.dp),
     ) {
