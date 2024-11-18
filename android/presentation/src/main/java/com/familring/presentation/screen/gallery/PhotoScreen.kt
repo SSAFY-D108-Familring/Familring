@@ -16,9 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -107,7 +104,7 @@ fun PhotoScreen(
             contract = ActivityResultContracts.RequestPermission(),
         ) { isGranted ->
             if (isGranted) {
-                viewModel.downloadImage(photos[pagerState.currentPage].photoUrl)
+                viewModel.downloadImage(listOf(photos[pagerState.currentPage].photoUrl))
                 showSnackbar("다운로드를 시작합니다.")
             } else {
                 showSnackbar("갤러리 접근 권한이 필요합니다.")
@@ -125,29 +122,30 @@ fun PhotoScreen(
                     Image(
                         painter = painterResource(id = R.drawable.img_img_down),
                         contentDescription = "down_image",
-                        modifier = Modifier.padding(end = 10.dp).size(25.dp).noRippleClickable {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                viewModel.downloadImage(photos[pagerState.currentPage].photoUrl)
-                                showSnackbar("다운로드를 시작합니다.")
-                            } else {
-                                when (PackageManager.PERMISSION_GRANTED) {
-                                    ContextCompat.checkSelfPermission(
-                                        context,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    ),
-                                    -> {
-                                        viewModel.downloadImage(photos[pagerState.currentPage].photoUrl)
-                                        showSnackbar("다운로드를 시작합니다.")
-                                    }
-
-                                    else -> {
-                                        requestPermissionLauncher.launch(
+                        modifier =
+                            Modifier.padding(end = 10.dp).size(25.dp).noRippleClickable {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    viewModel.downloadImage(listOf(photos[pagerState.currentPage].photoUrl))
+                                    showSnackbar("다운로드를 시작합니다.")
+                                } else {
+                                    when (PackageManager.PERMISSION_GRANTED) {
+                                        ContextCompat.checkSelfPermission(
+                                            context,
                                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                        )
+                                        ),
+                                        -> {
+                                            viewModel.downloadImage(listOf(photos[pagerState.currentPage].photoUrl))
+                                            showSnackbar("다운로드를 시작합니다.")
+                                        }
+
+                                        else -> {
+                                            requestPermissionLauncher.launch(
+                                                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                            )
+                                        }
                                     }
                                 }
-                            }
-                        }
+                            },
                     )
                 },
                 onNavigationClick = onNavigateBack,

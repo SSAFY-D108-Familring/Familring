@@ -426,6 +426,7 @@ fun MainNavHost(
                     navController.navigate(ScreenDestinations.Photo.createRoute(albumId, photoUrl))
                 },
                 viewModel = galleryViewModel,
+                showSnackBar = showSnackBar
             )
         }
 

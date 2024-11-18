@@ -284,26 +284,27 @@ class GalleryViewModel
             }
         }
 
-        fun downloadImage(url: String) {
+        fun downloadImage(urls: List<String>) {
             viewModelScope.launch {
                 try {
                     if (checkPermissions()) {
                         withContext(Dispatchers.IO) {
-                            val request =
-                                DownloadManager
-                                    .Request(Uri.parse(url))
-                                    .setTitle("패밀링 사진 \uD83D\uDCF8")
-                                    .setDescription("이미지 다운로드 중...")
-                                    .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                                    .setDestinationInExternalPublicDir(
-                                        Environment.DIRECTORY_PICTURES,
-                                        "Familring/${System.currentTimeMillis()}.jpg",
-                                    ).setAllowedOverMetered(true)
-                                    .setAllowedOverRoaming(true)
-
                             val downloadManager =
                                 context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-                            downloadManager.enqueue(request)
+                            urls.forEach { url ->
+                                val request =
+                                    DownloadManager
+                                        .Request(Uri.parse(url))
+                                        .setTitle("패밀링 사진 \uD83D\uDCF8")
+                                        .setDescription("이미지 다운로드 중...")
+                                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                                        .setDestinationInExternalPublicDir(
+                                            Environment.DIRECTORY_PICTURES,
+                                            "Familring/${System.currentTimeMillis()}.jpg",
+                                        ).setAllowedOverMetered(true)
+                                        .setAllowedOverRoaming(true)
+                                downloadManager.enqueue(request)
+                            }
                         }
                     }
                 } catch (e: Exception) {

@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
@@ -74,6 +75,7 @@ fun AlbumRoute(
     onNavigateBack: () -> Unit,
     onPhotoClick: (Long, String) -> Unit,
     viewModel: GalleryViewModel = hiltViewModel(),
+    showSnackBar: (String) -> Unit,
 ) {
     AlbumScreen(
         albumId = albumId,
@@ -82,6 +84,7 @@ fun AlbumRoute(
         onNavigateBack = onNavigateBack,
         onPhotoClick = onPhotoClick,
         viewModel = viewModel,
+        showSnackBar = showSnackBar,
     )
 }
 
@@ -93,12 +96,14 @@ fun AlbumScreen(
     onNavigateBack: () -> Unit = {},
     onPhotoClick: (Long, String) -> Unit = { _, _ -> },
     viewModel: GalleryViewModel,
+    showSnackBar: (String) -> Unit = {},
 ) {
     val context = LocalContext.current
     val photoUiState by viewModel.photoUiState.collectAsStateWithLifecycle()
 
     var isSelectionMode by remember { mutableStateOf(false) }
     var selectedPhotos by remember { mutableStateOf(setOf<Long>()) }
+    var photoList by remember { mutableStateOf(emptyList<String>()) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -153,6 +158,18 @@ fun AlbumScreen(
                         "갤러리 접근을 위해서는 권한이 필요합니다. 설정에서 권한을 허용해주세요.",
                         Toast.LENGTH_LONG,
                     ).show()
+            }
+        }
+
+    val downloadPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted) {
+                viewModel.downloadImage(photoList)
+                showSnackBar("다운로드를 시작합니다.")
+            } else {
+                showSnackBar("파일 쓰기 권한이 필요합니다.")
             }
         }
 
@@ -220,7 +237,44 @@ fun AlbumScreen(
                         is PhotoUiState.Success -> {
                             if (state.photoList.isNotEmpty()) {
                                 if (isSelectionMode) {
-                                    Row {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        Icon(
+                                            modifier =
+                                                Modifier
+                                                    .size(35.dp)
+                                                    .padding(end = 16.dp)
+                                                    .noRippleClickable {
+                                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                                            viewModel.downloadImage(photoList)
+                                                            showSnackBar("다운로드를 시작합니다.")
+                                                            photoList = emptyList()
+                                                            selectedPhotos = emptySet()
+                                                            isSelectionMode = false
+                                                        } else {
+                                                            when (PackageManager.PERMISSION_GRANTED) {
+                                                                ContextCompat.checkSelfPermission(
+                                                                    context,
+                                                                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                ),
+                                                                -> {
+                                                                    viewModel.downloadImage(photoList)
+                                                                    showSnackBar("다운로드를 시작합니다.")
+                                                                }
+
+                                                                else -> {
+                                                                    downloadPermissionLauncher.launch(
+                                                                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                            painter = painterResource(id = R.drawable.img_img_down),
+                                            contentDescription = "delete img",
+                                            tint = Black,
+                                        )
                                         Icon(
                                             modifier =
                                                 Modifier
@@ -363,6 +417,12 @@ fun AlbumScreen(
                                                     selectedPhotos - photo.id
                                                 } else {
                                                     selectedPhotos + photo.id
+                                                }
+                                            photoList =
+                                                if (photoList.contains(state.photoList[index].photoUrl)) {
+                                                    photoList - state.photoList[index].photoUrl
+                                                } else {
+                                                    photoList + state.photoList[index].photoUrl
                                                 }
                                         } else {
                                             onPhotoClick(albumId, photo.photoUrl)
