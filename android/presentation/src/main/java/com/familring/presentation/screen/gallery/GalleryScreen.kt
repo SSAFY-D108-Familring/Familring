@@ -75,9 +75,7 @@ fun GalleryRoute(
     showSnackBar: (String) -> Unit,
 ) {
     val tutorialUiState by viewModel.tutorialUiState.collectAsStateWithLifecycle()
-
     val galleryUiState by viewModel.galleryUiState.collectAsStateWithLifecycle()
-    val galleryUiEvent by viewModel.galleryUiEvent.collectAsStateWithLifecycle(GalleryUiEvent.Init)
 
     var showLoading by remember { mutableStateOf(false) }
 
@@ -119,24 +117,26 @@ fun GalleryRoute(
         },
     )
 
-    LaunchedEffect(galleryUiEvent) {
-        when (galleryUiEvent) {
-            is GalleryUiEvent.Init -> {
-                showLoading = false
-            }
+    LaunchedEffect(viewModel.galleryUiEvent) {
+        viewModel.galleryUiEvent.collect { event ->
+            when (event) {
+                is GalleryUiEvent.Init -> {
+                    showLoading = false
+                }
 
-            is GalleryUiEvent.Loading -> {
-                showLoading = true
-            }
+                is GalleryUiEvent.Loading -> {
+                    showLoading = true
+                }
 
-            is GalleryUiEvent.Success -> {
-                showLoading = false
-                showSnackBar("앨범이 생성되었습니다")
-            }
+                is GalleryUiEvent.Success -> {
+                    showLoading = false
+                    showSnackBar("앨범이 생성되었습니다")
+                }
 
-            is GalleryUiEvent.Error -> {
-                showLoading = false
-                showSnackBar("에러가 발생했습니다")
+                is GalleryUiEvent.Error -> {
+                    showLoading = false
+                    showSnackBar("에러가 발생했습니다")
+                }
             }
         }
     }
