@@ -24,10 +24,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionManager;
+
+import java.util.LinkedHashMap;
+
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -219,22 +219,43 @@ public class AlbumService {
 
         float threshold = 0.6f;
 
+
         // 유사도가 일정 이상 넘으면 앨범에 추가
         for (int i = 0; i < newPhotos.size(); i++) {
             Photo newPhoto = newPhotos.get(i);
-            Map<Long, Double> similarities = faceSimilarityResponses.get(i).getSimilarities();
+            FaceSimilarityResponse faceSimilarityResponse = faceSimilarityResponses.get(i);
+            Map<Long, Double> similarities = faceSimilarityResponse.getSimilarities();
 
-            similarities.forEach((id, score) -> {
-                if (score > threshold) {
-                    // 새로운 Photo 엔티티 생성
+            Map<Long, Double> sortedSimilarities = similarities.entrySet().stream()
+                    .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            (e1, e2) -> e1,
+                            LinkedHashMap::new
+                    ));
+
+            int count = 0;
+            int faceLimit = faceSimilarityResponse.getFaceCount();
+
+            for (Map.Entry<Long, Double> entry : sortedSimilarities.entrySet()) {
+                if (count >= faceLimit) break;
+
+                Long id = entry.getKey();
+                Double score = entry.getValue();
+
+                if (score >= threshold) {
                     Photo copyPhoto = Photo.builder()
                             .photoUrl(newPhoto.getPhotoUrl())
                             .parentPhoto(newPhoto)
                             .build();
 
                     albumMap.get(id).addPhoto(copyPhoto);
+                    count++;
+                } else {
+                    break;
                 }
-            });
+            }
         }
     }
 
