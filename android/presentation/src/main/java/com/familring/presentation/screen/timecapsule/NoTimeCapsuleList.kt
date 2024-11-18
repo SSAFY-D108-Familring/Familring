@@ -30,18 +30,18 @@ fun NoTimeCapsuleList(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.2f))
             Image(
                 painter = painterResource(id = R.drawable.img_worried_face),
                 contentDescription = "smile_face",
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.05f)) // 비율
+            Spacer(modifier = Modifier.fillMaxHeight(0.07f)) // 비율
             Text(
                 text = "아직 생성된 타임캡슐이 없어요",
                 style = Typography.headlineLarge.copy(fontSize = 24.sp),
                 color = Black,
             )
-            Spacer(modifier = Modifier.fillMaxHeight(0.01f))
+            Spacer(modifier = Modifier.fillMaxHeight(0.018f))
             Text(
                 text = "타임캡슐을 생성해 가족과 작성해 보세요!",
                 style =
