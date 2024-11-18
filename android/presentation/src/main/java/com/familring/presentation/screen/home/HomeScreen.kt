@@ -197,18 +197,19 @@ fun HomeScreen(
         Column(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                    .fillMaxSize(),
         ) {
             Column(
                 modifier =
                     Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp),
+                        .fillMaxWidth(),
             ) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Image(
@@ -239,427 +240,440 @@ fun HomeScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(25.dp))
-                Row {
-                    Spacer(
-                        modifier =
-                            Modifier
-                                .width(4.dp)
-                                .height(19.dp)
-                                .background(color = Green01, shape = RoundedCornerShape(4.dp)),
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        text = "나무로 알아보는 우리의 소통 상태",
-                        style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                    )
-                }
-                Spacer(modifier = Modifier.height(15.dp))
-                Box(
-                    modifier =
-                        Modifier
-                            .noRippleClickable { showTreeExplanation = true }
-                            .border(
-                                width = 1.dp,
-                                color = Gray03,
-                                shape = RoundedCornerShape(15.dp),
-                            ).padding(vertical = 15.dp),
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
                 ) {
-                    Row(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Image(
-                            modifier = Modifier.size(147.dp),
-                            painter =
-                                painterResource(
-                                    id =
-                                        if (progress > 75f) {
-                                            R.drawable.img_tree_status_four
-                                        } else if (progress > 50f) {
-                                            R.drawable.img_tree_status_three
-                                        } else if (progress > 25f) {
-                                            R.drawable.img_tree_status_two
-                                        } else {
-                                            R.drawable.img_tree_status_one
-                                        },
-                                ),
-                            contentDescription = "tree_img",
-                        )
-                        Column {
-                            Text(
-                                modifier = Modifier.padding(start = 15.dp),
-                                text = "우리 가족의 나무는 지금...",
-                                style = Typography.displayMedium,
+                    Column(modifier = Modifier.padding(horizontal = 20.dp)) {
+                        Spacer(modifier = Modifier.height(25.dp))
+                        Row {
+                            Spacer(
+                                modifier =
+                                    Modifier
+                                        .width(4.dp)
+                                        .height(19.dp)
+                                        .background(color = Green01, shape = RoundedCornerShape(4.dp)),
                             )
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                modifier = Modifier.padding(start = 15.dp),
-                                text =
-                                    if (progress > 75f) {
-                                        "초록초록 \uD83E\uDD70"
-                                    } else if (progress > 50f) {
-                                        "파릇파릇 \uD83D\uDE0A"
-                                    } else if (progress > 25f) {
-                                        "무럭무럭 \uD83D\uDE42"
-                                    } else {
-                                        "민둥맨둥 \uD83D\uDE30"
-                                    },
-                                style = Typography.titleLarge.copy(fontSize = 24.sp),
-                                color = Green02,
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                text = "나무로 알아보는 우리의 소통 상태",
+                                style = Typography.headlineSmall.copy(fontSize = 18.sp),
                             )
-                            Column(
+                        }
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Box(
+                            modifier =
+                                Modifier
+                                    .noRippleClickable { showTreeExplanation = true }
+                                    .border(
+                                        width = 1.dp,
+                                        color = Gray03,
+                                        shape = RoundedCornerShape(15.dp),
+                                    ).padding(vertical = 15.dp),
+                        ) {
+                            Row(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .padding(horizontal = 14.dp)
-                                        .padding(top = 8.dp),
+                                        .padding(horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Image(
+                                    modifier = Modifier.size(147.dp),
+                                    painter =
+                                        painterResource(
+                                            id =
+                                                if (progress > 75f) {
+                                                    R.drawable.img_tree_status_four
+                                                } else if (progress > 50f) {
+                                                    R.drawable.img_tree_status_three
+                                                } else if (progress > 25f) {
+                                                    R.drawable.img_tree_status_two
+                                                } else {
+                                                    R.drawable.img_tree_status_one
+                                                },
+                                        ),
+                                    contentDescription = "tree_img",
+                                )
+                                Column {
+                                    Text(
+                                        modifier = Modifier.padding(start = 15.dp),
+                                        text = "우리 가족의 나무는 지금...",
+                                        style = Typography.displayMedium,
+                                    )
+                                    Spacer(modifier = Modifier.height(3.dp))
+                                    Text(
+                                        modifier = Modifier.padding(start = 15.dp),
+                                        text =
+                                            if (progress > 75f) {
+                                                "초록초록 \uD83E\uDD70"
+                                            } else if (progress > 50f) {
+                                                "파릇파릇 \uD83D\uDE0A"
+                                            } else if (progress > 25f) {
+                                                "무럭무럭 \uD83D\uDE42"
+                                            } else {
+                                                "민둥맨둥 \uD83D\uDE30"
+                                            },
+                                        style = Typography.titleLarge.copy(fontSize = 24.sp),
+                                        color = Green02,
+                                    )
+                                    Column(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 14.dp)
+                                                .padding(top = 8.dp),
+                                    ) {
+                                        Box(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(bottom = 2.dp),
+                                            contentAlignment = Alignment.CenterEnd,
+                                        ) {
+                                            Text(
+                                                text = "100",
+                                                style = Typography.displaySmall.copy(fontSize = 8.sp),
+                                                color = Gray02,
+                                            )
+                                        }
+                                        Box(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .height(15.dp),
+                                        ) {
+                                            Box(
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxSize()
+                                                        .clip(RoundedCornerShape(9.dp))
+                                                        .background(Gray02),
+                                            )
+                                            Box(
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxWidth(size)
+                                                        .fillMaxHeight()
+                                                        .clip(RoundedCornerShape(9.dp))
+                                                        .background(
+                                                            if (progress > 75f) {
+                                                                Green02
+                                                            } else if (progress > 50f) {
+                                                                Green03
+                                                            } else if (progress > 25f) {
+                                                                Green04
+                                                            } else {
+                                                                Green05
+                                                            },
+                                                        ).animateContentSize(),
+                                            )
+                                        }
+                                        Box(
+                                            modifier =
+                                                Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(top = 2.dp),
+                                        ) {
+                                            Box(
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxWidth(size)
+                                                        .padding(end = 0.dp),
+                                                contentAlignment = Alignment.CenterEnd,
+                                            ) {
+                                                Text(
+                                                    text = "${progress.toInt()}",
+                                                    style = Typography.displaySmall.copy(fontSize = 8.sp),
+                                                    color = Color.Black,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Column(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 25.dp),
+                        ) {
+                            Row {
+                                Spacer(
+                                    modifier =
+                                        Modifier
+                                            .width(4.dp)
+                                            .height(19.dp)
+                                            .background(
+                                                color = Green01,
+                                                shape = RoundedCornerShape(4.dp),
+                                            ),
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    modifier = Modifier.padding(horizontal = 4.dp),
+                                    text = "서로를 알아가는 시간 가져 보기",
+                                    style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(15.dp))
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(15.dp),
+                                modifier = Modifier.fillMaxWidth(),
                             ) {
                                 Box(
                                     modifier =
                                         Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 2.dp),
-                                    contentAlignment = Alignment.CenterEnd,
+                                            .weight(1f)
+                                            .aspectRatio(1f)
+                                            .shadow(
+                                                elevation = 5.dp,
+                                                shape = RoundedCornerShape(23.dp),
+                                                spotColor = Gray01,
+                                                ambientColor = Gray01,
+                                            ).background(
+                                                color = Gray04,
+                                                shape = RoundedCornerShape(23.dp),
+                                            ).noRippleClickable { navigateToTimeCapsule() },
                                 ) {
-                                    Text(
-                                        text = "100",
-                                        style = Typography.displaySmall.copy(fontSize = 8.sp),
-                                        color = Gray02,
-                                    )
-                                }
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .height(15.dp),
-                                ) {
-                                    Box(
+                                    Column(
                                         modifier =
                                             Modifier
                                                 .fillMaxSize()
-                                                .clip(RoundedCornerShape(9.dp))
-                                                .background(Gray02),
-                                    )
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth(size)
-                                                .fillMaxHeight()
-                                                .clip(RoundedCornerShape(9.dp))
-                                                .background(
-                                                    if (progress > 75f) {
-                                                        Green02
-                                                    } else if (progress > 50f) {
-                                                        Green03
-                                                    } else if (progress > 25f) {
-                                                        Green04
-                                                    } else {
-                                                        Green05
-                                                    },
-                                                ).animateContentSize(),
-                                    )
+                                                .padding(horizontal = 15.dp)
+                                                .padding(top = 15.dp),
+                                        horizontalAlignment = Alignment.Start,
+                                    ) {
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            horizontalAlignment = Alignment.Start,
+                                        ) {
+                                            Text(
+                                                text = "타임캡슐",
+                                                style = Typography.titleSmall.copy(fontSize = 26.sp),
+                                            )
+                                            Spacer(modifier = Modifier.fillMaxSize(0.02f))
+                                            Text(
+                                                text = "나중에 열어보는 속마음",
+                                                style = Typography.displaySmall.copy(fontSize = 13.sp),
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            contentAlignment = Alignment.BottomEnd,
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.img_timecap),
+                                                contentDescription = "img_timecap",
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxWidth(0.6f)
+                                                        .aspectRatio(1f)
+                                                        .padding(bottom = 8.dp),
+                                            )
+                                        }
+                                    }
                                 }
                                 Box(
                                     modifier =
                                         Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 2.dp),
+                                            .weight(1f)
+                                            .aspectRatio(1f)
+                                            .shadow(
+                                                elevation = 7.dp,
+                                                shape = RoundedCornerShape(23.dp),
+                                                spotColor = Black,
+                                                ambientColor = Gray01,
+                                            ).background(
+                                                color = Green02,
+                                                shape = RoundedCornerShape(23.dp),
+                                            ).noRippleClickable { navigateToInterest() },
                                 ) {
-                                    Box(
+                                    Column(
                                         modifier =
                                             Modifier
-                                                .fillMaxWidth(size)
-                                                .padding(end = 0.dp),
-                                        contentAlignment = Alignment.CenterEnd,
+                                                .fillMaxSize()
+                                                .padding(horizontal = 15.dp)
+                                                .padding(top = 15.dp),
+                                        horizontalAlignment = Alignment.Start,
                                     ) {
-                                        Text(
-                                            text = "${progress.toInt()}",
-                                            style = Typography.displaySmall.copy(fontSize = 8.sp),
-                                            color = Color.Black,
-                                        )
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            horizontalAlignment = Alignment.Start,
+                                        ) {
+                                            Text(
+                                                text = "관심사 공유",
+                                                style = Typography.titleSmall.copy(fontSize = 26.sp),
+                                                color = White,
+                                            )
+                                            Spacer(modifier = Modifier.fillMaxSize(0.02f))
+                                            Text(
+                                                text = "함께 즐기는 서로의 취미",
+                                                style = Typography.displaySmall.copy(fontSize = 13.sp),
+                                                color = White,
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            contentAlignment = Alignment.BottomEnd,
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.img_interest),
+                                                contentDescription = "img_interest",
+                                                modifier =
+                                                    Modifier
+                                                        .fillMaxWidth(0.55f)
+                                                        .aspectRatio(1f)
+                                                        .padding(bottom = 15.dp),
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
+                        Spacer(modifier = Modifier.height(25.dp))
+                        Row {
+                            Spacer(
+                                modifier =
+                                    Modifier
+                                        .width(4.dp)
+                                        .height(19.dp)
+                                        .background(color = Green01, shape = RoundedCornerShape(4.dp)),
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                text = "오늘 우리 가족의 기분은?",
+                                style = Typography.headlineSmall.copy(fontSize = 18.sp),
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(15.dp))
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (mother != null && father == null) {
+                                Row(
+                                    modifier = Modifier.wrapContentSize(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.img_heart),
+                                        contentDescription = "heart_img",
+                                    )
+                                    Spacer(modifier = Modifier.width(15.dp))
+                                    FamilyCard(
+                                        user = mother,
+                                        onCardClick = {
+                                            if (mother.userId != currentUserId) {
+                                                selectedUser = mother
+                                                showLoveMention = true
+                                            } else {
+                                                showEditEmotion = true
+                                            }
+                                        },
+                                    )
+                                    Spacer(modifier = Modifier.width(15.dp))
+                                    Image(
+                                        painter = painterResource(id = R.drawable.img_heart),
+                                        contentDescription = "heart_img",
+                                    )
+                                }
+                            } else if (mother == null && father != null) {
+                                Row(
+                                    modifier = Modifier.wrapContentSize(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.img_heart),
+                                        contentDescription = "heart_img",
+                                    )
+                                    Spacer(modifier = Modifier.width(15.dp))
+                                    FamilyCard(
+                                        user = father,
+                                        onCardClick = {
+                                            if (father.userId != currentUserId) {
+                                                selectedUser = father
+                                                showLoveMention = true
+                                            } else {
+                                                showEditEmotion = true
+                                            }
+                                        },
+                                    )
+                                    Spacer(modifier = Modifier.width(15.dp))
+                                    Image(
+                                        painter = painterResource(id = R.drawable.img_heart),
+                                        contentDescription = "heart_img",
+                                    )
+                                }
+                            } else if (mother != null && father != null) {
+                                Row(
+                                    modifier = Modifier.wrapContentSize(),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    FamilyCard(
+                                        user = mother,
+                                        onCardClick = {
+                                            if (mother.userId != currentUserId) {
+                                                selectedUser = mother
+                                                showLoveMention = true
+                                            } else {
+                                                showEditEmotion = true
+                                            }
+                                        },
+                                    )
+                                    Spacer(modifier = Modifier.width(16.dp))
+                                    Image(
+                                        painter = painterResource(id = R.drawable.img_heart),
+                                        contentDescription = "heart_img",
+                                    )
+                                    Spacer(modifier = Modifier.width(15.dp))
+                                    FamilyCard(
+                                        user = father,
+                                        onCardClick = {
+                                            if (father.userId != currentUserId) {
+                                                selectedUser = father
+                                                showLoveMention = true
+                                            } else {
+                                                showEditEmotion = true
+                                            }
+                                        },
+                                    )
+                                }
+                            }
+                        }
                     }
-                }
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(top = 25.dp),
-                ) {
-                    Row {
-                        Spacer(
-                            modifier =
-                                Modifier
-                                    .width(4.dp)
-                                    .height(19.dp)
-                                    .background(color = Green01, shape = RoundedCornerShape(4.dp)),
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            text = "서로를 알아가는 시간 가져 보기",
-                            style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(15.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(15.dp),
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
                         modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Box(
+                        LazyRow(
                             modifier =
                                 Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .shadow(
-                                        elevation = 5.dp,
-                                        shape = RoundedCornerShape(23.dp),
-                                        spotColor = Gray01,
-                                        ambientColor = Gray01,
-                                    ).background(color = Gray04, shape = RoundedCornerShape(23.dp))
-                                    .noRippleClickable { navigateToTimeCapsule() },
+                                    .wrapContentWidth()
+                                    .padding(bottom = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp),
                         ) {
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 15.dp)
-                                        .padding(top = 15.dp),
-                                horizontalAlignment = Alignment.Start,
-                            ) {
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    horizontalAlignment = Alignment.Start,
-                                ) {
-                                    Text(
-                                        text = "타임캡슐",
-                                        style = Typography.titleSmall.copy(fontSize = 26.sp),
-                                    )
-                                    Spacer(modifier = Modifier.fillMaxSize(0.02f))
-                                    Text(
-                                        text = "나중에 열어보는 속마음",
-                                        style = Typography.displaySmall.copy(fontSize = 13.sp),
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentAlignment = Alignment.BottomEnd,
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.img_timecap),
-                                        contentDescription = "img_timecap",
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth(0.6f)
-                                                .aspectRatio(1f)
-                                                .padding(bottom = 8.dp),
-                                    )
-                                }
+                            items(children.size) { index ->
+                                FamilyCard(
+                                    user = children[index],
+                                    onCardClick = {
+                                        if (children[index].userId != currentUserId) {
+                                            selectedUser = children[index]
+                                            showLoveMention = true
+                                        } else {
+                                            showEditEmotion = true
+                                        }
+                                    },
+                                )
                             }
                         }
-                        Box(
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .shadow(
-                                        elevation = 7.dp,
-                                        shape = RoundedCornerShape(23.dp),
-                                        spotColor = Black,
-                                        ambientColor = Gray01,
-                                    ).background(color = Green02, shape = RoundedCornerShape(23.dp))
-                                    .noRippleClickable { navigateToInterest() },
-                        ) {
-                            Column(
-                                modifier =
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(horizontal = 15.dp)
-                                        .padding(top = 15.dp),
-                                horizontalAlignment = Alignment.Start,
-                            ) {
-                                Column(
-                                    modifier = Modifier.weight(1f),
-                                    horizontalAlignment = Alignment.Start,
-                                ) {
-                                    Text(
-                                        text = "관심사 공유",
-                                        style = Typography.titleSmall.copy(fontSize = 26.sp),
-                                        color = White,
-                                    )
-                                    Spacer(modifier = Modifier.fillMaxSize(0.02f))
-                                    Text(
-                                        text = "함께 즐기는 서로의 취미",
-                                        style = Typography.displaySmall.copy(fontSize = 13.sp),
-                                        color = White,
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    contentAlignment = Alignment.BottomEnd,
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.img_interest),
-                                        contentDescription = "img_interest",
-                                        modifier =
-                                            Modifier
-                                                .fillMaxWidth(0.55f)
-                                                .aspectRatio(1f)
-                                                .padding(bottom = 15.dp),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(25.dp))
-                Row {
-                    Spacer(
-                        modifier =
-                            Modifier
-                                .width(4.dp)
-                                .height(19.dp)
-                                .background(color = Green01, shape = RoundedCornerShape(4.dp)),
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        text = "오늘 우리 가족의 기분은?",
-                        style = Typography.headlineSmall.copy(fontSize = 18.sp),
-                    )
-                }
-                Spacer(modifier = Modifier.height(15.dp))
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (mother != null && father == null) {
-                        Row(
-                            modifier = Modifier.wrapContentSize(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.img_heart),
-                                contentDescription = "heart_img",
-                            )
-                            Spacer(modifier = Modifier.width(15.dp))
-                            FamilyCard(
-                                user = mother,
-                                onCardClick = {
-                                    if (mother.userId != currentUserId) {
-                                        selectedUser = mother
-                                        showLoveMention = true
-                                    } else {
-                                        showEditEmotion = true
-                                    }
-                                },
-                            )
-                            Spacer(modifier = Modifier.width(15.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.img_heart),
-                                contentDescription = "heart_img",
-                            )
-                        }
-                    } else if (mother == null && father != null) {
-                        Row(
-                            modifier = Modifier.wrapContentSize(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.img_heart),
-                                contentDescription = "heart_img",
-                            )
-                            Spacer(modifier = Modifier.width(15.dp))
-                            FamilyCard(
-                                user = father,
-                                onCardClick = {
-                                    if (father.userId != currentUserId) {
-                                        selectedUser = father
-                                        showLoveMention = true
-                                    } else {
-                                        showEditEmotion = true
-                                    }
-                                },
-                            )
-                            Spacer(modifier = Modifier.width(15.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.img_heart),
-                                contentDescription = "heart_img",
-                            )
-                        }
-                    } else if (mother != null && father != null) {
-                        Row(
-                            modifier = Modifier.wrapContentSize(),
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            FamilyCard(
-                                user = mother,
-                                onCardClick = {
-                                    if (mother.userId != currentUserId) {
-                                        selectedUser = mother
-                                        showLoveMention = true
-                                    } else {
-                                        showEditEmotion = true
-                                    }
-                                },
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Image(
-                                painter = painterResource(id = R.drawable.img_heart),
-                                contentDescription = "heart_img",
-                            )
-                            Spacer(modifier = Modifier.width(15.dp))
-                            FamilyCard(
-                                user = father,
-                                onCardClick = {
-                                    if (father.userId != currentUserId) {
-                                        selectedUser = father
-                                        showLoveMention = true
-                                    } else {
-                                        showEditEmotion = true
-                                    }
-                                },
-                            )
-                        }
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center,
-            ) {
-                LazyRow(
-                    modifier =
-                        Modifier
-                            .wrapContentWidth()
-                            .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp),
-                ) {
-                    items(children.size) { index ->
-                        FamilyCard(
-                            user = children[index],
-                            onCardClick = {
-                                if (children[index].userId != currentUserId) {
-                                    selectedUser = children[index]
-                                    showLoveMention = true
-                                } else {
-                                    showEditEmotion = true
-                                }
-                            },
-                        )
                     }
                 }
             }
@@ -838,6 +852,4 @@ fun HomeScreenPreview() {
 //        homeEvent = HomeEvent.None,
 //        viewModel = hiltViewModel(),
 //    )
-
-    FamilyCard(user = User())
 }
