@@ -569,16 +569,6 @@ async def _classify_images(request: AnalysisRequest):
         logger.error(f"Classification API 처리 시간: {execution_time:.2f}초")        
         return error_response
 
-    except Exception as e:
-        execution_time = time.time() - start_time
-        error_response = BaseResponse.create(
-            status_code=500,
-            message=f"얼굴 유사도 분석 중 오류가 발생했습니다: {str(e)}"
-        )
-        logger.error(f"Classification API 에러 응답:\n{error_response.to_json_log()}")
-        logger.error(f"Classification API 처리 시간: {execution_time:.2f}초")        
-        return error_response
-
 @app.post("/face-recognition/face-count", response_model=BaseResponse[CountResponse])
 async def count_faces(file: UploadFile = File(...)):
     return await adaptive_processing(_count_faces, file)
