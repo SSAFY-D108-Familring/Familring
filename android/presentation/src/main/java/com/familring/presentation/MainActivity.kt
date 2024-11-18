@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         handleDeepLink(intent)
 
         // apk 막기 용도
-        val date = LocalDateTime.of(2024, 11, 18, 0, 0)
+        val date = LocalDateTime.of(2024, 11, 24, 0, 0)
 
         setContent {
             FamilringTheme {

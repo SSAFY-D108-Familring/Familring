@@ -529,10 +529,12 @@ fun MainNavHost(
     }
     LaunchedEffect(startDestination) {
         if (startDestination != ScreenDestinations.Login.route) {
-            navController.navigate(startDestination) {
+            navController.navigate(ScreenDestinations.Home.route) {
                 popUpTo(navController.graph.startDestinationId) {
                     inclusive = true
                 }
+            }
+            navController.navigate(startDestination) {
                 launchSingleTop = true
             }
         }
