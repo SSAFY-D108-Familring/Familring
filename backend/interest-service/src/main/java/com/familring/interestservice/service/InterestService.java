@@ -256,18 +256,8 @@ public class InterestService {
         // 만약 그 반환된 값이 null 이 아닌 경우 그때만 변경사항 저장
         if (interestAnswer.isEmpty()) {
             Random random = new Random();
-            InterestAnswer selectedAnswer = null;
-//            InterestAnswer selectedAnswer = interestAnswerList.get(random.nextInt(interestAnswerList.size()));
-            for (InterestAnswer i : interestAnswerList) {
-                if (i.getUserId().equals(4L)) {
-                    log.info(("userId : " + i.getUserId()));
-                    selectedAnswer = interestAnswerRepository.findByUserIdAndInterest(i.getUserId(), interest).orElseThrow();
-                    selectedAnswer.updateSelected(true);
-                    break;
-                }
-            }
-//            selectedAnswer.updateSelected(true);
-            assert selectedAnswer != null;
+            InterestAnswer selectedAnswer = interestAnswerList.get(random.nextInt(interestAnswerList.size()));
+            selectedAnswer.updateSelected(true);
             interestAnswerRepository.save(selectedAnswer);  // 변경 사항을 저장 (이때 관심사 선정)
 
             log.info("관심사 선정 완료");
