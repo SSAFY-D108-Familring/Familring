@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_title">채팅</string>
+    <string name="vote_error_msg">이미 투표에 참여했어요!</string>
+</resources>

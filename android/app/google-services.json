@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1097127038780",
+    "project_id": "familring-ad732",
+    "storage_bucket": "familring-ad732.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097127038780:android:3faceaefc84eda450f1839",
+        "android_client_info": {
+          "package_name": "com.d108.familring"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-Giniq6jPmLZ9Pe9ubvsmHXryHRa61VY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
