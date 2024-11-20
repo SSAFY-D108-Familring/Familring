@@ -7,7 +7,7 @@ import com.familring.familyservice.model.dto.request.ChatRequest;
 public interface ChatService {
 
     // 채팅 생성
-    Chat createChatOrVoiceOrVote(Long roomId, ChatRequest chatRequest);
+    Chat createChatOrVoiceOrPhotoOrVote(Long roomId, ChatRequest chatRequest);
     Chat createChatVoteResponse(Long roomId, String voteId, ChatRequest chatRequest);
     Chat createChatVoteResult(Long roomId, String voteId, ChatRequest chatRequest);
 

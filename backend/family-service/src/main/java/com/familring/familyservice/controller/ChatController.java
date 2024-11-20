@@ -28,7 +28,7 @@ public class ChatController {
         log.info("[sendMessage] 채팅방 Id = {}", roomId);
 
         // 일반 메시지 생성 및 처리
-        Chat chat = chatService.createChatOrVoiceOrVote(roomId, chatRequest);
+        Chat chat = chatService.createChatOrVoiceOrPhotoOrVote(roomId, chatRequest);
         ChatResponse chatResponse = chatService.findChat(chat, chatRequest.getSenderId());
 
         template.convertAndSend("/room/" + roomId, chatResponse);
@@ -41,11 +41,24 @@ public class ChatController {
         log.info("[sendVoiceMessage] 채팅방 Id = {}", roomId);
 
         // 음성 메시지 생성 및 처리
-        Chat chat = chatService.createChatOrVoiceOrVote(roomId, chatRequest);
+        Chat chat = chatService.createChatOrVoiceOrPhotoOrVote(roomId, chatRequest);
         ChatResponse voiceChatResponse = chatService.findChat(chat, chatRequest.getSenderId());
 
         template.convertAndSend("/room/" + roomId, voiceChatResponse);
         log.debug("[sendVoiceMessage] 음성 메시지 소켓 전송 완료.");
+    }
+    
+    @MessageMapping("/chat.photo")
+    public void sendPhotoMessage(ChatRequest chatRequest) {
+        Long roomId = chatRequest.getRoomId();
+        log.info("[sendPhotoMessage] 채팅방 Id = {}", roomId);
+
+        // 사진 메시지 생성 및 처리
+        Chat chat = chatService.createChatOrVoiceOrPhotoOrVote(roomId, chatRequest);
+        ChatResponse voiceChatResponse = chatService.findChat(chat, chatRequest.getSenderId());
+
+        template.convertAndSend("/room/" + roomId, voiceChatResponse);
+        log.debug("[sendPhotoMessage] 음성 메시지 소켓 전송 완료.");
     }
 
     @MessageMapping("/chat.vote")
