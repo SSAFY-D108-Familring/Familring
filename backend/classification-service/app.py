@@ -289,20 +289,23 @@ async def fix_image_rotation(image):
     
 async def preprocess_image(image):
     """
-    이미지 전처리 함수 (EXIF 회전 보정 추가)
+    이미지 전처리 함수 (EXIF 회전 보정)
     """
     try:
         loop = asyncio.get_event_loop()
         
-        # PIL Image를 RGB로 변환
-        if image.mode != 'RGB':
-            image = await loop.run_in_executor(
-                THREAD_POOL,
-                lambda: image.convert('RGB')
-            )
-        
-        # EXIF 기반 회전 보정
-        rotated_image = await fix_image_rotation(image)
+        # numpy array인 경우와 PIL Image인 경우를 구분하여 처리
+        if isinstance(image, np.ndarray):
+            # 이미 numpy array인 경우
+            rotated_image = await fix_image_rotation(image)
+        else:
+            # PIL Image인 경우
+            if image.mode != 'RGB':
+                image = await loop.run_in_executor(
+                    THREAD_POOL,
+                    lambda: image.convert('RGB')
+                )
+            rotated_image = await fix_image_rotation(image)
         
         # 히스토그램 평준화
         img_lab = await loop.run_in_executor(
@@ -332,6 +335,9 @@ async def preprocess_image(image):
         
     except Exception as e:
         logger.error(f"이미지 전처리 실패: {str(e)}")
+        # 전처리가 실패한 경우 원본 이미지를 numpy array로 반환
+        if isinstance(image, np.ndarray):
+            return image
         return await loop.run_in_executor(
             THREAD_POOL,
             lambda: np.array(image)
