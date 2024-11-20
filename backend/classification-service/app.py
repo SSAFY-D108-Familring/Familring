@@ -289,23 +289,12 @@ async def fix_image_rotation(image):
     
 async def preprocess_image(image):
     """
-    이미지 전처리 함수 (numpy.ndarray와 PIL Image 모두 처리 가능)
+    이미지 전처리 함수 (EXIF 회전 보정 추가)
     """
     try:
         loop = asyncio.get_event_loop()
         
-        # numpy.ndarray인 경우 PIL Image로 변환
-        if isinstance(image, np.ndarray):
-            image = await loop.run_in_executor(
-                THREAD_POOL,
-                lambda: Image.fromarray(image)
-            )
-        
-        # PIL Image가 아닌 경우 에러
-        if not isinstance(image, Image.Image):
-            raise ValueError("지원되지 않는 이미지 형식입니다")
-        
-        # RGB 모드로 변환
+        # PIL Image를 RGB로 변환
         if image.mode != 'RGB':
             image = await loop.run_in_executor(
                 THREAD_POOL,
@@ -315,17 +304,12 @@ async def preprocess_image(image):
         # EXIF 기반 회전 보정
         rotated_image = await fix_image_rotation(image)
         
-        # numpy array로 변환하여 히스토그램 평준화 수행
-        if not isinstance(rotated_image, np.ndarray):
-            rotated_image = np.array(rotated_image)
-        
-        # BGR에서 LAB 색공간으로 변환
+        # 히스토그램 평준화
         img_lab = await loop.run_in_executor(
             THREAD_POOL,
             lambda: cv2.cvtColor(rotated_image, cv2.COLOR_RGB2LAB)
         )
         
-        # L 채널에 대해 CLAHE 적용
         l, a, b = cv2.split(img_lab)
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
         
@@ -334,13 +318,11 @@ async def preprocess_image(image):
             lambda: clahe.apply(l)
         )
         
-        # 채널 병합
         img_lab = await loop.run_in_executor(
             THREAD_POOL,
             lambda: cv2.merge((cl,a,b))
         )
         
-        # LAB에서 RGB로 변환
         img_rgb = await loop.run_in_executor(
             THREAD_POOL,
             lambda: cv2.cvtColor(img_lab, cv2.COLOR_LAB2RGB)
@@ -350,13 +332,10 @@ async def preprocess_image(image):
         
     except Exception as e:
         logger.error(f"이미지 전처리 실패: {str(e)}")
-        # 원본 이미지를 numpy array로 반환
-        if isinstance(image, Image.Image):
-            return await loop.run_in_executor(
-                THREAD_POOL,
-                lambda: np.array(image)
-            )
-        return image
+        return await loop.run_in_executor(
+            THREAD_POOL,
+            lambda: np.array(image)
+        )
 
 async def load_image_from_url_async(url: str, session: aiohttp.ClientSession):
     """비동기적으로 URL에서 이미지를 로드 - 메모리 관리 개선"""
