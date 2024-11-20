@@ -1,6 +1,11 @@
 package com.familring.presentation.screen.chat
 
 import android.content.Context
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -61,6 +66,7 @@ import com.familring.presentation.component.TutorialScreen
 import com.familring.presentation.component.button.RoundLongButton
 import com.familring.presentation.component.chat.ChatInputBar
 import com.familring.presentation.component.chat.DateDivider
+import com.familring.presentation.component.chat.ImageMessage
 import com.familring.presentation.component.chat.MyMessage
 import com.familring.presentation.component.chat.OtherMessage
 import com.familring.presentation.component.chat.VoiceMessage
@@ -73,6 +79,7 @@ import com.familring.presentation.component.textfield.CustomTextField
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Brown01
 import com.familring.presentation.theme.Gray03
+import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Green04
 import com.familring.presentation.theme.Green05
@@ -80,11 +87,13 @@ import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
 import com.familring.presentation.util.noRippleClickable
 import com.familring.presentation.util.toDateOnly
+import com.familring.presentation.util.toFile
 import com.familring.presentation.util.toTimeOnly
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import java.io.File
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatRoute(
@@ -119,6 +128,7 @@ fun ChatRoute(
                 },
                 showSnackBar = showSnackBar,
                 sendMessage = viewModel::sendMessage,
+                sendImageMessage = viewModel::uploadImage,
                 sendVoteMessage = viewModel::sendVoteMessage,
                 sendVoteResponse = viewModel::sendVoteResponse,
                 sendVoiceMessage = viewModel::uploadVoice,
@@ -160,6 +170,7 @@ fun ChatRoute(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -171,6 +182,7 @@ fun ChatScreen(
     userId: Long = 0L,
     showTutorial: () -> Unit = {},
     sendMessage: (Context, String) -> Unit = { _, _ -> },
+    sendImageMessage: (Context, File) -> Unit = { _, _ -> },
     sendVoteMessage: (Context, String) -> Unit = { _, _ -> },
     sendVoteResponse: (Context, String, String) -> Unit = { _, _, _ -> },
     sendVoiceMessage: (Context, File) -> Unit = { _, _ -> },
@@ -263,6 +275,20 @@ fun ChatScreen(
                     val listItem = chatList[index]
                     listItem?.let { item ->
                         when (item.messageType) {
+                            context.getString(R.string.photo_type) -> {
+                                item.content?.let {
+                                    ImageMessage(
+                                        isOther = item.senderId != userId,
+                                        filePath = it,
+                                        unReadMembers = item.unReadMembers.toString(),
+                                        time = item.createdAt.toTimeOnly(),
+                                        nickname = item.sender.userNickname,
+                                        profileImg = item.sender.userZodiacSign,
+                                        color = item.sender.userColor,
+                                    )
+                                }
+                            }
+
                             context.getString(R.string.message_type) -> {
                                 if (item.senderId == userId) {
                                     MyMessage(
@@ -454,6 +480,18 @@ fun ChatScreen(
 
     if (showBottomSheet) {
         var clickedItem by remember { mutableStateOf("") }
+        val singlePhotoPickerLauncher =
+            rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickVisualMedia(),
+                onResult = { uri ->
+                    val file = uri?.toFile(context)
+                    file?.let {
+                        sendImageMessage(context, file)
+                        showBottomSheet = false
+                    }
+                },
+            )
+
         ModalBottomSheet(
             onDismissRequest = { showBottomSheet = false },
             containerColor = White,
@@ -469,15 +507,43 @@ fun ChatScreen(
                                 .fillMaxHeight(0.45f),
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier =
+                                Modifier
+                                    .fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Text(
-                                text = "찬반투표 만들기",
-                                style = Typography.headlineMedium,
-                                color = Black,
-                            )
-                            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp),
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.CenterStart,
+                                ) {
+                                    Icon(
+                                        modifier =
+                                            Modifier.noRippleClickable {
+                                                clickedItem = ""
+                                            },
+                                        painter = painterResource(id = R.drawable.ic_back),
+                                        contentDescription =
+                                            "back",
+                                    )
+                                }
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Text(
+                                        text = "찬반투표 만들기",
+                                        style = Typography.headlineMedium,
+                                        color = Black,
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.fillMaxHeight(0.08f))
                             CustomTextField(
                                 modifier = Modifier.fillMaxWidth(0.9f),
                                 value = title,
@@ -531,6 +597,40 @@ fun ChatScreen(
                                     Modifier
                                         .wrapContentSize()
                                         .noRippleClickable {
+                                            singlePhotoPickerLauncher.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                                            )
+                                        },
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .clip(shape = CircleShape)
+                                            .background(color = Green01)
+                                            .padding(15.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        modifier = Modifier.size(40.dp),
+                                        painter = painterResource(id = R.drawable.ic_chat_gallery),
+                                        contentDescription = "picture",
+                                        tint = Black,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(
+                                    text = "갤러리",
+                                    style = Typography.displayMedium.copy(fontSize = 16.sp),
+                                    color = Black,
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(30.dp))
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .wrapContentSize()
+                                        .noRippleClickable {
                                             // 찬반투표 클릭 시
                                             clickedItem = "vote"
                                         },
@@ -545,6 +645,7 @@ fun ChatScreen(
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Icon(
+                                        modifier = Modifier.size(40.dp),
                                         painter = painterResource(id = R.drawable.ic_vote),
                                         contentDescription = "vote",
                                         tint = Black,
@@ -577,6 +678,7 @@ fun ChatScreen(
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     Icon(
+                                        modifier = Modifier.size(40.dp),
                                         painter = painterResource(id = R.drawable.ic_voice),
                                         contentDescription = "voice_message",
                                         tint = Black,
