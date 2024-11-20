@@ -4,7 +4,6 @@ import com.familring.data.network.response.BaseResponse
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
-import com.familring.domain.model.chat.Chat
 import com.familring.domain.model.chat.ChatResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -58,5 +57,12 @@ interface FamilyApi {
     suspend fun uploadVoice(
         @Part("fileUploadRequest") request: RequestBody,
         @Part voice: MultipartBody.Part?,
+    ): BaseResponse<String>
+
+    @Multipart
+    @POST("users/photo")
+    suspend fun uploadImage(
+        @Part("fileUploadRequest") request: RequestBody,
+        @Part photo: MultipartBody.Part?,
     ): BaseResponse<String>
 }
