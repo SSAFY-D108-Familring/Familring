@@ -4,14 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -118,15 +117,16 @@ fun TimeCapsule(
             textAlign = TextAlign.Center,
         )
         Spacer(modifier = Modifier.fillMaxHeight(0.05f))
-        Row(
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             ZodiacBackgroundProfile(
-                modifier = Modifier.size(45.dp),
                 profile = timeCapsuleMessage.profile,
+                size = 90,
+                paddingValue = 15,
             )
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = timeCapsuleMessage.profile.nickname,
                 style =
@@ -136,7 +136,7 @@ fun TimeCapsule(
                     ),
             )
         }
-        Spacer(modifier = Modifier.fillMaxHeight(0.02f))
+        Spacer(modifier = Modifier.height(20.dp))
         Text(
             modifier =
                 Modifier
