@@ -114,7 +114,7 @@ fun ImageMessage(
                         AsyncImage(
                             modifier =
                                 Modifier
-                                    .fillMaxWidth(0.6f)
+                                    .fillMaxWidth(0.65f)
                                     .clip(shape = RoundedCornerShape(10.dp)),
                             model = filePath,
                             contentDescription = "chat_img",
