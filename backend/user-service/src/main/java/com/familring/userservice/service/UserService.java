@@ -31,6 +31,9 @@ public interface UserService {
     // 음성 메시지 업로드
     String uploadVoiceFile(Long userId, FileUploadRequest fileUploadRequest, MultipartFile voice);
 
+    // 사진 메시지 업로드
+    String uploadPhotoFile(Long userId, FileUploadRequest fileUploadRequest, MultipartFile photo);
+
     // 회원 기분 설정
     void updateUserEmotion(Long userId, UserEmotionRequest userEmotionRequest);
 

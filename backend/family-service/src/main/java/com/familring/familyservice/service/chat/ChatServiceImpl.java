@@ -40,7 +40,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional
-    public Chat createChatOrVoiceOrVote(Long roomId, ChatRequest chatRequest) {
+    public Chat createChatOrVoiceOrPhotoOrVote(Long roomId, ChatRequest chatRequest) {
         log.info("[createChatAndVote] 채팅 메시지 수신: roomId={}, senderId={}, messageType={}, content={}", roomId, chatRequest.getSenderId(), chatRequest.getMessageType(), chatRequest.getContent());
 
         UserInfoResponse user = userServiceFeignClient.getUser(chatRequest.getSenderId()).getData();

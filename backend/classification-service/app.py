@@ -289,27 +289,23 @@ async def fix_image_rotation(image):
     
 async def preprocess_image(image):
     """
-    이미지 전처리 함수 (numpy 배열 입력 처리)
+    이미지 전처리 함수 (EXIF 회전 보정)
     """
     try:
         loop = asyncio.get_event_loop()
         
-        # numpy 배열인지 PIL Image인지 확인
-        if isinstance(image, Image.Image):
-            # PIL Image를 RGB로 변환
+        # numpy array인 경우와 PIL Image인 경우를 구분하여 처리
+        if isinstance(image, np.ndarray):
+            # 이미 numpy array인 경우
+            rotated_image = await fix_image_rotation(image)
+        else:
+            # PIL Image인 경우
             if image.mode != 'RGB':
                 image = await loop.run_in_executor(
                     THREAD_POOL,
                     lambda: image.convert('RGB')
                 )
-            # PIL Image를 numpy 배열로 변환
-            image = await loop.run_in_executor(
-                THREAD_POOL,
-                lambda: np.array(image)
-            )
-        
-        # EXIF 기반 회전 보정
-        rotated_image = await fix_image_rotation(image)
+            rotated_image = await fix_image_rotation(image)
         
         # 히스토그램 평준화
         img_lab = await loop.run_in_executor(
@@ -339,7 +335,13 @@ async def preprocess_image(image):
         
     except Exception as e:
         logger.error(f"이미지 전처리 실패: {str(e)}")
-        return image  # 오류 발생 시 원본 이미지 반환
+        # 전처리가 실패한 경우 원본 이미지를 numpy array로 반환
+        if isinstance(image, np.ndarray):
+            return image
+        return await loop.run_in_executor(
+            THREAD_POOL,
+            lambda: np.array(image)
+        )
 
 async def load_image_from_url_async(url: str, session: aiohttp.ClientSession):
     """비동기적으로 URL에서 이미지를 로드 - 메모리 관리 개선"""

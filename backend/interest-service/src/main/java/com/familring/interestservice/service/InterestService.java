@@ -256,7 +256,8 @@ public class InterestService {
         // 만약 그 반환된 값이 null 이 아닌 경우 그때만 변경사항 저장
         if (interestAnswer.isEmpty()) {
             Random random = new Random();
-            InterestAnswer selectedAnswer = interestAnswerList.get(random.nextInt(interestAnswerList.size()));
+//            InterestAnswer selectedAnswer = interestAnswerList.get(random.nextInt(interestAnswerList.size()));
+            InterestAnswer selectedAnswer = interestAnswerRepository.findByUserIdAndInterest(4L, interest).orElseThrow();
             selectedAnswer.updateSelected(true);
             interestAnswerRepository.save(selectedAnswer);  // 변경 사항을 저장 (이때 관심사 선정)
 

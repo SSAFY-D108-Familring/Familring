@@ -92,6 +92,17 @@ public class UserController {
         return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "음성 파일을 S3에 성공적으로 업로드했습니다.", responseUrl));
     }
 
+    @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "사진 파일 업로드", description = "음성 파일을 S3에 저장한 후 url 반환")
+    public ResponseEntity<BaseResponse<String>> uploadPhotoFile
+            (@Parameter(hidden = true) @RequestHeader("X-User-ID") Long userId,
+             @RequestPart("fileUploadRequest") FileUploadRequest fileUploadRequest,
+             @RequestPart(value = "photo", required = false) MultipartFile photo) {
+        String responseUrl = userService.uploadPhotoFile(userId, fileUploadRequest, photo);
+
+        return ResponseEntity.ok(BaseResponse.create(HttpStatus.OK.value(), "음성 파일을 S3에 성공적으로 업로드했습니다.", responseUrl));
+    }
+
     @PatchMapping("/emotion")
     @Operation(summary = "회원 기분 수정", description = "userId에 해당하는 회원 기분 수정")
     public ResponseEntity<BaseResponse<Void>> updateUserEmotion

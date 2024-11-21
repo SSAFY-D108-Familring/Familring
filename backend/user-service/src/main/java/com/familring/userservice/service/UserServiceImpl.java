@@ -336,6 +336,23 @@ public class UserServiceImpl implements UserService {
         return voiceUrl;
     }
 
+    @Override
+    public String uploadPhotoFile(Long userId, FileUploadRequest fileUploadRequest, MultipartFile photo) {
+        // 사진 파일 처리
+        if(photo == null) {
+            log.debug("[uploadPhotoFile] 파일이 첨부되지 않은 경우 에러 처리");
+            throw new NoContentVoiceException();
+        }
+
+        // 음성 파일 저장
+        String folderPath = "chat-photo/" + fileUploadRequest.getRoomId() + "/" + userId; // chat-photo/roomId/userId
+        log.info("[uploadPhotoFile] S3 내 폴더 Path={}", folderPath);
+        String photoUrl = uploadFiles(photo, folderPath).get(0);
+        log.info("[uploadPhotoFile] 업로드 된 파일 URL={}", photoUrl);
+
+        return photoUrl;
+    }
+
     public void deleteFile(String fileName) {
         List<String> files = new ArrayList<>();
         files.add(fileName);
