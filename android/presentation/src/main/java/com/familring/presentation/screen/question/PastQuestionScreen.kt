@@ -33,7 +33,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.familring.presentation.R
 import com.familring.presentation.component.TopAppBar
-import com.familring.presentation.theme.Green01
 import com.familring.presentation.theme.Green02
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
@@ -163,7 +162,13 @@ fun PastQuestionScreen(
                                 verticalArrangement = Arrangement.spacedBy(20.dp),
                             ) {
                                 items(state.answerContents.size) { index ->
-                                    FamilyListItem(state.answerContents[index],{},index, questionId = questionId, past = true)
+                                    FamilyListItem(
+                                        state.answerContents[index],
+                                        {},
+                                        index,
+                                        questionId = questionId,
+                                        past = true,
+                                    )
                                 }
                             }
                         }

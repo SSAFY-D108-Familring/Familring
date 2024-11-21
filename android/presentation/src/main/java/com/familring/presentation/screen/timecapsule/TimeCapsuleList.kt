@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -34,12 +35,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import com.familring.domain.model.timecapsule.TimeCapsule
+import com.familring.domain.model.timecapsule.TimeCapsuleMessage
 import com.familring.presentation.R
 import com.familring.presentation.theme.Black
 import com.familring.presentation.theme.Gray01
+import com.familring.presentation.theme.Gray02
 import com.familring.presentation.theme.Gray03
 import com.familring.presentation.theme.Typography
 import com.familring.presentation.theme.White
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun TimeCapsuleListScreen(
@@ -127,6 +132,15 @@ fun TimeCapsuleItem(
                         fontSize = 17.sp,
                     ),
             )
+            Text(
+                modifier = Modifier.padding(start = 3.dp),
+                text = timeCapsule.openDate.format(DateTimeFormatter.ofPattern("yyyy.MM.dd")),
+                style =
+                    Typography.headlineLarge.copy(
+                        color = Gray02,
+                        fontSize = 13.sp,
+                    ),
+            )
             Box(
                 modifier =
                     Modifier
@@ -137,6 +151,7 @@ fun TimeCapsuleItem(
                 Image(
                     modifier =
                         Modifier
+                            .alpha(0.85f)
                             .width(65.dp),
                     painter =
                         painterResource(
@@ -182,10 +197,25 @@ fun TimeCapsuleItem(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun TimeCapsuleListPreview() {
-//    TimeCapsuleListScreen(
-//        state = TimeCapsuleUiState(),
-//    )
+    TimeCapsuleItem(
+        timeCapsule =
+            TimeCapsule(
+                openDate = LocalDate.now(),
+                messages =
+                    listOf(
+                        TimeCapsuleMessage(
+                            message = "hello",
+                        ),
+                        TimeCapsuleMessage(
+                            message = "hello",
+                        ),
+                        TimeCapsuleMessage(
+                            message = "hello",
+                        ),
+                    ),
+            ),
+    )
 }

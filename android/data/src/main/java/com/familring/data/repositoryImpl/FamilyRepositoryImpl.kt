@@ -7,10 +7,10 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
-import com.familring.domain.model.chat.Chat
 import com.familring.domain.model.chat.ChatResponse
 import com.familring.domain.model.chat.FileUploadRequest
 import com.familring.domain.repository.FamilyRepository
+import com.familring.domain.util.toMultiPart
 import com.familring.domain.util.toVoiceMultiPart
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
@@ -103,6 +103,22 @@ class FamilyRepositoryImpl
                 val response =
                     emitApiResponse(
                         apiResponse = { api.uploadVoice(requestBody, file) },
+                        default = "",
+                    )
+                emit(response)
+            }
+
+        override suspend fun uploadImage(
+            request: FileUploadRequest,
+            photo: File,
+        ): Flow<ApiResponse<String>> =
+            flow {
+                val file = photo.toMultiPart(filename = "photo")
+                val requestBody =
+                    Gson().toJson(request).toRequestBody("application/json".toMediaTypeOrNull())
+                val response =
+                    emitApiResponse(
+                        apiResponse = { api.uploadImage(requestBody, file) },
                         default = "",
                     )
                 emit(response)

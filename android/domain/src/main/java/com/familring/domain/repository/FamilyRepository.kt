@@ -4,7 +4,6 @@ import com.familring.domain.model.ApiResponse
 import com.familring.domain.model.FamilyInfo
 import com.familring.domain.model.FamilyMake
 import com.familring.domain.model.User
-import com.familring.domain.model.chat.Chat
 import com.familring.domain.model.chat.ChatResponse
 import com.familring.domain.model.chat.FileUploadRequest
 import kotlinx.coroutines.flow.Flow
@@ -35,5 +34,10 @@ interface FamilyRepository {
     suspend fun uploadVoice(
         request: FileUploadRequest,
         voice: File,
+    ): Flow<ApiResponse<String>>
+
+    suspend fun uploadImage(
+        request: FileUploadRequest,
+        photo: File,
     ): Flow<ApiResponse<String>>
 }

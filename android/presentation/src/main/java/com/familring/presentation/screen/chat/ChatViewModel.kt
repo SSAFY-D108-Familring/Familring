@@ -355,7 +355,29 @@ class ChatViewModel
                             }
                         }
                     }
-                _event.emit(ChatUiEvent.NewMessage)
+            }
+        }
+
+        fun uploadImage(
+            context: Context,
+            file: File,
+        ) {
+            viewModelScope.launch {
+                familyRepository
+                    .uploadImage(
+                        request = FileUploadRequest(roomId = familyId.toString()),
+                        photo = file,
+                    ).collectLatest { response ->
+                        when (response) {
+                            is ApiResponse.Success -> {
+                                sendImageMessage(context, response.data)
+                            }
+
+                            is ApiResponse.Error -> {
+                                _event.emit(ChatUiEvent.Error(response.code, response.message))
+                            }
+                        }
+                    }
             }
         }
 
@@ -367,13 +389,33 @@ class ChatViewModel
                 stompSession.withMoshi(moshi).convertAndSend(
                     headers = StompSendHeaders(destination = SEND_URL),
                     body =
-                        SendMessage(
-                            roomId = familyId.toString(),
-                            senderId = userId.toString(),
-                            content = voiceUrl,
-                            createdAt = LocalDateTime.now().toString(),
-                            messageType = context.getString(R.string.voice_type),
-                        ),
+                    SendMessage(
+                        roomId = familyId.toString(),
+                        senderId = userId.toString(),
+                        content = voiceUrl,
+                        createdAt = LocalDateTime.now().toString(),
+                        messageType = context.getString(R.string.voice_type),
+                    ),
+                )
+                _event.emit(ChatUiEvent.NewMessage)
+            }
+        }
+
+        private fun sendImageMessage(
+            context: Context,
+            imageUrl: String,
+        ) {
+            viewModelScope.launch {
+                stompSession.withMoshi(moshi).convertAndSend(
+                    headers = StompSendHeaders(destination = SEND_URL),
+                    body =
+                    SendMessage(
+                        roomId = familyId.toString(),
+                        senderId = userId.toString(),
+                        content = imageUrl,
+                        createdAt = LocalDateTime.now().toString(),
+                        messageType = context.getString(R.string.photo_type),
+                    ),
                 )
                 _event.emit(ChatUiEvent.NewMessage)
             }

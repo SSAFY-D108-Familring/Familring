@@ -22,7 +22,7 @@ class QuestionRepositoryImpl
             flow {
                 val response =
                     emitApiResponse(
-                        apiResponse = { api.getQuestion() },
+                        apiResponse = { api.getQuestion(questionId) },
                         default = QuestionResponse(),
                     )
                 emit(response)
