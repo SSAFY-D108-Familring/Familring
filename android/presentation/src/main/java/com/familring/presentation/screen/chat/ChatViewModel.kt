@@ -76,9 +76,7 @@ class ChatViewModel
         private val moshi: Moshi =
             Moshi
                 .Builder()
-                .add(LocalDateAdapter())
-                .add(LocalDateTimeAdapter())
-                .addLast(KotlinJsonAdapterFactory())
+                .add(KotlinJsonAdapterFactory())
                 .build()
 
         private val _chatPagingData = MutableStateFlow<PagingData<Chat>>(PagingData.empty())
