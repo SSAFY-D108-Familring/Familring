@@ -37,9 +37,9 @@
 
 <h3>🌳 홈 화면</h3>
 
-| <div align="center">**홈 화면**</div> | <div align="center">**홈 화면 및 내 기분 상태 변경**</div> | <div align="center">**가족에게 사랑의 한마디(발신)**</div> | <div align="center">**가족에게 사랑의 한마디(수신)**</div> |
-| :---: | :---: | :---: | :--:|
-| <img src="readme_img/홈 화면.jpg" width="200"> | <img src="readme_img/홈 화면.gif" width="200"> | <img src="readme_img/가족에게 사랑의 한마디(발신).gif" width="200"> | <img src="readme_img/가족에게 사랑의 한마디(수신).gif" width="200"> |
+| <div align="center">**홈 화면 및 내 기분 상태 변경**</div> | <div align="center">**가족에게 사랑의 한마디(발신)**</div> | <div align="center">**가족에게 사랑의 한마디(수신)**</div> |
+| :---: | :---: | :--:|
+| <img src="readme_img/홈 화면.gif" width="200"> | <img src="readme_img/가족에게 사랑의 한마디(발신).gif" width="200"> | <img src="readme_img/가족에게 사랑의 한마디(수신).gif" width="200"> |
 
 <br>
 
