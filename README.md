@@ -29,9 +29,9 @@
 
 <br>
 
-| <div align="center">**회원가입 1**</div> | <div align="center">**회원가입 2**</div> | <div align="center">**회원가입 3**</div> | <div align="center">**회원가입 4**</div> |
-| :---: | :---: | :---: | :---: |
-|  |  |  |  |
+| <div align="center">**회원가입**</div> |
+| :---: | 
+| <img src="readme_img/회원가입.gif" width="200"> | 
 
 <br>
 
