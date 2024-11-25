@@ -55,7 +55,7 @@
 
 | <div align="center">**관심사 작성**</div> | <div align="center">**관심사 선정**</div> | <div align="center">**관심사 인증**</div> |
 | :---: | :---: | :---: |
-| <img src="readme_img/관심사 작성.gif" width="200"> | <img src="readme_img/관심사 선정.gif" width="200"> | <img src="readme_img/관심사 인증.gif" width="200"> |
+| <img src="readme_img/관심사 작성.gif" width="200"> | <img src="readme_img/관심사 선정.gif" width="200"> | <img src="readme_img/관심사 인증샷 & 목록.gif" width="200"> |
 
 
 <h3>🗨️ 채팅</h3>
