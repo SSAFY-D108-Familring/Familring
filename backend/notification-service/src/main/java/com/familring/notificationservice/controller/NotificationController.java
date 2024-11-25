@@ -6,6 +6,7 @@ import com.familring.notificationservice.model.dto.response.NotificationResponse
 import com.familring.notificationservice.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/notifications")
+@Tag(name = "알림 컨트롤러", description = "알림관련 기능 수행")
 @RequiredArgsConstructor
 @Log4j2
 public class NotificationController {
