@@ -47,7 +47,7 @@
 
 | <div align="center">**타임캡슐 작성**</div> | <div align="center">**타임캡슐 목록**</div> |
 | :---: | :---: |
-| <img src="readme_img/타임캡슐 작성.gif" width="200"> | <img src="readme_img/타임캡슐 목록.gif" width="200"> |
+| <img src="readme_img/타임캡슐 작성.gif" width="200"> | <img src="readme_img/타임캡슐 목록 & 작성한 거 확인.gif" width="200"> |
 
 
 
