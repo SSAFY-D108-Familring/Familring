@@ -15,7 +15,6 @@
 | 팀장, BackEnd, Infra | BackEnd, AI | BackEnd | UI/UX, Android | Android | Android |
 
 
-<br>
 <h3>📣 기획 배경</h3>
 
 기존의 가족 앱은 주로 일정 관리나 기록에 초점이 맞춰져있습니다.<br>
@@ -28,15 +27,9 @@
 <h2 align="center" padding: 5px;">서비스 및 기능 소개</h2>
 <h3>🔐 로그인 및 회원가입</h3>
 
-| <div align="center">**로그인 화면 1**</div> | <div align="center">**로그인 화면 2**</div> | <div align="center">**로그인 화면 3**</div> | <div align="center">**로그인 화면 4**</div> |
-| :---: | :---: | :---: | :---: |
-| <img src="readme_img/로그인 및 회원가입/로그인 화면1.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/로그인 화면2.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/로그인 화면3.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/로그인 화면4.jpg" width="200"> |
-
-<br>
-
-| <div align="center">**가족 코드 입력**</div> | <div align="center">**회원가입**</div> |
-| :---: | :---: |
-| <img src="readme_img/로그인 및 회원가입/가족 코드 입력.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/회원가입.gif" width="200"> | 
+| <div align="center">**로그인 화면 1**</div> | <div align="center">**로그인 화면 2**</div> | <div align="center">**로그인 화면 3**</div> | <div align="center">**로그인 화면 4**</div> | <div align="center">**가족 코드 입력**</div> | <div align="center">**회원가입**</div> |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| <img src="readme_img/로그인 및 회원가입/로그인 화면1.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/로그인 화면2.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/로그인 화면3.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/로그인 화면4.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/가족 코드 입력.jpg" width="200"> | <img src="readme_img/로그인 및 회원가입/회원가입.gif" width="200"> | 
 
 <br>
 
