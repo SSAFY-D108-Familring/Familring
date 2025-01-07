@@ -11,7 +11,7 @@
 
 | ![김민경](https://avatars.githubusercontent.com/u/101406317?v=4) | ![권오윤](https://avatars.githubusercontent.com/u/73385666?v=4) | ![윤가희](https://avatars.githubusercontent.com/u/72852508?v=4) | ![이나경](https://avatars.githubusercontent.com/u/68213689?v=4) | ![이현진](https://avatars.githubusercontent.com/u/48899088?v=4) | ![최승준](https://avatars.githubusercontent.com/u/117347226?v=4) |
 | :---: | :---: | :---: | :---: | :---: | :---: |
-| [김민경](https://github.com/Eunice991217) | [권오윤](https://github.com/bulbasaur232) | [윤가희](https://github.com/0ct25th) |  [이나경](https://github.com/nakyung128) |  [이현진](https://github.com/dlguswls456) | [최승준](https://github.com/csjcozy) |
+| [김민경](https://github.com/Eunice991217) | [권오윤](https://github.com/bulbasaur232) | [윤가희](https://github.com/0ct25th) |  [이나경](https://github.com/nakyung128) |  [이현진](https://github.com/dlguswls456) | [최승준](https://github.com/seungjun9999) |
 | 팀장, BackEnd, Infra | BackEnd, AI | BackEnd | UI/UX, Android | Android | Android |
 
 
